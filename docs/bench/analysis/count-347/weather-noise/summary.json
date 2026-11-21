@@ -1,0 +1,2219 @@
+{
+ "what": "A48・A49 の数(count_run.py・probe_paths.py の出力の要約)",
+ "configs": [
+  {
+   "config": "w6_v3_default",
+   "final16": "c8d68704b7b0760d",
+   "calls": 60939,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 280,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 60939
+    }
+   },
+   "cell_block_calls": 4921,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 26,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 8,
+      "woken_called_alone": 4,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 26,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 8,
+      "woken_called_alone": 4,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3+11": 1,
+      "4": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 92,
+     "cells_noise_and_other": 4,
+     "total": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 202,
+      "suppressed_sleep": 28,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 81,
+      "woken_called_alone": 41,
+      "woken_called_with_other_rows": 40,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 312,
+      "dropped_before_arbiter": 201,
+      "suppressed_sleep": 27,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 81,
+      "woken_called_alone": 41,
+      "woken_called_with_other_rows": 40,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 2,
+      "dropped_before_arbiter": 1,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "11": 3,
+      "3": 8,
+      "3+11": 7,
+      "3+5": 5,
+      "4": 1,
+      "5": 16
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_v3_activity_off",
+   "final16": "ba35651c9a16bc7b",
+   "calls": 44209,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 271,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 44209
+    }
+   },
+   "cell_block_calls": 15601,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 187,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 150,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 35,
+      "woken_called_alone": 31,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 187,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 150,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 35,
+      "woken_called_alone": 31,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3": 1,
+      "4": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 94,
+     "cells_noise_and_other": 2,
+     "total": {
+      "agents_in_cells": 295,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 7,
+      "suppressed_refractory": 22,
+      "suppressed_outside": 0,
+      "woken_called": 266,
+      "woken_called_alone": 236,
+      "woken_called_with_other_rows": 30,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 294,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 7,
+      "suppressed_refractory": 21,
+      "suppressed_outside": 0,
+      "woken_called": 266,
+      "woken_called_alone": 236,
+      "woken_called_with_other_rows": 30,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 27,
+      "4": 2,
+      "5": 1
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_v1_default",
+   "final16": "7bed32bd4af97c2a",
+   "calls": 45735,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 273,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 45735
+    }
+   },
+   "cell_block_calls": 15824,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 184,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3": 1,
+      "4": 1,
+      "5": 2
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 317,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 296,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 295,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 28,
+      "3+5": 1,
+      "4": 2,
+      "5": 10
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_v1_derive_v2_1",
+   "final16": "f46687d5aae54d30",
+   "calls": 40325,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 272,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 40325
+    }
+   },
+   "cell_block_calls": 14669,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 177,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 27,
+      "woken_called_alone": 25,
+      "woken_called_with_other_rows": 2,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 176,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 27,
+      "woken_called_alone": 25,
+      "woken_called_with_other_rows": 2,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 1,
+      "5": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 92,
+     "cells_noise_and_other": 4,
+     "total": {
+      "agents_in_cells": 290,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 272,
+      "woken_called_alone": 236,
+      "woken_called_with_other_rows": 36,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 288,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 272,
+      "woken_called_alone": 236,
+      "woken_called_with_other_rows": 36,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 2,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 29,
+      "4": 1,
+      "5": 6
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_v2",
+   "final16": "6531a266225061cb",
+   "calls": 47629,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 270,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 47629
+    }
+   },
+   "cell_block_calls": 16400,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "4": 1,
+      "5": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 326,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 22,
+      "suppressed_outside": 0,
+      "woken_called": 303,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 323,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 20,
+      "suppressed_outside": 0,
+      "woken_called": 302,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 31,
+      "3+5": 2,
+      "4": 3,
+      "5": 12
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_v1_edge",
+   "final16": "0e4b194512b22c9b",
+   "calls": 45735,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 273,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 45735
+    }
+   },
+   "cell_block_calls": 15824,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 184,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3": 1,
+      "4": 1,
+      "5": 2
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 317,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 296,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 295,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 28,
+      "3+5": 1,
+      "4": 2,
+      "5": 10
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_v2_edge",
+   "final16": "8cb2e2713ff7c1e5",
+   "calls": 47629,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 270,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 47629
+    }
+   },
+   "cell_block_calls": 16400,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "4": 1,
+      "5": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 326,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 22,
+      "suppressed_outside": 0,
+      "woken_called": 303,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 323,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 20,
+      "suppressed_outside": 0,
+      "woken_called": 302,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 31,
+      "3+5": 2,
+      "4": 3,
+      "5": 12
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_v1_edge_plateau",
+   "final16": "0e4b194512b22c9b",
+   "calls": 45735,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 273,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 45735
+    }
+   },
+   "cell_block_calls": 15824,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 184,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3": 1,
+      "4": 1,
+      "5": 2
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 317,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 296,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 295,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 28,
+      "3+5": 1,
+      "4": 2,
+      "5": 10
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_old_v1_default",
+   "final16": "0a9bf5f060dcad48",
+   "calls": 45735,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 273,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 45735
+    }
+   },
+   "cell_block_calls": 15824,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 184,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3": 1,
+      "4": 1,
+      "5": 2
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 317,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 296,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 295,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 28,
+      "3+5": 1,
+      "4": 2,
+      "5": 10
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_old_v1_derive_v2_1",
+   "final16": "b3236da240ced8d0",
+   "calls": 40325,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 272,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 40325
+    }
+   },
+   "cell_block_calls": 14669,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 177,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 27,
+      "woken_called_alone": 25,
+      "woken_called_with_other_rows": 2,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 176,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 27,
+      "woken_called_alone": 25,
+      "woken_called_with_other_rows": 2,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 1,
+      "5": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 92,
+     "cells_noise_and_other": 4,
+     "total": {
+      "agents_in_cells": 290,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 272,
+      "woken_called_alone": 236,
+      "woken_called_with_other_rows": 36,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 288,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 272,
+      "woken_called_alone": 236,
+      "woken_called_with_other_rows": 36,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 2,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 29,
+      "4": 1,
+      "5": 6
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_old_v2",
+   "final16": "d328cbfde2e62a9a",
+   "calls": 47629,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 270,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 47629
+    }
+   },
+   "cell_block_calls": 16400,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "4": 1,
+      "5": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 326,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 22,
+      "suppressed_outside": 0,
+      "woken_called": 303,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 323,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 20,
+      "suppressed_outside": 0,
+      "woken_called": 302,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 31,
+      "3+5": 2,
+      "4": 3,
+      "5": 12
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_old_v1_edge",
+   "final16": "b88739d611d970f2",
+   "calls": 45735,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 273,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 45735
+    }
+   },
+   "cell_block_calls": 15824,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 184,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3": 1,
+      "4": 1,
+      "5": 2
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 317,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 296,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 295,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 28,
+      "3+5": 1,
+      "4": 2,
+      "5": 10
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_old_v2_edge",
+   "final16": "722d68383f9ee63f",
+   "calls": 47629,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 270,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 47629
+    }
+   },
+   "cell_block_calls": 16400,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 190,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 38,
+      "woken_called_alone": 34,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "4": 1,
+      "5": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 326,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 22,
+      "suppressed_outside": 0,
+      "woken_called": 303,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 323,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 20,
+      "suppressed_outside": 0,
+      "woken_called": 302,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 48,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 31,
+      "3+5": 2,
+      "4": 3,
+      "5": 12
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_old_v1_edge_plateau",
+   "final16": "b88739d611d970f2",
+   "calls": 45735,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 273,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 45735
+    }
+   },
+   "cell_block_calls": 15824,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 184,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 148,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 34,
+      "woken_called_alone": 28,
+      "woken_called_with_other_rows": 6,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 1,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3": 1,
+      "4": 1,
+      "5": 2
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 317,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 17,
+      "suppressed_outside": 0,
+      "woken_called": 296,
+      "woken_called_alone": 255,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 4,
+      "suppressed_refractory": 15,
+      "suppressed_outside": 0,
+      "woken_called": 295,
+      "woken_called_alone": 254,
+      "woken_called_with_other_rows": 41,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 3,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 2,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 28,
+      "3+5": 1,
+      "4": 2,
+      "5": 10
+     }
+    }
+   }
+  },
+  {
+   "config": "w6_golden_null_arm",
+   "final16": "2875768fc19e02e8",
+   "calls": 95645,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 287,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 95645
+    }
+   },
+   "cell_block_calls": 31575,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 688,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 613,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 72,
+      "woken_called_alone": 52,
+      "woken_called_with_other_rows": 20,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 688,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 613,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 72,
+      "woken_called_alone": 52,
+      "woken_called_with_other_rows": 20,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 4,
+      "4": 2,
+      "5": 14
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 434,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 99,
+      "suppressed_refractory": 55,
+      "suppressed_outside": 0,
+      "woken_called": 280,
+      "woken_called_alone": 220,
+      "woken_called_with_other_rows": 60,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 434,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 99,
+      "suppressed_refractory": 55,
+      "suppressed_outside": 0,
+      "woken_called": 280,
+      "woken_called_alone": 220,
+      "woken_called_with_other_rows": 60,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "3": 30,
+      "3+5": 3,
+      "4": 1,
+      "5": 26
+     }
+    }
+   }
+  },
+  {
+   "config": "v3_mem_store",
+   "final16": "2df5703f853f18d4",
+   "calls": 60939,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 280,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 60939
+    }
+   },
+   "cell_block_calls": 4921,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 26,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 8,
+      "woken_called_alone": 4,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 26,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 8,
+      "woken_called_alone": 4,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3+11": 1,
+      "4": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 92,
+     "cells_noise_and_other": 4,
+     "total": {
+      "agents_in_cells": 314,
+      "dropped_before_arbiter": 202,
+      "suppressed_sleep": 28,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 81,
+      "woken_called_alone": 41,
+      "woken_called_with_other_rows": 40,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 312,
+      "dropped_before_arbiter": 201,
+      "suppressed_sleep": 27,
+      "suppressed_refractory": 3,
+      "suppressed_outside": 0,
+      "woken_called": 81,
+      "woken_called_alone": 41,
+      "woken_called_with_other_rows": 40,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 2,
+      "dropped_before_arbiter": 1,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "11": 3,
+      "3": 8,
+      "3+11": 7,
+      "3+5": 5,
+      "4": 1,
+      "5": 16
+     }
+    }
+   }
+  },
+  {
+   "config": "v3_mem_rel",
+   "final16": "477e22fcaed2590a",
+   "calls": 63519,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 281,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 63519
+    }
+   },
+   "cell_block_calls": 5041,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 95,
+     "cells_noise_and_other": 1,
+     "total": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 26,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 8,
+      "woken_called_alone": 4,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 183,
+      "dropped_before_arbiter": 26,
+      "suppressed_sleep": 149,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 8,
+      "woken_called_alone": 4,
+      "woken_called_with_other_rows": 4,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 2,
+      "3+11": 1,
+      "4": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 91,
+     "cells_noise_and_other": 5,
+     "total": {
+      "agents_in_cells": 319,
+      "dropped_before_arbiter": 222,
+      "suppressed_sleep": 25,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 72,
+      "woken_called_alone": 36,
+      "woken_called_with_other_rows": 36,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 311,
+      "dropped_before_arbiter": 215,
+      "suppressed_sleep": 24,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 72,
+      "woken_called_alone": 36,
+      "woken_called_with_other_rows": 36,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 8,
+      "dropped_before_arbiter": 7,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "11": 2,
+      "3": 7,
+      "3+11": 7,
+      "3+5": 4,
+      "4": 1,
+      "4+11": 1,
+      "5": 14
+     }
+    }
+   }
+  },
+  {
+   "config": "v3_classical",
+   "final16": "5be0188ea16db82c",
+   "calls": 89941,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 286,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 89941
+    }
+   },
+   "cell_block_calls": 8012,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 191,
+      "dropped_before_arbiter": 31,
+      "suppressed_sleep": 156,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 4,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 3,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 191,
+      "dropped_before_arbiter": 31,
+      "suppressed_sleep": 156,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 4,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 3,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 1,
+      "3": 1,
+      "4": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 79,
+     "cells_noise_and_other": 17,
+     "total": {
+      "agents_in_cells": 270,
+      "dropped_before_arbiter": 241,
+      "suppressed_sleep": 10,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 18,
+      "woken_called_alone": 5,
+      "woken_called_with_other_rows": 13,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 221,
+      "dropped_before_arbiter": 195,
+      "suppressed_sleep": 8,
+      "suppressed_refractory": 1,
+      "suppressed_outside": 0,
+      "woken_called": 17,
+      "woken_called_alone": 5,
+      "woken_called_with_other_rows": 12,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 49,
+      "dropped_before_arbiter": 46,
+      "suppressed_sleep": 2,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 1,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 1,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "11": 5,
+      "3": 4,
+      "3+11": 1,
+      "3+5": 1,
+      "4": 1
+     }
+    }
+   }
+  },
+  {
+   "config": "v3_classical_mem_rel",
+   "final16": "ea3047ab705ac9e2",
+   "calls": 100942,
+   "final_matches_bytecheck": true,
+   "calls_matches_bytecheck": true,
+   "replay_date": "2026-07-13",
+   "a48": {
+    "weather_calls_loaded": 286,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 100942
+    }
+   },
+   "cell_block_calls": 8523,
+   "a49": {
+    "360": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 96,
+     "cells_noise_and_other": 0,
+     "total": {
+      "agents_in_cells": 191,
+      "dropped_before_arbiter": 31,
+      "suppressed_sleep": 156,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 4,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 3,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 191,
+      "dropped_before_arbiter": 31,
+      "suppressed_sleep": 156,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 4,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 3,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 0,
+      "dropped_before_arbiter": 0,
+      "suppressed_sleep": 0,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 0,
+      "woken_called_alone": 0,
+      "woken_called_with_other_rows": 0,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "2": 1,
+      "3": 1,
+      "4": 1
+     }
+    },
+    "1320": {
+     "cells_noise_changed": 96,
+     "cells_noise_only": 83,
+     "cells_noise_and_other": 13,
+     "total": {
+      "agents_in_cells": 280,
+      "dropped_before_arbiter": 251,
+      "suppressed_sleep": 11,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 18,
+      "woken_called_alone": 5,
+      "woken_called_with_other_rows": 13,
+      "deferred": 0
+     },
+     "only": {
+      "agents_in_cells": 232,
+      "dropped_before_arbiter": 207,
+      "suppressed_sleep": 10,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 15,
+      "woken_called_alone": 4,
+      "woken_called_with_other_rows": 11,
+      "deferred": 0
+     },
+     "mixed": {
+      "agents_in_cells": 48,
+      "dropped_before_arbiter": 44,
+      "suppressed_sleep": 1,
+      "suppressed_refractory": 0,
+      "suppressed_outside": 0,
+      "woken_called": 3,
+      "woken_called_alone": 1,
+      "woken_called_with_other_rows": 2,
+      "deferred": 0
+     },
+     "other_conditions_of_overlap": {
+      "11": 4,
+      "3": 5,
+      "3+5": 1,
+      "4": 1
+     }
+    }
+   }
+  }
+ ],
+ "probes": [
+  {
+   "name": "p1_noproc_default_date",
+   "kw": {
+    "vocab_version": "v3",
+    "processes": false
+   },
+   "world": "data/world/v2",
+   "replay_date": "",
+   "start_sim_datetime": "2026-07-13T00:00:00",
+   "a48": {
+    "weather_calls_loaded": 228,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "calendar_date": 1754
+    }
+   }
+  },
+  {
+   "name": "p2_noproc_outside_window",
+   "kw": {
+    "vocab_version": "v3",
+    "processes": false,
+    "start_sim_datetime": "2026-09-14"
+   },
+   "world": "data/world/v2",
+   "replay_date": "",
+   "start_sim_datetime": "2026-09-14T00:00:00",
+   "a48": {
+    "weather_calls_loaded": 228,
+    "weather_fallback_loaded": 228,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {
+     "loaded|2026-09-14": 228
+    },
+    "time_view_path": {
+     "calendar_date": 1754
+    }
+   }
+  },
+  {
+   "name": "p3_proc_outside_window",
+   "kw": {
+    "vocab_version": "v3",
+    "start_sim_datetime": "2026-09-14"
+   },
+   "world": "data/world/v2",
+   "replay_date": "2025-11-10",
+   "start_sim_datetime": "2026-09-14T00:00:00",
+   "a48": {
+    "weather_calls_loaded": 230,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 1778
+    }
+   }
+  },
+  {
+   "name": "p4_synthetic_world_proc",
+   "kw": {
+    "vocab_version": "v3"
+   },
+   "world": "synthetic(None)",
+   "replay_date": "",
+   "start_sim_datetime": "2026-07-13T00:00:00",
+   "a48": {
+    "weather_calls_loaded": 0,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 228,
+    "weather_fallback_synthetic": 228,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {
+     "synthetic|2026-07-13": 228
+    },
+    "time_view_path": {
+     "calendar_date": 2678
+    }
+   }
+  },
+  {
+   "name": "p5_synthetic_world_noproc",
+   "kw": {
+    "vocab_version": "v3",
+    "processes": false
+   },
+   "world": "synthetic(None)",
+   "replay_date": "",
+   "start_sim_datetime": "2026-07-13T00:00:00",
+   "a48": {
+    "weather_calls_loaded": 0,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 228,
+    "weather_fallback_synthetic": 228,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {
+     "synthetic|2026-07-13": 228
+    },
+    "time_view_path": {
+     "calendar_date": 2517
+    }
+   }
+  },
+  {
+   "name": "p6_proc_weather_perturb",
+   "kw": {
+    "vocab_version": "v3",
+    "weather_perturb": true
+   },
+   "world": "data/world/v2",
+   "replay_date": "2026-07-30",
+   "start_sim_datetime": "2026-07-13T00:00:00",
+   "a48": {
+    "weather_calls_loaded": 229,
+    "weather_fallback_loaded": 0,
+    "weather_calls_synthetic": 0,
+    "weather_fallback_synthetic": 0,
+    "fallback_default_tuple": 0,
+    "fallback_keys": {},
+    "time_view_path": {
+     "words_fn": 2088
+    }
+   }
+  }
+ ]
+}

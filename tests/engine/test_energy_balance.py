@@ -15,14 +15,16 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import ENERGY_FIELDS, Activity, ActivityKind, AgentKind, AgentState
-from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
-from shibuya.engine import energy as E
-from shibuya.engine import resolve as R
-from shibuya.engine.change_detect import ChangeDetector
-from shibuya.perception import templates as T
-from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import ENERGY_FIELDS, Activity, ActivityKind, AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
+from shibuya.world.body import energy as E
+from shibuya.act.ops import body_writes as R
+from shibuya.mind.system1.change_detect import ChangeDetector
+from shibuya.foundation.text import templates as T
+from shibuya.mind.percept.draw import Renderer
+from shibuya.world.model.state import World
+from tests import _places as _PL
 
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ(旧値の腕 validation と検証側の錨を読む口は消した=前は 2 本を
 # 合わせて読み、第 18-1 表の 1 つの既定の時刻で前の版の値を確かめた)。既定の時刻を全員 1 つの値にする試験は
@@ -236,7 +238,7 @@ def test_stage_edges_and_hunger_copy():
     np.testing.assert_array_equal(st, [0, 0, 1, 1, 2, 2, 3])
     np.testing.assert_array_equal(E.EnergyModel.hunger_copy(np.arange(4)), [1, 5, 8, 10])
     # 写しは INTERO_UP_EDGES=(4,7,9) の段 0〜3 にそのまま対応する
-    from shibuya.engine.change_detect import INTERO_UP_EDGES
+    from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES
 
     for s, v in enumerate(E.HUNGER_STAGE_VALUES):
         assert sum(v >= e for e in INTERO_UP_EDGES) == s
@@ -446,36 +448,54 @@ def test_hunger_words_live_in_the_templates():
 
 # ================================================================= P4(配列演算だけ)
 _PER_TICK = {
-    "engine/energy.py": ("mets_of", "expenditure", "stage_of", "hunger_copy", "meal_share_of",
+    "world/body/energy.py": ("mets_of", "expenditure", "stage_of", "hunger_copy", "meal_share_of",
                          "meal_share_for_slot", "snack_share_of", "due", "after_tick", "note"),
-    "engine/resolve.py": ("advance_body", "_energy_meal", "energy_out_of_area_meal"),
 }
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の毎刻み通る関数(名で関数の定義のファイルを引く=割った後は割り先へ。字面の道は
+#: 割る道具が主な割り先へだけ書き換えるので、2 つ目以降の割り先へ移った関数が黙って外れていた)。
+_PER_TICK_RESOLVE = ("advance_body", "_energy_meal", "energy_out_of_area_meal")
+
+
+def _per_tick_paths() -> dict[str, tuple[str, ...]]:
+    """調べるファイル → 名。resolve の名は、名を定義する今のファイルを対応表から引く(割る前は ``engine/resolve.py`` の 1 本)。"""
+    out = dict(_PER_TICK)
+    for rel in _PL.split_files("engine/resolve.py", _PER_TICK_RESOLVE):
+        out[rel] = out.get(rel, ()) + _PER_TICK_RESOLVE
+    return out
 
 
 def test_per_tick_paths_have_no_python_loops():
-    """P4: 毎 tick 通る関数に for/while を書かない(体数ぶんの逐次ループを新設しない)。"""
+    """P4: 毎 tick 通る関数に for/while を書かない(体数ぶんの逐次ループを新設しない)。名が全部見つかること(空回りしない)も。"""
     offenders = []
-    for rel, names in _PER_TICK.items():
+    found: set[str] = set()
+    for rel, names in _per_tick_paths().items():
         tree = ast.parse((SRC / rel).read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in names:
+                found.add(node.name)
                 for sub in ast.walk(node):
                     if isinstance(sub, (ast.For, ast.While)):
                         offenders.append(f"{rel}:{node.name}:{sub.lineno}")
     assert not offenders, offenders
-    assert "逐次ループ宣言" in (SRC / "engine/energy.py").read_text(encoding="utf-8")
+    assert found == {n for names in _per_tick_paths().values() for n in names}, "毎刻みの関数が見つからない(空回り)"
+    assert "逐次ループ宣言" in (SRC / "world/body/energy.py").read_text(encoding="utf-8")
 
 
 # ================================================================= ラン(合成世界・小)
-def test_run_day_default_is_v1_and_energy_is_an_arm():
-    from shibuya.engine.run import run_day
+def test_run_day_default_is_energy_and_v1_is_only_for_tests(monkeypatch):
+    """〔Q13・第347〕ライブラリの既定は energy(CLI と同じ)。旧規則 v1 はランの口からは止め、試験の中だけの口で通る。"""
+    from shibuya.runtime.run import run_day
+    from tests.engine.body._hunger_v1 import hunger_v1
 
     kw = dict(n_agents=60, seed=2, ticks=120)
     base = run_day(**kw)
-    v1 = run_day(hunger_model="v1", **kw)
     en = run_day(hunger_model="energy", **kw)
-    assert base.hunger_model == "v1" and base.energy == {}
-    assert base.final_hash == v1.final_hash
+    assert base.hunger_model == "energy" and base.final_hash == en.final_hash
+    with pytest.raises(ValueError, match="試験の中だけの口"):
+        run_day(hunger_model="v1", **kw)
+    hunger_v1(monkeypatch)
+    v1 = run_day(hunger_model="v1", **kw)
+    assert v1.hunger_model == "v1" and v1.energy == {}
     assert en.final_hash != v1.final_hash
     m = en.run_manifest_fields()
     assert m["hunger_model"] == "energy" and m["energy_rate"] == "eer"
@@ -498,18 +518,23 @@ def test_run_day_default_is_v1_and_energy_is_an_arm():
 
 
 def test_bmr_arm_runs_and_is_recorded():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=40, seed=2, ticks=60, hunger_model="energy", energy_rate="bmr")
     assert res.run_manifest_fields()["energy"]["rate"] == "bmr"
 
 
-def test_cli_default_hunger_model_is_energy():
-    from shibuya import cli
+def test_cli_default_hunger_model_is_energy(monkeypatch):
+    from shibuya.interfaces.cli import main as cli
+    from tests.engine.body._hunger_v1 import hunger_v1
 
     assert cli.CLI_DEFAULT_HUNGER_MODEL == "energy"
     res = cli.run(n_agents=40, seed=2, world_dir=None, ticks=60, use_population=False)
     assert res.hunger_model == "energy"
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     res1 = cli.run(n_agents=40, seed=2, world_dir=None, ticks=60, use_population=False,
                    hunger_model="v1")
     assert res1.hunger_model == "v1" and res1.final_hash != res.final_hash
+    # 〔Q13〕試験の中だけの口で回した空腹 v1 のランは、cli.run のランの種類で腕に数える(引数が CLI の既定 energy と違う)
+    assert cli.run_arms({"hunger_model": "v1", "use_population": True, "store_capital_yen": None,
+                         "l4_scale": 0.0}) == ("hunger_model",)

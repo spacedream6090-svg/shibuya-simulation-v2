@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.manifest.world_catalog import load_world_catalog, verify_frozen
-from shibuya.world.processes import constitution as C
-from shibuya.world.processes import first_batch as FB
-from shibuya.world.processes.records import Executor, ProcessKind
-from shibuya.world.processes.relations import Realizes
+from shibuya.world.ledger.world_catalog import load_world_catalog, verify_frozen
+from shibuya.world.ledger import constitution as C
+from shibuya.world.ledger import first_batch as FB
+from shibuya.world.ledger.records import Executor, ProcessKind
+from shibuya.world.ledger.relations import Realizes
 
 
 @pytest.fixture(scope="module")

@@ -41,7 +41,7 @@ from typing import Any, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.time_consts import SECONDS_PER_MINUTE
+from shibuya.foundation.time_consts import SECONDS_PER_MINUTE
 
 from ..pop.attr_fns import W16_EMPLOYMENT_OF, walk_seconds
 from . import w20_calendar_1a as W

@@ -44,7 +44,7 @@ from typing import Any, Final
 import numpy as np
 import pyarrow as pa
 
-from shibuya.core.rng import stream
+from shibuya.foundation.rng import stream
 
 from ..geo import common as C
 from . import fitting as F

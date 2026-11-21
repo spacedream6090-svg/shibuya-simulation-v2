@@ -22,10 +22,11 @@ import numpy as np
 import pytest
 
 from shibuya.economy import taxes as TX
-from shibuya.engine import economy_rules as ER
+from shibuya.economy import rules_bind as ER
 
 ASOF = "2026-08-25"
-#: 〔第 4 期 4-2b〕本書は 4-2 の値(腕 ``SHIBUYA_RULES_42B=off``=旧道)の手計算をそのまま通す。4-2b の値(基礎控除・調整控除・
+#: 〔第 4 期 4-2b〕本書は 4-2 の値(``r42b=False``=部品の単体試験の基準の口・〔第346〕ランの切替口は消した)の手計算をそのまま
+#: 通す。4-2b の値(基礎控除・調整控除・
 #: 非課税・年齢の上限・子ども・子育て拠出金)は ``test_rules42b_payroll.py``。
 R42B = False
 
@@ -113,7 +114,7 @@ def test_rows_not_in_force_give_zero():
     t = TX.payroll_tables("2026-05-25", r42b=R42B)  # 住民税の令和 8 年度の行は 6 月から
     assert int(TX.resident_tax_monthly(np.array([300_000]), t)[0]) == 0
     # 〔検収 L5〕雇用保険の率の適用期間(〜2027-03-31)の後は黙って 0 にせず止まる
-    from shibuya.engine.rules import table as RT
+    from shibuya.world.facts.rules import table as RT
 
     with pytest.raises(RT.RuleNotInForce):
         TX.payroll_tables("2027-04-25", r42b=R42B)
@@ -155,7 +156,7 @@ def test_outside_employer_rows_are_enrolled_as_full_time():
 
 def test_lower_bound_rows_stop_before_the_bound():
     """〔検収 L5〕下限の印の行を下限より前に引くと止まる(施行の前の普通の行は None のまま)。"""
-    from shibuya.engine.rules import table as RT
+    from shibuya.world.facts.rules import table as RT
 
     with pytest.raises(RT.RuleNotInForce):
         TX.total_volume_cap("2020-01-01")

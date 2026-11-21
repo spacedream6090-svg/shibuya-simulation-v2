@@ -1,0 +1,926 @@
+# tests/tools
+
+自動生成(手で編集しない): `python tools/repo_guide/build.py`
+
+Python 26 本・その他 0 本(このディレクトリの直下)
+
+## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
+
+第340 段 2 の 6: 「無いと宣言」の一覧の計器(tools/instruments/absent_declarations.py)。
+
+- 公開の関数とクラス
+  - `gauge`(関数)
+  - `test_fingerprint_moves_when_a_declaration_changes`(関数)
+  - `test_record_matches_the_current_output`(関数)
+  - `test_render_is_deterministic_and_lists_every_declaration`(関数)
+- 決定の ID: 11-01/§10-3・11-02r/§1・11-02r/§1 #7・第 340
+
+## [test_anchor_gauge.py](../../../../../../tests/tools/test_anchor_gauge.py)
+
+tools/instruments/anchor_gauge.py(第 2 期 2-0・較正側の錨の計器)の試験。
+
+- 公開の関数とクラス
+  - `G`(関数)
+  - `RG`(関数)
+  - `test_arrays_hash_ignores_meta_and_record_tracking`(関数)
+  - `test_arrivals_table_counts_transitions_by_direction`(関数)
+  - `test_daily_dwell_sum_vs_continuous`(関数)
+  - `test_deny_hit_raw_first_does_not_touch_fs`(関数)
+  - `test_dist_stats_weighted`(関数)
+  - `test_duty_open_anchor_matches_w17_v2_draw`(関数): 錨 1 は W17 v2 の勤務窓(trial.draw_windows=第 31 表の逆関数法+arrival_lead)と同じ値。
+  - `test_expansion_factors_restore_kind_mix`(関数)
+  - `test_first_work_run_skips_overnight_and_short`(関数)
+  - `test_four_quantities_deterministic_on_synthetic_record`(関数)
+  - `test_gauge_rejects_journal_outside_list`(関数)
+  - `test_gauge_writes_outputs_reads_only_listed_and_compare`(関数)
+  - `test_guard_rejects_sealed_path_before_reading`(関数)
+  - `test_guard_rejects_unlisted_and_audit_hook`(関数)
+  - `test_make_guard_rejects_sealed_and_renamed_inputs`(関数)
+  - `test_order_compare_ignores_separator_and_zero_change_text`(関数)
+  - `test_population_masks_use_is_foreign_and_age`(関数)
+  - `test_presence_theta_and_hour_axis_24_to_28`(関数)
+  - `test_ratio_block_area_attribute_and_foreign_column`(関数)
+  - `test_real_record_is_invariant_and_gauge_runs`(関数): 記録器を付けても final と呼数は同じ(エンジン不変)・2 腕の計器が 4 つの量を出す。
+  - `test_real_static_anchors`(関数)
+  - `test_rise_slot`(関数)
+  - `test_theta_compared_in_seconds`(関数): θ は分で受けて秒で比べる(刻みが 30 秒なら 20 刻み=10 分)。
+  - `test_time_dist_open_bins_follow_w12`(関数)
+- import している内部モジュール: `shibuya.build.sched.trial`
+- 決定の ID: R-115・第 337
+
+## [test_anchor_gauge_meal_mark.py](../../../../../../tests/tools/test_anchor_gauge_meal_mark.py)
+
+2-0 の計器の「第 18-1 表と比べた食事時刻の結果」の印(小さな版上げ・回答 10-13b §7 の 2)。
+
+- 公開の関数とクラス
+  - `G`(関数)
+  - `test_mark_is_invalid_before_the_replacement_and_valid_after`(関数)
+  - `test_markdown_carries_the_mark`(関数)
+- 決定の ID: 10-13b/§7
+
+## [test_astsame.py](../../../../../../tests/tools/test_astsame.py)
+
+tools/bytecheck/astsame.py の試験(11-16 §1-12 の 2=文だけの直しの commit を AST で確かめる)。
+
+- 公開の関数とクラス
+  - `test_added_statement_is_structure`(関数)
+  - `test_changed_message_string_is_strings`(関数)
+  - `test_changed_number_is_structure`(関数)
+  - `test_check_over_a_small_git_repo`(関数)
+  - `test_doc_readers_are_counted`(関数)
+  - `test_docstring_and_comment_only_is_same`(関数)
+  - `test_exit_code_order`(関数)
+  - `test_removed_docstring_is_same`(関数)
+  - `test_string_that_is_not_a_docstring_counts`(関数)
+  - `test_strings_are_hidden_unless_show`(関数)
+  - `test_syntax_error_is_structure`(関数)
+- 決定の ID: 11-16/§1-12
+
+## [test_batch_width_gauge.py](../../../../../../tests/tools/test_batch_width_gauge.py)
+
+tools/instruments/batch_width_gauge.py(第 3 期 3-2・TM4 の既定の幅の試験の道具)の試験。
+
+- 公開の関数とクラス
+  - `G`(関数)
+  - `test_a_large_difference_is_outside_and_not_a_candidate`(関数)
+  - `test_bad_inputs_raise`(関数)
+  - `test_final_mismatch_blocks_the_candidate`(関数)
+  - `test_markdown_and_table_cli`(関数)
+  - `test_run_one_records_the_shape`(関数)
+  - `test_salt_width_is_the_salt_compare_width_base`(関数)
+  - `test_zero_difference_table_has_every_width_within_and_monotone`(関数)
+
+## [test_bytecheck.py](../../../../../../tests/tools/test_bytecheck.py)
+
+tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長いランも要らない(CI の ci-1 で回る)。
+
+- 公開の関数とクラス
+  - `clean_env`(関数)
+  - `fake`(関数)
+  - `old10e`(関数)
+  - `refs`(関数)
+  - `stop_before_copy`(関数): 断るはずの run が先へ進んだら、写しの木もつなぎも作らずに落とす(壊れた道具でもリポや data に触れない)。
+  - `test_all19_is_the_old_table`(関数): 19 構成は前の道具の表と同じ並びと引数。〔第347・Q13-5 (b)〕違いは 1 つだけ: golden の帰無腕 ``w6_golden_null_arm`` に
+  - `test_all19_matches_the_v30a_record`(関数)
+  - `test_archive_paths`(関数)
+  - `test_arrow_schema_sees_types_nullability_and_metadata`(関数)
+  - `test_audit_hook_records_opens`(関数)
+  - `test_checkpoint_rows_keep_every_field`(関数)
+  - `test_classify_reads`(関数)
+  - `test_cli_exit_codes`(関数)
+  - `test_compare_condition_mismatch_is_2`(関数): 検収 M3: 体数・seed・組・切替口・引数・世界・ハッシュを弱める口・PYTHONHASHSEED が違えば値が同じでも誤り。
+  - `test_compare_config_only_in_b_is_2`(関数)
+  - `test_compare_each_new_key_moves`(関数)
+  - `test_compare_errors_are_2_even_when_values_match`(関数)
+  - `test_compare_ignores_the_fleet_key_in_hidden_env`(関数)
+  - `test_compare_json_has_no_absolute_path`(関数)
+  - `test_compare_keys_are_the_25_of_10e`(関数)
+  - `test_compare_lacking_25_keys_is_2`(関数): 検収 M3: 25 欄が両側とも欠けた行・片側だけ欠けた行は誤り。
+  - `test_compare_manifest_and_run_meta_name_the_moved_fields`(関数)
+  - `test_compare_moved_and_error_is_2`(関数)
+  - `test_compare_moved_is_1_and_names_the_field`(関数)
+  - `test_compare_nan_is_same_and_type_change_moves`(関数): 検収 L6: NaN は「動いた」にしない。0 と 0.0 は違う値。
+  - `test_compare_reads_old_records_without_new_fields`(関数): 古い記録(新しい欄が無い)は 25 欄を比べて 0。新しい欄は「比べていない」と注を付け、同じとは数えない。strict なら 2。
+  - `test_compare_same_is_0_and_wall_clock_is_not_compared`(関数)
+  - `test_compare_with_no_configs_is_2`(関数): 検収 M3: 構成が 0 のまま「同じ」を返さない。
+  - `test_diff_and_named_moves`(関数)
+  - `test_engine_anchor_files_are_in_the_list`(関数)
+  - `test_every_shibuya_env_in_src_is_listed`(関数)
+  - `test_every_tracked_path_in_src_is_classified`(関数)
+  - `test_fake_extra_path_is_listed_and_outside_reads_are_recorded`(関数): 検収 M2: --extra-path で足したファイルは一覧に無いと数えない。検収 M4: 外で開いたファイルは記録する(誤りにしない)。
+  - `test_fake_one_reports_a_src_other_than_expected`(関数)
+  - `test_fake_read_above_the_tree_is_an_error`(関数)
+  - `test_fake_read_in_the_tool_repo_is_foreign`(関数)
+  - `test_fake_read_of_an_unlisted_tracked_file_is_an_error`(関数)
+  - `test_fake_side_runs_with_the_given_src`(関数)
+  - `test_fake_two_runs_differing_only_in_skipped_fields_are_same`(関数)
+  - `test_fake_variant_moves_exactly_the_expected_fields`(関数)
+  - `test_field_digest_ignores_only_the_skipped_fields`(関数)
+  - `test_git_archive_copy_and_tree_missing`(関数)
+  - `test_hash_functions_are_the_old_ones`(関数)
+  - `test_head_tree_files_cover_the_old_list`(関数)
+  - `test_listed_files_are_really_referenced_in_src`(関数)
+  - `test_listed_tracked_files_exist_and_are_tracked`(関数)
+  - `test_loaded_src_files_and_digest`(関数)
+  - `test_mask_paths_hides_repo_tree_home_and_python`(関数)
+  - `test_mask_paths_ignores_case_on_windows`(関数)
+  - `test_nan_survives_the_side_json_round_trip`(関数)
+  - `test_new_key_changes_cover_every_new_key`(関数)
+  - `test_new_keys_and_skip_lists_are_pinned`(関数): 比べるものと比べない欄の一覧を固定する(足す・外すは README とこの試験を一緒に直す)。
+  - `test_one_emits_every_field_of_10e_and_the_new_ones`(関数)
+  - `test_opened_outside`(関数)
+  - `test_package_metadata_reads_are_not_foreign`(関数): 第346 親: 本体から回したときの editable の名札の読みは「道具のリポを開いた」に数えない。
+  - `test_parent4_and_arms_sets`(関数)
+  - `test_place_and_remove_link_keeps_the_target`(関数)
+  - `test_readme_names_every_compared_and_skipped_field`(関数)
+  - `test_remove_link_refuses_a_real_directory_and_keeps_its_content`(関数)
+  - `test_removed_env_names_still_appear_in_src_as_the_stop`(関数): 〔第346〕消した切替口の名は src に残る(与えると読み込みで止める文)=SWITCH_ENV に戻さない。
+  - `test_resolve_run_takes_the_split_entry_when_it_exists`(関数): 〔割る段 5b の G0・E4・親の裁定 Q9 の (a)〕ランの入口: ``shibuya/interfaces/cli/main.py`` が在ればその ``run``、無ければ
+  - `test_root_reader_files_are_declared`(関数)
+  - `test_root_scanner_counts_the_paths_helpers`(関数): 〔移す段 2-2・検収 M5〕``core/paths.py`` の手伝い(``find_upward``・``module_dir``・``PACKAGE_ROOT``)で根を読む読み手も
+  - `test_run_checks_that_base_read_the_copy`(関数)
+  - `test_run_checks_the_src_digest_against_the_files`(関数): 検収 M1: 基準の側が読んだ src の digest が写しの木と違えば(比べる側も同じく)2。
+  - `test_run_does_not_compare_a_json_from_an_earlier_run`(関数): 検収 L5: side が JSON を書かずに戻ったとき、置き場に残った前のランの JSON と比べない。
+  - `test_run_gives_the_tree_src_to_base_and_the_given_src_to_work`(関数)
+  - `test_run_is_2_when_a_side_failed_even_if_values_match`(関数)
+  - `test_run_is_strict_about_missing_new_fields`(関数): run は両側を今の道具で回す=新しい欄が無ければ「比べていない」で済ませず 2(compare は strict)。
+  - `test_run_refuses_a_non_empty_work_dir`(関数)
+  - `test_run_refuses_a_work_dir_inside_a_git_worktree`(関数): 検収 M4: 写しの木が作業木の中にあると、根を上へ辿る読み口が作業木の docs を読む=断る。
+  - `test_run_refuses_stray_env_bad_commit_and_bad_kw`(関数)
+  - `test_same_value_is_canonical_json`(関数)
+  - `test_scanner_finds_the_l2_forms`(関数)
+  - `test_scanner_negative_control_finds_an_unlisted_read`(関数)
+  - `test_scanner_patterns`(関数)
+  - `test_side_stops_on_an_incomplete_tree_or_bad_kw_without_running`(関数)
+  - `test_sort_reads`(関数): 検収 M1(M08・M16)・M4: 写しの木の追跡ファイル・道具のリポ(src も)・写しの木の上の階・外を仕分ける。
+  - `test_strip_skipped_removes_only_the_named_fields`(関数)
+  - `test_switch_env_keeps_the_old_list_except_the_path_one_and_the_removed`(関数)
+  - `test_switch_env_records_values_and_hidden_names_only`(関数)
+  - `test_tape_files_and_sha256`(関数)
+  - `test_tree_label_and_mask_outside`(関数): 検収 L8: 比べる側(道具のリポ)の誤りの文は <repo>。外の道筋は <abs>/… にしてドライブを出さない。
+  - `test_worktree_commit_marks_dirty_tracked_reads`(関数): 検収 M1(M17)・L9: 作業木の src なら HEAD・src の外のエンジンが読む追跡ファイルの変更も +dirty に数える。
+  - `wave2`(関数)
+  - `wired`(関数)
+- import している内部モジュール: `shibuya.foundation.paths`・`tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
+- 決定の ID: 11-09/§2・第 346・第 347
+
+## [test_commit_check.py](../../../../../../tests/tools/test_commit_check.py)
+
+tools/commit_check.py(第330): 一覧の改行の正規化とステージとの突き合わせ。git を使わない部分だけを試す。
+
+- 公開の関数とクラス
+  - `cc`(関数)
+  - `test_bad_path_pattern_hits_absolute_paths_but_not_repo_paths`(関数)
+  - `test_compare_ok_when_sets_match_regardless_of_order`(関数)
+  - `test_compare_reports_missing_extra_and_dup`(関数)
+  - `test_normalize_handles_crlf_bom_blank_and_comment`(関数)
+  - `test_read_expect_from_crlf_file`(関数)
+- 決定の ID: 第 329・第 330
+
+## [test_deletion_candidates_ci.py](../../../../../../tests/tools/test_deletion_candidates_ci.py)
+
+tools/instruments/deletion_candidates_ci.py の試験(11-16 §1-3 の 5=削除候補を CI の出力に出す・落とさない)。
+
+- 公開の関数とクラス
+  - `test_candidates_do_not_fail_ci_and_names_are_printed`(関数)
+  - `test_docs_path_is_refused`(関数)
+  - `test_runs_on_the_real_registry_and_exits_zero`(関数)
+  - `test_same_rows_are_not_added_twice`(関数)
+- import している内部モジュール: `shibuya.world.ledger.constitution`
+- 決定の ID: 11-16/§1-3
+
+## [test_dm_eval.py](../../../../../../tests/tools/test_dm_eval.py)
+
+tools/instruments/dm_eval(第 6 期 6-1 判断モデルの評価の器・GPU の前の分)の試験。
+
+- 公開の関数とクラス
+  - `appeal_pairs`(関数)
+  - `appeal_result`(関数)
+  - `appeal_scenes`(関数)
+  - `g_result`(関数)
+  - `scenes`(関数)
+  - `syn_result`(関数)
+  - `test_agreement_is_zero_distance_against_itself`(関数)
+  - `test_appeal_columns_with_synthetic_scorers`(関数)
+  - `test_appeal_human_values_are_the_record_values`(関数)
+  - `test_appeal_measures_known_values`(関数)
+  - `test_appeal_pairs_differ_only_by_the_appeal_line`(関数)
+  - `test_appeal_pairs_reject_bad_rows`(関数)
+  - `test_appeal_scenes_md5_and_counts`(関数)
+  - `test_appeal_section_is_outside_the_golden_digest`(関数)
+  - `test_appeal_table_columns_and_blanks`(関数)
+  - `test_appeal_texts_arrive_unfiltered_and_without_numbers`(関数)
+  - `test_backend_failures_are_recorded_per_scene_and_do_not_stop_the_run`(関数)
+  - `test_backend_identifier_names_avoid_banned_words`(関数)
+  - `test_backend_scorers_position_bias_content_vs_positional`(関数)
+  - `test_backends_package_lazy_names`(関数)
+  - `test_blank_cells_carry_two_kinds_of_marks`(関数)
+  - `test_candidates_come_from_the_five_sources`(関数)
+  - `test_change_rate_formula`(関数)
+  - `test_classical_scorer_splits_same_kind_mass_and_ignores_order`(関数)
+  - `test_cli_main_appeal_matches_the_record`(関数)
+  - `test_cli_main_both`(関数)
+  - `test_cli_main_consumption`(関数)
+  - `test_cli_main_without_tape_experience`(関数)
+  - `test_compare_section_is_outside_the_golden_digest`(関数)
+  - `test_consumption_render_short_and_long`(関数)
+  - `test_consumption_scene_md5_mismatch_stops_reading`(関数)
+  - `test_consumption_scenes_md5_and_counts`(関数)
+  - `test_consumption_scenes_shape_and_new_words`(関数)
+  - `test_consumption_scenes_use_no_real_names`(関数)
+  - `test_content_only_scorers_have_zero_position_bias`(関数)
+  - `test_determinism_check_repeats`(関数)
+  - `test_evaluate_consumption_scenes`(関数)
+  - `test_evaluate_is_deterministic`(関数)
+  - `test_evaluate_with_g_reference_and_free_text`(関数)
+  - `test_first_number_control_is_detected`(関数)
+  - `test_free_text_explicit_other_is_not_breakdown`(関数)
+  - `test_free_text_kanji_numbers`(関数)
+  - `test_free_text_matcher`(関数)
+  - `test_free_text_matcher_on_consumption_answers`(関数)
+  - `test_free_text_negative_answers_do_not_hit_the_opposite_candidate`(関数)
+  - `test_free_text_scorer_trace_and_breakdown_rate`(関数)
+  - `test_gpu_hours_formula_values_blank_until_measured`(関数)
+  - `test_hf_backend_lazy_import_and_logits_math`(関数)
+  - `test_identifier_check_catches_planted_names`(関数)
+  - `test_identifier_names_avoid_banned_words`(関数)
+  - `test_known_values_jsd_spearman_entropy`(関数)
+  - `test_logprob_breakdown_low_mass_and_boundary`(関数)
+  - `test_logprob_scorer_distribution_shape_and_determinism`(関数)
+  - `test_make_appeal_v1_reproduces_the_shipped_files`(関数)
+  - `test_make_consumption_v1_reproduces_the_shipped_files`(関数)
+  - `test_md5_mismatch_stops_reading`(関数)
+  - `test_model_factories_without_network`(関数)
+  - `test_model_ports_are_ports_only`(関数)
+  - `test_normalize_checks`(関数)
+  - `test_numbers_outside_money_time`(関数)
+  - `test_order_blind_tape_rows_say_bias_is_zero_by_construction`(関数)
+  - `test_orders_are_deterministic_and_cyclic`(関数)
+  - `test_pbs_null_floor_known_values`(関数)
+  - `test_qty_measures_on_what_how_many`(関数)
+  - `test_real_evalset_once_matches_recorded_golden`(関数)
+  - `test_real_tapes_match_the_recorded_md5`(関数)
+  - `test_render_individual_blocks_short_b6_long_b5_b6`(関数)
+  - `test_render_is_compose_with_common_part_first`(関数)
+  - `test_scene_loader_rejects_bad_rows`(関数)
+  - `test_scorers_are_frozen_after_construction`(関数)
+  - `test_scorers_return_distributions`(関数)
+  - `test_sealed_paths_fail_before_reading`(関数)
+  - `test_sign_flip_is_salt_compare_formula`(関数)
+  - `test_situation_language_fields_are_declared_blank`(関数)
+  - `test_softmax_and_forms`(関数)
+  - `test_split_blocks_roundtrip_and_order`(関数)
+  - `test_strict_mode_catches_order_dependence`(関数)
+  - `test_strict_mode_mock_and_classical_identical`(関数)
+  - `test_surprise_reader`(関数)
+  - `test_table_new_columns_and_old_columns_kept`(関数)
+  - `test_table_shape_and_no_ranking`(関数)
+  - `test_tape_experience_reads_prior_calls_newest_first`(関数)
+  - `test_tape_fixed_order_is_record_only`(関数)
+  - `test_tape_md5_mismatch_is_reported`(関数)
+  - `test_vllm_echo_mode_slices_and_headers`(関数)
+  - `test_vllm_prompt_logprobs_first_token_and_generate`(関数)
+  - `test_vllm_token_boundary_and_http_errors`(関数)
+  - `test_write_outputs_refuses_overwrite`(関数)
+- import している内部モジュール: `shibuya.foundation.ports.decision`・`shibuya.foundation.text.salience`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.actions`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/appeal.py`・`tools/instruments/dm_eval/backends/__init__.py`・`tools/instruments/dm_eval/backends/base.py`・`tools/instruments/dm_eval/backends/hf.py`・`tools/instruments/dm_eval/backends/vllm.py`・`tools/instruments/dm_eval/bias.py`・`tools/instruments/dm_eval/cli.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`・`tools/instruments/read_guard.py`
+- 読む試験(道筋で): `tests/tools/test_repo_guide.py`
+- 決定の ID: 11-01・R-149・第 347
+
+## [test_event_cost_bench.py](../../../../../../tests/tools/test_event_cost_bench.py)
+
+tools/bench/event_cost/event_cost.py(指示書 11-03 §6-1・事象 1 件あたりの固定費)の小さな試験。
+
+- 公開の関数とクラス
+  - `E`(関数)
+  - `doc`(関数)
+  - `fake_table`(関数)
+  - `test_bad_args`(関数)
+  - `test_coefficients_positive`(関数)
+  - `test_day_estimate_sum_only_sum_rows`(関数)
+  - `test_markdown`(関数)
+  - `test_shape`(関数)
+- 決定の ID: 11-03/§6-1
+
+## [test_hm_gauge.py](../../../../../../tests/tools/test_hm_gauge.py)
+
+tools/instruments/hm_gauge.py(第 3 期 3-3b・ヒストリーマッチングの直接判定の器)の試験(合成の値だけ=器だけ)。
+
+- 公開の関数とクラス
+  - `H`(関数)
+  - `test_guards`(関数)
+  - `test_implausibility_formula`(関数)
+  - `test_judge_keeps_and_drops_by_the_second_largest`(関数)
+  - `test_read_guard_catches_upper_case_and_junction`(関数)
+
+## [test_las_pointcloud_agg.py](../../../../../../tests/tools/test_las_pointcloud_agg.py)
+
+tools/spatial/las_pointcloud_agg(都の区部点群の集計・指示書 11-02 取得 1)の試験。実データは読まない。
+
+- 公開の関数とクラス
+  - `test_dem_min_dsm_max_in_one_pixel`(関数)
+  - `test_detect_steps_and_curb_metrics`(関数)
+  - `test_extract_rejects_other_members`(関数)
+  - `test_fetch_log_first_row_and_conflict`(関数)
+  - `test_fill_polygon_window_with_hole`(関数)
+  - `test_fill_push_pull`(関数)
+  - `test_gsi_service_points`(関数)
+  - `test_identifier_names_avoid_banned_words`(関数)
+  - `test_las_rejects_bad`(関数)
+  - `test_las_roundtrip`(関数)
+  - `test_las_without_crs_vlr_passes_by_bbox`(関数)
+  - `test_load_plateau_inputs_reads_tran_gml`(関数)
+  - `test_local_plane_roundtrip`(関数)
+  - `test_mode_and_block_mean`(関数)
+  - `test_parse_fetch_log`(関数)
+  - `test_plateau_inputs_deck_sources_and_curb`(関数)
+  - `test_polygons_of_rings_and_rasterize`(関数)
+  - `test_run_synthetic_world`(関数)
+  - `test_sealed_paths_are_refused`(関数)
+  - `test_sha_mismatch_is_skipped`(関数)
+  - `test_sources_have_no_absolute_paths_or_crlf`(関数)
+  - `test_swapped_axes_are_refused`(関数)
+  - `test_tilestore_merge_min_max`(関数)
+  - `test_without_log_only_named_meshes`(関数)
+  - `test_wrong_epsg_is_refused`(関数)
+  - `test_zone9_origin`(関数)
+- import している内部モジュール: `tools/spatial/jgd_plane.py`・`tools/spatial/las_io.py`・`tools/spatial/las_pointcloud_agg.py`
+- 決定の ID: 11-02
+
+## [test_leak_check.py](../../../../../../tests/tools/test_leak_check.py)
+
+tools/instruments/leak_check(回答 11-01 §6・段 1 の 4 の漏洩の検査の器)の試験。
+
+- 公開の関数とクラス
+  - `test_abs_path_check`(関数)
+  - `test_block_sequence_rules`(関数)
+  - `test_choice_distribution_floor_and_token_forms`(関数)
+  - `test_cli_argument_checks`(関数)
+  - `test_cli_mock_three_types`(関数)
+  - `test_cli_summary`(関数)
+  - `test_distribution_tools_known_values`(関数)
+  - `test_expect_md5_with_missing_file_stops`(関数)
+  - `test_fictional_events_do_not_borrow_real_forms`(関数)
+  - `test_fictional_names_keep_structure_and_swap_brand_only`(関数)
+  - `test_identifier_check_catches_planted_names`(関数)
+  - `test_identifier_names_avoid_banned_words`(関数)
+  - `test_mock_is_deterministic_and_digest_excludes_time`(関数)
+  - `test_model_cutoff_splits_sides`(関数)
+  - `test_performance_gap_known_values`(関数)
+  - `test_recall_tools_known_values`(関数)
+  - `test_result_has_no_response_text`(関数)
+  - `test_sealed_and_ledger_paths_refused_before_reading`(関数)
+  - `test_sets_carry_no_validation_side_words`(関数)
+  - `test_sets_on_disk_match_builders`(関数)
+  - `test_specific_name_marks`(関数)
+  - `test_summarize_pairs_known_values`(関数)
+  - `test_summarize_type1_with_and_without_other`(関数)
+  - `test_type1_classifiers`(関数)
+  - `test_type1_counts_and_sides`(関数)
+  - `test_type1_english_refusals_and_marks`(関数)
+  - `test_type1_event_line_wins_over_hedge`(関数)
+  - `test_type1_mix_order_depends_on_seed`(関数)
+  - `test_type1_more_japanese_refusals_and_denials`(関数)
+  - `test_type1_real_event_side_by_day`(関数)
+  - `test_type1_real_events_mixed_and_md5`(関数)
+  - `test_type1_rejects_bad_real_rows`(関数)
+  - `test_type1_unknown_phrasings`(関数)
+  - `test_type2_below_floor_counted`(関数)
+  - `test_type2_mixed_sources_are_kept_apart`(関数)
+  - `test_type2_name_blind_backend_gives_zero`(関数)
+  - `test_type2_name_loving_backend_shifts_toward_name`(関数)
+  - `test_type2_pairs_differ_only_by_name`(関数)
+  - `test_type4_templates_have_no_reference_text`(関数)
+  - `test_type4_with_refs_known_answers`(関数)
+  - `test_vllm_payload_and_headers`(関数)
+  - `test_vllm_type2_through_transport`(関数)
+  - `test_vllm_without_key_and_failures`(関数)
+- import している内部モジュール: `tools/instruments/leak_check/__init__.py`・`tools/instruments/leak_check/backends.py`・`tools/instruments/leak_check/cli.py`・`tools/instruments/leak_check/run.py`・`tools/instruments/leak_check/score.py`・`tools/instruments/leak_check/sets.py`・`tools/instruments/read_guard.py`
+- 決定の ID: 11-01/§6
+
+## [test_night5070.py](../../../../../../tests/tools/test_night5070.py)
+
+tools/night5070(回答 10-25 §6-0): 夜の実験の起動・健全性の確認・計測の分離の一覧・タスクの XML。
+
+- 公開の関数とクラス
+  - `awake_calls`(関数)
+  - `fake_fleet`(関数)
+  - `nr`(関数)
+  - `quiet_machine`(関数): 手元の機械の状態(WSLENV・.wslconfig・GPU)を試験から切り離す。
+  - `real_cfg`(関数)
+  - `rt`(関数)
+  - `test_acl_note_in_summary_without_user_name`(関数)
+  - `test_api_keys_differ_per_run`(関数)
+  - `test_background_start_is_stopped`(関数)
+  - `test_broken_tape_and_checkpoints_are_unreadable`(関数)
+  - `test_check_principal_xml_rejects_tampered`(関数)
+  - `test_cleanup_failure_wins_over_zero_answers`(関数)
+  - `test_current_user_id_is_user`(関数)
+  - `test_deadline_exceeded_stops_fleet`(関数)
+  - `test_deadline_not_shorter_than_limit_is_refused`(関数)
+  - `test_delete_print_only`(関数)
+  - `test_dry_run_shows_safety_failures_without_stopping`(関数)
+  - `test_dry_run_with_holes_lists_undecided_rules`(関数)
+  - `test_dry_run_writes_summary_without_running`(関数)
+  - `test_exit_codes_are_distinct`(関数)
+  - `test_experiment_env_gets_fleet_key_and_logs_are_scrubbed_early`(関数)
+  - `test_failed_command_writes_failure_and_stops_fleet`(関数)
+  - `test_filled_vars_remove_holes_and_list_splices`(関数)
+  - `test_fleet_commands_get_no_wslenv`(関数)
+  - `test_full_run_keeps_default_agents_and_steps`(関数)
+  - `test_health_check_fails_on_empty_completion`(関数)
+  - `test_health_check_passes_with_fake_fleet`(関数)
+  - `test_health_check_rejects_other_served_model`(関数)
+  - `test_health_check_times_out_without_fleet`(関数)
+  - `test_health_failure_stops_fleet`(関数)
+  - `test_holes_stop_before_fleet`(関数)
+  - `test_icacls_restricts_key_file`(関数)
+  - `test_keep_fleet_still_removes_key_file`(関数)
+  - `test_key_file_removal_error_still_writes_records`(関数)
+  - `test_mask_paths`(関数)
+  - `test_metrics_partial_stdout_without_fleet_line`(関数)
+  - `test_metrics_unmeasured_when_outputs_missing`(関数)
+  - `test_mock_experiment_skips_fleet`(関数)
+  - `test_nested_var_holes_and_expansion`(関数)
+  - `test_night_runs_log_is_masked`(関数)
+  - `test_no_firewall_calls_in_experiment_commands`(関数)
+  - `test_no_firewall_defender_or_network_setting_calls`(関数)
+  - `test_parse_vram`(関数)
+  - `test_plan_vram_shortage_and_unmeasured`(関数)
+  - `test_plan_vram_three_steps`(関数)
+  - `test_prestop_failure_still_measures_vram`(関数)
+  - `test_prestop_runs_before_safety_and_vram_and_frees_last_night`(関数)
+  - `test_print_only_masks_user_id_and_refuses_system`(関数)
+  - `test_print_only_xml_battery_and_wake`(関数)
+  - `test_query_vram_reads_nvidia_smi_or_unmeasured`(関数)
+  - `test_read_tape_counts_and_answered_only_tokens`(関数)
+  - `test_read_tape_reads_only_needed_columns`(関数)
+  - `test_readme_lists_safety_rules_and_checks`(関数)
+  - `test_real_config_e1_requires_answers`(関数)
+  - `test_real_config_e1_smoke_holes_and_defaults`(関数)
+  - `test_real_config_has_e1_to_e8_and_blank_estimates`(関数)
+  - `test_real_config_holes_detected`(関数)
+  - `test_register_refuses_worktree`(関数)
+  - `test_require_answers_gate`(関数)
+  - `test_run_dir_never_overwrites`(関数)
+  - `test_safety_api_key_by_env_or_arg`(関数)
+  - `test_safety_api_key_negative`(関数)
+  - `test_safety_checks_endpoints_must_be_loopback`(関数)
+  - `test_safety_checks_fail_each`(関数)
+  - `test_safety_checks_pass_on_good_config`(関数)
+  - `test_safety_checks_quoted_abbrev_and_config`(関数)
+  - `test_safety_checks_read_argv_list_and_unsplittable`(関数)
+  - `test_safety_checks_wsl_nat`(関数)
+  - `test_safety_checks_wslenv_names_only`(関数)
+  - `test_safety_env_key_twice_fails`(関数)
+  - `test_safety_failure_skips_prestop`(関数)
+  - `test_safety_rechecked_after_vram_adjustment`(関数)
+  - `test_safety_rejects_shell_expansion`(関数)
+  - `test_safety_shell_expansion_ok_on_plain_command`(関数)
+  - `test_safety_violation_stops_before_fleet`(関数)
+  - `test_set_and_get_flag`(関数)
+  - `test_smoke_dry_run_lists_overrides`(関数)
+  - `test_smoke_requires_definition`(関数)
+  - `test_smoke_run_overrides_and_masks_api_key`(関数)
+  - `test_start_failure_stops_fleet`(関数)
+  - `test_stop_failure_marks_cleanup_failed`(関数)
+  - `test_success_run_fills_metrics`(関数)
+  - `test_summary_writer_failure_still_writes_all`(関数)
+  - `test_trust_remote_code_in_vllm_args_stops`(関数)
+  - `test_unexpected_exception_stops_fleet`(関数)
+  - `test_unknown_experiment_is_config_error`(関数)
+  - `test_vllm_args_list_stays_list`(関数)
+  - `test_vram_adjusts_start_args_and_metrics`(関数)
+  - `test_vram_bad_number_is_config_error`(関数)
+  - `test_vram_flags_added_when_absent`(関数)
+  - `test_vram_remeasures_once_before_shortage`(関数)
+  - `test_vram_shortage_stops_before_fleet`(関数)
+  - `test_vram_unmeasured_keeps_settings`(関数)
+  - `test_vram_waits_for_release_after_prestop`(関数)
+  - `test_wait_vram_settle_gives_up_after_limit`(関数)
+  - `test_wait_vram_settle_until_two_equal_reads`(関数)
+  - `test_wslenv_key_name_stops_without_reading_value`(関数)
+  - `test_wslenv_secret_like_name_stops`(関数)
+  - `test_xml_powershell_trigger_and_workdir`(関数)
+  - `test_xml_principal_is_user_not_system`(関数)
+  - `test_xml_refuses_non_user_principal`(関数)
+- 環境変数: `SHIBUYA_FLEET_API_KEY`
+- 決定の ID: 10-25/§6-0・11-01・R-123・第 340
+
+## [test_pkgmove.py](../../../../../../tests/tools/test_pkgmove.py)
+
+tools/pkgmove(移す段 3 の道具・返事その 7 §4-2・計画 package-map-final §7-4 の段 3)の試験。data は要らない。
+
+- 公開の関数とクラス
+  - `applied`(関数)
+  - `apply_rows`(関数): 木の今の形で、段のうち当てる行(まだ当たっていない行)。
+  - `base_copy`(関数)
+  - `digest`(関数)
+  - `frozen_of`(関数)
+  - `make_copy`(関数): 一時のコピーの木(src/shibuya・tests・tools・凍結の JSON とつなぎの台帳・tests が読む docs の記録の道具)。
+  - `need_pending`(関数)
+  - `pending`(関数): リポの今の木で、まだ当てる行のある段(段 4 の順)。
+  - `plan_for`(関数)
+  - `pristine`(関数): どの段の行も当たっていない木か(全部の段に当てる行が残っている=段 3 の時点の木)。
+  - `run_cli`(関数)
+  - `staged`(関数): 次に当てる段(まだ当たっていない最初の段)の計画。全段が当たった木では飛ばす。
+  - `test_alias_declaration_names_the_names_that_may_be_absent`(関数): 〔E5-a の 4〕割り先に無くてよい名(常に偽の ``hasattr`` で守られた読み): 宣言に名前で挙げれば通り、挙げなければ止まる
+  - `test_alias_declarations_name_files_and_aliases_that_exist_in_the_tree`(関数): 〔E5-a の 5・F2 と同じ考え方〕当てた後に宣言が黙って腐らないこと: 宣言のファイルが今の木に在り、その別名が割る前の
+  - `test_all_drops_keeps_comments_and_refuses_other_forms`(関数): 1 行 1 要素の行だけを除く(行の終わりの注は注の行として残す)。1 行に 2 つ以上の要素は除かずに注意(守りが止める)。
+  - `test_allow_toml_is_current_and_src_tables_exist`(関数): 許可の一覧 TOML は、どの段も当たっていない木でだけ作り直しと比べる。(b-src) の表は今の置き場に全部ある。
+  - `test_applied_tree_has_the_new_places_and_empty_heads`(関数)
+  - `test_apply_refuses_a_main_worktree_and_allows_others`(関数)
+  - `test_apply_twice_is_the_same`(関数)
+  - `test_apply_writes_the_package_data_key_and_nothing_else_of_pyproject_in_a_sample`(関数): 〔検収 M-2・k15〕作った見本の木へ ``apply`` すると、木の pyproject の package-data の鍵だけが新しい包みの名になり、ほかの
+  - `test_bare_alias_declaration_accepts_each_allowed_form`(関数): 〔E5-c〕許す素の使い方の形(``imports.BARE_OK``)は 1 つずつ数える: 渡す(位置と名の引数)・返す・しまう(変数と属性)・
+  - `test_bare_alias_declaration_lets_a_passed_alias_through`(関数): 〔E5-c〕印 ``bare`` の宣言の在る別名は、素で渡しても宣言の割り先へ書き換わり、手で直す一覧に出ない(``strict`` でも当たる)。
+  - `test_bare_alias_declaration_works_the_same_in_a_src_file`(関数): 〔E5-c〕src のファイルの別名にも同じに効く(S6-G1 で載せる ``runtime/systems/judge.py`` の形=別名を関数へ渡す)。負の対照:
+  - `test_bare_alias_declarations_name_what_the_receiving_functions_read`(関数): 〔E5-c・宣言が腐らない〕本物の印のある宣言 5 つ: 印のある宣言の集合と受け手の表 ``_BARE_RECEIVERS`` が同じで、``reads``・
+  - `test_bare_alias_patches_are_checked_against_the_declared_destination`(関数): 〔E5-c〕宣言の差し替える名(``patches``)は、E5-b の届かせる割り先の集合が宣言の割り先だけなら通り、報告の ``patch_declared``
+  - `test_bound_names_guard_catches_a_changed_binding`(関数): 〔突然変異 m14〕import の文が結ぶ名(別名を含む)が前後で違えば止める(直に呼ぶ・作った木)。頭から除いた再輸出の名だけは
+  - `test_cache_only_dirs_are_pruned_and_namespace_leftovers_are_caught`(関数): 〔検収 L-a〕``__pycache__`` だけを持つ古い包みのディレクトリは名前空間の包みとして import できる=import の確かめが落とす。
+  - `test_catalog_json_relpath_moves_with_the_json`(関数): (b-src) 〔親の決定 2〕構築の側が凍結の JSON を書く先は、JSON と一緒に動く(JSON がまだ動いていない木では動かす段まで
+  - `test_contract_rules_are_the_plan_sentences`(関数): 〔検収 M-1・L-7〕決まり 1〜8 の名は計画 §6-4 の文そのまま(番号つき)。決まり 2〜8 の型と名の並びは、試験の中の表
+  - `test_contract_view_puts_the_main_destination_of_a_forwarder_row_in_the_final_names`(関数): 〔E2・計画 §4-2〕入口の転送が残る行: 元のファイルが型どおりの転送なら主な割り先が最終の名(単位 interfaces が言える)。
+  - `test_contract_view_puts_the_main_destination_of_a_split_head_in_the_final_names`(関数): 〔検収 高-1〕頭を割る行(llm/__init__.py の形): 中身が割り先へ出た後(元の頭が 0 バイト)は、主な割り先が最終の名になり、
+  - `test_contracts_cli_refuses_a_main_worktree`(関数): ``contracts --apply`` も本体の作業木へは書かない(move --apply と同じ守り)。
+  - `test_contracts_name_only_modules_in_the_tree_and_drop_changed_old_names`(関数): 〔作った見本の木・world の段〕作った節に、木に無い包みの名は入らない。古い決まりは、無くなった名(core・manifest ほか)と
+  - `test_contracts_toml_matches_the_plan_tables`(関数): 元のファイルの層は計画 §1-2 の図、28 本は §6-4 の表と同じ(写しの誤りを止める)。決まりは 1〜8。
+  - `test_done_stages_are_not_applied_again`(関数): 〔段 4 の残り〕済んだ段(当てる行の残らない段)をまとめて当て直す計画は、行 0・書き換え 0・移動 0(済んだ段を壊さない)。
+  - `test_dry_run_writes_nothing`(関数)
+  - `test_effective_ignores_count_only_the_lines_that_stop_a_violation_in_a_sample`(関数): 〔検収 中-1・作った見本の包み〕効いている例外=外すとその契約が broken になる行。何も止めていない例外(層の外のモジュール
+  - `test_every_rewritten_path_chain_points_to_a_file_in_the_applied_tree`(関数): 〔突然変異 m28〕``/`` の結合を書き換えた所は、全部、当てた木で在るファイルを指す(書き換えなければ古い道=当てた木に無い
+  - `test_excluded_files_report_nameless_paths`(関数): 〔検収の後の直し 3=低-3〕範囲の外のファイル(E4)の名の無い割るファイルの道は、書き換えず手で直す一覧にも入れないが、報告の
+  - `test_frozen_guard_stops_when_a_frozen_value_is_already_different`(関数)
+  - `test_frozen_values_are_kept_by_the_staged_plan`(関数)
+  - `test_head_all_drops_only_the_dropped_reexport_names`(関数): 〔親の裁定 review3 の 2〕頭から除いた再輸出の名は、その頭の ``__all__`` からも除く。残る ``__all__`` は前の
+  - `test_head_reexports_of_modules_leaving_the_package_are_dropped`(関数): この段で空にしない頭の再輸出のうち、出どころが包みの外へ移るものの import の文を除く(循環の import を作らない)。
+  - `test_held_rows_are_refused_in_a_sample`(関数): 〔11-16 の答えで table.HELD は空〕保留の仕組みは作った見本の対応表で確かめる: 名指しは断る・段を選べば保留の行を外して
+  - `test_ignore_counts_count_lines_unique_edges_and_where_they_go`(関数): 例外の数(返事その 8 §1-12 の 3): 延べの行・重なりを除いた辺・重なりを除いた辺の消える段ごとの数(載せなかった行は数えない)。
+  - `test_ignore_split_rows_come_in_with_their_split`(関数): 〔親の裁定 Q3〕割る段で出る辺 4 本は別の表 [[ignore_split]]\(28 本と表の外の 1 本の表は変えない)。appears_with の割る行を
+  - `test_import_check_catches_a_cycle_and_passes_a_clean_tree`(関数): 〔M-1〕全モジュールを 1 本ずつ最初から import する確かめ。わざと循環を作った小さな木で落ち、直した木で通る。読んだ
+  - `test_import_check_fails_when_it_reads_a_shibuya_outside_the_tree`(関数): 〔検収 n06〕木の ``src/shibuya`` に頭(``__init__.py``)が無いと、子は別の場所の ``shibuya``(editable の本体・無ければ
+  - `test_import_check_reimports_every_module_from_scratch`(関数): 〔検収 n05〕読む順でだけ循環が出る小さな木: ``a_pkg`` を先に読めば ``z_moved`` も読めるが、``z_moved`` を最初に読むと
+  - `test_import_check_runs_every_entry_with_help`(関数): 〔E3〕書いた後の確かめは、在る入口(``shibuya.cli``・``shibuya.interfaces.cli.run_args``)ごとに ``python -m <入口> --help``
+  - `test_imports_through_an_emptied_head_are_sent_to_the_defining_modules`(関数): 〔突然変異 m12〕空にする頭を通る import は、定義したモジュールへ向く(頭から読んでよいのは子のモジュールだけ)。
+  - `test_imports_through_an_emptied_head_are_sent_to_the_defining_modules_in_a_sample`(関数): 〔突然変異 m12〕作った見本の木で(本物の tests の字面に寄りかからない): 空にする頭 ``shibuya.pk`` の再輸出を通る import は
+  - `test_late_stage_rows_are_chosen_only_by_their_stage`(関数): 〔段 4 の残り〕本物の対応表で: 答えの後の段は、その行だけを選ぶ(保留で外す行は 0)。済んだ段の名(society・foundation)は
+  - `test_late_stages_move_only_their_rows_and_the_tree_stage_follows_in_a_sample`(関数): 〔段 4 の残り・作った見本の木〕段を当てた順に 1 段ずつ当てると: 各段で動くのはその段の行だけ・前の段を当て直すと行 0・
+  - `test_ledger_paths_check_sees_the_forward_table`(関数): 〔E7〕``check``: 前向きの表の今の道は木に在る・同じ今の道が 2 つの表の両方に無い。台帳の行は 1 対 1 の表だけで逆に引く
+  - `test_ledger_paths_forward_table_reads_writes_and_follows_moves`(関数): 〔E7〕前向きの表(``LEDGER_PATHS_SPLIT``): 字面は ``LEDGER_PATHS`` と同じ形(鍵の昇順・1 行 1 組・空なら ``{`` の次の行が
+  - `test_ledger_paths_table_follows_the_moves_and_the_ledger_is_kept`(関数): (d) 移したファイルごとに「今の道 → 台帳の道」を表に足す(台帳は書き換えない)。台帳のコードの行の道は全部、表を通して
+  - `test_main_worktree_check_fails_closed`(関数): 〔M-2〕git が失敗したら断る側・呼び手の GIT_DIR に左右されない・.git が 1 つも無いときだけ git の外。報告の置き場が本体の
+  - `test_map_toml_is_made_from_the_table_and_is_current`(関数)
+  - `test_mora_rule_and_other_untouched_path_shaped_strings_stay_in_the_rest_plan`(関数): 残る段を全部まとめた計画(全段が当たった木では行 0 の計画)でも: 腕 mora の manifest に出る文は書き換えない・つなぎの
+  - `test_negative_a_bare_declaration_without_its_receiver_fails_the_rot_check`(関数): 〔E5-c の決まりの負の対照〕メモリの中で印のある宣言を 1 行足し、受け手を足さないと食い違いが出る(試験が落ちる)。受け手の
+  - `test_negative_a_declaration_in_a_second_destination_is_stopped`(関数): 2 つ目以降の新しい割り先につなぎの台帳の宣言(expedient の段落)が入ると、台帳の道の表(1 対 1)で表せないので止める。
+  - `test_negative_a_map_sending_two_modules_to_one_is_refused`(関数): 〔突然変異 m19〕2 つの行を同じ行き先へ送る対応表は、行き先の守りが断る(どの守りが止めたかまで見る)。
+  - `test_negative_a_nameless_dotted_path_outside_m_is_listed_for_hand_fixing`(関数): 〔E3〕``-m`` の文脈でない名の無い点の道は、主な割り先へ黙って向けず「手で直す一覧」に出す(既定=strict は断る)。記録の文
+  - `test_negative_a_plan_that_does_not_rewrite_package_data_is_stopped`(関数): 負の対照: package-data の鍵を書き換えない書き手を差し込むと、JSON が移る段で守りが止める。
+  - `test_negative_a_reader_with_two_destinations_is_listed_for_hand_fixing`(関数): 属性で読み、割り先が 2 つ以上になる読みは書き換えずに「手で直す一覧」に出し、既定(strict)では断る。
+  - `test_negative_a_tree_without_the_forward_table_stops_when_a_row_is_needed`(関数): 〔E7〕前向きの表が無い木(src の側の下ごしらえ S6-A の前)で、宣言の入る 2 つ目以降の割り先があれば「前向きの表が無い」で止める
+  - `test_negative_alias_declaration_guards_each_stop`(関数): 〔E5-a の守り〕宣言の守りは 1 つずつ止める(書かない・止めた文に場所と名): 別名が割るモジュールを import していない・宣言の
+  - `test_negative_alias_rewrite_captured_by_a_local_name_is_refused`(関数): 〔検収 低-1〕宣言した書き換え ``V.x`` → ``x`` の ``x`` が、その場所の局所の名(引数)に捕まる形は断る。捕まらなければ通す。
+  - `test_negative_an_emptied_head_with_a_definition_is_stopped`(関数): 〔突然変異 m18・検収 L-f〕空にする頭に定義(関数・クラス)があれば止める。import・docstring・``__all__`` のほかの文
+  - `test_negative_an_entry_without_a_matching_declaration_is_refused`(関数)
+  - `test_negative_bare_alias_declaration_guards_each_stop`(関数): 〔E5-c の守り〕印のある宣言の守りは 1 つずつ止める(書かない実行でも): 印の腐り・宣言で表せない素の使い方・reads か why が
+  - `test_negative_bare_alias_patches_that_miss_stop`(関数): 〔E5-c の守り〕差し替える名の届かせる割り先の集合に、宣言の割り先が無い(空振り)・ほかの割り先も在る(届かない)・字面で見える
+  - `test_negative_changing_the_names_bound_by_imports_is_stopped_in_a_plan`(関数): 計画の中でも、別名を落とす書き手を差し込むと結ぶ名の守りが止める。次に当てる段で動くモジュールを別名で読む試験の
+  - `test_negative_class_ids_guard_catches_values_and_coverage`(関数): 〔突然変異 m03・m20〕固定の表の値が凍結の写像と違う・表の鍵が src のクラスと合わない、を守りが見つける(直に呼ぶ)。
+  - `test_negative_forward_ledger_rows_keep_guard_4_as_strict_as_before`(関数): 〔E7・裁定 Q1 の条件 ④〕比べの厳しさは前と同じ: 2 つ目以降の割り先の宣言を 1 つ消す・前向きの表の行を 1 つ落とす・宣言の
+  - `test_negative_forwarder_guard_branches_stop_one_by_one`(関数): 〔低-1〕守り「入口の転送」の 2 つの枝を、それぞれほかの枝に当たらない見本で落とす: (1) 型そのものにつなぎの台帳の宣言
+  - `test_negative_forwarder_problems_see_each_part_of_the_fixed_form`(関数): 〔E2 の守り〕転送の形の確かめは、字面の同じ(型との比べ)のほかに、各部分(docstring・名を結ばない・if の中の import と呼び)を
+  - `test_negative_guard_1_stops_a_reordered_destination`(関数): 〔検収 中-3〕同じ割り先の中で文の順を入れ替える変異(多重集合は同じ)は、① の順の確かめが止める。
+  - `test_negative_head_all_guards_stop_a_writer_that_keeps_or_overdrops_names`(関数): 負の対照: ``__all__`` から除かない書き手を差し込むと「結ばれない名」で止まる。除いた名のほかの名まで除く書き手を
+  - `test_negative_key_guard_catches_a_swapped_pair_and_changed_values`(関数): 〔再検収 L-a〕鍵の守り(直に呼ぶ): 同じ ``__qualname__`` の組の値の入れ替え・値の書き換え・1 対 1 でない対応表を止める。
+  - `test_negative_naive_rewrite_of_a_class_name_in_a_test_is_stopped`(関数)
+  - `test_negative_naive_rewrite_of_rng_domain_names_is_stopped`(関数)
+  - `test_negative_nameless_paths_without_a_declaration_are_listed_for_hand_fixing`(関数): 〔E8〕宣言も名の手がかりも無い割るファイルの道は、割り先が 2 つ以上の行では主な割り先へ黙って向けず「手で直す一覧」へ出す
+  - `test_negative_names_guard_catches_version_ids_headers_and_rng_tables`(関数): 〔突然変異 m21〕版の ID・ハッシュの見出し・乱数の領域の名の表の鍵が凍結と違えば、欄の名つきで見つける(直に呼ぶ)。
+  - `test_negative_only_guard_2_stops_a_changed_module_docstring`(関数): 〔検収 中-4〕主な割り先のモジュールの docstring を変える変異は、② だけが止める(① は docstring を比べない)。
+  - `test_negative_patch_reach_guard_is_what_stops`(関数): 〔E5-b の負の対照〕守りを外すと、片方だけの差し替えは止まらずに当たる(守りが止めていることの確かめ)。
+  - `test_negative_patch_reach_stops_patches_that_miss_a_reader`(関数): 〔E5-b〕割る前にその名を呼ぶ時に素の名で読んでいた関数の割り先の全部へ、同じ関数の中の差し替えが向いていなければ止める
+  - `test_negative_path_declaration_guards_each_stop`(関数): 〔E8 の守り・E5-a と同じ考え〕宣言はその割る行でだけ使う・ファイルと記号が木に在る・宣言の割り先はその行の割り先・記号は
+  - `test_negative_relative_and_star_readers_of_the_split_module_are_listed_for_hand_fixing`(関数): 〔検収 中-2〕相対の import と星の import で割るモジュールを読む読み手は書き換えず、「手で直す一覧」に出す(strict は断る)。
+  - `test_negative_rewriting_a_docstring_in_an_allowlisted_symbol_is_stopped`(関数): 〔突然変異 m29・L-9〕許可の一覧の記号の中でも docstring は書き換えない。作った試験のファイルの許可の記号(docstring と
+  - `test_negative_shaped_74_guard_alone_catches_a_manifest_text`(関数): 〔突然変異 m04〕manifest に出る文の中の道の形(``engine/energy.py`` の見出しの項)を書き換える書き手を、その表の記号に
+  - `test_negative_split_class_key_guard_catches_a_swapped_pair`(関数)
+  - `test_negative_split_cli_dry_run_returns_nonzero_when_a_guard_stops_in_a_sample_tree`(関数): 〔E9〕守りが止める見本では終了コードが 0 でない(どちらも木は 1 本も変わらない): 順の違う行の名指し(断る)と、割り先どうしが
+  - `test_negative_split_compositions_that_cannot_be_expressed_are_refused`(関数)
+  - `test_negative_split_forwarder_guard_stops_a_forwarder_that_binds_names`(関数): 〔E2 の守り〕転送が頂上で ``main`` を結ぶ形(古い道の口)は、型を差し替えても守り「入口の転送」が止める(字面の同じだけに
+  - `test_negative_split_guards_stop_a_broken_composition`(関数)
+  - `test_negative_split_stops_a_new_import_cycle_through_an_existing_destination`(関数): 〔G2 の 5 本目の欠陥〕既に在る割り先(vocab/base.py)へ足す文が型を lg/log.py から読み、log が頂上で base を読むと、割った後に
+  - `test_negative_split_stops_when_import_rules_weaken_without_a_declaration`(関数): 〔検収 高-1〕割る前の木で言えた単位・決まりが、割った後に言えなくなったら(宣言の外)止める。宣言
+  - `test_negative_swapping_a_same_qualname_pair_is_stopped_in_a_plan`(関数): 計画の中でも鍵の守りが止める(組の片方が動く foundation の段がまだ当たっていない木だけ)。
+  - `test_negative_undeclared_or_unused_alias_rewrites_are_refused`(関数): 自分を別名で読む文は、宣言した書き換え(親の裁定 Q6)のときだけ書き換える。宣言が無ければ断り、当たらない宣言も断る。
+  - `test_negative_without_fix_1_an_in_place_patch_that_misses_slips_through`(関数): 〔直し 1 の負の対照〕直しを外す(元のモジュールを割り先と見ない・手で直す一覧と突き合わせない=前の形)と、届かない差し替えが
+  - `test_negative_without_the_declared_patch_check_a_missing_patch_slips_through`(関数): 〔E5-c の負の対照〕宣言の差し替える名の確かめは ``patch_reach`` が止めている(外すと、a に届かない helper の宣言が通る)。
+  - `test_only_import_statements_and_allowlisted_string_lines_change`(関数)
+  - `test_outside_guard_compares_docstrings_inside_allowlisted_symbols`(関数): 〔L-9〕作った木で: 許可の記号の中の docstring が変われば止め、docstring でない文字列が変わるのは通す。
+  - `test_package_data_is_not_rewritten_when_the_file_changes_shape`(関数): 〔検収 L-5・k18〕glob に当たっていたファイルが、包みの道からの相対の形を変えて移ったら(``frozen/a.json`` →
+  - `test_package_data_key_moves_with_the_json`(関数): (f) 凍結の JSON が移る段で、package-data の鍵を新しい包みの名にする(glob はそのまま・ほかの行は変えない)。JSON が
+  - `test_package_data_rewrite_and_guard_in_a_sample`(関数): 作った見本の木で: 無くなる包みの鍵だけを、ファイルが同じ形で移った 1 つの包みへ書き換える。ほかの節の行(filterwarnings)は
+  - `test_package_names_alone_are_not_rewritten_and_relative_imports_are_noted`(関数): 〔L-7〕包み(ディレクトリ)の名だけの点の文字列は、行き先が 1 つに決まらないので書き換えずに注意に出す(モジュールの名は
+  - `test_patch_reach_checks_the_source_module_as_the_main_destination_of_an_in_place_row`(関数): 〔検収の後の直し 1=中-1〕主な割り先が元のファイルの行では、元のモジュールを主な割り先として確かめる: 元に残る ``_K`` を
+  - `test_patch_reach_lists_load_time_reads_and_passes_string_and_code_targets_that_reach`(関数): 〔E5-b〕名 N の差し替えを、名を結ぶ割り先 a(src の読み手が呼ぶ時に別名の属性で読む)へ向ける形は通り、読み込みの時にだけ
+  - `test_patch_reach_lists_patches_it_cannot_see`(関数): 〔E5-b〕守りが見られなかった形は黙って通さず ``patch_unseen`` に出す(止めない): 名が字面の定数でない・的の文字列を組み立てる・
+  - `test_patch_reach_passes_when_patches_point_to_every_reading_destination`(関数): 〔E5-b〕読む関数が 2 つの割り先(g=a・h=b)に分かれた名 helper を、同じ関数の中で両方の割り先の別名で差し替える形は通る。
+  - `test_patch_reach_replays_the_22nd_split_on_the_g3_base_in_history`(関数): 〔E5-b・本物の履歴〕5b の G3 の土台(``e6d221c``)をメモリに読み、22 本目(``cli.py``)を当て直す: (i) そのままなら守りは
+  - `test_patch_reach_stops_a_stale_target_that_is_not_in_the_hand_fix_list`(関数): 〔直し 1〕割り先でないモジュール(割った後に無い元のモジュール)を指したままの差し替えは、別名が手で直す一覧に在るときだけ
+  - `test_path_chains_over_several_constants_are_rewritten_in_a_sample`(関数): 〔突然変異 m28〕作った見本の木で: 2 つ以上の定数にまたがる ``/`` の結合を、道具の入口(許可の記号の中の文字列の書き換え)で
+  - `test_path_declarations_name_files_and_symbols_that_exist_in_the_tree`(関数): 〔E8〕宣言が黙って腐らないこと: 宣言のファイルが今の木に在り、記号がそのファイルの記号に在り、割る行が順に在る(今は空=
+  - `test_path_declarations_of_other_rows_are_not_used`(関数): 〔E8〕宣言はその割る行でだけ使う: 別の割る行の宣言は、この行では引かない(使われなかったとも言わない)。
+  - `test_pyproject_section_is_the_one_made_for_the_tree_stage`(関数): 木の pyproject の [tool.importlinter] の節は、木の段の作り直しと同じ(段 4 の各段の commit で作り直す)。どの段も当たって
+  - `test_record_tools_get_only_their_import_statements_rewritten`(関数)
+  - `test_record_tools_get_only_their_import_statements_rewritten_in_a_sample`(関数): 〔親の決定 7・作った見本の木〕記録の道具に当たるファイル(docs の ``.py``・許可の一覧の外)では、import の文だけが書き換わり、
+  - `test_record_tools_list_matches_the_scan_of_tests`(関数): (a) の範囲に足す docs の記録の道具の一覧は、tests が道で読む docs の ``.py`` の走査と同じ。
+  - `test_rule_5_adds_only_late_readers_whose_final_place_may_read_in_a_sample`(関数): 〔検収 M-2・k10・k11〕決まり 5 の読んでよい側に足すのは、まだ移っていない読み手のうち、最終の置き場が読んでよい側
+  - `test_section_6_6_rules_come_in_at_their_stages_in_a_sample`(関数): 〔段 4 の残り・作った見本の木〕§6-6 の決まりは入れる段から: 一時の区分の読み手の決まり(9)は interim_bundles の段から
+  - `test_self_paths_are_the_tool_and_its_own_tests_that_import_nothing_of_shibuya`(関数): 〔割る段 7 の G-M・親の裁定 Q-GM1 の案 A〕道具が書き換えない道(``model.SELF_PATHS``)は、道具のディレクトリと道具の自分の
+  - `test_skipped_or_reversed_stages_are_refused_in_a_sample`(関数): 〔検収 中-2・作った見本の木〕段を飛ばす・逆の順の計画は断る(``Refused``=CLI の終了コード 2)。次の段から順にまとめる計画と、
+  - `test_skipping_the_next_stage_is_refused`(関数): 〔検収 中-2〕本物の木で、次に当てる段を飛ばす計画は断る(書かない実行でも・CLI は終了コード 2)。次の段から順に
+  - `test_split_5a_5b_in_memory_keeps_the_import_rules_to_the_end`(関数): 〔検収 高-1〕本物の木で割る段の残りの本(5a の 17 本と 5b の 5 本=22 本の順の、木で済んでいない本)をメモリの中で順に当てる
+  - `test_split_alias_declaration_points_the_alias_to_the_declared_dest`(関数): 〔E5-a〕宣言の在る別名は、名の定義の割り先でなく宣言の割り先へ向く(読む名が割り先をまたいでも手で直す一覧に出ない)。
+  - `test_split_apply_refuses_a_main_worktree`(関数): 〔検収 中-4〕``split --apply`` は git の本体の作業木を断り、何も書かない(木をまるごと写さない小さな見本の木)。
+  - `test_split_cli_dry_run_writes_nothing_in_a_sample_tree`(関数): 〔E9・追記=検収 低-2〕``cli.py split --through all`` を見本の木と見本の表・決まり(``--map``・``--contracts``)で回す: 終了 0・
+  - `test_split_dry_run_of_the_next_row_writes_nothing_and_keeps_every_guard`(関数): 本物の木で次の本を書かずに当てる(--through=手で直す読みは残して報告): 何も書かず、守りが全部「同じ」。割る行が残り 0 の
+  - `test_split_entry_moves_the_main_block_and_the_m_strings`(関数): 〔E3・返事その 8 §1-6 の 6〕入口の割り先の宣言: ``if __name__`` は ``main`` と同じ入口の割り先へ。名の無い点の道は ``-m`` の
+  - `test_split_forwarder_keeps_the_entry_file_in_the_fixed_form`(関数): 〔E2・親の裁定 Q6 の (a)・Q7〕入口の転送の行: 元のファイルを消さずに決まった型の転送で書き直す(``if __name__`` の中で割り先の
+  - `test_split_groups_cover_the_split_order_in_order`(関数): 〔低-2〕群(親の裁定 Q11・``table.SPLIT_GROUPS``)を段の順・群の順につなぐと ``SPLIT_ORDER`` の全部と同じ(重なりも抜けも
+  - `test_split_import_keeps_the_comments_of_its_names`(関数): 〔突然変異 m13・L-9〕行き先が 2 つに分かれる文を作り直すとき、名の行の注・名の前の注だけの行・頭の行の注を残す。
+  - `test_split_imports_a_name_that_shadows_a_builtin_and_guard_3_checks_it`(関数): 〔検収 中-1〕元が組み込みの名を覆う名(``def format``)を定義し、別の割り先の文がそれを読むなら、組み立ては import を作る。
+  - `test_split_in_place_keeps_the_main_file_and_moves_names_out`(関数): 主な割り先が元のファイルの今の置き場(段 4 で移した=延ばした 18 本目の形): 元のファイルを書き直し、出した名は割り先から読む。
+  - `test_split_keeps_the_table_keys_of_the_places_helpers`(関数): 〔高-1〕``tests/_places.py`` の割る行の口(``split_files``・``split_source``・``split_module_names``・``_split_names``)の
+  - `test_split_leaves_the_bytecheck_tool_and_its_test_alone`(関数): 〔E4・親の裁定 Q9 の (a)〕byte-check の道具(``tools/bytecheck/``)とその試験は割る道具の書き換えの範囲の外: 書き換えず、
+  - `test_split_lists_a_code_import_inside_an_f_string_for_hand_fixing`(関数): 〔G0 の再検収 低-1〕f 文字列の部分の中のコードが割るモジュールを読む形(``f"from shibuya.pk import old; old.f({n})"``)は
+  - `test_split_order_is_kept_in_a_sample_tree`(関数): 〔G2 の検収 低-2〕割る段の順(``split_state``・``next_split``・``make_split_plan`` の順の確かめ)を見本の木で確かめる。本物の
+  - `test_split_order_is_kept_in_the_real_tree`(関数): 割る段の順(親の裁定 Q11): 次の本のほかは断る(段を飛ばさない)。
+  - `test_split_order_of_reads_the_split_rows_of_a_map`(関数): 〔E9〕``table.split_order_of``: 割る行の ``split_order``(1 から)で並べた順。番号が続かない・頭の ``split_order`` と食い違えば断る。
+  - `test_split_path_declarations_apply_to_the_src_tables`(関数): 〔E8〕src の道の表(許可の一覧 (b-src)・規則 ``exact``)の、名の手がかりの無い割るファイルの道も宣言の割り先へ(段 6 の
+  - `test_split_path_declarations_point_nameless_paths_to_the_declared_dest`(関数): 〔E8〕名の手がかりの無い割るファイルの道(斜線の道の全体・文の中の斜線の道・``/`` の連鎖・名の無い点の道)は、その記号の宣言の
+  - `test_split_refuses_a_done_row_a_wrong_order_and_a_skipped_tree`(関数): 〔検収 中-4〕済んだ本の当て直し・順が違う本・順を飛ばした木(split_state が None)は、どれも断る(終了コード 2 の経路)。
+  - `test_split_reports_the_imports_and_comments_it_did_not_write`(関数): 〔検収 低-2〕どの割り先も使わない import・import の前の注・作り直した import の中の注は写さず、報告の ``unwritten`` に出す。
+  - `test_split_rewrites_a_relative_import_of_the_source_to_the_absolute_form`(関数): 〔検収 中-2〕元の相対の import は、絶対の形に作り直して写す(割り先は別の包み)。守りは全部「同じ」。
+  - `test_split_rows_in_the_real_map_match_the_source_files`(関数): 本物の対応表: 割る段 5a の 17 本と延ばした 1 本(18 本目だった ``engine/speech/port.py``=G0 の検収の後の親の答え 1)は名が
+  - `test_split_sample_composes_dests_and_rewrites_readers`(関数): 見本の木: 名を結ぶ文は表の割り先へ(元の字面と注のまま)・ほかの文(assert)は読む名の割り先へ・主な割り先は元の
+  - `test_split_sees_code_strings_that_import_the_split_module_from_its_package`(関数): 〔高-2〕コードの文字列(子のプロセスの台本ほか)の ``from <包み> import <割るモジュール>`` の形を、書き換えるか「手で直す
+  - `test_split_weakened_reads_the_declarations`(関数): 〔検収 高-1〕古い決まりから外れた名・丸ごと外れた古い決まり・言えなくなった決まりを、宣言の内と外に分ける。
+  - `test_split_weakened_sees_more_than_new_rule_names`(関数): 〔再検収 低-1〕前から言えない決まりで言えない名が増える・どの決まりも見ないモジュールが増える・読んでよい側に足した読み手が
+  - `test_split_writes_a_forward_ledger_row_for_a_second_destination_with_a_declaration`(関数): 〔E7〕宣言の入る 2 つ目以降の新しい割り先(``nw/extra.py``)ごとに、前向きの表へ「割り先の今の道 → 元のファイルの台帳の道」を
+  - `test_split_writes_a_forward_ledger_row_when_the_main_destination_is_the_source_file`(関数): 〔E7〕主な割り先が元のファイルの今の置き場の行(延ばした 18 本目の形): 1 対 1 の表は変えず、宣言の入る 2 つ目以降の割り先へ
+  - `test_stacked_apply_prunes_old_package_dirs_and_returns_3_when_imports_fail`(関数): 〔検収 L-a・n07〕同じ木に段を重ねて当てる形: 前の import が作った ``__pycache__`` を全部のディレクトリに置いた木へ、次の
+  - `test_staged_plan_refuses_the_held_rows_and_leaves_them`(関数)
+  - `test_stages_in_order_give_the_same_tree_as_together`(関数): 残る最初の 2 段を順に当てた木と、2 つをまとめて当てた木が同じ(違ってよいのは import の文の並びと分け方だけ・前の段で
+  - `test_strict_split_refuses_a_plan_with_patches_it_cannot_see`(関数): 〔検収の後の直し 2=低-1・親の裁定〕厳しい当て(``strict``)は、見られなかった差し替えが 1 つでも在れば断る(手で直す一覧が
+  - `test_string_constants_outside_the_allowlist_do_not_change`(関数)
+  - `test_string_exclude_has_the_fake_tree_sample_of_the_repo_guide_test`(関数): 〔裁定 R2〕``tests/tools/test_repo_guide.py::LAYER_SRC`` は偽の木(合成の木)に書く見本のコード=割る道具は書き換えない。
+  - `test_string_excludes_name_symbols_that_exist_in_the_tree`(関数): 〔G2 の検収 低-4〕``STRING_EXCLUDE`` の除外は (ファイル, 記号) の字面で当たる=記号を改名・移すと除外が黙って外れる。今の木で
+  - `where`(関数): 今の道(``src/shibuya`` からの相対)のファイルの、リポの今の木の中の道筋(移した後なら新しい道)。
+- import している内部モジュール: `tools/pkgmove/allow.py`・`tools/pkgmove/classids.py`・`tools/pkgmove/cli.py`・`tools/pkgmove/contracts.py`・`tools/pkgmove/guard.py`・`tools/pkgmove/importcheck.py`・`tools/pkgmove/imports.py`・`tools/pkgmove/ledgerpaths.py`・`tools/pkgmove/model.py`・`tools/pkgmove/move.py`・`tools/pkgmove/pkgdata.py`・`tools/pkgmove/split.py`・`tools/pkgmove/strings.py`・`tools/pkgmove/table.py`
+- 環境変数: `os.environ` をまるごと使う
+- 決定の ID: 11-16
+
+## [test_pkgmove_shapecheck.py](../../../../../../tests/tools/test_pkgmove_shapecheck.py)
+
+〔割る段 7 の G0-道具・E1・親の決め事 2〕形の変更の照合の台本(``tools/pkgmove/shapecheck.py``・``cli.py shapecheck``)の試験。
+
+- 公開の関数とクラス
+  - `real`(関数)
+  - `run_cli`(関数)
+  - `test_a_correct_shape_change_passes_and_names_the_declared_differences`(関数): 正しい形の変更は ⓪〜⑨ とも「同じ」。メソッドの置き場の表が出る。宣言どおりの違い 2 つ(先に出る例外・属性の辞書の並び)は
+  - `test_allowed_additions_section_separators_heads_and_named_imports`(関数): 止めずに出す物: 節の区切りの注を重ねる(宣言どおりの違い 3 つ目・数つき)・基底の頭に新しい注(見張りの欄)・名指しで許した
+  - `test_an_unchanged_file_is_not_called_a_shape_change`(関数): 前=後(クラスが 1 つのまま)は「形の変更ではない」(ok でない・同じとは言わない)。前に基底が既に在る・枠が無い・文法の誤りは
+  - `test_cli_reads_the_before_from_a_git_blob`(関数): ``--before <commit>:<道>`` で木を写さずに前を読む(前=後の blob は形の変更ではない=終了コード 2)。``--plan-counts`` は
+  - `test_cli_shapecheck_exit_codes`(関数): ``cli.py shapecheck``: 同じ=0・違う=1・形の変更ではない=2・後が無い=2・文法の誤り=2・``--allow-import``・``--json``。
+  - `test_each_planted_mutation_is_caught`(関数): 植えた変異は 1 つずつ落ちる(照合が ok でない・名指しの項目が違う)。
+  - `test_plan_counts_refuses_a_table_that_does_not_match_the_source`(関数): ``plan_counts`` は、表から読んだ名がソースのメソッドに無い・世界の側か気づく側のメソッドが表から読めないときは止める
+  - `test_real_renderer_a1_shape_passes_and_planted_changes_fail`(関数): 計画の分け方で作った A1 の形(文を前の注ごと動かす)は ⓪〜⑨ とも「同じ」・宣言どおりの違い 2 つ(入れ替わり 21・位置の
+  - `test_real_renderer_counts_match_the_retake`(関数): G-R1 の後の renderer.py(形を変える前)から、計画の分け方の数を台本が数える: メソッド 63・__init__ の文 68=世界の側 31・
+  - `test_the_mutations_change_the_sample`(関数): 負の対照の負の対照: 変異の関数は見本の字面に当たる(空回りしない)=どれも後の字面を変える(前提の変異は前も変える)。
+- import している内部モジュール: `tools/pkgmove/shapecheck.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+- 環境変数: `CI`・`os.environ` をまるごと使う
+
+## [test_realworld_fetch_jinryu.py](../../../../../../tests/tools/test_realworld_fetch_jinryu.py)
+
+第333(R-114): 渋谷区の人流の再取得で 2025 年以降の行が開封済みの層に混ざらない(合成の行だけ・実データは読まない)。
+
+- 公開の関数とクラス
+  - `test_opened_layer_max_year_is_the_last_opened_year`(関数)
+  - `test_split_k5_keeps_2024_and_earlier_and_splits_later_years`(関数)
+  - `test_year_parsing_tolerates_formats`(関数)
+- import している内部モジュール: `tools/realworld_fetch/shibuya_jinryu.py`
+- 決定の ID: R-114・第 333
+
+## [test_realworld_fetch_logrotate.py](../../../../../../tests/tools/test_realworld_fetch_logrotate.py)
+
+tools/realworld_fetch/logrotate.py(第337・取得の台帳とログを日ごとに回して gzip で縮める)の試験。
+
+- 公開の関数とクラス
+  - `test_busy_writer_is_left_alone`(関数)
+  - `test_cli_rotate_logs`(関数)
+  - `test_crash_after_rename_loses_nothing_and_reads_once`(関数)
+  - `test_day_never_goes_back_and_chunks_concatenate`(関数)
+  - `test_fresh_lock_moved_by_mistake_is_put_back`(関数): 古いと見た後にほかの回しが新しい錠を作っていたら、移した錠を元へ戻して進まない(新しい錠を消さない)。
+  - `test_lock_excludes_a_second_rotator_and_stale_lock_is_cleared`(関数)
+  - `test_maybe_rotate_once_a_day`(関数)
+  - `test_new_lines_after_rotation_follow_the_archives`(関数)
+  - `test_reader_retries_when_a_rotation_runs_mid_read`(関数): 〔検収 L3〕読みの途中で回しが走っても(生きているファイルが消える・gz が増える)読み落とさない。
+  - `test_reader_retries_when_the_listing_changes`(関数)
+  - `test_report_and_verify_read_through_archives`(関数)
+  - `test_rotate_ledger_by_jst_day_is_byte_exact`(関数)
+  - `test_spec_table_is_read_only`(関数)
+  - `test_stale_lock_is_cleared_only_by_the_one_that_moved_it`(関数): 〔検収 L4〕古い錠を移せなかった側(ほかの回しが先に片付けた)は進まない。
+  - `test_two_rotations_in_the_same_clock_tick_keep_the_order`(関数): 〔第337〕時計の刻みが粗い(Windows の Python 3.12)と 2 回の回しが同じ rotid になる → 並びが崩れず・名が重ならない。
+  - `test_utf16_log_rotates_as_one_chunk`(関数)
+  - `test_verify_mismatch_keeps_the_rotating_file`(関数)
+  - `test_writer_handle_blocks_rename_on_windows`(関数)
+  - `test_writer_keeps_appending_during_rotations`(関数): 書き手(``ledger.append``)が追記を続けている間に何度も回す: 書き手は落ちず、行は 1 つも失わず重ならない。
+- import している内部モジュール: `tools/realworld_fetch/cli.py`・`tools/realworld_fetch/ledger.py`・`tools/realworld_fetch/logrotate.py`
+- 決定の ID: 第 337
+
+## [test_realworld_fetch_odpt.py](../../../../../../tests/tools/test_realworld_fetch_odpt.py)
+
+tools/realworld_fetch の ODPT の取得(第333): 全路線の保存・gzip・間隔・変化分だけ・欠けた時間帯・静的データの版と --check・秘密が出ないこと。ネットワークには出ない(`common._urlopen` を差し替える)。
+
+- 公開の関数とクラス
+  - `FakeODPT`(クラス): `common._urlopen` の代わり。(枠, 種類) ごとの関数が params からレコードの並びを返す。
+  - `fake`(関数)
+  - `test_batches_respects_size_and_budget`(関数)
+  - `test_bus_capped_is_split_by_route_with_static_routes`(関数)
+  - `test_cadence_skips_until_due_and_force_overrides`(関数)
+  - `test_content_hash_ignores_time_fields_and_order`(関数)
+  - `test_cross_host_redirect_refused_and_not_retried`(関数)
+  - `test_dedupe_unchanged_info_not_saved_and_marked_in_ledger`(関数)
+  - `test_due_rule`(関数)
+  - `test_empty_response_writes_no_file`(関数)
+  - `test_failed_part_keeps_other_parts_and_job_errors_are_isolated`(関数)
+  - `test_frequent_run_skips_full_ledger_report`(関数)
+  - `test_gzip_written_and_readable_and_verify_reads_both`(関数)
+  - `test_no_secret_in_any_saved_file_url_or_output`(関数)
+  - `test_offline_makes_zero_requests`(関数)
+  - `test_open_saves_all_records_and_challenge_keeps_work_scope`(関数)
+  - `test_report_includes_rt_gaps_and_disk_usage`(関数)
+  - `test_rt_gap_report_counts_missing_hours_and_runs`(関数)
+  - `test_rt_gap_report_first_day_starts_at_first_row_and_old_rows_cluster`(関数)
+  - `test_static_or_batches_halve_when_capped`(関数)
+  - `test_static_version_splits_capped_and_check_lists_newer`(関数)
+- import している内部モジュール: `tools/realworld_fetch/cli.py`・`tools/realworld_fetch/common.py`・`tools/realworld_fetch/ledger.py`・`tools/realworld_fetch/odpt_rt.py`・`tools/realworld_fetch/odpt_static.py`
+- 決定の ID: 10-12・第 333
+
+## [test_repo_guide.py](../../../../../../tests/tools/test_repo_guide.py)
+
+tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
+
+- 公開の関数とクラス
+  - `guide`(関数): build.py を読み込んだモジュール(``guide.F``・``guide.P``・``guide.R`` が部品)。
+  - `real_blocks`(関数): 本物のリポのファイル → カードの節。
+  - `real_code`(関数)
+  - `repo`(関数)
+  - `test_ascii_lines_join_with_a_space`(関数)
+  - `test_card_contents_summary_public_imports_callers_tests`(関数)
+  - `test_check_does_not_even_list_data`(関数)
+  - `test_check_finds_differences`(関数)
+  - `test_check_ignores_docs_data_and_entry_readme`(関数)
+  - `test_cli_and_env_of_a_tool`(関数)
+  - `test_crlf_source_gives_same_cards`(関数)
+  - `test_data_files_are_never_read`(関数)
+  - `test_data_size_uses_units`(関数)
+  - `test_decision_ids_rules`(関数)
+  - `test_decision_ids_without_prefix_list`(関数)
+  - `test_decision_sort_key_breaks_ties_by_text`(関数)
+  - `test_docs_index_and_entry_readme`(関数)
+  - `test_git_listing_includes_untracked_and_reports_them`(関数)
+  - `test_ledger_rows_and_owner`(関数)
+  - `test_link_shapes_in_text_are_escaped`(関数)
+  - `test_links_in_data_are_not_followed_or_sized`(関数)
+  - `test_masks_words_of_both_checkers`(関数)
+  - `test_missing_ledger_is_reported`(関数)
+  - `test_no_data_dir_keeps_old_list_and_readme_does_not_change`(関数)
+  - `test_problems_stop_at_the_listed_dir_and_hide_deep_names`(関数)
+  - `test_public_inside_if_try_with_but_not_nested`(関数)
+  - `test_real_bare_imports_are_resolved_or_marked`(関数): tests と tools に同じ名が 1 つだけある素の import は、解けるか、カードに印が付く(H1 の再発の守り)。
+  - `test_real_cards_have_no_link_shapes_in_text`(関数)
+  - `test_real_imports_and_env_match_line_regex`(関数): import と環境変数: カードと、行の正規表現(AST を使わない別の読み方)を比べる(本物の全ファイル)。
+  - `test_real_item_numbers_are_attached_to_a_head`(関数): ``#N`` は接頭につながる形だけ(単独の ``#N`` は載せない)。
+  - `test_real_known_edges_of_syspath_forms`(関数): 検収で落ちていた辺(ループの変数・``.parent.parent``・``parents[1]``・``ROOT / sub``)。
+  - `test_real_ledger_rows_match_import`(関数)
+  - `test_real_public_names_match_import`(関数): 公開の関数とクラス: カードと、実物を import した ``vars()`` を比べる(軽いモジュールの全部)。
+  - `test_real_write_permits_match_import`(関数)
+  - `test_relative_imports_and_import_module`(関数)
+  - `test_subdirs_are_sorted`(関数)
+  - `test_syspath_added_by_an_imported_module_and_by_package_init`(関数)
+  - `test_syspath_forms_are_read_and_unread_ones_are_counted`(関数)
+  - `test_tests_by_path_and_syspath_of_conftest`(関数)
+  - `test_two_builds_same_bytes_lf_no_abs_paths`(関数)
+  - `test_unparsable_file_is_reported_not_guessed`(関数)
+  - `test_unresolved_bare_import_gets_a_mark`(関数)
+  - `test_write_permits_from_table`(関数)
+- import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`tests/_places.py`
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+- 環境変数: `os.environ` をまるごと使う
+- 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
+
+## [test_scan_secrets_cp932.py](../../../../../../tests/tools/test_scan_secrets_cp932.py)
+
+第333(検収 L8): 秘密スキャンは cp932 のファイル(祝日の fixture)を文字化けで偽陽性にしない。
+
+- 公開の関数とクラス
+  - `test_cp932_file_is_decoded_not_replaced`(関数)
+  - `test_cp932_fixture_is_clean`(関数)
+- 決定の ID: 第 333
+
+## [test_seal_split_337.py](../../../../../../tests/tools/test_seal_split_337.py)
+
+第337 封印の分離の残り(回答 10-13b §7 の 5): 分けた錨のファイルと読み口の守りの試験。
+
+- 公開の関数とクラス
+  - `test_build_side_copy_equals_the_original_anchors`(関数)
+  - `test_core9_calib_copies_agree`(関数)
+  - `test_gauge_guard_allows_the_build_side_names`(関数)
+  - `test_gauge_guard_denies_the_validation_side`(関数)
+  - `test_md5_helper_is_order_free`(関数)
+  - `test_old_odpt_rt_dir_is_sealed_for_both_guards`(関数)
+  - `test_plan_has_a_reason_for_every_anchor_and_no_overlap`(関数)
+  - `test_plan_tables_are_read_only`(関数)
+  - `test_split_doc_refuses_unknown_names`(関数)
+  - `test_yardstick_fixture_reads_no_validation_file_and_the_hook_works`(関数)
+- import している内部モジュール: `shibuya.build.pop.w21_sources`・`tools/instruments/anchor_split.py`・`tools/instruments/read_guard.py`・`tools/w17/diversity_yardstick.py`
+- 読む試験(道筋で): `tests/tools/test_repo_guide.py`
+- 決定の ID: 10-13b/§7・第 337
+
+## [test_sealed_tokens_compare.py](../../../../../../tests/tools/test_sealed_tokens_compare.py)
+
+tools/instruments/sealed_tokens_compare.py の試験(11-16 §1-6 の 5=語を出さずに個数だけで比べる)。
+
+- 公開の関数とクラス
+  - `test_compare_counts_only`(関数)
+  - `test_output_never_shows_a_token`(関数)
+  - `test_same_sets`(関数)
+- 決定の ID: 11-16/§1-6
+
+## [test_sealed_tokens_dryrun.py](../../../../../../tests/tools/test_sealed_tokens_dryrun.py)
+
+封印の語の表をまとめた語で 2 つの守りを空回しする道具(``tools/instruments/sealed_tokens_dryrun.py``)の試験。
+
+- 公開の関数とクラス
+  - `test_build_scan_new_swaps_only_the_table_and_restores_it`(関数)
+  - `test_count_new_path_hits_counts_only_newly_hit_paths`(関数)
+  - `test_merged_keeps_order_and_drops_repeats`(関数)
+  - `test_output_never_shows_a_token`(関数)
+  - `test_path_hit_is_case_blind_and_slash_blind`(関数)
+- 決定の ID: 11-20/§1
+
+## [test_skill_gauge.py](../../../../../../tests/tools/test_skill_gauge.py)
+
+tools/instruments/skill_gauge.py(第 3 期 3-3b・CP14 の技量スコアの隣の生の点数)の試験。
+
+- 公開の関数とクラス
+  - `S`(関数)
+  - `test_crps_known_values`(関数)
+  - `test_rank_histogram_and_spread_skill`(関数)
+  - `test_read_guard_on_the_input`(関数)
+  - `test_scores_of_a_mock_ensemble`(関数)
+  - `test_skill_next_to_raw_scores_and_fill_the_container`(関数)
+- import している内部モジュール: `shibuya.experiments.port.ensemble`・`shibuya.interfaces.cli.main`・`tests/engine/experiment/_x33.py`
+
+## [test_warmup_gauge.py](../../../../../../tests/tools/test_warmup_gauge.py)
+
+tools/instruments/warmup_gauge.py(第 3 期 3-3b・CP5-6 慣らしの自動判定の器)の試験(合成の系列だけ=データ不要)。
+
+- 公開の関数とクラス
+  - `G`(関数)
+  - `test_cli_and_read_guard`(関数)
+  - `test_counter_paths_are_differenced_and_unmarked_ones_are_refused`(関数)
+  - `test_cumulative_series_is_the_negative_control`(関数)
+  - `test_difference_series_finds_what_the_raw_arm_misses`(関数)
+  - `test_latter_half_is_invalid_and_extended`(関数)
+  - `test_metric_table_is_read_only`(関数)
+  - `test_metric_table_stock_transition_placeholder_and_bundle`(関数)
+  - `test_mser_formula_by_hand`(関数)
+  - `test_planted_warmup_is_found`(関数)
+  - `test_question2_intervals`(関数)
+  - `test_read_guard_catches_upper_case_and_junction`(関数)
+  - `test_stock_warmup_days_count_from_the_series_head`(関数)
+- import している内部モジュール: `shibuya.experiments.port.warmup`

@@ -17,16 +17,19 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.core import write_permit as WP
-from shibuya.engine.bridging import ledger as BR
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import overrides as OV
-from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.registry import SIGNAGE_BRIDGE
-from shibuya.perception import renderer as RD
-from shibuya.perception.facts import SeenObject
+from shibuya.foundation import write_permit as WP
+from shibuya.foundation.decl import bridging as BR
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
+from shibuya.runtime.run import run_day
+from shibuya.validation.static import system_overrides as OV
+from shibuya.society.tools import record as TR
+# 〔割る段 5a の G2〕2 つ目以降の割り先(foundation.vocab.events・foundation.journal.log)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.journal.log import SIGNBOARD_CAUSE
+from shibuya.foundation.vocab.events import SIGNBOARD_ORIGIN, SIGNBOARD_WHAT
+from shibuya.society.tools.registry import SIGNAGE_BRIDGE
+from shibuya.mind.percept import draw as RD
+from shibuya.foundation.ports.percept import SeenObject
 
 KW = dict(n_agents=60, seed=2, n_cells=9, ticks=240, budget=60.0, sleep_suppression=False, vocab_version="v3",
           checkpoint_every=60)
@@ -60,7 +63,7 @@ def test_link_writes_one_marked_row_per_visible_signboard():
 
 
 def test_the_mark_is_tied_to_the_ledger_and_the_vocab():
-    assert TR.SIGNBOARD_ORIGIN == "signboard:synthetic" and TR.SIGNBOARD_WHAT in V.VOCAB_CODES
+    assert SIGNBOARD_ORIGIN == "signboard:synthetic" and SIGNBOARD_WHAT in V.VOCAB_CODES
     assert SIGNAGE_BRIDGE in {b.id for b in BR.default_ledger().active()}
     assert V.VIA_NONE == "無し" and V.VIA_WORDS[:5] == ("対面", "通話", "メッセージ", "グループ", "SNS")  # 新しい欄・語は無い
     assert EV.EVENT_FIELDS == ("id", "t_ns", "who", "what", "whom", "where", "how_much", "via", "received_ns",
@@ -86,7 +89,7 @@ def _render_spy(monkeypatch):  # noqa: ANN001
 
 
 def _rows(res) -> list:  # noqa: ANN001
-    return [e for e in res.event_log.events() if e.what == TR.SIGNBOARD_WHAT]
+    return [e for e in res.event_log.events() if e.what == SIGNBOARD_WHAT]
 
 
 def _pair(monkeypatch, run, kw):  # noqa: ANN001
@@ -108,7 +111,7 @@ def _check_pair(off, seen_off, on, seen_on) -> int:  # noqa: ANN001
     rows = _rows(on)
     assert len(rows) == n_sign > 0 and _rows(off) == []
     for e in rows:
-        assert (e.origin, e.via, e.cause) == (TR.SIGNBOARD_ORIGIN, V.VIA_NONE, TR.SIGNBOARD_CAUSE)
+        assert (e.origin, e.via, e.cause) == (SIGNBOARD_ORIGIN, V.VIA_NONE, SIGNBOARD_CAUSE)
         assert e.received_ns == e.read_ns == e.t_ns and e.where[0] == "poi" and isinstance(e.who, int)
     want = sorted((s[1], p) for s in seen_on for p in s[5])
     assert sorted((int(e.who), int(e.where[1])) for e in rows) == want
@@ -116,11 +119,11 @@ def _check_pair(off, seen_off, on, seen_on) -> int:  # noqa: ANN001
     m_on, m_off = on.run_manifest_fields(), off.run_manifest_fields()
     for d_on, d_off in zip(m_on["daily"], m_off["daily"]):
         bw_on = dict(d_on["events"]["by_what"])
-        k = bw_on.pop(TR.SIGNBOARD_WHAT, 0)
+        k = bw_on.pop(SIGNBOARD_WHAT, 0)
         assert bw_on == d_off["events"]["by_what"]
         assert d_on["events"]["rows"] - d_off["events"]["rows"] == k
-    assert m_off["tools"]["signboard"] == {"origin": TR.SIGNBOARD_ORIGIN, "bridge": SIGNAGE_BRIDGE,
-                                           "what": TR.SIGNBOARD_WHAT, "events_arm": False, "read_events": 0}
+    assert m_off["tools"]["signboard"] == {"origin": SIGNBOARD_ORIGIN, "bridge": SIGNAGE_BRIDGE,
+                                           "what": SIGNBOARD_WHAT, "events_arm": False, "read_events": 0}
     assert m_on["tools"]["signboard"]["events_arm"] and m_on["tools"]["signboard"]["read_events"] == n_sign
     assert list(m_on) == list(m_off)  # manifest の欄の並びは同じ(値の比べは記録の道具=c0/README.md §7)
     return n_sign
@@ -133,7 +136,7 @@ def test_synthetic_run_arm_on_and_off_render_the_same_bytes(monkeypatch):
 
 @pytest.mark.requires_data("world_v2", "world_v2:w14_signage.parquet")
 def test_world_run_arm_on_and_off_render_the_same_bytes(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     off, seen_off, on, seen_on = _pair(monkeypatch, cli.run, WORLD_KW)
     n = _check_pair(off, seen_off, on, seen_on)

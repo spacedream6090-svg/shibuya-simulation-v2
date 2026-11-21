@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from shibuya.manifest import schema
+from shibuya.foundation.manifest import schema
 
 FIXTURE = Path(__file__).parent / "fixtures" / "manifest_example.yaml"
 

@@ -34,7 +34,7 @@
   },
   {
    "id": "minimum_wage.tokyo",
-   "kind": "machine",
+   "kind": "human",
    "asof": "2024-10-01",
    "source": [
     {
@@ -55,14 +55,22 @@
    ],
    "params": {
     "yen_per_hour": 1163,
-    "area": "東京都"
+    "area": "東京都",
+    "bridge": {
+     "kind": "machine",
+     "conf": "expedient",
+     "remove_at": "7",
+     "remove_note": "検知と反応の口(気づいた人・本人・監督)ができる段",
+     "declared_in": "11-01 §5",
+     "ledger_id": "DOC-s2rules-min-wage-floor-bridge"
+    }
    },
    "applies_to": "",
-   "note": "東京都の最低賃金 1,163 円・効力 2024-10-01〜2025-10-02(次の版の前日まで)。親が一次確認 ○(第337・2026-10-18・厚生労働省の地域別最低賃金改定状況の xlsx の東京の行)。最低賃金に足りない部分は無効で最低賃金と同じ定めとみなす(最賃法 4 条 2 項)=機械が守らせる側。"
+   "note": "東京都の最低賃金 1,163 円・効力 2024-10-01〜2025-10-02(次の版の前日まで)。親が一次確認 ○(第337・2026-10-18・厚生労働省の地域別最低賃金改定状況の xlsx の東京の行)。最低賃金に足りない部分は無効で最低賃金と同じ定めとみなす(最賃法 4 条 2 項)=R-106 の振り分けでは機械が守らせる側。〔11-01 §5・段 2 の 5〕kind を human に直した(回答 11-01 §5=判定は「現実でその場で物理的に止まるか」・最低賃金は human・違反は起きたことにして記録=10-12 §1-4)。検知と反応の口(気づいた人・本人・監督)ができるまで、給料日の床は params.bridge(machine のつなぎ・conf expedient・つなぎの台帳 DOC-s2rules-min-wage-floor-bridge)で残す。床を当てる直前に床を下回った体と額を economy.stage2 の rules.minimum_wage_shortfall に数える(記録 docs/bench/analysis/s2-rules-1101/README.md)。"
   },
   {
    "id": "minimum_wage.tokyo",
-   "kind": "machine",
+   "kind": "human",
    "asof": "2025-10-03",
    "source": [
     {
@@ -90,14 +98,22 @@
    ],
    "params": {
     "yen_per_hour": 1226,
-    "area": "東京都"
+    "area": "東京都",
+    "bridge": {
+     "kind": "machine",
+     "conf": "expedient",
+     "remove_at": "7",
+     "remove_note": "検知と反応の口(気づいた人・本人・監督)ができる段",
+     "declared_in": "11-01 §5",
+     "ledger_id": "DOC-s2rules-min-wage-floor-bridge"
+    }
    },
    "applies_to": "",
-   "note": "東京都の最低賃金 1,226 円・効力 2025-10-03〜2026-09-30(次の版の前日まで)。親が一次確認 ○(第337・2026-10-18・厚生労働省の地域別最低賃金改定状況の xlsx の東京の行)。最低賃金に足りない部分は無効で最低賃金と同じ定めとみなす(最賃法 4 条 2 項)=機械が守らせる側。"
+   "note": "東京都の最低賃金 1,226 円・効力 2025-10-03〜2026-09-30(次の版の前日まで)。親が一次確認 ○(第337・2026-10-18・厚生労働省の地域別最低賃金改定状況の xlsx の東京の行)。最低賃金に足りない部分は無効で最低賃金と同じ定めとみなす(最賃法 4 条 2 項)=R-106 の振り分けでは機械が守らせる側。〔11-01 §5・段 2 の 5〕kind を human に直した(回答 11-01 §5=判定は「現実でその場で物理的に止まるか」・最低賃金は human・違反は起きたことにして記録=10-12 §1-4)。検知と反応の口(気づいた人・本人・監督)ができるまで、給料日の床は params.bridge(machine のつなぎ・conf expedient・つなぎの台帳 DOC-s2rules-min-wage-floor-bridge)で残す。床を当てる直前に床を下回った体と額を economy.stage2 の rules.minimum_wage_shortfall に数える(記録 docs/bench/analysis/s2-rules-1101/README.md)。"
   },
   {
    "id": "minimum_wage.tokyo",
-   "kind": "machine",
+   "kind": "human",
    "asof": "2026-10-01",
    "source": [
     {
@@ -124,10 +140,18 @@
    ],
    "params": {
     "yen_per_hour": 1280,
-    "area": "東京都"
+    "area": "東京都",
+    "bridge": {
+     "kind": "machine",
+     "conf": "expedient",
+     "remove_at": "7",
+     "remove_note": "検知と反応の口(気づいた人・本人・監督)ができる段",
+     "declared_in": "11-01 §5",
+     "ledger_id": "DOC-s2rules-min-wage-floor-bridge"
+    }
    },
    "applies_to": "",
-   "note": "東京都の最低賃金 1,280 円・効力 2026-10-01(R-106 #17・○・親検収)。最低賃金に足りない部分は無効で最低賃金と同じ定めとみなす(最賃法 4 条 2 項)=機械が守らせる側(R-106 §振り分けの例)。世界の時点 2026-07-13 の前の版 1,226 円(2025-10-03〜)と 1,163 円(2024-10-01〜)は、R-106 では △(報道)だったが、親の一次確認(第337・2026-10-18・厚生労働省の改定状況の xlsx と全国一覧の PDF)で解消=同じ id の版として足した(表の読み口はその日に効いている版=asof が日以下で最も新しい行)。"
+   "note": "東京都の最低賃金 1,280 円・効力 2026-10-01(R-106 #17・○・親検収)。最低賃金に足りない部分は無効で最低賃金と同じ定めとみなす(最賃法 4 条 2 項)=R-106 の振り分けでは機械が守らせる側(R-106 §振り分けの例)。世界の時点 2026-07-13 の前の版 1,226 円(2025-10-03〜)と 1,163 円(2024-10-01〜)は、R-106 では △(報道)だったが、親の一次確認(第337・2026-10-18・厚生労働省の改定状況の xlsx と全国一覧の PDF)で解消=同じ id の版として足した(表の読み口はその日に効いている版=asof が日以下で最も新しい行)。〔11-01 §5・段 2 の 5〕kind を human に直した(回答 11-01 §5=判定は「現実でその場で物理的に止まるか」・最低賃金は human・違反は起きたことにして記録=10-12 §1-4)。検知と反応の口(気づいた人・本人・監督)ができるまで、給料日の床は params.bridge(machine のつなぎ・conf expedient・つなぎの台帳 DOC-s2rules-min-wage-floor-bridge)で残す。床を当てる直前に床を下回った体と額を economy.stage2 の rules.minimum_wage_shortfall に数える(記録 docs/bench/analysis/s2-rules-1101/README.md)。"
   },
   {
    "id": "late_night_alcohol.residential_ban",
@@ -975,10 +999,17 @@
     "corporation_due_months_after_period_end": 2,
     "sole_proprietor_period": "暦年",
     "sole_proprietor_due_month": 3,
-    "sole_proprietor_due_day": 31
+    "sole_proprietor_due_day": 31,
+    "bridge": {
+     "kind": "machine",
+     "conf": "expedient",
+     "remove_at": "6-6",
+     "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
+     "ledger_id": "DOC-rules42-tax-remit-machine"
+    }
    },
    "applies_to": "",
-   "note": "事業者の申告の期限: 法人は課税期間の末日の翌日から 2 か月以内・個人事業者(課税期間=暦年)は翌年 3 月 31 日(R-106 §3-1・○・親検収 第329)。R-106 が読んだ版は e-Gov の 2026-10-01 の版で、世界の時点の版では読んでいない=asof は読んだ版の施行日を下限に置いた(Q6)。読み手(economy.taxes.filing_deadline)は課税期間の末日の日に効いている版を引く(2026 年の課税期間の末日 2026-12-31 にはこの版が効いている)。申告と納付は事業者の手続き(R-118 §2-6=人の側)=kind は human。〔第 4 期 4-2・Q1=PENDING 仮-40・検収 L1〕店の預かり消費税を期限に政府へ移すのは機械の側のつなぎ(つなぎの台帳 DOC-rules42-tax-remit-machine=外す段 6-6 の人が納める行動・読み手は economy.taxes.filing_deadline のつなぎの読み口)。中間申告と、期限が土日祝に当たるときの扱いは答申に無い=入れていない。"
+   "note": "事業者の申告の期限: 法人は課税期間の末日の翌日から 2 か月以内・個人事業者(課税期間=暦年)は翌年 3 月 31 日(R-106 §3-1・○・親検収 第329)。R-106 が読んだ版は e-Gov の 2026-10-01 の版で、世界の時点の版では読んでいない=asof は読んだ版の施行日を下限に置いた(Q6)。読み手(economy.taxes.filing_deadline)は課税期間の末日の日に効いている版を引く(2026 年の課税期間の末日 2026-12-31 にはこの版が効いている)。申告と納付は事業者の手続き(R-118 §2-6=人の側)=kind は human。〔第 4 期 4-2・Q1=PENDING 仮-40・検収 L1〕店の預かり消費税を期限に政府へ移すのは機械の側のつなぎ(つなぎの台帳 DOC-rules42-tax-remit-machine=外す段 6-6 の人が納める行動・読み手は economy.taxes.filing_deadline のつなぎの読み口)。〔段 2 の 5・検収 M1〕つなぎの書き方を最低賃金の行と同じ params.bridge に統一した(remove_at・declared_in・ledger_id はつなぎの台帳の行 DOC-rules42-tax-remit-machine の値・読み口 economy.taxes._bridge_row が machine のつなぎを確かめる)。中間申告と、期限が土日祝に当たるときの扱いは答申に無い=入れていない。"
   },
   {
    "id": "resident_tax.basic_deduction",

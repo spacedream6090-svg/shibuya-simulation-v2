@@ -18,13 +18,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine import run as RUN
-from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的
-from shibuya.engine.calendar import CalendarWarning, SimCalendar, load_holidays, resolve_repo_path
-from shibuya.engine.energy import HomeMeals
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
-from shibuya.world.state import World
+from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
+from shibuya.foundation.paths import resolve_repo_path
+from shibuya.world.facts.calendar import CalendarWarning, SimCalendar, load_holidays
+from shibuya.world.body.energy import HomeMeals
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
+from shibuya.world.model.state import World
 
 from tests.engine.test_calendar import write_csv
 from tests.engine.test_tape_deferred import common
@@ -132,7 +132,7 @@ def test_the_tape_carries_the_response_delay_and_old_tapes_stop(tmp_path):
 def test_relative_holiday_csv_is_resolved_from_the_repo_root(tmp_path, monkeypatch):
     p = resolve_repo_path("data/calendar/syukujitsu.csv")
     assert p.is_absolute() and p.parts[-3:] == ("data", "calendar", "syukujitsu.csv")
-    assert (p.parent.parent.parent / "src" / "shibuya" / "engine" / "calendar.py").is_file()
+    assert (p.parent.parent.parent / "src" / "shibuya" / "world" / "facts" / "calendar.py").is_file()
     assert resolve_repo_path(tmp_path / "x.csv") == tmp_path / "x.csv"
     if p.is_file():                                            # 本物の CSV がある環境だけ
         monkeypatch.chdir(tmp_path)                            # 作業ディレクトリをリポの外へ
@@ -187,7 +187,7 @@ def test_real_day_key_is_the_day_number(table):
                                         ("2026-08-10", False)])
 def test_real_mode_rest_day_reaches_the_mock_schedule(tmp_path, monkeypatch, start, rest):
     """real の土・日・祝日(8/11 山の日)の mock ランで、mock 日課へ暦の土休が渡る(平日の月曜は渡らない)。"""
-    from shibuya.agents.schedule import MockWeeklySchedule
+    from shibuya.world.facts.mock_schedule import MockWeeklySchedule
 
     seen = []
     orig = MockWeeklySchedule.events_of_day
@@ -206,7 +206,7 @@ def test_real_mode_rest_day_reaches_the_mock_schedule(tmp_path, monkeypatch, sta
 
 def test_home_meals_are_read_by_tick_of_day():
     class W:  # W17 の最小(1 体・月曜に自宅の食事 1 行)
-        from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS
+        from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS
 
         n_agents = 1
         day_offset = np.array([0, 1] + [1] * 6, dtype=np.int64)
@@ -228,7 +228,7 @@ def test_august_is_summer():
 
 
 def test_tape_meta_does_not_touch_the_parquet(tmp_path):
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     run_day(n_agents=30, n_cells=9, ticks=10, tape_path=tmp_path / "t", renderer="stub", sleep_suppression=False)
     t = Tape(tmp_path / "t")

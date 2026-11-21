@@ -12,14 +12,14 @@ import pytest
 
 from tests import _data_ids as D
 
-import shibuya.engine.run as RUN
-from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
-from shibuya.engine.conversation import (
+import shibuya.runtime.run as RUN
+from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
+from shibuya.society.conversation import (
     PAIR_INVITE_REFRACTORY_TICKS,
     SPEAKER_INVITE_REFRACTORY_TICKS,
     ConversationManager,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -116,8 +116,8 @@ def test_e2_dicts_stay_bounded_over_days(purge_runs):
 @real_data
 def test_e2_o64_signage_exposures_are_empty_at_every_checkpoint():
     """O64 の ``renderer.signage_exposures`` は tick の中だけの口=checkpoint の時点では常に空(no のままでよい根拠)。"""
-    from shibuya import cli
-    from shibuya.engine import state_ledger as SL
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.state import ledger as SL
 
     row = SL.row("O64")
     assert (row.behavior, row.restore) == (SL.NO, SL.DISCARDABLE) and "renderer.signage_exposures" in row.items
@@ -146,8 +146,8 @@ def test_e4_default_rng_scheme_is_counter_and_stateful_is_the_old_switch():
     (前: 既定 counter・stateful は旧値の再現の切替口・``k19_counters("stateful", 7) == (7,)``)。"""
     import argparse
 
-    from shibuya.core import rng as R
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.foundation import rng as R
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
 
     assert R.RNG_SCHEME == "counter" and not hasattr(R, "RNG_SCHEMES") and not hasattr(R, "DEFAULT_RNG_SCHEME")
     ap = argparse.ArgumentParser()
@@ -168,7 +168,7 @@ def test_e4_u2_next_key_is_no_longer_a_shifted_copy(domain):
     """U2(既知の答え): 旧の並び(鍵を 0 語目に置く)では「鍵 d+1 の流れ」が「鍵 d の流れを 1 ブロック(4 語)ずらした写し」に
     なる。counter では 0 語目を空けたので、鍵 d の流れを何ブロック引いても鍵 d+1 の流れと同じ語は出ない。
     〔改訂(第330・RET)〕旧の並びは ``k19_counters("stateful", d)`` を消したので ``stream(seed, 用途名, d)`` で直に作る。"""
-    from shibuya.core.rng import k19_counters, stream
+    from shibuya.foundation.rng import k19_counters, stream
 
     for d in (0, 3):
         old_d = stream(1, domain, d).integers(0, 2**63, 40, dtype=np.int64)
@@ -182,7 +182,7 @@ def test_e4_u2_next_key_is_no_longer_a_shifted_copy(domain):
 def test_e4_u2_two_day_run_has_independent_day_streams():
     """U2: 2 日のラン(合成世界・counter)で、日の鍵の流れ(配送・工事)はどれも重ならない=日ごとの差を主張に使える。
     〔改訂(第330・RET)〕前は stateful(旧値の再現)では 1 日目の配送の流れが 0 日目と重なることも見た(stateful を消した)。"""
-    from shibuya.engine import rng_audit as RA
+    from shibuya.validation.static import rng_audit as RA
 
     kw = dict(n_agents=120, seed=2, n_cells=16, ticks=TPD, sim_days=2, checkpoint_every=360, budget=120.0)
     with RA.StreamRecorder() as rec:
@@ -194,8 +194,8 @@ def test_e4_u2_two_day_run_has_independent_day_streams():
 
 def test_e4_recorder_groups_by_seed_u8():
     """U8: 束ねる鍵に master seed を入れた=seed の違う同じ用途名・同じカウンタの流れを重なりと数えない。"""
-    from shibuya.core.rng import stream
-    from shibuya.engine import rng_audit as RA
+    from shibuya.foundation.rng import stream
+    from shibuya.validation.static import rng_audit as RA
 
     with RA.StreamRecorder() as rec:
         for seed in (1, 2):
@@ -207,7 +207,7 @@ def test_e4_recorder_groups_by_seed_u8():
 
 # ================================================================= E5: テープ版 4(A8・K1)
 def test_e5_schema_is_version_4_and_appends_seven_columns():
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     assert TP.TAPE_SCHEMA_VERSION == "shibuya.tape/4"
     names = TP.CALLS_SCHEMA.names
@@ -223,7 +223,7 @@ def test_e5_a_version_3_tape_reads_as_day_0_and_replays(tmp_path):
     import pyarrow as pa
     import pyarrow.parquet as pq
 
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     kw = dict(n_agents=60, seed=1, n_cells=9, ticks=360, checkpoint_every=60, budget=60.0, vocab_version="v3")
     rec = run_day(tape_path=tmp_path / "rec", **kw)
@@ -249,7 +249,7 @@ def test_e5_a_version_3_tape_reads_as_day_0_and_replays(tmp_path):
 
 def test_e5_key_has_the_day_through_T(tmp_path):
     """鍵に日(A8 の 1): 2 日のランのテープの tick は通しの T(1 日目は 1,440 以上)・鍵は日をまたいで衝突しない。"""
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     run_day(n_agents=40, seed=1, n_cells=9, ticks=TPD, sim_days=2, checkpoint_every=360, budget=40.0,
             vocab_version="v3", tape_path=tmp_path / "t")
@@ -264,8 +264,8 @@ def test_e5_key_has_the_day_through_T(tmp_path):
 def v4_tape(tmp_path_factory):
     """世界資産 300 体・1 日・語彙 v3・記憶 on・関係 on(初期の関係辺がある=知人の印が出る)。"""
     D.skip_unless("world_v2:w17_schedule.parquet")
-    from shibuya import cli
-    from shibuya.engine import tape as TP
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.inference import tape as TP
 
     d = tmp_path_factory.mktemp("e5")
     res = cli.run(n_agents=300, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3", memory="on", relations="on",
@@ -275,7 +275,7 @@ def v4_tape(tmp_path_factory):
 
 def test_e5_b5_b6_texts_rebuild_the_prompt_hash(v4_tape):
     """B5 は列に直接・B6 は intern(K1): 共有ブロック 6 本+B5+B6 の本文から ``prompt_hash`` を作り直せる(再描画の検算)。"""
-    from shibuya.core.hashing import sha256_cbor
+    from shibuya.foundation.hashing import sha256_cbor
 
     _res, tape, _d = v4_tape
     rows = [r for r in tape.rows() if not r.deferred]
@@ -314,19 +314,27 @@ def test_e5_recalled_memory_identity_and_acquaintances(v4_tape):
 
 
 # ================================================================= E4 の検収の直し(L1・L2・L3)
-def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_path):
+def test_e4_l1_tape_meta_carries_the_rng_layout_and_old_counter_tapes_stop(tmp_path, monkeypatch):
     """L1: テープの脇の meta に鍵の配置の印(``rng_layout``)。10c〜10f の counter で録ったテープ(印が無い)は再生で
     明示的に止まる。〔改訂(第330・RET)〕前は「stateful のテープは印が無くても回る(meta の無い実テープと同じ扱い)」も
     見た=stateful を消したので、印が無いテープ・stateful のテープ・meta の無いテープはどれも止まる。"""
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔第347〕切替口 --rate-rules legacy と
+    # run_day(salient_rate_per_10k=…) の代わりに、試験の中だけで実行器に部品の口(率の規則の旧道・倒れる率)を挿す
+    legacy_world_rules(monkeypatch, absent=False, salient_rate=30000.0)
     import json
 
-    from shibuya.engine.run import RNG_LAYOUT
-    from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+    from shibuya.runtime.run import RNG_LAYOUT
+    from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
     from tests.engine.test_tape_wiring import BoomLLM
 
-    kw = dict(n_agents=40, seed=3, n_cells=9, ticks=120, checkpoint_every=60, budget=40.0,
-              salient_rate_per_10k=30000.0)
+    kw = dict(n_agents=40, seed=3, n_cells=9, ticks=120, checkpoint_every=60, budget=40.0)
     rec = run_day(tape_path=tmp_path / "c", **kw)
+    # 〔第347・検収 L1〕助けが効いている(旧道の倒れる率 30,000 で倒れる行が立つ)ことを試験の中で確かめる。助けが無いと
+    # 倒れる 0 件・旧道の印 1(取り直した値: 40 体・120 刻みで倒れる 10 件)
+    assert rec.runner.salient.rate_rules == "legacy"
+    assert rec.process_counters["salient.collapse"] > 0 and rec.process_counters["salient.rate_rule_collapse_removed"] == 0
     meta = read_run_meta(tmp_path / "c")
     assert meta["rng_scheme"] == "counter" and meta["rng_layout"] == RNG_LAYOUT == "10e"
     assert run_day(mode="replay", replay=tmp_path / "c", llm=BoomLLM(), **kw).final_hash == rec.final_hash
@@ -349,8 +357,8 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
     engine から呼べる。〔改訂(第330・RET)〕前は ``rng_scheme`` の 2 通り(counter・stateful)で見た(stateful を消した)。"""
     import numpy as np
 
-    import shibuya.engine.run as RUN
-    from shibuya.agents import population as POP
+    import shibuya.runtime.run as RUN
+    from shibuya.world.facts import population_reader as POP
 
     full = POP.load_population(WORLD_DIR, n=None, seed=1)
     a = POP.load_population(WORLD_DIR, n=500, seed=1)
@@ -369,7 +377,7 @@ def test_e4_l2_load_population_and_three_argument_samplers_follow_the_engine(mon
 
 def test_e4_l3_checkpoints_payload_is_version_2():
     """L3: CLI の checkpoints の JSON は版 2(``combined`` は既定で behavior-hash)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = run_day(n_agents=10, seed=1, n_cells=9, ticks=30, checkpoint_every=30)
     doc = cli.checkpoints_payload(res)
@@ -380,9 +388,9 @@ def test_e4_l3_checkpoints_payload_is_version_2():
 # ================================================================= E5 の検収の直し(T1・T3)
 def test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash(tmp_path):
     """T1: 艦隊の経路(``FleetBridge``)の応答の行と繰り延べの行にも B5・B6 が入り、``prompt_hash`` を本文から作り直せる。"""
-    from shibuya.core.hashing import sha256_cbor
-    from shibuya.engine import tape as TP
-    from shibuya.world.state import World
+    from shibuya.foundation.hashing import sha256_cbor
+    from shibuya.runtime.inference import tape as TP
+    from shibuya.world.model.state import World
     from tests.engine.test_tape_deferred import make_client
     from tests.llm.test_fleet import FakeVLLM
 
@@ -411,8 +419,8 @@ def test_e5_t1_fleet_rows_carry_b5_b6_and_rebuild_the_prompt_hash(tmp_path):
 def test_e5_t3_recalled_identity_matches_the_memory_table(tmp_path, monkeypatch):
     """T3: 引いた記憶の同定 3 列を、想起した時点の記憶の表(``mem_tick``・``mem_kind``・``mem_object``・店の行は
     ``sm_first``・``sm_poi``)と突き合わせる。並びのずれ・種類と対象の取り違えで落ちる。"""
-    from shibuya.engine import tape as TP
-    from shibuya.engine.memory import STORE_ITEM_KIND, MemoryLayer
+    from shibuya.runtime.inference import tape as TP
+    from shibuya.mind.memory.memory import STORE_ITEM_KIND, MemoryLayer
 
     seen: dict[tuple[int, int], list[tuple[int, tuple[int, int, int]]]] = {}
     real = MemoryLayer.recall

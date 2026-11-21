@@ -17,13 +17,13 @@ from collections import Counter
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND, STEPS_PER_DAY
-from shibuya.engine import memory_m1 as M1
-from shibuya.engine import memory_store as MS
-from shibuya.engine.memory_store import LegacyEvent, MemoryStore
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import guard as G
-from shibuya.engine.tape import Tape
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEPS_PER_DAY
+from shibuya.mind.memory import memory_m1 as M1
+from shibuya.mind.memory import memory_store as MS
+from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
+from shibuya.runtime.run import run_day
+from shibuya.foundation import write_guard as G
+from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.memory._mr65 import KW, arms, mr65
 
@@ -157,7 +157,7 @@ def test_m1_rate_seed_is_the_population_seed(monkeypatch):
     """〔検収 M1〕腕 m1 の人ごとの忘れる速さ(用途名 memory.forgetting_rate=母集団の側)は、そのランの母集団の seed から引く
     (10f S1・``_check_split``)。``cli.run(population_seed=7)`` の後に ``run_day(population_seed=9)`` を直に回しても 9
     (プロセスの大域の値が残らない=負の対照)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from tests.engine.test_salt_seed_split_10f import _check_split, _record_keys
 
     seen = _record_keys(monkeypatch)
@@ -185,7 +185,7 @@ def test_m1_rate_seed_is_the_population_seed(monkeypatch):
 
 def test_m1_needs_the_population_seed_at_assembly():
     """〔検収 M1〕器に腕 m1 を置くときに母集団の seed が無ければ止める(既定の 0 で黙って引かない)。"""
-    from shibuya.engine.memory import MemoryLayer
+    from shibuya.mind.memory.memory import MemoryLayer
 
     with arms("events", model="m1"):
         layer = MemoryLayer(4, 8)
@@ -200,7 +200,7 @@ def test_m1_needs_the_population_seed_at_assembly():
 def test_memory_off_with_memory_arms_is_refused(kw):
     """〔検収 L6〕記憶 off のランで 6-5 の腕を立てたら止める(check_arms と同じ形・ランの種類が「腕」になる抜け道を塞ぐ)。
     負の対照: 腕が既定なら記憶 off のランは通る。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     off = dict(KW, memory="off", relations="off", store_memory="off", ticks=60)
     with arms("events", **kw):

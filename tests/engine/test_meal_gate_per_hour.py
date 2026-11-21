@@ -14,9 +14,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentKind, AgentState
-from shibuya.engine import classical as CL
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.mind.judge import classical as CL
+from shibuya.world.model.state import World
 
 DOC, MD5 = CL.load_activity_prior()
 SRC = Path("src/shibuya")
@@ -184,8 +185,7 @@ def test_hazard_rule_keeps_expected_meals_when_waking_twice_as_often():
 
 # ================================================================= Q-2B-6(親の決定)
 def _energy_policy():
-    from shibuya.engine import energy as E
-    from shibuya.engine import resolve as R
+    from shibuya.world.body import energy as E
 
     pol = _bound("per_hour", n=1, hunger=(8,), energy=True)
     anc, md5 = E.load_anchors()
@@ -198,13 +198,15 @@ def _energy_policy():
         a.sex[:] = 0
         a.eer_kcal[:] = 2400.0
         a.since_meal_kcal[:] = 1500.0
-    return pol, lay, R
+    return pol, lay
 
 
 def test_a_meal_resets_the_hazard_but_a_snack_does_not():
     """(a) 空腹で 60 分積んだ後に自宅の食事(予定の実行)→ H=0(次の門は 0 から)。飲食店・範囲外の食事も同じ
     ``resolve._energy_meal`` を通る(``since_meal=0`` の摂取)。(c) 軽食(``since_meal`` を減らすだけ)では H は戻らない。"""
-    pol, lay, R = _energy_policy()
+    from shibuya.act.ops import body_writes as R
+
+    pol, lay = _energy_policy()
     _run(pol, 60, hunger=8)
     h60 = float(pol._gate_hazard[0])
     assert h60 == pytest.approx(-np.log(0.4), rel=1e-5)
@@ -243,7 +245,7 @@ def test_b_a_full_body_at_the_gate_gets_zero_and_the_hazard_is_cleared():
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_e_no_gate_pass_while_full_in_a_real_per_hour_run():
     """(e) 実資産の classical per_hour のラン(1,500 体)で満腹の段で門を通った回数が 0(5,000 体は記録の計測)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(n_agents=1500, seed=1, world_dir="data/world/v2", vocab_version="v3", policy="classical",
                   chooser="classical", meal_gate="per_hour")
@@ -253,7 +255,7 @@ def test_e_no_gate_pass_while_full_in_a_real_per_hour_run():
 
 # ================================================================= (d) ラン
 def test_default_is_per_wake_and_the_switch_is_on_the_cli():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3", policy="classical", chooser="classical",
               hunger_model="energy")
@@ -272,5 +274,9 @@ def test_default_is_per_wake_and_the_switch_is_on_the_cli():
     with pytest.raises(ValueError):
         run_day(meal_gate="hourly", **{**kw, "ticks": 2})
     assert CL.DEFAULT_MEAL_GATE == "per_wake" and CL.MEAL_GATES == ("per_wake", "per_hour")
-    src = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     assert '"--meal-gate"' in src and "meal_gate=str(args.meal_gate)" in src

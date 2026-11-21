@@ -1,0 +1,3171 @@
+{
+ "about": "9 月の実 LLM のテープの発話(ひと言)と考え(理由)に混ざった機械向けの記号(返事その 8 §6-1 の 5)。文は出さない",
+ "n_template_headings": 26,
+ "tapes": {
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB1-BUDGET-MODE__fixed_slots": {
+   "deferred_rows": 0,
+   "distinct_responses": 32500,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "活動": 5,
+      "行動": 31
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 144,
+      "理由": 2,
+      "行動": 7705
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48270,
+      "対象": 40320,
+      "理由": 50000,
+      "行動": 50012
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 709,
+    "行動": 8
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 716,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9777,
+   "speech_texts": 40223,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 37
+    },
+    "thought": {
+     "a_bare_word": 7841
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB1-BUDGET-MODE__single_ranking": {
+   "deferred_rows": 0,
+   "distinct_responses": 34453,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "活動": 9,
+      "行動": 32
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 223,
+      "理由": 4,
+      "行動": 6530
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 46732,
+      "対象": 38685,
+      "理由": 50000,
+      "行動": 50004
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 742,
+    "行動": 4
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 746,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 13682,
+   "speech_texts": 36318,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 41
+    },
+    "thought": {
+     "a_bare_word": 6724
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB6-AD-ZERO__signage_off": {
+   "deferred_rows": 0,
+   "distinct_responses": 31257,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "活動": 3,
+      "行動": 26
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 161,
+      "理由": 3,
+      "行動": 9967
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48617,
+      "対象": 39446,
+      "理由": 50000,
+      "行動": 50004
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 386,
+    "行動": 3
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 389,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9504,
+   "speech_texts": 40496,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 29
+    },
+    "thought": {
+     "a_bare_word": 10131
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/c5/c8/c8_tapes/AB6-AD-ZERO__signage_on": {
+   "deferred_rows": 0,
+   "distinct_responses": 32500,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "活動": 5,
+      "行動": 31
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 144,
+      "理由": 2,
+      "行動": 7705
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48270,
+      "対象": 40320,
+      "理由": 50000,
+      "行動": 50012
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 709,
+    "行動": 8
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 716,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9777,
+   "speech_texts": 40223,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 37
+    },
+    "thought": {
+     "a_bare_word": 7841
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/c5/c8_ab1s2/c8_tapes/AB1-BUDGET-MODE__fixed_slots": {
+   "deferred_rows": 0,
+   "distinct_responses": 32631,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "活動": 5,
+      "行動": 30
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 166,
+      "理由": 1,
+      "行動": 7901
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48288,
+      "対象": 40379,
+      "理由": 50000,
+      "行動": 50009
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 760,
+    "行動": 9
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 768,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9707,
+   "speech_texts": 40293,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 35
+    },
+    "thought": {
+     "a_bare_word": 8061
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/c5/c8_ab1s2/c8_tapes/AB1-BUDGET-MODE__single_ranking": {
+   "deferred_rows": 0,
+   "distinct_responses": 34675,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "対象": 1,
+      "活動": 7,
+      "行動": 26
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 216,
+      "理由": 3,
+      "行動": 6582
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 46605,
+      "対象": 38577,
+      "理由": 50000,
+      "行動": 50005
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 811,
+    "行動": 5
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 815,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 13669,
+   "speech_texts": 36331,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 35
+    },
+    "thought": {
+     "a_bare_word": 6773
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/c5/c8_s2/c8_tapes/AB6-AD-ZERO__signage_off": {
+   "deferred_rows": 0,
+   "distinct_responses": 31377,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "活動": 8,
+      "行動": 33
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 162,
+      "理由": 3,
+      "行動": 10063
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48617,
+      "対象": 39483,
+      "理由": 50001,
+      "行動": 50018
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 425,
+    "理由": 1,
+    "行動": 7
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 432,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9336,
+   "speech_texts": 40664,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 41
+    },
+    "thought": {
+     "a_bare_word": 10225
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/c5/c8_s2/c8_tapes/AB6-AD-ZERO__signage_on": {
+   "deferred_rows": 0,
+   "distinct_responses": 32631,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "活動": 5,
+      "行動": 30
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 166,
+      "理由": 1,
+      "行動": 7901
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48288,
+      "対象": 40379,
+      "理由": 50000,
+      "行動": 50009
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 760,
+    "行動": 9
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 768,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9707,
+   "speech_texts": 40293,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 35
+    },
+    "thought": {
+     "a_bare_word": 8061
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-day-1": {
+   "deferred_rows": 0,
+   "distinct_responses": 25312,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 13
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 26,
+      "行動": 7487
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 49517,
+      "対象": 46870,
+      "理由": 50000,
+      "行動": 50004
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 668,
+    "行動": 4
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 672,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 8791,
+   "speech_texts": 41209,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 14
+    },
+    "thought": {
+     "a_bare_word": 7497
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-day-2": {
+   "deferred_rows": 0,
+   "distinct_responses": 32210,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "対象": 1,
+      "行動": 11
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 28,
+      "理由": 2,
+      "行動": 7278
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48281,
+      "対象": 40373,
+      "理由": 50000,
+      "行動": 50009
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 718,
+    "行動": 5
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 721,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9604,
+   "speech_texts": 40396,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 13
+    },
+    "thought": {
+     "a_bare_word": 7293
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-day-3": {
+   "deferred_rows": 0,
+   "distinct_responses": 32458,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "活動": 5,
+      "行動": 27
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 144,
+      "理由": 1,
+      "行動": 7655
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 48253,
+      "対象": 40207,
+      "理由": 50000,
+      "行動": 50009
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 715,
+    "行動": 8
+   },
+   "responses": 50000,
+   "responses_with_repeated_label": 723,
+   "rows": 50000,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 9691,
+   "speech_texts": 40309,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 32
+    },
+    "thought": {
+     "a_bare_word": 7785
+    },
+    "whole": {
+     "a_label_form": 50000
+    }
+   },
+   "thought_texts": 50000,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-smoke-1": {
+   "deferred_rows": 0,
+   "distinct_responses": 402,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 3,
+      "行動": 324
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 790,
+      "対象": 763,
+      "理由": 833,
+      "行動": 833
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 2
+   },
+   "responses": 833,
+   "responses_with_repeated_label": 2,
+   "rows": 833,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 673,
+   "speech_texts": 160,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 327
+    },
+    "whole": {
+     "a_label_form": 833
+    }
+   },
+   "thought_texts": 833,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-smoke-2": {
+   "deferred_rows": 0,
+   "distinct_responses": 636,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 9,
+      "行動": 257
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 818,
+      "対象": 814,
+      "理由": 833,
+      "行動": 833
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 6
+   },
+   "responses": 833,
+   "responses_with_repeated_label": 6,
+   "rows": 833,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 641,
+   "speech_texts": 192,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 266
+    },
+    "whole": {
+     "a_label_form": 833
+    }
+   },
+   "thought_texts": 833,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-smoke-4": {
+   "deferred_rows": 0,
+   "distinct_responses": 693,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 10,
+      "行動": 220
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 781,
+      "対象": 740,
+      "理由": 833,
+      "行動": 833
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 6
+   },
+   "responses": 833,
+   "responses_with_repeated_label": 6,
+   "rows": 833,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 618,
+   "speech_texts": 215,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 230
+    },
+    "whole": {
+     "a_label_form": 833
+    }
+   },
+   "thought_texts": 833,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t6-a": {
+   "deferred_rows": 0,
+   "distinct_responses": 636,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 9,
+      "行動": 257
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 818,
+      "対象": 814,
+      "理由": 833,
+      "行動": 833
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 6
+   },
+   "responses": 833,
+   "responses_with_repeated_label": 6,
+   "rows": 833,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 641,
+   "speech_texts": 192,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 266
+    },
+    "whole": {
+     "a_label_form": 833
+    }
+   },
+   "thought_texts": 833,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t6-b": {
+   "deferred_rows": 0,
+   "distinct_responses": 636,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 9,
+      "行動": 257
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 818,
+      "対象": 814,
+      "理由": 833,
+      "行動": 833
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 6
+   },
+   "responses": 833,
+   "responses_with_repeated_label": 6,
+   "rows": 833,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 641,
+   "speech_texts": 192,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 266
+    },
+    "whole": {
+     "a_label_form": 833
+    }
+   },
+   "thought_texts": 833,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t7-s1": {
+   "deferred_rows": 0,
+   "distinct_responses": 636,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 9,
+      "行動": 257
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 818,
+      "対象": 814,
+      "理由": 833,
+      "行動": 833
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 6
+   },
+   "responses": 833,
+   "responses_with_repeated_label": 6,
+   "rows": 833,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 641,
+   "speech_texts": 192,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 266
+    },
+    "whole": {
+     "a_label_form": 833
+    }
+   },
+   "thought_texts": 833,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c6-t7-s2": {
+   "deferred_rows": 0,
+   "distinct_responses": 630,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 4,
+      "理由": 1,
+      "行動": 271
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 816,
+      "対象": 813,
+      "理由": 833,
+      "行動": 833
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {},
+   "responses": 833,
+   "responses_with_repeated_label": 0,
+   "rows": 833,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 631,
+   "speech_texts": 202,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 275
+    },
+    "whole": {
+     "a_label_form": 833
+    }
+   },
+   "thought_texts": 833,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-1": {
+   "bytes": 5936460,
+   "unreadable": "ArrowInvalid"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-2": {
+   "deferred_rows": 0,
+   "distinct_responses": 953653,
+   "observed_tick_ge0_rows": null,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 15,
+      "対象": 22,
+      "活動": 266,
+      "行動": 1735
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 10,
+      "活動": 7501,
+      "理由": 40,
+      "行動": 420709
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 4
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 2487695,
+      "対象": 1967958,
+      "理由": 2580481,
+      "行動": 2580904
+     },
+     "b_heading": {
+      "bare_block_id": 7
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "ひと言": 2,
+    "対象": 35521,
+    "理由": 1,
+    "行動": 379
+   },
+   "responses": 2580480,
+   "responses_with_repeated_label": 35823,
+   "rows": 2580480,
+   "schema": "shibuya.tape/1(印なし)",
+   "speech_none": 511757,
+   "speech_texts": 2068722,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 2025,
+     "b_heading": 1
+    },
+    "thought": {
+     "a_bare_word": 427981,
+     "b_heading": 4
+    },
+    "whole": {
+     "a_label_form": 2580480,
+     "b_heading": 7
+    }
+   },
+   "thought_texts": 2580480,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-3": {
+   "deferred_rows": 14423,
+   "distinct_responses": 1075730,
+   "observed_tick_ge0_rows": 2805670,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 31,
+      "対象": 50,
+      "理由": 1,
+      "行動": 326
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 3
+     },
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 49,
+      "活動": 37,
+      "理由": 60,
+      "行動": 307428
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 31
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "TARGET": 1,
+      "ひと言": 2656278,
+      "対象": 1986920,
+      "理由": 2791249,
+      "行動": 2793034
+     },
+     "b_heading": {
+      "bare_block_id": 36
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "ひと言": 2,
+    "対象": 51694,
+    "理由": 2,
+    "行動": 1678
+   },
+   "responses": 2791247,
+   "responses_with_repeated_label": 53212,
+   "rows": 2805670,
+   "schema": "shibuya.tape/2",
+   "speech_none": 555373,
+   "speech_texts": 2235872,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 288,
+     "b_heading": 3
+    },
+    "thought": {
+     "a_bare_word": 307223,
+     "b_heading": 31
+    },
+    "whole": {
+     "a_label_form": 2791247,
+     "b_heading": 36
+    }
+   },
+   "thought_texts": 2791247,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-16/v2_data/tape/c7-day-4": {
+   "deferred_rows": 14798,
+   "distinct_responses": 1055106,
+   "observed_tick_ge0_rows": 2706593,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 25,
+      "対象": 31,
+      "行動": 538
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 46,
+      "活動": 39,
+      "理由": 45,
+      "行動": 314124
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 49
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 2561603,
+      "対象": 1928262,
+      "理由": 2691795,
+      "行動": 2693473
+     },
+     "b_heading": {
+      "bare_block_id": 49
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "ひと言": 3,
+    "対象": 52756,
+    "行動": 1509
+   },
+   "responses": 2691795,
+   "responses_with_repeated_label": 54114,
+   "rows": 2706593,
+   "schema": "shibuya.tape/2",
+   "speech_none": 544576,
+   "speech_texts": 2147216,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 232
+    },
+    "thought": {
+     "a_bare_word": 313940,
+     "b_heading": 49
+    },
+    "whole": {
+     "a_label_form": 2691795,
+     "b_heading": 49
+    }
+   },
+   "thought_texts": 2691795,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-17/tape/c7-day-4-s2": {
+   "deferred_rows": 16682,
+   "distinct_responses": 1061062,
+   "observed_tick_ge0_rows": 2731103,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 23,
+      "対象": 34,
+      "理由": 1,
+      "行動": 398
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 58,
+      "活動": 35,
+      "理由": 45,
+      "行動": 315601
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 38
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 2583601,
+      "対象": 1941811,
+      "理由": 2714422,
+      "行動": 2716052
+     },
+     "b_heading": {
+      "bare_block_id": 42
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "ひと言": 7,
+    "対象": 52585,
+    "理由": 1,
+    "行動": 1513
+   },
+   "responses": 2714421,
+   "responses_with_repeated_label": 53967,
+   "rows": 2731103,
+   "schema": "shibuya.tape/2",
+   "speech_none": 545920,
+   "speech_texts": 2168495,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 231,
+     "b_heading": 1
+    },
+    "thought": {
+     "a_bare_word": 315376,
+     "b_heading": 38
+    },
+    "whole": {
+     "a_label_form": 2714421,
+     "b_heading": 41
+    }
+   },
+   "thought_texts": 2714421,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-17/tape/c7-day-4-s3": {
+   "deferred_rows": 12148,
+   "distinct_responses": 1053232,
+   "observed_tick_ge0_rows": 2711845,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 24,
+      "対象": 26,
+      "理由": 1,
+      "行動": 521
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 51,
+      "活動": 40,
+      "理由": 50,
+      "行動": 309383
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 50
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "Comment": 1,
+      "ひと言": 2570974,
+      "対象": 1923483,
+      "理由": 2699700,
+      "行動": 2701301
+     },
+     "b_heading": {
+      "bare_block_id": 51
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "ひと言": 1,
+    "対象": 51823,
+    "理由": 3,
+    "行動": 1464
+   },
+   "responses": 2699697,
+   "responses_with_repeated_label": 53163,
+   "rows": 2711845,
+   "schema": "shibuya.tape/2",
+   "speech_none": 542166,
+   "speech_texts": 2157530,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 212
+    },
+    "thought": {
+     "a_bare_word": 309191,
+     "b_heading": 50
+    },
+    "whole": {
+     "a_label_form": 2699697,
+     "b_heading": 51
+    }
+   },
+   "thought_texts": 2699697,
+   "vocab_used_for_parse": "v1"
+  },
+  "server_retrieval/2026-09-17/tape/c9b-smoke-s1": {
+   "deferred_rows": 0,
+   "distinct_responses": 16401,
+   "observed_tick_ge0_rows": 35856,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 2,
+      "行動": 3695
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35107,
+      "対象": 34892,
+      "理由": 35856,
+      "行動": 35860
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 883,
+    "行動": 3
+   },
+   "responses": 35856,
+   "responses_with_repeated_label": 885,
+   "rows": 35856,
+   "schema": "shibuya.tape/2",
+   "speech_none": 9917,
+   "speech_texts": 25939,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 3697
+    },
+    "whole": {
+     "a_label_form": 35856
+    }
+   },
+   "thought_texts": 35856,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__ad_zero": {
+   "deferred_rows": 0,
+   "distinct_responses": 25024,
+   "observed_tick_ge0_rows": 36957,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 4
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 2,
+      "活動": 2,
+      "理由": 1,
+      "行動": 5242
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35675,
+      "対象": 27970,
+      "理由": 36957,
+      "行動": 36976
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 354,
+    "行動": 19
+   },
+   "responses": 36957,
+   "responses_with_repeated_label": 372,
+   "rows": 36957,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7013,
+   "speech_texts": 29944,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 4
+    },
+    "thought": {
+     "a_bare_word": 5240,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36957,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36957,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_14": {
+   "deferred_rows": 0,
+   "distinct_responses": 25474,
+   "observed_tick_ge0_rows": 36922,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "対象": 1,
+      "行動": 1
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 1,
+      "行動": 5056
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35602,
+      "対象": 28046,
+      "理由": 36922,
+      "行動": 36940
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 420,
+    "行動": 11
+   },
+   "responses": 36922,
+   "responses_with_repeated_label": 429,
+   "rows": 36922,
+   "schema": "shibuya.tape/2",
+   "speech_none": 6989,
+   "speech_texts": 29933,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 2
+    },
+    "thought": {
+     "a_bare_word": 5052
+    },
+    "whole": {
+     "a_label_form": 36922
+    }
+   },
+   "thought_texts": 36922,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__p_see_0_30": {
+   "deferred_rows": 0,
+   "distinct_responses": 25718,
+   "observed_tick_ge0_rows": 36916,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 2
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 1,
+      "行動": 4834
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35616,
+      "対象": 27957,
+      "理由": 36916,
+      "行動": 36928
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 442,
+    "行動": 11
+   },
+   "responses": 36916,
+   "responses_with_repeated_label": 452,
+   "rows": 36916,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7025,
+   "speech_texts": 29891,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 3
+    },
+    "thought": {
+     "a_bare_word": 4830,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36916,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36916,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s1/AB6b-AD-NOTICE__p_see_1_00": {
+   "deferred_rows": 0,
+   "distinct_responses": 26179,
+   "observed_tick_ge0_rows": 36906,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 3
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 5,
+      "行動": 4027
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35330,
+      "対象": 28144,
+      "理由": 36906,
+      "行動": 36931
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 631,
+    "行動": 15
+   },
+   "responses": 36906,
+   "responses_with_repeated_label": 642,
+   "rows": 36906,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7381,
+   "speech_texts": 29525,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 4
+    },
+    "thought": {
+     "a_bare_word": 4020,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36906,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36906,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__ad_zero": {
+   "deferred_rows": 0,
+   "distinct_responses": 25101,
+   "observed_tick_ge0_rows": 36993,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 2
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "理由": 1,
+      "行動": 5251
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35747,
+      "対象": 27968,
+      "理由": 36993,
+      "行動": 37004
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 377,
+    "行動": 11
+   },
+   "responses": 36993,
+   "responses_with_repeated_label": 386,
+   "rows": 36993,
+   "schema": "shibuya.tape/2",
+   "speech_none": 6884,
+   "speech_texts": 30109,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 3
+    },
+    "thought": {
+     "a_bare_word": 5248,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36993,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36993,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_14": {
+   "deferred_rows": 0,
+   "distinct_responses": 25449,
+   "observed_tick_ge0_rows": 37022,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 4
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 2,
+      "行動": 5091
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 2
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35683,
+      "対象": 27996,
+      "理由": 37022,
+      "行動": 37048
+     },
+     "b_heading": {
+      "bare_block_id": 2
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 404,
+    "行動": 26
+   },
+   "responses": 37022,
+   "responses_with_repeated_label": 426,
+   "rows": 37022,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7107,
+   "speech_texts": 29915,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 4
+    },
+    "thought": {
+     "a_bare_word": 5088,
+     "b_heading": 2
+    },
+    "whole": {
+     "a_label_form": 37022,
+     "b_heading": 2
+    }
+   },
+   "thought_texts": 37022,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__p_see_0_30": {
+   "deferred_rows": 0,
+   "distinct_responses": 25709,
+   "observed_tick_ge0_rows": 37196,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 2
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 2,
+      "行動": 4872
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "Comment": 1,
+      "ひと言": 35774,
+      "対象": 28191,
+      "理由": 37196,
+      "行動": 37208
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 435,
+    "行動": 12
+   },
+   "responses": 37196,
+   "responses_with_repeated_label": 446,
+   "rows": 37196,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7115,
+   "speech_texts": 30081,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 3
+    },
+    "thought": {
+     "a_bare_word": 4867
+    },
+    "whole": {
+     "a_label_form": 37196
+    }
+   },
+   "thought_texts": 37196,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6b_s2/AB6b-AD-NOTICE__p_see_1_00": {
+   "deferred_rows": 0,
+   "distinct_responses": 26024,
+   "observed_tick_ge0_rows": 36889,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 2,
+      "対象": 1,
+      "行動": 5
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "行動": 3974
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "TARGET": 1,
+      "ひと言": 35336,
+      "対象": 28220,
+      "理由": 36889,
+      "行動": 36897
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 639,
+    "行動": 8
+   },
+   "responses": 36889,
+   "responses_with_repeated_label": 646,
+   "rows": 36889,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7245,
+   "speech_texts": 29644,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 8
+    },
+    "thought": {
+     "a_bare_word": 3957
+    },
+    "whole": {
+     "a_label_form": 36889
+    }
+   },
+   "thought_texts": 36889,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__ad_zero": {
+   "deferred_rows": 4303,
+   "distinct_responses": 46609,
+   "observed_tick_ge0_rows": 78884,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "対象": 1,
+      "行動": 4
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "対象": 6,
+      "活動": 3,
+      "理由": 1,
+      "行動": 11130
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 71651,
+      "対象": 56021,
+      "理由": 74581,
+      "行動": 74607
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 778,
+    "行動": 16
+   },
+   "responses": 74581,
+   "responses_with_repeated_label": 793,
+   "rows": 78884,
+   "schema": "shibuya.tape/2",
+   "speech_none": 18442,
+   "speech_texts": 56139,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 5,
+     "b_heading": 1
+    },
+    "thought": {
+     "a_bare_word": 11126
+    },
+    "whole": {
+     "a_label_form": 74581,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 74581,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_14": {
+   "deferred_rows": 4276,
+   "distinct_responses": 46917,
+   "observed_tick_ge0_rows": 77911,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "対象": 2,
+      "行動": 9
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 3,
+      "活動": 4,
+      "理由": 3,
+      "行動": 10715
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 70628,
+      "対象": 55308,
+      "理由": 73635,
+      "行動": 73643
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 822,
+    "行動": 8
+   },
+   "responses": 73635,
+   "responses_with_repeated_label": 829,
+   "rows": 77911,
+   "schema": "shibuya.tape/2",
+   "speech_none": 18190,
+   "speech_texts": 55445,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 11
+    },
+    "thought": {
+     "a_bare_word": 10711
+    },
+    "whole": {
+     "a_label_form": 73635
+    }
+   },
+   "thought_texts": 73635,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_0_30": {
+   "deferred_rows": 4452,
+   "distinct_responses": 47883,
+   "observed_tick_ge0_rows": 78205,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 6
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 2
+     },
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 1,
+      "理由": 1,
+      "行動": 10276
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 2
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 70699,
+      "対象": 55558,
+      "理由": 73753,
+      "行動": 73771
+     },
+     "b_heading": {
+      "bare_block_id": 4
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 948,
+    "行動": 14
+   },
+   "responses": 73753,
+   "responses_with_repeated_label": 960,
+   "rows": 78205,
+   "schema": "shibuya.tape/2",
+   "speech_none": 18490,
+   "speech_texts": 55263,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 7,
+     "b_heading": 2
+    },
+    "thought": {
+     "a_bare_word": 10257,
+     "b_heading": 2
+    },
+    "whole": {
+     "a_label_form": 73753,
+     "b_heading": 4
+    }
+   },
+   "thought_texts": 73753,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab6c_s1/AB6c-AD-NOTICE-UNCAPPED__p_see_1_00": {
+   "deferred_rows": 4503,
+   "distinct_responses": 49085,
+   "observed_tick_ge0_rows": 77303,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "対象": 1,
+      "行動": 5
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 5,
+      "理由": 2,
+      "行動": 9048
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 69134,
+      "対象": 55246,
+      "理由": 72800,
+      "行動": 72827
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 1428,
+    "行動": 19
+   },
+   "responses": 72800,
+   "responses_with_repeated_label": 1445,
+   "rows": 77303,
+   "schema": "shibuya.tape/2",
+   "speech_none": 18143,
+   "speech_texts": 54657,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 7
+    },
+    "thought": {
+     "a_bare_word": 9021
+    },
+    "whole": {
+     "a_label_form": 72800
+    }
+   },
+   "thought_texts": 72800,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7_s1/AB7-OPEN-INTENT__open": {
+   "deferred_rows": 0,
+   "distinct_responses": 20202,
+   "observed_tick_ge0_rows": 36868,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {},
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 2,
+      "行動": 1349
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 36829,
+      "対象": 36906,
+      "理由": 36868,
+      "行動": 36869
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 45,
+    "行動": 1
+   },
+   "responses": 36868,
+   "responses_with_repeated_label": 45,
+   "rows": 36868,
+   "schema": "shibuya.tape/2",
+   "speech_none": 503,
+   "speech_texts": 36365,
+   "texts_with": {
+    "speech": {},
+    "thought": {
+     "a_bare_word": 1350
+    },
+    "whole": {
+     "a_label_form": 36868
+    }
+   },
+   "thought_texts": 36868,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7_s1/AB7-OPEN-INTENT__vocab": {
+   "deferred_rows": 0,
+   "distinct_responses": 26179,
+   "observed_tick_ge0_rows": 36906,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 3
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 5,
+      "行動": 4027
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35330,
+      "対象": 28144,
+      "理由": 36906,
+      "行動": 36931
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 631,
+    "行動": 15
+   },
+   "responses": 36906,
+   "responses_with_repeated_label": 642,
+   "rows": 36906,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7381,
+   "speech_texts": 29525,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 4
+    },
+    "thought": {
+     "a_bare_word": 4020,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36906,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36906,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7_s2/AB7-OPEN-INTENT__open": {
+   "deferred_rows": 0,
+   "distinct_responses": 19962,
+   "observed_tick_ge0_rows": 36707,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 1
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 1,
+      "行動": 1404
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 36672,
+      "対象": 36755,
+      "理由": 36707,
+      "行動": 36708
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 55,
+    "行動": 1
+   },
+   "responses": 36707,
+   "responses_with_repeated_label": 56,
+   "rows": 36707,
+   "schema": "shibuya.tape/2",
+   "speech_none": 582,
+   "speech_texts": 36125,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 1
+    },
+    "thought": {
+     "a_bare_word": 1404
+    },
+    "whole": {
+     "a_label_form": 36707
+    }
+   },
+   "thought_texts": 36707,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7_s2/AB7-OPEN-INTENT__vocab": {
+   "deferred_rows": 0,
+   "distinct_responses": 26024,
+   "observed_tick_ge0_rows": 36889,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 2,
+      "対象": 1,
+      "行動": 5
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "行動": 3974
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "TARGET": 1,
+      "ひと言": 35336,
+      "対象": 28220,
+      "理由": 36889,
+      "行動": 36897
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 639,
+    "行動": 8
+   },
+   "responses": 36889,
+   "responses_with_repeated_label": 646,
+   "rows": 36889,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7245,
+   "speech_texts": 29644,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 8
+    },
+    "thought": {
+     "a_bare_word": 3957
+    },
+    "whole": {
+     "a_label_form": 36889
+    }
+   },
+   "thought_texts": 36889,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7b_s1/AB7b-HINT-INTENT__hint": {
+   "deferred_rows": 0,
+   "distinct_responses": 22058,
+   "observed_tick_ge0_rows": 36855,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "対象": 1,
+      "行動": 76
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 1,
+      "行動": 2799
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 13065,
+      "対象": 5694,
+      "理由": 36855,
+      "行動": 36884
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 162,
+    "行動": 23
+   },
+   "responses": 36855,
+   "responses_with_repeated_label": 185,
+   "rows": 36855,
+   "schema": "shibuya.tape/2",
+   "speech_none": 19342,
+   "speech_texts": 17513,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 7,
+     "b_heading": 1
+    },
+    "thought": {
+     "a_bare_word": 2797
+    },
+    "whole": {
+     "a_label_form": 36855,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36855,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7b_s1/AB7b-HINT-INTENT__vocab": {
+   "deferred_rows": 0,
+   "distinct_responses": 26179,
+   "observed_tick_ge0_rows": 36906,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 3
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 5,
+      "行動": 4027
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35330,
+      "対象": 28144,
+      "理由": 36906,
+      "行動": 36931
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 631,
+    "行動": 15
+   },
+   "responses": 36906,
+   "responses_with_repeated_label": 642,
+   "rows": 36906,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7381,
+   "speech_texts": 29525,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 4
+    },
+    "thought": {
+     "a_bare_word": 4020,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36906,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36906,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7c_s1/AB7c-VOCAB-V2__open_v2": {
+   "deferred_rows": 0,
+   "distinct_responses": 21952,
+   "observed_tick_ge0_rows": 37100,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 2
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 1,
+      "行動": 1515
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 37049,
+      "対象": 37140,
+      "理由": 37100,
+      "行動": 37101
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 64,
+    "行動": 1
+   },
+   "responses": 37100,
+   "responses_with_repeated_label": 64,
+   "rows": 37100,
+   "schema": "shibuya.tape/2",
+   "speech_none": 2022,
+   "speech_texts": 35078,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 2
+    },
+    "thought": {
+     "a_bare_word": 1515
+    },
+    "whole": {
+     "a_label_form": 37100,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 37100,
+   "vocab_used_for_parse": "v2"
+  },
+  "tape/c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v1": {
+   "deferred_rows": 0,
+   "distinct_responses": 26179,
+   "observed_tick_ge0_rows": 36906,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 3
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 5,
+      "行動": 4027
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35330,
+      "対象": 28144,
+      "理由": 36906,
+      "行動": 36931
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 631,
+    "行動": 15
+   },
+   "responses": 36906,
+   "responses_with_repeated_label": 642,
+   "rows": 36906,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7381,
+   "speech_texts": 29525,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 4
+    },
+    "thought": {
+     "a_bare_word": 4020,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36906,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36906,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7c_s1/AB7c-VOCAB-V2__vocab_v2": {
+   "deferred_rows": 0,
+   "distinct_responses": 16712,
+   "observed_tick_ge0_rows": 37165,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 1
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 2,
+      "行動": 3368
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 36372,
+      "対象": 36072,
+      "理由": 37165,
+      "行動": 37166
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 895,
+    "行動": 1
+   },
+   "responses": 37165,
+   "responses_with_repeated_label": 896,
+   "rows": 37165,
+   "schema": "shibuya.tape/2",
+   "speech_none": 10089,
+   "speech_texts": 27076,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 1
+    },
+    "thought": {
+     "a_bare_word": 3369
+    },
+    "whole": {
+     "a_label_form": 37165
+    }
+   },
+   "thought_texts": 37165,
+   "vocab_used_for_parse": "v2"
+  },
+  "tape/c8_ab7c_s2/AB7c-VOCAB-V2__open_v2": {
+   "deferred_rows": 0,
+   "distinct_responses": 21726,
+   "observed_tick_ge0_rows": 37125,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 1
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 1,
+      "理由": 1,
+      "行動": 1543
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 37074,
+      "対象": 37184,
+      "理由": 37125,
+      "行動": 37127
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "ひと言": 1,
+    "対象": 71,
+    "行動": 2
+   },
+   "responses": 37125,
+   "responses_with_repeated_label": 72,
+   "rows": 37125,
+   "schema": "shibuya.tape/2",
+   "speech_none": 2050,
+   "speech_texts": 35075,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 1
+    },
+    "thought": {
+     "a_bare_word": 1544
+    },
+    "whole": {
+     "a_label_form": 37125
+    }
+   },
+   "thought_texts": 37125,
+   "vocab_used_for_parse": "v2"
+  },
+  "tape/c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v1": {
+   "deferred_rows": 0,
+   "distinct_responses": 26024,
+   "observed_tick_ge0_rows": 36889,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 2,
+      "対象": 1,
+      "行動": 5
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "行動": 3974
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "TARGET": 1,
+      "ひと言": 35336,
+      "対象": 28220,
+      "理由": 36889,
+      "行動": 36897
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 639,
+    "行動": 8
+   },
+   "responses": 36889,
+   "responses_with_repeated_label": 646,
+   "rows": 36889,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7245,
+   "speech_texts": 29644,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 8
+    },
+    "thought": {
+     "a_bare_word": 3957
+    },
+    "whole": {
+     "a_label_form": 36889
+    }
+   },
+   "thought_texts": 36889,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab7c_s2/AB7c-VOCAB-V2__vocab_v2": {
+   "deferred_rows": 0,
+   "distinct_responses": 16740,
+   "observed_tick_ge0_rows": 37371,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 1
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "活動": 2,
+      "行動": 3419
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 36529,
+      "対象": 36142,
+      "理由": 37371,
+      "行動": 37377
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 885,
+    "行動": 5
+   },
+   "responses": 37371,
+   "responses_with_repeated_label": 889,
+   "rows": 37371,
+   "schema": "shibuya.tape/2",
+   "speech_none": 10161,
+   "speech_texts": 27210,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 1
+    },
+    "thought": {
+     "a_bare_word": 3420
+    },
+    "whole": {
+     "a_label_form": 37371
+    }
+   },
+   "thought_texts": 37371,
+   "vocab_used_for_parse": "v2"
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_unlimited": {
+   "deferred_rows": 4503,
+   "distinct_responses": 49085,
+   "observed_tick_ge0_rows": 77303,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "対象": 1,
+      "行動": 5
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 5,
+      "理由": 2,
+      "行動": 9048
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 69134,
+      "対象": 55246,
+      "理由": 72800,
+      "行動": 72827
+     },
+     "b_heading": {},
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 1428,
+    "行動": 19
+   },
+   "responses": 72800,
+   "responses_with_repeated_label": 1445,
+   "rows": 77303,
+   "schema": "shibuya.tape/2",
+   "speech_none": 18143,
+   "speech_texts": 54657,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 7
+    },
+    "thought": {
+     "a_bare_word": 9021
+    },
+    "whole": {
+     "a_label_form": 72800
+    }
+   },
+   "thought_texts": 72800,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_x0.5": {
+   "deferred_rows": 0,
+   "distinct_responses": 14889,
+   "observed_tick_ge0_rows": 19856,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "行動": 1
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 1,
+      "行動": 2036
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 19109,
+      "対象": 15407,
+      "理由": 19856,
+      "行動": 19863
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "ひと言": 1,
+    "対象": 358,
+    "行動": 7
+   },
+   "responses": 19856,
+   "responses_with_repeated_label": 365,
+   "rows": 19856,
+   "schema": "shibuya.tape/2",
+   "speech_none": 3563,
+   "speech_texts": 16292,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 1
+    },
+    "thought": {
+     "a_bare_word": 2034,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 19856,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 19856,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_x1": {
+   "deferred_rows": 0,
+   "distinct_responses": 26179,
+   "observed_tick_ge0_rows": 36906,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 3
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 1,
+      "活動": 5,
+      "行動": 4027
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 35330,
+      "対象": 28144,
+      "理由": 36906,
+      "行動": 36931
+     },
+     "b_heading": {
+      "bare_block_id": 1
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 631,
+    "行動": 15
+   },
+   "responses": 36906,
+   "responses_with_repeated_label": 642,
+   "rows": 36906,
+   "schema": "shibuya.tape/2",
+   "speech_none": 7381,
+   "speech_texts": 29525,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 4
+    },
+    "thought": {
+     "a_bare_word": 4020,
+     "b_heading": 1
+    },
+    "whole": {
+     "a_label_form": 36906,
+     "b_heading": 1
+    }
+   },
+   "thought_texts": 36906,
+   "vocab_used_for_parse": "v1"
+  },
+  "tape/c8_ab8_s1/AB8-L4-SCALE__l4_x2": {
+   "deferred_rows": 0,
+   "distinct_responses": 41721,
+   "observed_tick_ge0_rows": 61196,
+   "occurrences": {
+    "speech": {
+     "a_bare_word": {
+      "ひと言": 1,
+      "行動": 4
+     },
+     "a_label_form": {},
+     "b_heading": {},
+     "c_chat": {}
+    },
+    "thought": {
+     "a_bare_word": {
+      "対象": 4,
+      "活動": 2,
+      "行動": 7384
+     },
+     "a_label_form": {},
+     "b_heading": {
+      "bare_block_id": 2
+     },
+     "c_chat": {}
+    },
+    "whole": {
+     "a_label_form": {
+      "ひと言": 58387,
+      "対象": 47096,
+      "理由": 61196,
+      "行動": 61221
+     },
+     "b_heading": {
+      "bare_block_id": 2
+     },
+     "c_chat": {}
+    }
+   },
+   "repeated_label_kinds": {
+    "対象": 1106,
+    "行動": 16
+   },
+   "responses": 61196,
+   "responses_with_repeated_label": 1119,
+   "rows": 61196,
+   "schema": "shibuya.tape/2",
+   "speech_none": 14400,
+   "speech_texts": 46796,
+   "texts_with": {
+    "speech": {
+     "a_bare_word": 5
+    },
+    "thought": {
+     "a_bare_word": 7370,
+     "b_heading": 2
+    },
+    "whole": {
+     "a_label_form": 61196,
+     "b_heading": 2
+    }
+   },
+   "thought_texts": 61196,
+   "vocab_used_for_parse": "v1"
+  }
+ }
+}

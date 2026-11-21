@@ -15,13 +15,14 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.speech import layer as SPL
-from shibuya.llm import LLMRequest
-from shibuya.llm.contract import SPEECH_FIELD_LINE, append_comment, format_two_line_v3
-from shibuya.llm.mock import MOCK_UTTERANCE, MockLLM
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.society.speech import layer as SPL
+from shibuya.foundation.ports.inference import LLMRequest
+from shibuya.foundation.vocab.actions import SPEECH_FIELD_LINE, append_comment, format_two_line_v3
+from shibuya.foundation.vocab.actions import MOCK_UTTERANCE
+from shibuya.runtime.inference.mock import MockLLM
 from tests.engine.speech._s8b import run_small, tape_rows
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -84,7 +85,7 @@ def test_mock_text_is_unchanged_without_the_field_line(form, vocab):
 
 
 def test_classical_text_is_unchanged_without_the_field_line():
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
 
     req = LLMRequest(agent_id=1, tick=3, wake_class=0, prompt="[B6 問い] いま何をしますか。")
     text = format_two_line_v3("r", "なし", "なし", "休む", "30分")

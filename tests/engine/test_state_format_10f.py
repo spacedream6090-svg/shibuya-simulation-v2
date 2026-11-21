@@ -24,11 +24,11 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya import cli
-from shibuya.engine import resume as RS
-from shibuya.engine import state_codec as SC
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.run import run_day
+from shibuya.interfaces.cli import main as cli
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import codec as SC
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -43,8 +43,8 @@ def _roundtrip(v):
 
 # ================================================================= 印の往復
 def test_marks_roundtrip_types_order_and_values():
-    from shibuya.engine.conversation import ConvState, PendingInvite, Session
-    from shibuya.llm.contract import Target, TargetKind
+    from shibuya.society.conversation import ConvState, PendingInvite, Session
+    from shibuya.foundation.vocab.actions import Target, TargetKind
 
     od = collections.OrderedDict([(3, "c"), (1, "a"), (2, "b")])
     cnt = collections.Counter({"x": 2, "y": 1})
@@ -84,7 +84,7 @@ def test_marks_roundtrip_types_order_and_values():
 
 
 def test_generator_state_continues_the_same_draws():
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
 
     g = stream(1, "test.codec", 5)
     g.random(7)
@@ -95,7 +95,7 @@ def test_generator_state_continues_the_same_draws():
 
 def test_shared_objects_keep_their_identity():
     """同じオブジェクトを 2 か所から指す値(凍結した Target・配列・list)は 1 つのまま戻る(pickle と同じ)。"""
-    from shibuya.llm.contract import Target, TargetKind
+    from shibuya.foundation.vocab.actions import Target, TargetKind
 
     t = Target(kind=TargetKind.CELL, raw="C-1", cell_id="C-1", cell_index=1)
     arr = np.arange(5, dtype=np.int64)
@@ -313,7 +313,7 @@ def test_item_kinds_are_checked_before_restoring(mid_state, tmp_path):
 
 
 def test_check_item_kinds_ignores_none_and_numbers():
-    from shibuya.engine.state_hashes import resolve_item  # noqa: F401 - 道筋の引き方は同じ
+    from shibuya.runtime.state.hashes import resolve_item  # noqa: F401 - 道筋の引き方は同じ
 
     class O:
         pass
@@ -420,7 +420,7 @@ def test_u1_cli_flag_for_the_legacy_pickle_is_gone():
     """10e(E2): CLI の ``--resume-legacy-pickle`` を消した(``engine.run`` と ``shibuya.cli`` で同じ口)。"""
     import argparse
 
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
 
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
@@ -430,6 +430,8 @@ def test_u1_cli_flag_for_the_legacy_pickle_is_gone():
     assert "resume_legacy_pickle" not in RS.FINGERPRINT_SKIP
 
 
+#: 〔割る段 5b の G2〕この子のコードは古い src(``LEGACY_COMMIT`` の写し)でだけ回す=古い置き場の名のまま(今の src には ``engine.run`` が
+#: 無い)。割る道具はこの記号を書き換えない(``tools/pkgmove/split.py`` の ``STRING_EXCLUDE``。記号の名を変えたら、その一覧も直す)
 _HEAD_CHILD = r"""
 import sys
 from shibuya.engine.run import run_day
@@ -519,13 +521,17 @@ def test_u4_member_checks_and_size_cap(monkeypatch):
 
 def test_u3_value_class_fields_match_the_class():
     """U3: dataclass でない値のクラスの欄の一覧が、クラスの属性(AST の ``self.x = …``)と同じ。"""
-    from shibuya.engine import state_ledger_ast as SA
+    import importlib
 
-    root = Path(__file__).resolve().parents[2] / "src" / "shibuya"
+    from shibuya.runtime.state import ledger_ast as SA
+    from shibuya.runtime.state.class_ids import class_path
+
+    assert SC.CLASS_FIELDS
     for name, fields in SC.CLASS_FIELDS.items():
-        mod, _, cls = name.rpartition(".")
-        rel = mod.removeprefix("shibuya.").replace(".", "/") + ".py"
-        assert set(SA.class_attrs(root, rel, cls)) == set(fields), name
+        # 表の鍵は凍結の名。読むファイルは今の置き場(凍結の名 → class_path → モジュールの __file__)
+        mod, _, cls = class_path(name).rpartition(".")
+        src = Path(importlib.import_module(mod).__file__)
+        assert set(SA.class_attrs(src.parent, src.name, cls)) == set(fields), name
     for name, form in SC.ALLOWED_CLASSES.items():
         if form == "object":
             assert SC.declared_fields(SC.allowed_class(name)), name
@@ -583,7 +589,7 @@ def test_real_state_keeps_shared_identity_and_roundtrips(tmp_path, monkeypatch):
     flow = [p for p in want if any("_last_close" in x for x in p)]
     assert flow, "金の台帳の _last_close.flow と _flow_daily[0] の共有が見つからない"
     # 値も同じ(full-hash の直列化で比べる)
-    from shibuya.engine.state_hashes import to_state
+    from shibuya.runtime.state.hashes import to_state
 
     for p in b0.items:
         assert to_state(b1.items[p]) == to_state(b0.items[p]), p

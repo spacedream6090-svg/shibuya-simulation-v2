@@ -15,13 +15,16 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentKind, AgentState, WakeCondition
-from shibuya.engine import chooser as CH
-from shibuya.engine import classical as CL
-from shibuya.llm import LLMRequest
-from shibuya.llm import parse_two_line
-from shibuya.llm.contract import format_two_line_v3
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, WakeCondition
+from shibuya.world.model.agent_table import AgentState
+from shibuya.mind.judge import chooser as CH
+# 〔割る段 5a の G4〕主でない割り先(foundation.ports.choice)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.ports.choice import ChoiceContext
+from shibuya.mind.judge import classical as CL
+from shibuya.foundation.ports.inference import LLMRequest
+from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
+from shibuya.foundation.vocab.actions import format_two_line_v3
+from shibuya.world.model.state import World
 
 DOC, MD5 = CL.load_activity_prior()
 SRC = Path("src/shibuya")
@@ -88,7 +91,7 @@ def test_ipf_constants_return_the_population_marginal_to_the_prior():
 
 # ================================================================= 店選び(L3/L8)
 def _ctx(hunger, money=5000, price=(900, 900, 900), visits=(), food=True, vis=(9, 5, 1)):
-    return CH.ChoiceContext(0, 0, 0, 0, 24, "none", "", hunger,
+    return ChoiceContext(0, 0, 0, 0, 24, "none", "", hunger,
                             visibility=np.asarray(vis), distance_m=np.zeros(len(vis)),
                             price=np.asarray(price), money=money,
                             visits=np.asarray(visits, dtype=np.int64), food=food)
@@ -213,7 +216,7 @@ def test_conversation_turn_replies_to_the_inviter():
 
 # ================================================================= ラン
 def test_run_day_classical_arm_and_layers():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=60, seed=2, ticks=180, vocab_version="v3")
     mock = run_day(**kw)
@@ -229,7 +232,7 @@ def test_run_day_classical_arm_and_layers():
     assert cl.parse_error_rate == 0.0
     assert m["chooser_stats"]["name"] == "classical"
     with pytest.raises(ValueError):
-        run_day(policy="classical", n_agents=10, ticks=5)  # 語彙 v1
+        run_day(policy="classical", n_agents=10, ticks=5, vocab_version="v1")  # 語彙 v1(〔Q13 commit ①〕明示)
     with pytest.raises(ValueError):
         run_day(policy="classical", llm=object(), **{**kw, "ticks": 5})
     with pytest.raises(ValueError):
@@ -238,7 +241,7 @@ def test_run_day_classical_arm_and_layers():
 
 def test_default_run_does_not_touch_the_rich_context():
     """既定の選び手 nearest では価格・訪問回数を組まない(既定 checkpoint 不変の構造上の担保)。"""
-    from shibuya.engine.poi_target import TargetResolver
+    from shibuya.act.target import TargetResolver
 
     w = World.synthetic(n_cells=9, seed=1)
     res = TargetResolver(world=w, chooser=CH.make_chooser("nearest"), seed=1)
@@ -246,10 +249,16 @@ def test_default_run_does_not_touch_the_rich_context():
 
 
 def test_cli_exposes_the_5b_flags():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
+    # 〔割る段 5b の G3〕build_parser は cli に無い=常に偽(確かめる事の無い行・段 8 の文の掃除の候補)。別名 cli の割り先は入口の
+    # interfaces.cli.main(tools/pkgmove/split.py の SPLIT_ALIAS_DESTS の宣言・build_parser は「割り先に無くてよい名」)
     ap = cli.build_parser() if hasattr(cli, "build_parser") else None
-    src = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     for flag in ("--policy", "--activity-region", "--classical-habit-p", "--classical-tau", "--classical-social"):
         assert flag in src
     del ap
@@ -257,9 +266,9 @@ def test_cli_exposes_the_5b_flags():
 
 # ================================================================= P4
 _PER_CALL = {
-    "engine/classical.py": ("render", "complete", "meal_probability", "activity_probs",
+    "mind/judge/classical.py": ("render", "complete", "meal_probability", "activity_probs",
                             "_respond", "_next_plan_minutes", "_eating_by_cell", "ipf_constants"),
-    "engine/chooser.py": ("probs",),
+    "mind/judge/chooser.py": ("probs",),
 }
 
 
@@ -273,4 +282,4 @@ def test_per_call_paths_have_no_python_loops_over_agents():
                     if isinstance(sub, (ast.For, ast.While)):
                         offenders.append(f"{rel}:{node.name}:{sub.lineno}")
     assert not offenders, offenders
-    assert "逐次ループ宣言" in (SRC / "engine/classical.py").read_text(encoding="utf-8")
+    assert "逐次ループ宣言" in (SRC / "mind/judge/classical.py").read_text(encoding="utf-8")

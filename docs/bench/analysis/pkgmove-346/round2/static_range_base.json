@@ -1,0 +1,1217 @@
+{
+ "prefix": "shibuya.engine.systems.",
+ "systems": {
+  "build": {
+   "funcs": [
+    "shibuya.engine.systems.table._build_fn"
+   ],
+   "box_refs": [],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "day_head": {
+   "funcs": [
+    "shibuya.engine.systems.day.sys_day_head",
+    "shibuya.engine.systems.state_io.bodies_now",
+    "shibuya.engine.systems.state_io.money_now",
+    "shibuya.engine.systems.state_io.relay_tables",
+    "shibuya.engine.systems.state_io.start_day",
+    "shibuya.engine.systems.state_io.w17_weekday"
+   ],
+   "box_refs": [
+    "cfg.ticks",
+    "cfg.tpd",
+    "day.b_agent",
+    "day.b_cell",
+    "day.b_cond",
+    "day.b_start",
+    "day.b_tick",
+    "day.w17_substituted",
+    "fx.calendar",
+    "fx.schedule",
+    "fx.weekly",
+    "layers.act_layer",
+    "layers.calendar_self",
+    "layers.calendar_shadow",
+    "layers.classical",
+    "layers.ledger",
+    "layers.poi_resolver",
+    "layers.presence",
+    "layers.runner",
+    "runstats.day_heads",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [
+    "day_heads"
+   ],
+   "resolve": []
+  },
+  "experiment": {
+   "funcs": [
+    "shibuya.engine.experiment.layer.sys_experiment"
+   ],
+   "box_refs": [
+    "layers.experiment"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "body": {
+   "funcs": [
+    "shibuya.engine.systems.body.sys_body"
+   ],
+   "box_refs": [
+    "cfg.meal_sleep_defer",
+    "layers.body",
+    "layers.classical",
+    "layers.energy",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": [
+    "advance_body",
+    "energy_out_of_area_meal"
+   ]
+  },
+  "world": {
+   "funcs": [
+    "shibuya.engine.systems.world.sys_world"
+   ],
+   "box_refs": [
+    "layers.runner"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "presence": {
+   "funcs": [
+    "shibuya.engine.systems.body.sys_presence"
+   ],
+   "box_refs": [
+    "cfg.tick_seconds",
+    "layers.act_layer",
+    "layers.calendar_self",
+    "layers.presence",
+    "runstats.layer_counts",
+    "runstats.phase",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [
+    "layer_counts",
+    "phase"
+   ],
+   "resolve": []
+  },
+  "perceive_prepare": {
+   "funcs": [
+    "shibuya.engine.systems.perceive.sys_perceive_prepare"
+   ],
+   "box_refs": [
+    "cfg.tick_seconds",
+    "fx.geom",
+    "fx.perception",
+    "layers.act_layer",
+    "layers.proximity",
+    "layers.runner",
+    "scratch.field_rows",
+    "scratch.near_index",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [
+    "field_rows",
+    "near_index"
+   ],
+   "tally": [],
+   "resolve": []
+  },
+  "llm_receive": {
+   "funcs": [
+    "shibuya.engine.systems.llm_io.receive_arrivals",
+    "shibuya.engine.systems.llm_io.sys_llm_receive",
+    "shibuya.engine.systems.llm_io.utter"
+   ],
+   "box_refs": [
+    "cfg.fleet_wait_s",
+    "cfg.store_wom_on",
+    "cfg.tick_seconds",
+    "cfg.vocab_version",
+    "layers.conv",
+    "layers.fleet_bridge",
+    "layers.mem_layer",
+    "layers.speech",
+    "layers.wom",
+    "llm.fleet_deferred",
+    "llm.fleet_inflight",
+    "llm.fleet_waiting",
+    "llm.pending",
+    "llm.replay_inbox",
+    "runstats.phase",
+    "scratch.n_parse_errors_fleet",
+    "soa.agents"
+   ],
+   "scratch": [
+    "n_parse_errors_fleet"
+   ],
+   "tally": [
+    "phase"
+   ],
+   "resolve": []
+  },
+  "apply_responses": {
+   "funcs": [
+    "shibuya.engine.systems.judge._body_events_on",
+    "shibuya.engine.systems.judge._stage2_on",
+    "shibuya.engine.systems.judge._with_calls",
+    "shibuya.engine.systems.judge._with_stage2_calls",
+    "shibuya.engine.systems.judge.sys_apply_responses"
+   ],
+   "box_refs": [
+    "buffers.focus_request",
+    "cfg.attention_on",
+    "cfg.salt",
+    "cfg.v3_hints",
+    "cfg.vocab_version",
+    "fx.schedule",
+    "fx.space",
+    "layers.act_layer",
+    "layers.conv",
+    "layers.intent_layer",
+    "layers.ledger",
+    "layers.mem_layer",
+    "layers.norm_meter",
+    "layers.poi_resolver",
+    "layers.proximity",
+    "layers.rel_layer",
+    "llm.pending",
+    "runstats.n_undefined_total",
+    "runstats.phase",
+    "runstats.talk_stats",
+    "scratch.applied_activity",
+    "scratch.applied_now",
+    "scratch.llm_intents",
+    "scratch.n_undefined",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [
+    "applied_activity",
+    "applied_now",
+    "llm_intents",
+    "n_undefined"
+   ],
+   "tally": [
+    "n_undefined_total",
+    "phase"
+   ],
+   "resolve": []
+  },
+  "detect": {
+   "funcs": [
+    "shibuya.engine.systems.perceive.sys_detect"
+   ],
+   "box_refs": [
+    "layers.act_layer",
+    "layers.detector",
+    "layers.intent_layer",
+    "runstats.intero_cross",
+    "runstats.phase",
+    "scratch.det_agent",
+    "scratch.det_class",
+    "scratch.det_cond",
+    "scratch.e_agent",
+    "scratch.e_class",
+    "scratch.e_cond",
+    "scratch.field_rows",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [
+    "det_agent",
+    "det_class",
+    "det_cond",
+    "e_agent",
+    "e_class",
+    "e_cond"
+   ],
+   "tally": [
+    "phase"
+   ],
+   "resolve": [
+    "apply_detection"
+   ]
+  },
+  "plan_boundary": {
+   "funcs": [
+    "shibuya.engine.systems.body.sys_plan_boundary"
+   ],
+   "box_refs": [
+    "cfg.plan_sleep",
+    "cfg.tick_seconds",
+    "day.b_agent",
+    "day.b_cell",
+    "day.b_cond",
+    "day.b_start",
+    "fx.schedule",
+    "layers.presence",
+    "runstats.layer_counts",
+    "runstats.phase",
+    "runstats.sleep_tally",
+    "scratch.p_agent",
+    "scratch.p_class",
+    "scratch.p_cond",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [
+    "p_agent",
+    "p_class",
+    "p_cond"
+   ],
+   "tally": [
+    "layer_counts",
+    "phase",
+    "sleep_counts"
+   ],
+   "resolve": [
+    "begin_planned_sleep",
+    "wake_from_plan"
+   ]
+  },
+  "home_meal": {
+   "funcs": [
+    "shibuya.engine.systems.body.sys_home_meal"
+   ],
+   "box_refs": [
+    "layers.energy",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": [
+    "energy_home_meal"
+   ]
+  },
+  "wake_sources": {
+   "funcs": [
+    "shibuya.engine.systems.judge.sys_wake_sources"
+   ],
+   "box_refs": [
+    "layers.conv",
+    "layers.runner",
+    "scratch.c_agent",
+    "scratch.c_class",
+    "scratch.c_cond",
+    "scratch.s_agent",
+    "scratch.s_class",
+    "scratch.s_cond"
+   ],
+   "scratch": [
+    "c_agent",
+    "c_class",
+    "c_cond",
+    "s_agent",
+    "s_class",
+    "s_cond"
+   ],
+   "tally": [],
+   "resolve": []
+  },
+  "wake_filter": {
+   "funcs": [
+    "shibuya.engine.systems.judge.sys_wake_filter"
+   ],
+   "box_refs": [
+    "layers.presence",
+    "llm.fleet_deferred",
+    "runstats.n_fleet_reinjected",
+    "scratch.det_agent",
+    "scratch.det_class",
+    "scratch.det_cond",
+    "scratch.e_agent",
+    "scratch.e_class",
+    "scratch.e_cond",
+    "scratch.f_agent",
+    "scratch.f_class",
+    "scratch.f_cond",
+    "scratch.f_exempt",
+    "scratch.f_since",
+    "scratch.p_agent",
+    "scratch.p_class",
+    "scratch.p_cond",
+    "soa.agents"
+   ],
+   "scratch": [
+    "det_agent",
+    "det_class",
+    "det_cond",
+    "e_agent",
+    "e_class",
+    "e_cond",
+    "f_agent",
+    "f_class",
+    "f_cond",
+    "f_exempt",
+    "f_since",
+    "p_agent",
+    "p_class",
+    "p_cond"
+   ],
+   "tally": [
+    "n_fleet_reinjected"
+   ],
+   "resolve": [
+    "clear_refractory"
+   ]
+  },
+  "relations_wake": {
+   "funcs": [
+    "shibuya.engine.systems.talk.sys_relations_wake"
+   ],
+   "box_refs": [
+    "cfg.n_agents",
+    "cfg.outside_suppression",
+    "cfg.plan_exec_on",
+    "cfg.sleep_suppression",
+    "layers.proximity",
+    "layers.rel_layer",
+    "scratch.e_agent",
+    "scratch.e_class",
+    "scratch.e_cond",
+    "soa.agents"
+   ],
+   "scratch": [
+    "e_agent",
+    "e_class",
+    "e_cond"
+   ],
+   "tally": [],
+   "resolve": []
+  },
+  "wake_assemble": {
+   "funcs": [
+    "shibuya.engine.systems.judge.sys_wake_assemble"
+   ],
+   "box_refs": [
+    "scratch.c_agent",
+    "scratch.c_class",
+    "scratch.c_cond",
+    "scratch.cands",
+    "scratch.det_agent",
+    "scratch.det_class",
+    "scratch.det_cond",
+    "scratch.e_agent",
+    "scratch.e_class",
+    "scratch.e_cond",
+    "scratch.f_agent",
+    "scratch.f_class",
+    "scratch.f_cond",
+    "scratch.f_exempt",
+    "scratch.f_since",
+    "scratch.p_agent",
+    "scratch.p_class",
+    "scratch.p_cond",
+    "scratch.s_agent",
+    "scratch.s_class",
+    "scratch.s_cond"
+   ],
+   "scratch": [
+    "cands"
+   ],
+   "tally": [],
+   "resolve": []
+  },
+  "arbiter": {
+   "funcs": [
+    "shibuya.engine.systems.judge.sys_arbiter"
+   ],
+   "box_refs": [
+    "cfg.n_agents",
+    "cfg.outside_suppression",
+    "cfg.plan_exec_on",
+    "cfg.sleep_suppression",
+    "layers.arbiter",
+    "runstats.awake_sum",
+    "runstats.awake_ticks",
+    "runstats.phase",
+    "scratch.cands",
+    "scratch.decision",
+    "scratch.outside_now",
+    "soa.agents"
+   ],
+   "scratch": [
+    "decision",
+    "outside_now"
+   ],
+   "tally": [
+    "awake_sum",
+    "awake_ticks",
+    "phase"
+   ],
+   "resolve": []
+  },
+  "decide": {
+   "funcs": [
+    "shibuya.engine.systems.decide.sys_decide",
+    "shibuya.engine.systems.llm_io.utter"
+   ],
+   "box_refs": [
+    "cfg.call_layer",
+    "cfg.lane",
+    "cfg.refractory_table",
+    "cfg.store_wom_on",
+    "cfg.tick_seconds",
+    "cfg.vocab_version",
+    "fx.tools",
+    "layers.arbiter",
+    "layers.bridge",
+    "layers.classical",
+    "layers.conv",
+    "layers.decision",
+    "layers.fleet_bridge",
+    "layers.mem_layer",
+    "layers.presence",
+    "layers.rel_layer",
+    "layers.speech",
+    "layers.wom",
+    "llm.fleet_deferred",
+    "llm.fleet_inflight",
+    "llm.fleet_waiting",
+    "llm.pending",
+    "llm.replay_inbox",
+    "runstats.calls_by_cond",
+    "runstats.layer_counts",
+    "runstats.n_fleet_resent",
+    "runstats.n_outside_calls",
+    "runstats.peak_backlog",
+    "runstats.peak_pending",
+    "runstats.phase",
+    "runstats.result",
+    "scratch.decision",
+    "scratch.n_parse_errors_fleet",
+    "scratch.outside_now",
+    "scratch.parse_errors",
+    "scratch.percepts",
+    "soa.agents"
+   ],
+   "scratch": [
+    "parse_errors",
+    "percepts"
+   ],
+   "tally": [
+    "calls_by_cond",
+    "n_fleet_resent",
+    "n_outside_calls",
+    "peak_backlog",
+    "peak_pending",
+    "phase",
+    "result"
+   ],
+   "resolve": [
+    "set_refractory"
+   ]
+  },
+  "phase_a": {
+   "funcs": [
+    "shibuya.engine.systems.act.sys_phase_a"
+   ],
+   "box_refs": [
+    "cfg.tick_seconds",
+    "fx.space",
+    "layers.act_layer",
+    "layers.intent_layer",
+    "runstats.layer_counts",
+    "runstats.peak_intents",
+    "runstats.phase",
+    "scratch.intents",
+    "scratch.llm_intents",
+    "soa.agents"
+   ],
+   "scratch": [
+    "intents",
+    "llm_intents"
+   ],
+   "tally": [
+    "layer_counts",
+    "peak_intents",
+    "phase"
+   ],
+   "resolve": []
+  },
+  "phase_b": {
+   "funcs": [
+    "shibuya.engine.systems.act.sys_phase_b"
+   ],
+   "box_refs": [
+    "cfg.salt",
+    "fx.space",
+    "runstats.phase",
+    "scratch.intents",
+    "scratch.plan",
+    "soa.world"
+   ],
+   "scratch": [
+    "plan"
+   ],
+   "tally": [
+    "phase"
+   ],
+   "resolve": []
+  },
+  "phase_c": {
+   "funcs": [
+    "shibuya.engine.systems.act.sys_phase_c"
+   ],
+   "box_refs": [
+    "buffers.focus_request",
+    "cfg.attention_on",
+    "cfg.queue_service",
+    "cfg.report_precondition",
+    "cfg.vocab_version",
+    "fx.geom",
+    "fx.schedule",
+    "layers.energy",
+    "layers.fam_layer",
+    "layers.ledger",
+    "layers.mem_layer",
+    "layers.norm_meter",
+    "layers.proximity",
+    "layers.runner",
+    "runstats.geometry_hops",
+    "runstats.geometry_jammed",
+    "runstats.leave_counts",
+    "runstats.per_action_total",
+    "runstats.phase",
+    "runstats.result",
+    "scratch.outcome",
+    "scratch.plan",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [
+    "outcome"
+   ],
+   "tally": [
+    "geometry_hops",
+    "geometry_jammed",
+    "leave_counts",
+    "per_action_total",
+    "phase",
+    "result"
+   ],
+   "resolve": [
+    "apply"
+   ]
+  },
+  "conversation": {
+   "funcs": [
+    "shibuya.engine.systems.talk.sys_conversation"
+   ],
+   "box_refs": [
+    "cfg.attention_on",
+    "layers.conv",
+    "layers.mem_layer",
+    "layers.proximity",
+    "layers.rel_layer",
+    "runstats.leave_closed",
+    "scratch.applied_now",
+    "scratch.outcome",
+    "scratch.plan",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [
+    "leave_closed"
+   ],
+   "resolve": [
+    "end_conversation",
+    "join_conversation",
+    "set_conversing",
+    "talk_within_reach"
+   ]
+  },
+  "activity_intent": {
+   "funcs": [
+    "shibuya.engine.systems.body.sys_activity_intent"
+   ],
+   "box_refs": [
+    "layers.act_layer",
+    "layers.conv",
+    "layers.intent_layer",
+    "scratch.applied_activity",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "contact": {
+   "funcs": [
+    "shibuya.engine.contact.layer.sys_contact"
+   ],
+   "box_refs": [
+    "layers.contact",
+    "layers.conv",
+    "layers.runner",
+    "scratch.decision",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "calendar_3": {
+   "funcs": [
+    "shibuya.engine.calendar3.layer.sys_calendar_3"
+   ],
+   "box_refs": [
+    "layers.calendar3",
+    "scratch.decision",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "calendar_2": {
+   "funcs": [
+    "shibuya.engine.calendar2.layer.sys_calendar_2"
+   ],
+   "box_refs": [
+    "layers.calendar2",
+    "scratch.decision",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "duties": {
+   "funcs": [
+    "shibuya.engine.duties.layer.sys_duties"
+   ],
+   "box_refs": [
+    "layers.duties",
+    "scratch.decision",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "memory": {
+   "funcs": [
+    "shibuya.engine.systems.remember._salient_for_memory",
+    "shibuya.engine.systems.remember.sys_memory"
+   ],
+   "box_refs": [
+    "layers.contact",
+    "layers.conv",
+    "layers.fam_layer",
+    "layers.mem_layer",
+    "layers.renderer",
+    "layers.runner",
+    "scratch.exposures",
+    "scratch.outcome",
+    "scratch.plan",
+    "soa.agents"
+   ],
+   "scratch": [
+    "exposures"
+   ],
+   "tally": [],
+   "resolve": []
+  },
+  "familiarity": {
+   "funcs": [
+    "shibuya.engine.systems.remember.sys_familiarity"
+   ],
+   "box_refs": [
+    "layers.fam_layer",
+    "scratch.exposures",
+    "scratch.outcome",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "energy_after": {
+   "funcs": [
+    "shibuya.engine.systems.body.sys_energy_after"
+   ],
+   "box_refs": [
+    "cfg.tick_seconds",
+    "layers.energy",
+    "soa.agents"
+   ],
+   "scratch": [],
+   "tally": [],
+   "resolve": []
+  },
+  "observe": {
+   "funcs": [
+    "shibuya.engine.systems.observe.observe"
+   ],
+   "box_refs": [
+    "cfg.occupancy_every",
+    "layers.arbiter",
+    "layers.bridge",
+    "layers.conv",
+    "layers.norm_meter",
+    "layers.presence",
+    "llm.pending",
+    "runstats.diag_rows",
+    "runstats.occ_counts",
+    "runstats.occ_kind",
+    "runstats.occ_ticks",
+    "runstats.occ_transit",
+    "runstats.prev_sessions",
+    "runstats.prev_tape_misses",
+    "runstats.sleep_tally",
+    "scratch.cands",
+    "scratch.decision",
+    "scratch.intents",
+    "scratch.n_undefined",
+    "scratch.outcome",
+    "scratch.parse_errors",
+    "scratch.plan",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [
+    "diag_rows",
+    "occ_counts",
+    "occ_kind",
+    "occ_ticks",
+    "occ_transit",
+    "prev_sessions",
+    "prev_tape_misses",
+    "sleep_counts"
+   ],
+   "resolve": []
+  },
+  "checkpoint": {
+   "funcs": [
+    "shibuya.engine.systems.observe.checkpoint",
+    "shibuya.engine.systems.state_io.hash_owners",
+    "shibuya.engine.systems.state_io.mark_boundary",
+    "shibuya.engine.systems.state_io.pst_now"
+   ],
+   "box_refs": [
+    "cfg.checkpoint_detail",
+    "cfg.checkpoint_every",
+    "cfg.total_ticks",
+    "fx.schedule",
+    "fx.schedule_hash",
+    "layers.act_layer",
+    "layers.arbiter",
+    "layers.bridge",
+    "layers.classical",
+    "layers.conv",
+    "layers.detector",
+    "layers.energy",
+    "layers.events",
+    "layers.fam_layer",
+    "layers.fleet_bridge",
+    "layers.intent_layer",
+    "layers.ledger",
+    "layers.mem_layer",
+    "layers.norm_meter",
+    "layers.poi_resolver",
+    "layers.presence",
+    "layers.rel_layer",
+    "layers.renderer",
+    "layers.runner",
+    "layers.wom",
+    "llm.fleet_deferred",
+    "llm.fleet_waiting",
+    "llm.pending",
+    "llm.replay_inbox",
+    "runstats.phase",
+    "runstats.result",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [
+    "phase",
+    "result"
+   ],
+   "resolve": []
+  },
+  "day_close": {
+   "funcs": [
+    "shibuya.engine.systems.day.sys_day_close",
+    "shibuya.engine.systems.state_io._stage2_plan",
+    "shibuya.engine.systems.state_io.act_hash_now",
+    "shibuya.engine.systems.state_io.bodies_now",
+    "shibuya.engine.systems.state_io.close_day_midrun",
+    "shibuya.engine.systems.state_io.day_record",
+    "shibuya.engine.systems.state_io.eod_hashes",
+    "shibuya.engine.systems.state_io.hash_owners",
+    "shibuya.engine.systems.state_io.ledger_close",
+    "shibuya.engine.systems.state_io.mark_boundary",
+    "shibuya.engine.systems.state_io.money_now",
+    "shibuya.engine.systems.state_io.pst_now",
+    "shibuya.engine.systems.state_io.save_state"
+   ],
+   "box_refs": [
+    "cfg.absent_processes",
+    "cfg.census_out",
+    "cfg.checkpoint_every",
+    "cfg.fp",
+    "cfg.parent_run",
+    "cfg.rate_rules",
+    "cfg.run_id",
+    "cfg.sim_days",
+    "cfg.state_out",
+    "cfg.tick_seconds",
+    "cfg.tpd",
+    "fx.calendar",
+    "fx.env_fields",
+    "fx.schedule",
+    "fx.schedule_hash",
+    "layers.act_layer",
+    "layers.arbiter",
+    "layers.bridge",
+    "layers.classical",
+    "layers.conv",
+    "layers.detector",
+    "layers.energy",
+    "layers.events",
+    "layers.fam_layer",
+    "layers.fleet_bridge",
+    "layers.intent_layer",
+    "layers.ledger",
+    "layers.mem_layer",
+    "layers.norm_meter",
+    "layers.poi_resolver",
+    "layers.presence",
+    "layers.proximity",
+    "layers.rel_layer",
+    "layers.renderer",
+    "layers.runner",
+    "layers.wom",
+    "llm.fleet_deferred",
+    "llm.fleet_inflight",
+    "llm.fleet_waiting",
+    "llm.pending",
+    "llm.replay_inbox",
+    "runstats.daily_records",
+    "runstats.result",
+    "runstats.state_files",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [
+    "daily_records",
+    "result",
+    "state_files"
+   ],
+   "resolve": []
+  },
+  "drain": {
+   "funcs": [
+    "shibuya.engine.systems.run_end.sys_drain",
+    "shibuya.engine.systems.state_io._stage2_plan",
+    "shibuya.engine.systems.state_io.act_hash_now",
+    "shibuya.engine.systems.state_io.hash_owners",
+    "shibuya.engine.systems.state_io.pst_now",
+    "shibuya.engine.systems.state_io.save_state"
+   ],
+   "box_refs": [
+    "cfg.absent_processes",
+    "cfg.fp",
+    "cfg.parent_run",
+    "cfg.rate_rules",
+    "cfg.run_id",
+    "cfg.sim_days",
+    "cfg.state_out",
+    "cfg.t_end",
+    "cfg.tick_seconds",
+    "cfg.total_ticks",
+    "cfg.tpd",
+    "fx.env_fields",
+    "fx.schedule",
+    "fx.schedule_hash",
+    "layers.act_layer",
+    "layers.arbiter",
+    "layers.bridge",
+    "layers.classical",
+    "layers.conv",
+    "layers.detector",
+    "layers.energy",
+    "layers.fam_layer",
+    "layers.fleet_bridge",
+    "layers.intent_layer",
+    "layers.ledger",
+    "layers.mem_layer",
+    "layers.norm_meter",
+    "layers.poi_resolver",
+    "layers.presence",
+    "layers.proximity",
+    "layers.rel_layer",
+    "layers.renderer",
+    "layers.runner",
+    "layers.wom",
+    "llm.fleet_deferred",
+    "llm.fleet_inflight",
+    "llm.fleet_waiting",
+    "llm.pending",
+    "llm.replay_inbox",
+    "runstats.result",
+    "runstats.state_files",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [
+    "result",
+    "state_files"
+   ],
+   "resolve": []
+  },
+  "close_final": {
+   "funcs": [
+    "shibuya.engine.systems.run_end.sys_close_final",
+    "shibuya.engine.systems.state_io._stage2_plan",
+    "shibuya.engine.systems.state_io.act_hash_now",
+    "shibuya.engine.systems.state_io.bodies_now",
+    "shibuya.engine.systems.state_io.day_record",
+    "shibuya.engine.systems.state_io.eod_hashes",
+    "shibuya.engine.systems.state_io.hash_owners",
+    "shibuya.engine.systems.state_io.ledger_close",
+    "shibuya.engine.systems.state_io.mark_boundary",
+    "shibuya.engine.systems.state_io.money_now",
+    "shibuya.engine.systems.state_io.pst_now",
+    "shibuya.engine.systems.state_io.save_state"
+   ],
+   "box_refs": [
+    "cfg.absent_processes",
+    "cfg.census_out",
+    "cfg.checkpoint_every",
+    "cfg.fp",
+    "cfg.parent_run",
+    "cfg.rate_rules",
+    "cfg.run_id",
+    "cfg.sim_days",
+    "cfg.state_out",
+    "cfg.stopped",
+    "cfg.t_end",
+    "cfg.tick_seconds",
+    "cfg.total_ticks",
+    "cfg.tpd",
+    "fx.calendar",
+    "fx.env_fields",
+    "fx.geom",
+    "fx.schedule",
+    "fx.schedule_hash",
+    "layers.act_layer",
+    "layers.arbiter",
+    "layers.body",
+    "layers.bridge",
+    "layers.calendar2",
+    "layers.calendar3",
+    "layers.calendar_self",
+    "layers.calendar_shadow",
+    "layers.classical",
+    "layers.clock",
+    "layers.contact",
+    "layers.conv",
+    "layers.decision",
+    "layers.detector",
+    "layers.duties",
+    "layers.energy",
+    "layers.events",
+    "layers.experiment",
+    "layers.fam_layer",
+    "layers.fleet_bridge",
+    "layers.intent_layer",
+    "layers.ledger",
+    "layers.mem_layer",
+    "layers.norm_meter",
+    "layers.poi_resolver",
+    "layers.presence",
+    "layers.proximity",
+    "layers.rel_layer",
+    "layers.renderer",
+    "layers.runner",
+    "layers.speech",
+    "layers.step_scope",
+    "layers.talk_clock",
+    "layers.wom",
+    "llm.fleet_deferred",
+    "llm.fleet_inflight",
+    "llm.fleet_waiting",
+    "llm.pending",
+    "llm.replay_inbox",
+    "runstats.daily_records",
+    "runstats.ledger_growth",
+    "runstats.result",
+    "runstats.state_files",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [
+    "daily_records",
+    "ledger_growth",
+    "result",
+    "state_files"
+   ],
+   "resolve": []
+  },
+  "report": {
+   "funcs": [
+    "shibuya.engine.systems.report.report"
+   ],
+   "box_refs": [
+    "cfg.absent_processes",
+    "cfg.activity_on",
+    "cfg.activity_region",
+    "cfg.area_source",
+    "cfg.attention_on",
+    "cfg.budget_mode_enum",
+    "cfg.chooser",
+    "cfg.classical_habit_p",
+    "cfg.classical_tau",
+    "cfg.day_index",
+    "cfg.derive_rule",
+    "cfg.eatery",
+    "cfg.energy_on",
+    "cfg.energy_rate",
+    "cfg.exit_mode",
+    "cfg.familiarity_k",
+    "cfg.familiarity_on",
+    "cfg.geometry",
+    "cfg.home_meal",
+    "cfg.hunger_model",
+    "cfg.hunger_words",
+    "cfg.intent_max_ticks",
+    "cfg.intent_mode",
+    "cfg.l4_scale",
+    "cfg.meal_sleep_defer",
+    "cfg.memory_n",
+    "cfg.memory_on",
+    "cfg.mock_move_target_p",
+    "cfg.mock_out_of_cell_target_p",
+    "cfg.move_search_radius",
+    "cfg.n_agents",
+    "cfg.occupancy_path",
+    "cfg.outside_suppression",
+    "cfg.p_notice_ablation",
+    "cfg.p_notice_d50_scale",
+    "cfg.parent_run",
+    "cfg.plan_exec_on",
+    "cfg.plan_sleep",
+    "cfg.policy",
+    "cfg.rate_rules",
+    "cfg.refractory_scale_norm",
+    "cfg.response_delay",
+    "cfg.role_words",
+    "cfg.run_id",
+    "cfg.seat_area_eatery_m2",
+    "cfg.seat_area_retail_m2",
+    "cfg.signage",
+    "cfg.signage_p_see",
+    "cfg.sim_days",
+    "cfg.sleep_suppression",
+    "cfg.space",
+    "cfg.space_effective",
+    "cfg.space_reason",
+    "cfg.stopped",
+    "cfg.store_memory_on",
+    "cfg.store_recall_scope",
+    "cfg.store_signage_on",
+    "cfg.store_wom_on",
+    "cfg.t_begin",
+    "cfg.t_end",
+    "cfg.tick_seconds",
+    "cfg.vocab_version",
+    "day.w17_substituted",
+    "fx.calendar",
+    "fx.fleet",
+    "fx.perception",
+    "fx.renderer_obj",
+    "fx.schedule",
+    "fx.start_check",
+    "fx.tools",
+    "fx.walkable",
+    "layers.act_layer",
+    "layers.arbiter",
+    "layers.bridge",
+    "layers.classical",
+    "layers.conv",
+    "layers.energy",
+    "layers.fam_layer",
+    "layers.fleet_bridge",
+    "layers.intent_layer",
+    "layers.ledger",
+    "layers.mem_layer",
+    "layers.norm_meter",
+    "layers.poi_resolver",
+    "layers.presence",
+    "layers.rel_layer",
+    "layers.renderer",
+    "layers.runner",
+    "layers.wom",
+    "llm.fleet_inflight",
+    "runstats.awake_sum",
+    "runstats.awake_ticks",
+    "runstats.calls_by_cond",
+    "runstats.daily_records",
+    "runstats.day_heads",
+    "runstats.diag_rows",
+    "runstats.frozen_sources_map",
+    "runstats.geometry_hops",
+    "runstats.geometry_jammed",
+    "runstats.intero_cross",
+    "runstats.layer_counts",
+    "runstats.leave_closed",
+    "runstats.leave_counts",
+    "runstats.ledger_growth",
+    "runstats.n_fleet_reinjected",
+    "runstats.n_fleet_resent",
+    "runstats.n_outside_calls",
+    "runstats.occ_counts",
+    "runstats.occ_kind",
+    "runstats.occ_ticks",
+    "runstats.occ_transit",
+    "runstats.peak_backlog",
+    "runstats.peak_intents",
+    "runstats.peak_pending",
+    "runstats.per_action_total",
+    "runstats.phase",
+    "runstats.read_seconds",
+    "runstats.restore_seconds",
+    "runstats.result",
+    "runstats.sleep_tally",
+    "runstats.state_files",
+    "runstats.t_start",
+    "runstats.talk_stats",
+    "soa.agents",
+    "soa.world"
+   ],
+   "scratch": [],
+   "tally": [
+    "frozen_sources_map",
+    "result",
+    "sleep_counts"
+   ],
+   "resolve": []
+  }
+ }
+}

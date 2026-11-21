@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import write_permit as WP
-from shibuya.engine.systems import boxes as BX
-from shibuya.engine.systems import guard as G
+from shibuya.foundation import write_permit as WP
+from shibuya.runtime.systems import boxes as BX
+from shibuya.foundation import write_guard as G
 
 TABLE = Path("docs/bench/analysis/wallbounce-1012/run-day-decomp/local-assignment.json")
 BOX_CLASSES = {
@@ -22,10 +22,12 @@ BOX_ATTR = {"stats": "runstats"}
 #: 表の欄の名 → 箱の欄の名(名の衝突を避けて変えたもの)。
 FIELD_RENAMES = {("stats", "sleep_counts"): "sleep_tally"}
 #: 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧道の切替口と一緒に消した設定の欄(表は HEAD ee3abc7 の割り当ての記録=凍結のまま)。
-REMOVED_FIELDS = {("cfg", "leave_effect"), ("cfg", "poi_target"), ("cfg", "near_tiebreak"), ("cfg", "near_order")}
+REMOVED_FIELDS = {("cfg", "leave_effect"), ("cfg", "poi_target"), ("cfg", "near_tiebreak"), ("cfg", "near_order"),
+                  ("cfg", "attendance_rate")}  # 〔11-01 段 2 の 4〕出勤率のくじと一緒に消した欄
 #: 〔第 2 部〕run_day の引数から消した切替口(leave_effect・poi_target・near_tiebreak・near_order・rel_tenure_hash・
-#: response_delay=113 → 107)。
-REMOVED_PARAMS = ("leave_effect", "poi_target", "near_tiebreak", "near_order", "rel_tenure_hash", "response_delay")
+#: response_delay=113 → 107)。〔11-01 段 2 の 4〕出勤率 attendance_rate を消した(108 → 107)。
+REMOVED_PARAMS = ("leave_effect", "poi_target", "near_tiebreak", "near_order", "rel_tenure_hash", "response_delay",
+                  "attendance_rate")
 #: 〔第 5 期 空間の段 1〕run_day の引数に足した切替口(space=107 → 108)。
 ADDED_PARAMS = ("space",)
 
@@ -71,7 +73,7 @@ def test_scratch_fields_cover_the_table():
 
 
 def test_owner_names_match_the_hash_owners():
-    from shibuya.engine.systems import state_io as SIO
+    from shibuya.runtime.systems import state_io as SIO
 
     layers = BX.Layers(**{f.name: None for f in dataclasses.fields(BX.Layers)})
     layers.bridge = type("B", (), {"undefined": "U"})()
@@ -85,7 +87,11 @@ def test_owner_names_match_the_hash_owners():
     owners = SIO.hash_owners(b)
     assert tuple(owners) == BX.OWNER_NAMES
     assert owners["undefined"] == "U"
-    assert type(owners["run_day"]).__module__ == "shibuya.engine.run"  # 持ち主のクラスの置き場を変えない
+    from shibuya.runtime.state.class_ids import class_id
+
+    # 持ち主のクラスの凍結の名を変えない(ハッシュに入る名)。〔割る段 5b の G0・親の裁定 Q12〕前は今のモジュールの名
+    # ("shibuya.engine.run")と比べていた=割る段でクラスの置き場が変わっても凍結の名(class_id)で比べる
+    assert class_id(type(owners["run_day"])) == "shibuya.engine.run._RunDayLocals"
     assert type(owners["run_day"]).__qualname__ == "_RunDayLocals"
 
 
@@ -132,7 +138,7 @@ def test_run_day_signature_is_unchanged_and_build_unpacks_every_argument():
     import ast
     import inspect
 
-    from shibuya.engine import run as RUN
+    from shibuya.runtime import run as RUN
 
     params = list(inspect.signature(RUN.run_day).parameters)
     assert len(params) == 113 - len(REMOVED_PARAMS) + len(ADDED_PARAMS) and not set(REMOVED_PARAMS) & set(params)
@@ -141,7 +147,7 @@ def test_run_day_signature_is_unchanged_and_build_unpacks_every_argument():
     body = ast.parse(src).body[0].body
     first = body[1] if isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) else body[0]
     assert ast.unparse(first) == "_call_args = dict(locals())"
-    bsrc = Path("src/shibuya/engine/systems/build.py").read_text(encoding="utf-8")
+    bsrc = Path("src/shibuya/runtime/systems/assemble.py").read_text(encoding="utf-8")
     import re
 
     got = re.findall(r"^    (\w+) = _call_args\['(\w+)'\]$", bsrc, flags=re.M)

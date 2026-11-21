@@ -7,8 +7,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.core.types import EventClass
-from shibuya.engine.scheduler import (
+from shibuya.foundation.types import EventClass
+from shibuya.foundation.queues.scheduler import (
     COL_AGENT,
     COL_CLASS,
     COL_OFFSET,
@@ -201,7 +201,7 @@ def test_scheduler_matches_pure_function_on_same_state():
 # ---------------- 繰り延べ待ち行列 ----------------
 def test_diag_columns_match_manifest_schema():
     """診断行4列は manifest 側の定義そのもの(engine は再輸出するだけ=定義を増やさない)。"""
-    from shibuya.manifest.schema import DIAG_COLUMNS as MANIFEST_DIAG
+    from shibuya.foundation.manifest.schema import DIAG_COLUMNS as MANIFEST_DIAG
 
     assert DIAG_COLUMNS is MANIFEST_DIAG
 

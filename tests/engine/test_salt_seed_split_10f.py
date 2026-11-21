@@ -22,11 +22,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
-from shibuya.core import rng as RNG
-from shibuya.engine import geometry as GEO
-from shibuya.engine import resume as RS
-from shibuya.engine import run as RUN
+from shibuya.interfaces.cli import main as cli
+from shibuya.foundation import rng as RNG
+from shibuya.world.model import geometry as GEO
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime import run as RUN
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "c7"))
@@ -49,15 +49,22 @@ def _fd():
 #: 用途名を持たない呼び出し(``self.domain`` は既定の定数)。値は ``test_dynamic_domains_match_the_defaults`` で
 #: 実物の既定と突き合わせる(検収 S3-1 の 4: 手書きの表が既定の変更を追わない穴)。
 _DYNAMIC = {
-    "self.domain": {"conversation.invite", "llm.mock"},
+    "self.domain": {"llm.mock"},  # 〔第346〕会話の招待の抽選(conversation.invite)は死んだ道と一緒に消した
     "self.domain + _MOVE_TARGET_DOMAIN_SUFFIX": {"llm.mock.move_target"},
     "self.domain + _SHOP_TARGET_DOMAIN_SUFFIX": {"llm.mock.out_of_cell_target"},
 }
 _IGNORE = {"seed.check", "/v1/chat/completions"}  # 型の検査だけ・httpx の stream
 #: 変数の用途名をそのまま渡す呼び出しを許す場所(再検収 T4: ``core.rng`` の中の ``philox``・``stream`` だけ)。
-_PASSTHROUGH_OK = {"?domain": {"core/rng.py"}}
+_PASSTHROUGH_OK = {"?domain": {"foundation/rng.py"}}
 _RNG_FUNCS = ("stream", "philox", "derive_key", "philox_array")  # 〔第 2 期 2-2〕配列で回す Philox
-_RNG_MODULES = ("shibuya.core.rng", "core.rng", "rng")
+_RNG_MODULES = ("shibuya.foundation.rng", "core.rng", "rng")
+
+
+#: 乱数のモジュールの名の部品(〔段 4 の下ごしらえ〕置き場を字面で持たず、モジュールの ``__name__`` から作る。
+#: 今は ``shibuya.core.rng`` → 葉 ``rng``・包みの葉 ``core``・根を除いた名 ``core.rng``。段 4 で置き場が動けば一緒に動く)。
+_RNG_LEAF = RNG.__name__.rpartition(".")[2]
+_RNG_PKG_LEAF = RNG.__name__.rpartition(".")[0].rpartition(".")[2]
+_RNG_TAIL = RNG.__name__.partition(".")[2]
 
 
 def _rng_aliases(tree: ast.AST) -> tuple[dict[str, str], set[str]]:
@@ -65,17 +72,17 @@ def _rng_aliases(tree: ast.AST) -> tuple[dict[str, str], set[str]]:
     names: dict[str, str] = {f: f for f in _RNG_FUNCS}
     mods: set[str] = set()
     for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[-1] == "rng":
+        if isinstance(n, ast.ImportFrom) and (n.module or "").split(".")[-1] == _RNG_LEAF:
             for a in n.names:
                 if a.name in _RNG_FUNCS:
                     names[a.asname or a.name] = a.name
-        elif isinstance(n, ast.ImportFrom) and (n.module or "").endswith("core"):
+        elif isinstance(n, ast.ImportFrom) and (n.module or "").endswith(_RNG_PKG_LEAF):
             for a in n.names:
-                if a.name == "rng":
+                if a.name == _RNG_LEAF:
                     mods.add(a.asname or a.name)
         elif isinstance(n, ast.Import):
             for a in n.names:
-                if a.name.endswith("core.rng"):
+                if a.name.endswith(_RNG_TAIL):
                     mods.add(a.asname or a.name)
     return names, mods
 
@@ -142,8 +149,8 @@ def test_every_rng_domain_in_src_is_classified():
 def test_static_scan_catches_aliases_and_keyword_domains():
     """検収 S3-1 の 1・2: 別名の import と名前つきの ``domain=`` を拾う(わざと書いた断片で)。"""
     snippet = (
-        "from shibuya.core.rng import stream as _s, philox\n"
-        "from shibuya.core import rng as R\n"
+        "from shibuya.foundation.rng import stream as _s, philox\n"
+        "from shibuya.foundation import rng as R\n"
         "def f(seed):\n"
         "    _s(seed, 'x.alias').random()\n"
         "    philox(seed, domain='x.keyword')\n"
@@ -175,11 +182,12 @@ def test_static_scan_catches_aliases_and_keyword_domains():
 
 def test_dynamic_domains_match_the_defaults():
     """検収 S3-1 の 4: ``self.domain`` の手書きの対応を、実物の既定の値と突き合わせる。"""
-    from shibuya.engine.conversation import ConversationManager
-    from shibuya.llm import mock as MOCK
-    from shibuya.llm.mock import MockLLM
+    from shibuya.society.conversation import ConversationManager
+    from shibuya.runtime.inference import mock as MOCK
+    from shibuya.runtime.inference.mock import MockLLM
 
-    assert {ConversationManager(1).domain, MockLLM(master_seed=1).domain} == _DYNAMIC["self.domain"]
+    assert {MockLLM(master_seed=1).domain} == _DYNAMIC["self.domain"]
+    assert not hasattr(ConversationManager(1), "domain")  # 〔第346〕抽選と一緒に用途名の引数も消した
     assert {MockLLM(master_seed=1).domain + MOCK._MOVE_TARGET_DOMAIN_SUFFIX} == _DYNAMIC[
         "self.domain + _MOVE_TARGET_DOMAIN_SUFFIX"]
     assert {MockLLM(master_seed=1).domain + MOCK._SHOP_TARGET_DOMAIN_SUFFIX} == _DYNAMIC[
@@ -189,19 +197,19 @@ def test_dynamic_domains_match_the_defaults():
 #: seed を引数に持つ関数の中のハッシュ(blake3・xxh64)の呼び出し(検収 S3-1 の 3)。用途名を持たない乱数はここに出る。
 #: 値は ``MOTION_SALTS`` の鍵か、乱数でない理由。新しい場所が出たら分類を決めてここに足す。
 _HASH_SITES = {
-    ("engine/run.py", "run_salt_for"): "run_salt",
-    ("perception/renderer.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
-    ("engine/presence.py", "attendance_draw"): "attendance",
+    ("runtime/run.py", "run_salt_for"): "run_salt",
+    ("world/model/percept_scene.py", "__init__"): "run_salt",  # near_salt を渡さないときの run_salt の写し(run_day は渡す)
+    # 〔11-01 段 2 の 4〕("engine/presence.py", "attendance_draw")=出勤率の抽選は消した
     # 〔第 6 期 6-2〕腕 1b の体ごとの割り振り(動きの seed=salt・母集団の seed は使わない)
-    ("engine/calendar_self.py", "_key_draw"): "calendar_1b",
-    ("llm/fleet.py", "seed_for"): "fleet.call_seed",
-    ("core/rng.py", "derive_key"): "core.rng の鍵の導出そのもの",
-    ("core/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",
-    ("core/hashing.py", "xxh64_array"): "汎用のハッシュ(引数の名前が seed)",
-    ("perception/hashes.py", "block_hash"): "汎用のハッシュ(引数の名前が seed)",
+    ("interim_bundles/calendar_self.py", "_key_draw"): "calendar_1b",
+    ("foundation/ports/inference.py", "seed_for"): "fleet.call_seed",
+    ("foundation/rng.py", "derive_key"): "core.rng の鍵の導出そのもの",
+    ("foundation/hashing.py", "xxh64"): "汎用のハッシュ(引数の名前が seed)",
+    ("foundation/hashing.py", "xxh64_array"): "汎用のハッシュ(引数の名前が seed)",
+    ("foundation/text/hashes.py", "block_hash"): "汎用のハッシュ(引数の名前が seed)",
     # 〔第330・RET〕legacy の select_day は消した
     # 〔第330・10e B6〕天気の規則 calendar の再生日の抽選
-    ("engine/processes/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",
+    ("world/laws/environment.py", "sample_calendar_day"): "層の名前と日番号を数にするだけ(乱数は core.rng の環境の流れ)",
     # 〔1-0〕HEAD の ("engine/run.py", "run_day")=「状態のハッシュ(seed を入れない)」は、checkpoint の活動層のハッシュが
     # 系 checkpoint(engine/systems/observe.py・seed を引数に持たない)へ移ったので、この表の対象から外れた
 }
@@ -271,9 +279,14 @@ def _check_split(seen, seed, pop_seed, env_seed):
 
 
 def test_population_and_motion_streams_use_their_own_seed_synthetic(monkeypatch):
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔第347〕切替口 --rate-rules legacy と
+    # run_day(salient_rate_per_10k=…) の代わりに、試験の中だけで実行器に部品の口(率の規則の旧道・倒れる率)を挿す
+    legacy_world_rules(monkeypatch, absent=False, salient_rate=3000.0)
     seen = _record_keys(monkeypatch)
     cli.run(n_agents=60, seed=3, population_seed=7, environment_seed=11, world_dir=NO_WORLD, n_cells=30, ticks=240,
-            checkpoint_every=60, salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
+            checkpoint_every=60)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
     used = _check_split(seen, 3, 7, 11)
     assert {"world.synthetic", "agent.schedule", "llm.mock"} <= used
 
@@ -387,7 +400,7 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
     気象の再生実日: 既定のランは影のある日に絞る(W9 は 1 再生日ぶん)ので、世界資産では実日は 1 日に決まる。
     そこで実日の選び方は、同じ過程を影の絞りを外して作り、環境の seed で実日が変わることを別に確かめる。
     """
-    from shibuya.engine.processes.environment import EnvironmentProcess
+    from shibuya.world.laws.environment import EnvironmentProcess
 
     kw = dict(n_agents=300, world_dir=str(WORLD), ticks=120, checkpoint_every=60, vocab_version="v3", activity=True)
     seen = _record_keys(monkeypatch)
@@ -415,12 +428,15 @@ def test_environment_seed_only_changes_weather_events_and_works(monkeypatch):
 
 # ---------------------------------------------------------------- T3: 回す役と CRN の健全性
 def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
-    # 10e(E4): 乱数 counter では率 100 だと 200 体・1 日で事象が 0 件の salt がある(腕が基準と同じランになる)ので
-    # 率を上げて、どの salt でも腕が食い違うようにした
-    arms = {"base": {}, "sal": {"salient_rate_per_10k": 1000.0}}
+    # 〔第347 止めた切替口の削除〕前の腕は倒れる率(``salient_rate_per_10k``=旧道でだけ効く試験の口・子のプロセスにも
+    # 環境変数 SHIBUYA_RATE_RULES=legacy・最初の食い違いは salt 1 が刻み 76・salt 2 が 30)。切替口を消すと子のプロセスでは
+    # 旧道を選べない=時刻で効き始める別の腕に替えた: 納品の過程を切る(05〜08 時の納品が無い=最初の食い違いは salt 1 が
+    # 刻み 300・salt 2 が 301=どちらも T0 の前を比べ、粗い区間の 6 つ目=再開してからの細かい探しの道を通る・salt 2 は区間の
+    # 左端でない)。前の腕と同じく manifest の設定の節に載らない腕(報告に出る)。記録 switch-removal-347 §10
+    arms = {"base": {}, "deliv_off": {"processes_disabled": ["delivery_inbound"]}}
     out = tmp_path / "runs.json"
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
-                        "--base", "base", "--arm", "sal", "--salts", "1,2", "--population-seed", "1", "--agents", "200",
+                        "--base", "base", "--arm", "deliv_off", "--salts", "1,2", "--population-seed", "1", "--agents", "200",
                         "--world", NO_WORLD, "--scratch", str(tmp_path), "--out", str(out), "--aa", "--first-diff",
                         "--jobs", "2"], cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
     assert r.returncode == 0, r.stderr[-3000:]
@@ -432,10 +448,15 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
     for s in (1, 2):
         # 毎 tick で通しに回した 2 本を first_diff.py で比べた tick(独立の答え)
         dumps = []
-        for name in ("base", "sal"):
-            res = cli.run(n_agents=200, seed=s, population_seed=1, world_dir=NO_WORLD, checkpoint_every=1, **arms[name])
+        for name in ("base", "deliv_off"):
+            # 〔Q13 再検収 M-1〕回す役の子のランは、腕に語彙が無ければ語彙 v1(前と同じラン=``salt_runs`` の ``setdefault``)。
+            # 独立の答えの側も同じ語彙 v1 を明示する(渡さないとランの既定 v3 になり、別のランどうしの比べになる)
+            res = cli.run(n_agents=200, seed=s, population_seed=1, world_dir=NO_WORLD, checkpoint_every=1,
+                          vocab_version="v1", **arms[name])
             dumps.append(fd.dump(res, tmp_path / f"straight_{name}_{s}.json"))
         want = fd.compare(dumps[0], [dumps[1]], from_T=0)["first_mismatch"]["tick"]
+        # 〔第347・検収 H1〕退化を止める: 刻み 0 で食い違う腕では T0 の前の一致が何も比べず真になり、回す役の再開の道を通らない
+        assert want > 0, (s, want)
         got = index["first_diff_fine"][str(s)]
         assert got["first_tick"] == want, (s, got, want)
         assert got["interval"][0] <= want <= got["interval"][1]
@@ -445,13 +466,35 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
         assert sc.pre_t0_match(a_doc, b_doc, want)["ok"] is True
         bad = sc.pre_t0_match(a_doc, b_doc, want + 60)
         assert bad["ok"] is False and bad["first_bad_tick"] == want
-    crn = sc.crn_health(index, payloads)
+    # 〔第347・検収 H1〕どれかの salt で細かい探しが粗い区間の 2 つ目以降から始まる=区間の頭まで回して状態を書き、再開して毎刻みで
+    # 回す道(``salt_runs._fine_first_diff`` の ``start > 0``)を通る
+    assert any(index["first_diff_fine"][str(s)]["interval"][0] > 0 for s in (1, 2)), index["first_diff_fine"]
+    # 納品の過程を切ると、manifest の設定の欄 ``ablations``・``process_ids`` が腕から導かれて変わる=期待の値を書いて宣言する
+    # (検収 S3-3 の口 ``derived_keys``=宣言と実際が違えば落ちる)
+    by = {(x["arm"], x["salt"]): payloads[x["checkpoints"]] for x in index["runs"] if not x.get("aa")}
+    # 〔Q13 再検収 M-1〕回す役の子のランの語彙は v1(独立の答えの側と同じ語彙どうしを比べた)
+    assert {p["manifest"]["vocab_version"] for p in payloads.values()} == {"v1"}
+    base_ids = list(by[("base", 1)]["manifest"]["process_ids"])
+    assert "delivery_inbound" in base_ids
+
+    def _flat(v):  # noqa: ANN001, ANN202 — 平坦化の値の形(list は JSON の文字列)
+        return json.dumps(v, ensure_ascii=False, sort_keys=True)
+
+    derived = {
+        "ablations": {"base": _flat([]), "arm": _flat(["AB-DELIVERY-FREQ", "delivery_inbound"]),
+                      "reason": "processes_disabled の過程 id と、その過程の感度試験 id が切った一覧に出る"},
+        "process_ids": {"base": _flat(base_ids), "arm": _flat([x for x in base_ids if x != "delivery_inbound"]),
+                        "reason": "processes_disabled の過程が動く過程の一覧から外れる"},
+    }
+    crn = sc.crn_health(index, payloads, derived_keys=derived)
+    assert crn["input_match"]["arm_keys_derived_mismatch"] == []
     assert crn["input_match"]["ok"] is True and crn["input_match"]["population_fixed"] is True
     assert crn["aa"] and all(x["ok"] for x in crn["aa"])  # A/A が一致
     assert crn["ok"] is True and crn["status"] == "ok"
     assert index["environment_mode"] == "fixed" and crn["input_match"]["environment_fixed"] is True
-    # salient_rate_per_10k は manifest の設定の節に載っていない腕=報告に出る(落とさない)
-    assert crn["input_match"]["arm_keys_unseen"] == ["salient_rate_per_10k"]
+    # 納品の過程を切る腕は manifest の設定の節に載っていない腕=報告に出る(落とさない)。前の腕(salient_rate_per_10k)と同じ形
+    assert crn["input_match"]["arm_keys"] == ["processes_disabled"]
+    assert crn["input_match"]["arm_keys_unseen"] == ["processes_disabled"]
     spec = {"alpha": 0.05, "primary": {"id": "calls", "path": "manifest.llm_calls_total"}}
     rep = sc.report(index, payloads, spec)
     assert rep["analysis"]["metrics"]["calls"]["status"] == sc.DESCRIPTIVE  # 2 対
@@ -459,13 +502,15 @@ def test_t3_runner_first_diff_matches_first_diff_py_and_crn_checks(tmp_path):
 
 def test_runner_environment_modes(tmp_path):
     """S1: 回す役の ``--environment-mode``。fixed は環境の seed が全部同じ(省略=母集団の seed)・salt は salt と同じ。"""
-    arms = {"base": {}, "sal": {"salient_rate_per_10k": 100.0}}
+    # 〔第347 止めた切替口の削除〕前の腕は倒れる率(旧道でだけ効く試験の口・子のプロセスにも環境変数)=別の腕に替えた
+    # (この試験は環境の seed の決め方を見る=腕の中身に依らない)
+    arms = {"base": {}, "sleep": {"sleep_suppression": False}}
     idx = {}
     for mode in ("fixed", "salt"):
         d = tmp_path / mode
         out = tmp_path / f"runs_{mode}.json"
         r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
-                            "--base", "base", "--arm", "sal", "--salts", "2,3", "--population-seed", "1",
+                            "--base", "base", "--arm", "sleep", "--salts", "2,3", "--population-seed", "1",
                             "--environment-mode", mode, "--agents", "60", "--world", NO_WORLD, "--scratch", str(d),
                             "--out", str(out), "--jobs", "2"], cwd=str(ROOT), capture_output=True, text=True,
                            encoding="utf-8")
@@ -483,7 +528,7 @@ def test_runner_environment_modes(tmp_path):
     assert crn["input_match"]["ok"] is True and crn["input_match"]["environment_fixed"] is False
     # 置き場が空でなければ止める(検収 S3-6)
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "c7" / "salt_runs.py"), "plan", "--arms", json.dumps(arms),
-                        "--base", "base", "--arm", "sal", "--salts", "2", "--agents", "20", "--world", NO_WORLD,
+                        "--base", "base", "--arm", "sleep", "--salts", "2", "--agents", "20", "--world", NO_WORLD,
                         "--scratch", str(tmp_path / "fixed"), "--out", str(tmp_path / "again.json")],
                        cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8",
                        env={**os.environ, "PYTHONIOENCODING": "utf-8"})
@@ -492,7 +537,7 @@ def test_runner_environment_modes(tmp_path):
 
 
 def _large_event_venue(world, agents, env, day):
-    from shibuya.engine.processes.civic import LargeEventProcess
+    from shibuya.world.laws.civic import LargeEventProcess
 
     return LargeEventProcess(world, agents, master_seed=env, day_index=day).venue_cells
 
@@ -505,7 +550,7 @@ def test_road_works_day_key_with_nonzero_day_index():
     暦は real だけ=``day_index`` は開始日をずらすだけで、0 日目の日の鍵は日番号 0。``day_index=14``(2026-07-27・月曜)の
     ランの工事の辺と大きな催しの会場は、鍵 0 と環境の seed で引いた値と同じ(環境の seed を変えると変わる)。
     """
-    from shibuya.engine.processes.logistics import RoadWorksProcess
+    from shibuya.world.laws.logistics import RoadWorksProcess
 
     kw = dict(n_agents=300, world_dir=str(WORLD), ticks=30, checkpoint_every=0)  # 合成世界の資産には工事の辺が無い
     edges = {}

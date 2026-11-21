@@ -1,0 +1,423 @@
+{
+ "stages": [
+  "mind"
+ ],
+ "rows_applied": 27,
+ "rows_applied_by_kind": {
+  "move": 27
+ },
+ "rows_already": [],
+ "refused_held": [],
+ "file_moves": 25,
+ "created_heads": [
+  "src/shibuya/mind/__init__.py",
+  "src/shibuya/mind/judge/__init__.py",
+  "src/shibuya/mind/judge/decision/__init__.py",
+  "src/shibuya/mind/memory/__init__.py",
+  "src/shibuya/mind/percept/__init__.py",
+  "src/shibuya/mind/plan/__init__.py",
+  "src/shibuya/mind/relations/__init__.py"
+ ],
+ "emptied_heads": [
+  "src/shibuya/perception/__init__.py"
+ ],
+ "deleted": [
+  "src/shibuya/engine/decision/__init__.py"
+ ],
+ "import_statements": {
+  "src": 88,
+  "build": 0,
+  "tests": 135,
+  "tools": 2,
+  "docs": 4
+ },
+ "import_files": {
+  "src": 25,
+  "build": 0,
+  "tests": 70,
+  "tools": 2
+ },
+ "import_via_head": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 0,
+  "build": 0,
+  "tests": 2,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 23,
+  "build": 0,
+  "tests": 101,
+  "tools": 0
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 27,
+  "dotted": 1,
+  "slash": 29,
+  "chain": 1,
+  "code_import": 1
+ },
+ "path_string_sites": 23,
+ "path_string_sites_by_file": [
+  "src/shibuya/engine/rng_audit.py::SAFE_SITES",
+  "src/shibuya/engine/rng_audit.py::UNDETERMINED_SITES",
+  "src/shibuya/engine/state_ledger.py::OWNER_ALT_CLASSES",
+  "src/shibuya/engine/state_ledger.py::OWNER_CLASSES",
+  "tests/engine/memory/test_m0_store_schema.py::test_ledger_rows_are_out_of_both_hashes_and_the_state_file",
+  "tests/engine/memory/test_m0_store_schema.py::test_store_is_one_module_beside_the_memory_table",
+  "tests/engine/memory/test_mr65_grain_and_cli.py::CODE",
+  "tests/engine/memory/test_mr65_guards.py::test_child_columns_are_assigned_only_inside_their_classes",
+  "tests/engine/memory/test_mr65_guards.py::test_child_owner_ports_are_called_only_from_the_store",
+  "tests/engine/memory/test_mr65_guards.py::test_ledger_rows_and_axes",
+  "tests/engine/memory/test_mr65_guards.py::test_shop_table_ports_are_called_only_from_the_uncapped_store",
+  "tests/engine/speech/test_speech_writers_ast.py::OTHER_OWNERS",
+  "tests/engine/systems/test_fix_guards.py::D6_ALLOW",
+  "tests/engine/systems/test_stage_a_guard.py::D6_ALLOW",
+  "tests/engine/test_classical_policy.py::_PER_CALL",
+  "tests/engine/test_classical_policy.py::test_per_call_paths_have_no_python_loops_over_agents",
+  "tests/engine/test_memory_recall.py::test_recall_has_no_loop_over_rows",
+  "tests/engine/test_memory_record.py::test_row_writers_are_array_ops",
+  "tests/engine/test_store_choice.py::test_recall_first_is_array_ops",
+  "tests/engine/test_store_memory.py::test_store_readers_and_writer_rounds_are_array_ops",
+  "tests/engine/test_wom.py::test_extraction_is_per_call_string_work",
+  "tests/engine/time/test_t0_rng_key.py::PLAN_A_CALLERS",
+  "tools/bytecheck/tree.py::ROOT_READERS"
+ ],
+ "dropped_reexports": {},
+ "dropped_all": {},
+ "package_data_keys": [],
+ "ledger_paths_added": 25,
+ "class_id_keys": 48,
+ "class_ids_resorted": true,
+ "changed_files": 109,
+ "untouched_count": {
+  "src:bare_dotted": 7,
+  "src:slash": 20,
+  "tests:bare_dotted": 1,
+  "tools:slash": 1
+ },
+ "untouched_broad_constants": {
+  "docs": 14,
+  "src": 239,
+  "build": 15,
+  "tests": 282,
+  "tools": 16
+ },
+ "skipped_in_allowlist": [
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "engine/classical.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  }
+ ],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 5,
+  "rows_moving_active": 4
+ },
+ "bridging_ledger_moving": [
+  {
+   "id": "HD-engine.classical-4000a748",
+   "declared_in": "src/shibuya/engine/classical.py#heading:4000a748",
+   "status": "active",
+   "new": "src/shibuya/mind/judge/classical.py#heading:4000a748"
+  },
+  {
+   "id": "HD-engine.familiarity-a8af6821",
+   "declared_in": "src/shibuya/engine/familiarity.py#heading:a8af6821",
+   "status": "active",
+   "new": "src/shibuya/mind/memory/familiarity.py#heading:a8af6821"
+  },
+  {
+   "id": "HD-engine.decision.sources-2eb55c6e",
+   "declared_in": "src/shibuya/engine/decision/sources.py#heading:2eb55c6e",
+   "status": "active",
+   "new": "src/shibuya/mind/judge/decision/sources.py#heading:2eb55c6e"
+  },
+  {
+   "id": "HD-engine.decision.layer-2d3672ba",
+   "declared_in": "src/shibuya/engine/decision/layer.py#heading:2d3672ba",
+   "status": "removed",
+   "new": "src/shibuya/mind/judge/decision/layer.py#heading:2d3672ba"
+  },
+  {
+   "id": "HD-engine.decision.layer-ce06b545",
+   "declared_in": "src/shibuya/engine/decision/layer.py#heading:ce06b545",
+   "status": "active",
+   "new": "src/shibuya/mind/judge/decision/layer.py#heading:ce06b545"
+  }
+ ],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 453)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 0)",
+  "package_data": "同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 0)"
+ },
+ "warnings": [],
+ "untouched": [
+  {
+   "file": "src/shibuya/agents/state.py",
+   "symbol": "AgentState.__init__",
+   "kind": "bare_dotted",
+   "token": "engine.memory.EVENT_KINDS",
+   "line": 654,
+   "excerpt": "事象の種類(engine.memory.EVENT_KINDS・0=空行)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.memory_m1",
+   "line": 462,
+   "excerpt": "〔第 6 期 6-5〕忘れる速さの人ごとのばらつき 15%(MR8・engine.memory_m1・腕 --memory-model m1 のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.port",
+   "line": 495,
+   "excerpt": "〔第 6 期 6-4 C1〕連絡の本人の判断の仮のモデルの選び(engine.contact.port・腕 c1 のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.port",
+   "line": 497,
+   "excerpt": "〔第 6 期 6-4 C2〕習慣で答えられるときも判断の口へ戻すか(engine.contact.port・腕 c1 と SHIBUYA_CONTACT_HABIT=on のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar2.port",
+   "line": 499,
+   "excerpt": "〔第 6 期 6-2 カレンダー 2〕予定の本人の判断の仮のモデルの選び(engine.calendar2.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar3.port",
+   "line": 501,
+   "excerpt": "〔第 6 期 6-2 カレンダー 3〕雇い主と働く人の勤務の判断の仮のモデルの選び(engine.calendar3.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.duties.port",
+   "line": 503,
+   "excerpt": "〔第 6 期 6-6 ② 第 1 部〕店の仕事(開閉店・補充・廃棄)の本人の判断の仮のモデルの選び(engine.duties.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 751,
+   "excerpt": "engine/memory_store.py(MemoryStore)・engine/memory.py(_write・_recall_from_store・rebuild_memory_store)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory.py",
+   "line": 751,
+   "excerpt": "engine/memory_store.py(MemoryStore)・engine/memory.py(_write・_recall_from_store・rebuild_memory_store)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 767,
+   "excerpt": "engine/memory_store.py(mark_shown・take_shown・recall の計数・summary)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/decision/layer.py",
+   "line": 802,
+   "excerpt": "engine/decision/layer.py(DecisionLayer.decide_one・affordance_words)・engine/systems/decide.py(書く)・engine/run.py(manifest "
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 964,
+   "excerpt": "engine/memory_store.py(remember・rebuild・check_against_table)・engine/events/body.py(BodyEventLink)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_m1.py",
+   "line": 1032,
+   "excerpt": "engine/memory_m1.py(M1State・base_level)・engine/memory_store.py(remember・recall・seed_people・people_rows・_resize)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 1032,
+   "excerpt": "engine/memory_m1.py(M1State・base_level)・engine/memory_store.py(remember・recall・seed_people・people_rows・_resize)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_embed.py",
+   "line": 1045,
+   "excerpt": "engine/memory_embed.py(CueState)・engine/memory_store.py(note_cue・remember・recall・rebuild)・engine/memory.py(note_utteranc"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 1045,
+   "excerpt": "engine/memory_embed.py(CueState)・engine/memory_store.py(note_cue・remember・recall・rebuild)・engine/memory.py(note_utteranc"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory.py",
+   "line": 1045,
+   "excerpt": "engine/memory_embed.py(CueState)・engine/memory_store.py(note_cue・remember・recall・rebuild)・engine/memory.py(note_utteranc"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_m1.py",
+   "line": 1057,
+   "excerpt": "engine/memory_m1.py(M1State.summary)・engine/memory_embed.py(CueState.summary)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_embed.py",
+   "line": 1057,
+   "excerpt": "engine/memory_m1.py(M1State.summary)・engine/memory_embed.py(CueState.summary)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_shops.py",
+   "line": 1068,
+   "excerpt": "engine/memory_shops.py(ShopTable・UncappedStoreMemory)・engine/store_memory.py(columns・_evict_slots・_put)・engine/memory.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/store_memory.py",
+   "line": 1068,
+   "excerpt": "engine/memory_shops.py(ShopTable・UncappedStoreMemory)・engine/store_memory.py(columns・_evict_slots・_put)・engine/memory.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory.py",
+   "line": 1068,
+   "excerpt": "engine/memory_shops.py(ShopTable・UncappedStoreMemory)・engine/store_memory.py(columns・_evict_slots・_put)・engine/memory.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/attention.py",
+   "line": 1170,
+   "excerpt": "engine/contact/attention.py(Attention・coarsen・gate_salient)・engine/contact/layer.py(run_step・percept_hook)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/attention.py",
+   "line": 1179,
+   "excerpt": "engine/contact/attention.py(look_at_screen・look_up)・engine/contact/layer.py(計器)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/decision/layer.py",
+   "line": 1268,
+   "excerpt": "engine/contact/layer.py(_salient_gate・salient_view・_person_decisions・take_main・_take_main_looks)・engine/systems/remember"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/habit.py",
+   "line": 1312,
+   "excerpt": "engine/contact/habit.py(HabitBook.note・answer)・engine/contact/layer.py(_habit_or_decide)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/book.py",
+   "line": 1322,
+   "excerpt": "engine/calendar2/book.py(PromiseBook.write・edit・observe・drop・own_rows)・engine/calendar2/layer.py"
+  },
+  {
+   "file": "tests/engine/bridging/test_bridging_ledger.py",
+   "symbol": "test_heading_rows_carry_the_heading_and_the_item_count",
+   "kind": "bare_dotted",
+   "token": "engine.decision.layer",
+   "line": 222,
+   "excerpt": "HD-engine.decision.layer-2d3672ba"
+  },
+  {
+   "file": "tools/instruments/anchor_gauge.py",
+   "symbol": "ssb_work_rise",
+   "kind": "slash",
+   "token": "engine/classical.py",
+   "line": 1020,
+   "excerpt": "15 分の枠の 0 番=0:00(engine/classical.py の minute // 15 と同じ読み)・閾値 50% は expedient"
+  }
+ ]
+}

@@ -4,7 +4,8 @@
   額面+雇用主の分。外の雇用主の体は外界が額面を払い本人の分だけ政府へ。保存則の残差 0(合成の 2 日)。
 - 消費税: レジの税は店の預かり金に積む(政府は受け取らない)→ 申告の期限(2027-03-31)の日の締めに店 → 政府。店の現金が
   足りなければ移せない=残り、次の日に移す。積んだ − 移した = 残高(検算)。
-- 組み立ての物に ``law`` が無い(腕 off)ときは 4-2 の前の値(天引き 0・税は売った時点で政府へ)。
+- 組み立ての物に ``law`` が無い(部品の単体試験の基準の口・〔第346〕ランの切替口 ``SHIBUYA_RULES_42`` は消した)ときは
+  4-2 の前の値(天引き 0・税は売った時点で政府へ)。
 """
 
 from __future__ import annotations
@@ -19,8 +20,8 @@ from shibuya.economy import taxes as TX
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.checks import tax_deposit_check
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_rules as ER
-from shibuya.engine.events import log as EV
+from shibuya.economy import rules_bind as ER
+from shibuya.foundation.journal import log as EV
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 KINDS = np.array([0, 0, 2, 3])

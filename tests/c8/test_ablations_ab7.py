@@ -29,17 +29,21 @@ ARM_B_ID = "AB7b-HINT-INTENT"
 #: 回した腕の各ランに ``l4_scale: 1.0`` を明示した(表のトップ ``l4_scale_pin``)。それまでの値=
 #: AB1 06e6ca1f…・AB2 65a62c39…・AB3 7ce6da15…・AB6 0b53c030…・AB7 be19b471…・AB7b e53d363a…・
 #: AB7c f5cd4a8a…(AB4・AB5 はランが無いので不変)。
+#: **第347(Q13)で 6 本を張り替えた**: ``run_day``・``cli.run`` の語彙の既定が v1 から v3 になったので、語彙を渡さずに回した腕の各
+#: ランに ``vocab_version: "v1"`` を明示した(表のトップ ``vocab_version_pin``・腕のランの中身は前と同じ)。それまでの値=
+#: AB1 4d8fc596…・AB2 551e92a7…・AB3 f7584d2d…・AB6 02093a21…・AB7 6abb8656…・AB7b 47e7baf6…(AB4・AB5 はランが無い・
+#: AB7c は語彙を渡している=不変)。
 FROZEN_ARM_SHA256 = {
-    "AB1-BUDGET-MODE": "4d8fc596833ca82d887931c058245ed95560d064ef3c85c7d486b97ec56c5f1b",
-    "AB2-PNOTICE-D50": "551e92a75f49a1367cfbca362d4759b80b938f773a9e62fce68259169161f27b",
-    "AB3-REFRACTORY-PROX": "f7584d2d1e12a33984e7445f8b0d259b59b6116c151935ae1a3d6a7e62b0a04a",
+    "AB1-BUDGET-MODE": "3f39e373926d74562e847855ad14b5d0b1baee430ab44fa002fa589fb58b1d7b",
+    "AB2-PNOTICE-D50": "a59959d13b6baef5e36eeec3d914dfc48783421844eabf9d4ec2989d21b0c3ec",
+    "AB3-REFRACTORY-PROX": "fa3f96d1eea3da2c7aa1be1df66c841490f24a419c88349d4fd001a178c3b479",
     "AB4-HEARING-SNR": "a5767a3178a2eec2ada6c54225c68b7747367ae47513a5b0d137da2a0f6dcfcd",
     "AB5-INTROSPECTION": "bc969f25382f5ac88d295a5639d348a58cc18130bdab86c0a13eb517a71d0146",
-    "AB6-AD-ZERO": "02093a2197b98fd538c694eef79557c33a1138afa8532f22bd674e44dcddd4ee",
+    "AB6-AD-ZERO": "715b44aeca0d801d98dc62965b954dd92b924dc0d94e1a810f5ce31e8e62196e",
     # AB7b を足しても AB7 の定義は 1 バイトも動かない(2026-09-17 に凍結)。
-    "AB7-OPEN-INTENT": "6abb86562340eb669ebf796ac03e1be0ea27e2bea51050d1c11986e2028583ea",
+    "AB7-OPEN-INTENT": "c2b24aef842e34a983710e9601a6496b2ea195790096c023394ead2788bfa012",
     # AB7c(語彙 v2)を足しても AB7b の定義は 1 バイトも動かない(2026-09-17 に凍結)。
-    "AB7b-HINT-INTENT": "47e7baf6a1b7a91f16c5e06d4a82b86d3a514824a4886dc2a21db99f75c3579c",
+    "AB7b-HINT-INTENT": "625977cee0f48e67450965c312416665b325e9c5cb6e077b0c2c9f7ca6b8d6a9",
     # AB6b(看板の注視ゲート・D-59 (b))を足しても AB7c の定義は 1 バイトも動かない。
     "AB7c-VOCAB-V2": "5d2846dd25c8e5113e68197ff3e71a6078a4a52c5109dc894a322d30bcc8c7e4",
 }
@@ -98,8 +102,9 @@ def test_ab7_switch_and_runs(ablation_runner, table):
     assert sw["mock_effective"] is False, "MockLLM はプロンプトを読まない=mock では差が出ない"
     assert "--intent-mode" in sw["how"]
     assert [r["tag"] for r in arm["runs"]] == ["vocab", "open"]
-    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示
-        {"l4_scale": 1.0, "intent_mode": "vocab"}, {"l4_scale": 1.0, "intent_mode": "open"}
+    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示・第347 Q13: 語彙 v1 を明示
+        {"l4_scale": 1.0, "intent_mode": "vocab", "vocab_version": "v1"},
+        {"l4_scale": 1.0, "intent_mode": "open", "vocab_version": "v1"},
     ]
     assert arm["runs"][0]["is_baseline"] is True
     assert "is_baseline" not in arm["runs"][1]
@@ -144,8 +149,9 @@ def test_ab7b_switch_and_runs(ablation_runner, table):
     assert sw["mock_effective"] is False, "MockLLM はプロンプトを読まない=mock では差が出ない"
     assert "--intent-mode hint" in sw["how"]
     assert [r["tag"] for r in arm["runs"]] == ["vocab", "hint"]
-    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示
-        {"l4_scale": 1.0, "intent_mode": "vocab"}, {"l4_scale": 1.0, "intent_mode": "hint"}
+    assert [r["kwargs"] for r in arm["runs"]] == [  # 第290 Q29: l4_scale 1.0 を明示・第347 Q13: 語彙 v1 を明示
+        {"l4_scale": 1.0, "intent_mode": "vocab", "vocab_version": "v1"},
+        {"l4_scale": 1.0, "intent_mode": "hint", "vocab_version": "v1"},
     ]
     assert arm["runs"][0]["is_baseline"] is True
     assert "is_baseline" not in arm["runs"][1]
@@ -160,7 +166,7 @@ def test_ab7b_switch_and_runs(ablation_runner, table):
 
 def test_ab7b_freezes_the_hint_b0_sha256(table, ablation_runner):
     """腕定義に書いた B0 の指紋が**実装の値と一致する**(文面を変えたら両方が動く)。"""
-    from shibuya.perception.templates import b0_sha256
+    from shibuya.foundation.text.templates import b0_sha256
 
     arm = ablation_runner.arm_by_id(table, ARM_B_ID)
     assert b0_sha256("hint") in arm["switch"]["verified"]
@@ -269,7 +275,7 @@ def test_m1_two_stage_grounding_is_recomputable(ablation_runner):
 def test_grounding_matches_score_texts_on_real_texts(ablation_runner, tmp_path):
     """テープの本文から出す道筋が ``c6lib.score_texts`` と同じ分母・分子であること。"""
     from c8lib import c6lib
-    from shibuya.llm import format_two_line
+    from shibuya.foundation.vocab.actions import format_two_line
 
     texts = (
         [format_two_line("理由", "移動", "なし", "なし")] * 5      # 24 語に直接一致

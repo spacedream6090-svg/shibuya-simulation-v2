@@ -13,7 +13,7 @@ import warnings
 
 import pytest
 
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 
 
 def _no_world_lookup(monkeypatch):

@@ -17,3 +17,7 @@ if [ -n "$COMMIT_EXPECT" ]; then
 else
   python tools/commit_check.py --paths-only || exit 1
 fi
+# 4. (第345) src・tests・tools の .py を変えた commit は、段 3 のカードが古くないかを見る(CI の ci-0 と同じ検査)。
+if git diff --cached --name-only --diff-filter=ACMRD -z | tr '\000' '\n' | grep -Eq '^(src|tests|tools)/.*\.py$'; then
+  python tools/repo_guide/build.py --check || { echo "pre-commit: カードが古い。python tools/repo_guide/build.py を回して足す"; exit 1; }
+fi

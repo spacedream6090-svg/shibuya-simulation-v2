@@ -1,0 +1,409 @@
+{
+ "stage": "experiments",
+ "dropped_old": [
+  {
+   "contract": "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest",
+   "name": "economy",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest",
+   "name": "world",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest",
+   "name": "core",
+   "why": "木に無い"
+  },
+  {
+   "contract": "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest",
+   "name": "manifest",
+   "why": "木に無い"
+  },
+  {
+   "contract": "core は何にも依存しない(manifest も import しない)",
+   "name": "core",
+   "why": "木に無い"
+  },
+  {
+   "contract": "core は何にも依存しない(manifest も import しない)",
+   "name": "manifest",
+   "why": "木に無い"
+  },
+  {
+   "contract": "core は何にも依存しない(manifest も import しない)",
+   "name": "(契約)",
+   "why": "元の側か禁じる側が空になった"
+  },
+  {
+   "contract": "llm は world/agents を import しない(mock LLM が成立する)",
+   "name": "world",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "llm は world/agents を import しない(mock LLM が成立する)",
+   "name": "economy",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "build は実行時に import されない",
+   "name": "manifest",
+   "why": "木に無い"
+  },
+  {
+   "contract": "build は実行時に import されない",
+   "name": "core",
+   "why": "木に無い"
+  },
+  {
+   "contract": "build は実行時に import されない",
+   "name": "world",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "build は実行時に import されない",
+   "name": "economy",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)",
+   "name": "economy",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)",
+   "name": "world",
+   "why": "名の意味が変わった(ほかの置き場からファイルが入った)"
+  },
+  {
+   "contract": "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)",
+   "name": "(契約)",
+   "why": "元の側か禁じる側が空になった"
+  }
+ ],
+ "not_expressed": [
+  {
+   "rule": "単位",
+   "name": "interfaces",
+   "why": "木に無い"
+  },
+  {
+   "rule": "単位",
+   "name": "validation.static",
+   "why": "木に無い"
+  },
+  {
+   "rule": "単位",
+   "name": "interim_bundles",
+   "why": "木に無い"
+  },
+  {
+   "rule": 4,
+   "name": "4 act の書く関数(`act.apply`・`act.ops`)を読めるのは act・world.laws・interim_bundles・runtime・interfaces だけ",
+   "why": "守る側のモジュールが木に無い(割る段の後)"
+  }
+ ],
+ "ignores": [
+  {
+   "num": 1,
+   "importer": "shibuya.engine.resolve",
+   "imported": "shibuya.engine.change_detect",
+   "gone_at": "段 6",
+   "rules": [
+    1
+   ]
+  },
+  {
+   "num": 2,
+   "importer": "shibuya.engine.resolve",
+   "imported": "shibuya.runtime.state.hashes",
+   "gone_at": "段 6",
+   "rules": [
+    1
+   ]
+  },
+  {
+   "num": 3,
+   "importer": "shibuya.engine.resolve",
+   "imported": "shibuya.runtime.state.ledger",
+   "gone_at": "段 6",
+   "rules": [
+    1
+   ]
+  },
+  {
+   "num": 4,
+   "importer": "shibuya.engine.resolve",
+   "imported": "shibuya.runtime.state.resume",
+   "gone_at": "段 6",
+   "rules": [
+    1
+   ]
+  },
+  {
+   "num": 5,
+   "importer": "shibuya.engine.poi_target",
+   "imported": "shibuya.engine.chooser",
+   "gone_at": "段 5a",
+   "rules": [
+    1
+   ]
+  },
+  {
+   "num": 6,
+   "importer": "shibuya.engine.calendar2.layer",
+   "imported": "shibuya.llm.mock",
+   "gone_at": "段 5a",
+   "rules": [
+    1
+   ]
+  },
+  {
+   "num": 7,
+   "importer": "shibuya.mind.judge.classical",
+   "imported": "shibuya.llm.mock",
+   "gone_at": "段 5a",
+   "rules": [
+    1,
+    3
+   ]
+  },
+  {
+   "num": 8,
+   "importer": "shibuya.mind.judge.classical",
+   "imported": "shibuya.engine.calendar",
+   "gone_at": "段 5a",
+   "rules": [
+    3
+   ]
+  },
+  {
+   "num": 9,
+   "importer": "shibuya.mind.judge.decision.layer",
+   "imported": "shibuya.engine.commit",
+   "gone_at": "段 5b",
+   "rules": [
+    1,
+    3
+   ]
+  },
+  {
+   "num": 10,
+   "importer": "shibuya.mind.judge.decision.layer",
+   "imported": "shibuya.economy.stage2_bind",
+   "gone_at": "残る",
+   "rules": [
+    3
+   ]
+  },
+  {
+   "num": 11,
+   "importer": "shibuya.mind.judge.decision.layer",
+   "imported": "shibuya.engine.tools.registry",
+   "gone_at": "残る",
+   "rules": [
+    1,
+    3
+   ]
+  },
+  {
+   "num": 12,
+   "importer": "shibuya.engine.events.body",
+   "imported": "shibuya.engine.tools.record",
+   "gone_at": "段 5a",
+   "rules": [
+    1,
+    3
+   ]
+  },
+  {
+   "num": 13,
+   "importer": "shibuya.mind.memory.familiarity",
+   "imported": "shibuya.engine.resolve",
+   "gone_at": "段 6",
+   "rules": [
+    1,
+    3,
+    4
+   ]
+  },
+  {
+   "num": 14,
+   "importer": "shibuya.mind.memory.memory",
+   "imported": "shibuya.engine.resolve",
+   "gone_at": "段 6",
+   "rules": [
+    1,
+    3,
+    4
+   ]
+  },
+  {
+   "num": 15,
+   "importer": "shibuya.mind.memory.memory",
+   "imported": "shibuya.engine.commit",
+   "gone_at": "段 5b",
+   "rules": [
+    1,
+    3
+   ]
+  },
+  {
+   "num": 16,
+   "importer": "shibuya.mind.memory.store_memory",
+   "imported": "shibuya.engine.resolve",
+   "gone_at": "段 6",
+   "rules": [
+    1,
+    3,
+    4
+   ]
+  },
+  {
+   "num": 17,
+   "importer": "shibuya.mind.memory.wom",
+   "imported": "shibuya.engine.poi_target",
+   "gone_at": "段 5a",
+   "rules": [
+    1,
+    3
+   ]
+  },
+  {
+   "num": 18,
+   "importer": "shibuya.perception.renderer",
+   "imported": "shibuya.world.assets",
+   "gone_at": "段 7",
+   "rules": [
+    3
+   ]
+  },
+  {
+   "num": 19,
+   "importer": "shibuya.perception.renderer",
+   "imported": "shibuya.world.model.state",
+   "gone_at": "段 7",
+   "rules": [
+    3
+   ]
+  },
+  {
+   "num": 20,
+   "importer": "shibuya.mind.plan.contact_port",
+   "imported": "shibuya.llm.mock",
+   "gone_at": "段 5a",
+   "rules": [
+    1,
+    3
+   ]
+  },
+  {
+   "num": 21,
+   "importer": "shibuya.engine.relations",
+   "imported": "shibuya.engine.resolve",
+   "gone_at": "段 6",
+   "rules": [
+    1,
+    3,
+    4
+   ]
+  },
+  {
+   "num": 22,
+   "importer": "shibuya.engine.relations",
+   "imported": "shibuya.world.model.proximity",
+   "gone_at": "残る",
+   "rules": [
+    3
+   ]
+  },
+  {
+   "num": 23,
+   "importer": "shibuya.engine.change_detect",
+   "imported": "shibuya.world.assets",
+   "gone_at": "段 5a",
+   "rules": [
+    3
+   ]
+  },
+  {
+   "num": 24,
+   "importer": "shibuya.engine.change_detect",
+   "imported": "shibuya.world.model.state",
+   "gone_at": "注釈だけ",
+   "rules": [
+    3
+   ]
+  },
+  {
+   "num": 25,
+   "importer": "shibuya.society.speech.layer",
+   "imported": "shibuya.mind.memory.wom",
+   "gone_at": "残る",
+   "rules": [
+    1,
+    7
+   ]
+  },
+  {
+   "num": 26,
+   "importer": "shibuya.society.speech.layer",
+   "imported": "shibuya.llm.mock",
+   "gone_at": "段 5a",
+   "rules": [
+    1,
+    7
+   ]
+  },
+  {
+   "num": 27,
+   "importer": "shibuya.world.body.rules",
+   "imported": "shibuya.engine.change_detect",
+   "gone_at": "段 5a",
+   "rules": [
+    1
+   ]
+  },
+  {
+   "num": 28,
+   "importer": "shibuya.world.model.geometry",
+   "imported": "shibuya.engine.change_detect",
+   "gone_at": "段 5a",
+   "rules": [
+    1
+   ]
+  }
+ ],
+ "fallbacks": [
+  "shibuya.act.commit → shibuya.engine.commit(割り先の一覧から・既定の割り先は shibuya.act.intake.from_words)"
+ ],
+ "n_old": 3,
+ "extra_ignores": [
+  {
+   "importer": "shibuya.llm",
+   "imported": "shibuya.llm.fleet",
+   "rules": [
+    1,
+    3
+   ],
+   "note": "llm の頭の再輸出・段 5a で消える・計画 §6-4 の 28 本の外・親の仮採用 2026-11-11"
+  }
+ ],
+ "late_allowed": [
+  {
+   "rule": 5,
+   "modules": [
+    "shibuya.cli"
+   ]
+  }
+ ],
+ "n_new": 7,
+ "uncovered": [
+  "shibuya.cli",
+  "shibuya.world.assets",
+  "shibuya.world.processes.circularity",
+  "shibuya.world.processes.deletion_candidates"
+ ],
+ "section": "# ---- 層契約(段 4 の段 experiments の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage experiments` が作る。手で直さない)----\n[tool.importlinter]\nroot_package = \"shibuya\"\ninclude_external_packages = false\n\n[[tool.importlinter.contracts]]\nname = \"layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest\"\ntype = \"layers\"\nlayers = [\n  \"shibuya.census\",\n  \"shibuya.engine\",\n  \"shibuya.perception | shibuya.llm\",\n  \"shibuya.agents\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"llm は world/agents を import しない(mock LLM が成立する)\"\ntype = \"forbidden\"\nsource_modules = [\n  \"shibuya.llm\",\n]\nforbidden_modules = [\n  \"shibuya.agents\",\n  \"shibuya.perception\",\n  \"shibuya.engine\",\n  \"shibuya.census\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"build は実行時に import されない\"\ntype = \"forbidden\"\nsource_modules = [\n  \"shibuya.agents\",\n  \"shibuya.perception\",\n  \"shibuya.llm\",\n  \"shibuya.engine\",\n  \"shibuya.census\",\n]\nforbidden_modules = [\n  \"shibuya.build\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、`|` の兄弟の間を読まない)\"\ntype = \"layers\"\nlayers = [\n  \"shibuya.experiments.drive\",\n  \"shibuya.runtime\",\n  \"shibuya.world.laws\",\n  \"shibuya.mind | shibuya.act | shibuya.society\",\n  \"shibuya.world.body\",\n  \"shibuya.world.model | shibuya.world.things | shibuya.economy\",\n  \"shibuya.world.facts | shibuya.world.ledger | shibuya.experiments.port\",\n  \"shibuya.foundation\",\n]\nignore_imports = [\n  \"shibuya.engine.calendar2.layer -> shibuya.llm.mock\",\n  \"shibuya.engine.events.body -> shibuya.engine.tools.record\",\n  \"shibuya.engine.poi_target -> shibuya.engine.chooser\",\n  \"shibuya.engine.relations -> shibuya.engine.resolve\",\n  \"shibuya.engine.resolve -> shibuya.engine.change_detect\",\n  \"shibuya.engine.resolve -> shibuya.runtime.state.hashes\",\n  \"shibuya.engine.resolve -> shibuya.runtime.state.ledger\",\n  \"shibuya.engine.resolve -> shibuya.runtime.state.resume\",\n  \"shibuya.llm -> shibuya.llm.fleet\",\n  \"shibuya.mind.judge.classical -> shibuya.llm.mock\",\n  \"shibuya.mind.judge.decision.layer -> shibuya.engine.commit\",\n  \"shibuya.mind.judge.decision.layer -> shibuya.engine.tools.registry\",\n  \"shibuya.mind.memory.familiarity -> shibuya.engine.resolve\",\n  \"shibuya.mind.memory.memory -> shibuya.engine.commit\",\n  \"shibuya.mind.memory.memory -> shibuya.engine.resolve\",\n  \"shibuya.mind.memory.store_memory -> shibuya.engine.resolve\",\n  \"shibuya.mind.memory.wom -> shibuya.engine.poi_target\",\n  \"shibuya.mind.plan.contact_port -> shibuya.llm.mock\",\n  \"shibuya.society.speech.layer -> shibuya.llm.mock\",\n  \"shibuya.society.speech.layer -> shibuya.mind.memory.wom\",\n  \"shibuya.world.body.rules -> shibuya.engine.change_detect\",\n  \"shibuya.world.model.geometry -> shibuya.engine.change_detect\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"〔段 4 の途中の決まり〕2 foundation は何も読まない\"\ntype = \"forbidden\"\nsource_modules = [\n  \"shibuya.foundation\",\n]\nforbidden_modules = [\n  \"shibuya.experiments.drive\",\n  \"shibuya.runtime\",\n  \"shibuya.world.laws\",\n  \"shibuya.mind\",\n  \"shibuya.act\",\n  \"shibuya.society\",\n  \"shibuya.world.body\",\n  \"shibuya.world.model\",\n  \"shibuya.world.things\",\n  \"shibuya.economy\",\n  \"shibuya.world.facts\",\n  \"shibuya.world.ledger\",\n  \"shibuya.experiments.port\",\n  \"shibuya.build\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"〔段 4 の途中の決まり〕3 mind は foundation(と mind)だけを読む\"\ntype = \"forbidden\"\nsource_modules = [\n  \"shibuya.mind\",\n]\nforbidden_modules = [\n  \"shibuya.experiments.drive\",\n  \"shibuya.runtime\",\n  \"shibuya.world.laws\",\n  \"shibuya.act\",\n  \"shibuya.society\",\n  \"shibuya.world.body\",\n  \"shibuya.world.model\",\n  \"shibuya.world.things\",\n  \"shibuya.economy\",\n  \"shibuya.world.facts\",\n  \"shibuya.world.ledger\",\n  \"shibuya.experiments.port\",\n  \"shibuya.build\",\n]\nignore_imports = [\n  \"shibuya.engine.change_detect -> shibuya.world.assets\",\n  \"shibuya.engine.change_detect -> shibuya.world.model.state\",\n  \"shibuya.engine.events.body -> shibuya.engine.tools.record\",\n  \"shibuya.engine.relations -> shibuya.engine.resolve\",\n  \"shibuya.engine.relations -> shibuya.world.model.proximity\",\n  \"shibuya.llm -> shibuya.llm.fleet\",\n  \"shibuya.mind.judge.classical -> shibuya.engine.calendar\",\n  \"shibuya.mind.judge.classical -> shibuya.llm.mock\",\n  \"shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind\",\n  \"shibuya.mind.judge.decision.layer -> shibuya.engine.commit\",\n  \"shibuya.mind.judge.decision.layer -> shibuya.engine.tools.registry\",\n  \"shibuya.mind.memory.familiarity -> shibuya.engine.resolve\",\n  \"shibuya.mind.memory.memory -> shibuya.engine.commit\",\n  \"shibuya.mind.memory.memory -> shibuya.engine.resolve\",\n  \"shibuya.mind.memory.store_memory -> shibuya.engine.resolve\",\n  \"shibuya.mind.memory.wom -> shibuya.engine.poi_target\",\n  \"shibuya.mind.plan.contact_port -> shibuya.llm.mock\",\n  \"shibuya.perception.renderer -> shibuya.world.assets\",\n  \"shibuya.perception.renderer -> shibuya.world.model.state\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"〔段 4 の途中の決まり〕5 お金と物の書き手(`economy.ops`・`economy.goods`・`economy.ledger`)を読めるのは economy・interfaces だけ\"\ntype = \"protected\"\nprotected_modules = [\n  \"shibuya.economy.ops\",\n  \"shibuya.economy.goods\",\n  \"shibuya.economy.ledger\",\n]\nallowed_importers = [\n  \"shibuya.economy\",\n  \"shibuya.cli\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"〔段 4 の途中の決まり〕6 economy は world.facts と foundation だけを読む\"\ntype = \"forbidden\"\nsource_modules = [\n  \"shibuya.economy\",\n]\nforbidden_modules = [\n  \"shibuya.experiments.drive\",\n  \"shibuya.runtime\",\n  \"shibuya.world.laws\",\n  \"shibuya.mind\",\n  \"shibuya.act\",\n  \"shibuya.society\",\n  \"shibuya.world.body\",\n  \"shibuya.world.model\",\n  \"shibuya.world.things\",\n  \"shibuya.world.ledger\",\n  \"shibuya.experiments.port\",\n  \"shibuya.build\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"〔段 4 の途中の決まり〕7 society は act・mind・runtime・world.laws・interim_bundles を読まない\"\ntype = \"forbidden\"\nsource_modules = [\n  \"shibuya.society\",\n]\nforbidden_modules = [\n  \"shibuya.act\",\n  \"shibuya.mind\",\n  \"shibuya.runtime\",\n  \"shibuya.world.laws\",\n]\nignore_imports = [\n  \"shibuya.society.speech.layer -> shibuya.llm.mock\",\n  \"shibuya.society.speech.layer -> shibuya.mind.memory.wom\",\n]\n\n[[tool.importlinter.contracts]]\nname = \"〔段 4 の途中の決まり〕8 ランの側は build を読まない\"\ntype = \"forbidden\"\nsource_modules = [\n  \"shibuya.experiments.drive\",\n  \"shibuya.runtime\",\n  \"shibuya.world.laws\",\n  \"shibuya.mind\",\n  \"shibuya.act\",\n  \"shibuya.society\",\n  \"shibuya.world.body\",\n  \"shibuya.world.model\",\n  \"shibuya.world.things\",\n  \"shibuya.economy\",\n  \"shibuya.world.facts\",\n  \"shibuya.world.ledger\",\n  \"shibuya.experiments.port\",\n  \"shibuya.foundation\",\n]\nforbidden_modules = [\n  \"shibuya.build\",\n]\n"
+}

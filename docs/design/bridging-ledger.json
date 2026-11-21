@@ -1017,7 +1017,7 @@
   {
    "id": "W15#4",
    "what": "プロンプトへ載せる可視物は上位 2 件・目印 2 件(順序は renderer と同じ・本文に書ける名前は 2 つまで)",
-   "why": "構築の段 W15 が宣言した近似(StageResult.expedients の 4 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W15#4)。外す段: 空間の段 3 のセルの廃止と知覚の個人化(セルの定型文をやめる)",
+   "why": "構築の段 W15 が宣言した近似(StageResult.expedients の 4 番目・C8 の感度の台帳 docs/bench/c8/sensitivity_v1.md の D-44 の行 W15#4)。外す段: 空間の段 3 のセルの廃止と知覚の個人化(セルの定型文をやめる) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕実装はこう: W15 の凍結文の経路は可視物 2 件・目印 2 件、合成文の経路(perception/channels.py の B2.visible=上位 3 件・renderer の合成の可視物リスト)は上位 3 件・目印 2 件=経路で件数が違う。宣言はこう: 上位 2 件・目印 2 件。そろえるかは仕分け待ち(11-03 §2)",
    "remove_at": "5-3",
    "declared_in": "src/shibuya/build/lang/w15_cell_static.py#expedients:f2679ba0",
    "conf": "expedient",
@@ -1727,12 +1727,12 @@
   {
    "id": "BR-ATTENDANCE-LOTTERY",
    "what": "出勤率のくじ(attendance_rate・既定 1.0=全員来る・日番号つきの鍵で欠席を引く)",
-   "why": "人の選択(出勤)をエンジンが決めている(10-12 §1-5 ①群)。判断モデルができるまでのつなぎ(10-12 §4-1 CA5)。計画 6-6 ①(人の選択を判断モデルへ)",
+   "why": "人の選択(出勤)をエンジンが決めている(10-12 §1-5 ①群)。判断モデルができるまでのつなぎ(10-12 §4-1 CA5)。計画 6-6 ①(人の選択を判断モデルへ)〔11-01 段 2 の 3・4〕閉じた(removed): 出勤率のくじを道ごと消した(engine/presence.py の attendance_draw と ATTENDANCE_KINDS・PlanExecutor と run_day の引数 attendance_rate・CLI の --attendance-rate・manifest の attendance_rate)。判断モデルの口ができるまで「全員出勤」と宣言する(回答 11-01 §2・engine/rate_rules.py の attendance)。旧の既定 1.0 も全員出勤=既定の結果は変わらない(記録 docs/bench/analysis/s2-rates-1101/README.md)",
    "remove_at": "6-6",
    "declared_in": "docs/design/v2-wallbounce-decisions-2026-10-12.md §4-1 CA5",
    "conf": "expedient",
    "since": "2026-10-14",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/presence.py"
@@ -2047,7 +2047,7 @@
   {
    "id": "BR-REFRACTORY-OVERHEARD",
    "what": "不応期「傍受」5 分(起床条件 OVERHEARD・知覚契約書 §6 の表・同一話者 30 分は C2 未実装)",
-   "why": "「いつ考えるか」(起床の検出と再呼び出しの間隔)をエンジンが強制している。驚き駆動で判断モデルへ移す(回答 10-13b §4-1)。T3 で外す(回答 10-13b §4-2 の 2・カレンダー 1b と同じ版上げ)",
+   "why": "「いつ考えるか」(起床の検出と再呼び出しの間隔)をエンジンが強制している。驚き駆動で判断モデルへ移す(回答 10-13b §4-1)。T3 で外す(回答 10-13b §4-2 の 2・カレンダー 1b と同じ版上げ) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕「同一話者 30 分は C2 未実装」と書くが、会話の側に招待の間隔 30(engine/conversation.py の SPEAKER_INVITE_REFRACTORY_TICKS=同じ招待側が次に誘うまで)がある。傍受の起床の不応期と同じものかは不明=仕分け待ち(11-03 §2)",
    "remove_at": "T3",
    "declared_in": "docs/design/v2-answers-2026-10-13b.md §4-2 の 2",
    "conf": "expedient",
@@ -2397,8 +2397,8 @@
   },
   {
    "id": "HD-engine.conversation-1af925f4",
-   "what": "src/shibuya/engine/conversation.py の docstring の見出し「expedient(本モジュール分)」の下の項 7 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 3(会話の距離 2 m の決め打ちを外す)",
+   "what": "src/shibuya/engine/conversation.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 3(会話の距離 2 m の決め打ちを外す) 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕d_talk の代理の項を今の実装に合わせて書き直し(届くかは呼び手が渡す=既定の近接の腕 distance・相手の idle は見ない)、応答確率 0.8 の項に「呼び手は全部 answered=True=抽選は引かれない=死んでいる道」の注を足した(行 DOC-fix4-dead-accept-probability)。項の数は 7 のまま〔第346 旧道の切替口と死んだ道の削除〕応答確率 0.8 の項を消した(死んだ道=抽選ごと消した・行 DOC-fix4-dead-accept-probability)=項 7 → 6(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "5-3",
    "declared_in": "src/shibuya/engine/conversation.py#heading:1af925f4",
    "conf": "expedient",
@@ -2496,8 +2496,8 @@
   },
   {
    "id": "HD-engine.presence-b560bcbc",
-   "what": "src/shibuya/engine/presence.py の docstring の見出し「expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第1段)」が正典)」の下の項 9 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-2 カレンダー 1b(出入りを本人へ・E4 と W17 のつなぎを外す)",
+   "what": "src/shibuya/engine/presence.py の docstring の見出し「expedient(本モジュール分・実装計画書 §8「D-66/計画実行層(第1段)」が正典)」の下の項 11 個",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-2 カレンダー 1b(出入りを本人へ・E4 と W17 のつなぎを外す)〔11-01 段 2 の 3・4〕項 E6(出勤率)は消した=全員出勤・項 E8(到着の分散)は既定から外した=全員が E1 の便(旧道は切替口 legacy)。項の数は 9 のまま(項の文に注を足した)〔第341・11-02 研究 6〕docstring を今の実装に合わせて書き直し、登録簿に E12(RETURN_MIN_AWAY_MIN=戻りの最短の外出)と E13(読み口 v2/v2.1)を足した=項 9 → 11(記録 docs/bench/analysis/presence-docstring-1102/README.md)",
    "remove_at": "6-2",
    "declared_in": "src/shibuya/engine/presence.py#heading:b560bcbc",
    "conf": "expedient",
@@ -2508,7 +2508,7 @@
   {
    "id": "HD-engine.processes.civic-fe8b67d5",
    "what": "src/shibuya/engine/processes/civic.py の docstring の見出し「expedient(本モジュール分・全て「返済対象」)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(出動・ホテル・報道は働く人のエージェントへ・10-12 §1-5 ②群)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(出動・ホテル・報道は働く人のエージェントへ・10-12 §1-5 ②群)〔11-01 段 2 の 3・4〕項「大規模イベント」の注入は既定から外した(旧道は切替口 legacy)。項の数は 6 のまま",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/engine/processes/civic.py#heading:fe8b67d5",
    "conf": "expedient",
@@ -2541,7 +2541,7 @@
   {
    "id": "HD-engine.processes.goods_flow-fe8b67d5",
    "what": "src/shibuya/engine/processes/goods_flow.py の docstring の見出し「expedient(本モジュール分・全て「返済対象」)」の下の項 8 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(補充・納品・廃棄・清掃は働く人のエージェントへ)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(補充・納品・廃棄・清掃は働く人のエージェントへ)〔11-01 段 2 の 3・4〕項「売れ残り → ビン」と項「街路ごみ」は既定から外した=売れ残りの廃棄は無い・ポイ捨ては無い(旧道は切替口 legacy)。項の数は 8 のまま",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/engine/processes/goods_flow.py#heading:fe8b67d5",
    "conf": "expedient",
@@ -2552,7 +2552,7 @@
   {
    "id": "HD-engine.processes.logistics-fe8b67d5",
    "what": "src/shibuya/engine/processes/logistics.py の docstring の見出し「expedient(本モジュール分・全て「返済対象」)」の下の項 4 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(宅配・バス・道路工事は働く人のエージェントへ)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 6-6 ②(宅配・バス・道路工事は働く人のエージェントへ)〔11-01 段 2 の 3・4〕項「宅配」は既定から外した=宅配は無い(旧道は切替口 legacy)。項の数は 4 のまま",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/engine/processes/logistics.py#heading:fe8b67d5",
    "conf": "expedient",
@@ -2574,7 +2574,7 @@
   {
    "id": "HD-engine.processes.rail-1af925f4",
    "what": "src/shibuya/engine/processes/rail.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 2-3b 鉄道の実ダイヤ(停車と折返し)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c。〔2-3c・2026-10-15〕終点の到着(銀座線・井の頭線)と地下鉄の直通の到着の時刻は W12 1.3.0 の発着の表に入った(折返し時分の元)。エンジンはまだ読まない(既定)=停車と折返しの項は残る。外す段=4-3(到着の行を読むかを決める段)。運賃・定員・域外居住・到着便の割り当て・混雑率の項は 2-3c の外(見出し単位の 1 行=項ごとに分けるかは親の判断)。〔2-3c 検収 L6・2026-10-15・親の判断〕項ごとの行 DOC-tt23c-rail-*(6 行)に分けた。見出しの行はコードの宣言と 1 対 1 のために残し、外す段は項の最後の段(7)にした(項の外す段は項ごとの行)",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 2-3b 鉄道の実ダイヤ(停車と折返し)。〔2-3b・2026-10-14〕2-3b は渋谷の発車だけ=残り(終点の到着・直通の二重計上のまとめ方)は 2-3c。〔2-3c・2026-10-15〕終点の到着(銀座線・井の頭線)と地下鉄の直通の到着の時刻は W12 1.3.0 の発着の表に入った(折返し時分の元)。エンジンはまだ読まない(既定)=停車と折返しの項は残る。外す段=4-3(到着の行を読むかを決める段)。運賃・定員・域外居住・到着便の割り当て・混雑率の項は 2-3c の外(見出し単位の 1 行=項ごとに分けるかは親の判断)。〔2-3c 検収 L6・2026-10-15・親の判断〕項ごとの行 DOC-tt23c-rail-*(6 行)に分けた。見出しの行はコードの宣言と 1 対 1 のために残し、外す段は項の最後の段(7)にした(項の外す段は項ごとの行)〔11-01 段 2 の 3・4〕見出しの外の §2.6 の受け入れ確率(150〜200% で 1.0→0.7)は既定から外した=200% の上限だけ物理として残す(旧道は切替口 legacy)。見出しの項の数は 6 のまま",
    "remove_at": "7",
    "declared_in": "src/shibuya/engine/processes/rail.py#heading:1af925f4",
    "conf": "expedient",
@@ -2655,7 +2655,7 @@
   {
    "id": "DOC-tt23c-rail-congestion",
    "what": "rail.py の expedient の項 6: 混雑率はシミュ内の乗客だけで測る(域外区間の既存乗客を外生投入しない=第2陣)。5,000 体規模では受容関数は発火せず乗り残しは 0",
-   "why": "域外区間の既存乗客を入れる段が計画に無い(rail.py の「第2陣」を計画の段の番号に読み替えられない)=7(主張の前に感度試験)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)",
+   "why": "域外区間の既存乗客を入れる段が計画に無い(rail.py の「第2陣」を計画の段の番号に読み替えられない)=7(主張の前に感度試験)(項ごとの行=見出しの行 HD-engine.processes.rail-1af925f4 から分けた・2026-10-15・検収 L6)〔11-01 段 2 の 3・4〕受け入れ確率(受容関数)は既定から外した=200% の上限だけ(5,000 体では前も今も乗り残し 0)",
    "remove_at": "7",
    "declared_in": "docs/bench/analysis/wallbounce-1012/tt23c/README.md §11",
    "conf": "expedient",
@@ -2691,7 +2691,7 @@
   {
    "id": "HD-engine.resolve-1af925f4",
    "what": "src/shibuya/engine/resolve.py の docstring の見出し「expedient(本モジュール分)」の下の項 6 個",
-   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 1(1 刻み=1 ノードの移動をナビメッシュの移動に)〔第 3 期 3-5〕内受容の自然変動の項(③ 群の空腹と疲れ=D8)は本人の体の層 src/shibuya/engine/body/rules.py の BODY_EXPEDIENTS へ移した(行 BR-BODY-NATURAL-VARIATION)。この見出しの同じ位置の項は行為の効果の内受容(休憩・購入・食事)に書き直した=項の数は 6 のまま",
+   "why": "コードの宣言(第 4 形=docstring の expedient(…) の見出し・このファイルの 1 個目・見出し単位で 1 行=親の判断 第334)。外す段: 空間の段 1(1 刻み=1 ノードの移動をナビメッシュの移動に)〔第 3 期 3-5〕内受容の自然変動の項(③ 群の空腹と疲れ=D8)は本人の体の層 src/shibuya/engine/body/rules.py の BODY_EXPEDIENTS へ移した(行 BR-BODY-NATURAL-VARIATION)。この見出しの同じ位置の項は行為の効果の内受容(休憩・購入・食事)に書き直した=項の数は 6 のまま 〔11-03 §3 の段 2・記録 docs/bench/analysis/fix4-1103/README.md §3〕項の文を今の実装に合わせて書き直した(移動の幾何の腕 node・edge・nav1・鉄道の過程を渡したランの乗車と降車・会話は招待の成否と活動の欄だけ・日次内省は数えるだけ)。項の数は 6 のまま=declared_in と what は不変",
    "remove_at": "5-1",
    "declared_in": "src/shibuya/engine/resolve.py#heading:1af925f4",
    "conf": "expedient",
@@ -3032,7 +3032,7 @@
   {
    "id": "PR-waste_collection",
    "what": "世界過程 waste_collection(mechanism=False・executor=llm_agent・感度 AB-WASTE-ROUTE・返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(収集は働く人のエージェントへ)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で売れ残りの廃棄が本人の行動に置き換わる(本人の行動の割合 0.3%(本人 5 行/つなぎ 1,544 行・W21c 4.8%/丸振り 0.1%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区の収集ルート・積載の実データ取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(収集は働く人のエージェントへ)。〔6-6 ② 第 1 部〕腕 --duties arm では雇用の行の体が居て起きている店で売れ残りの廃棄が本人の行動に置き換わる(本人の行動の割合 0.3%(本人 5 行/つなぎ 1,544 行・W21c 4.8%/丸振り 0.1%)=記録 docs/bench/analysis/wallbounce-1012/duties1/README.md §5 の 5,000 体 1 日)・既定 off では今のまま(外すのは既定化のとき=DOC-du1-not-default)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=06〜10 時の収集は無い(収集員の体が居ない・ビンに溜まる一方)。世帯の消費(#41・11-02r §1 #8)と担当の体の廃棄(腕 duties)は残す(宣言 world/processes/absent.py の absent.waste_collection・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:waste_collection",
    "conf": "expedient",
@@ -3065,7 +3065,7 @@
   {
    "id": "PR-delivery_last_mile",
    "what": "世界過程 delivery_last_mile(mechanism=False・executor=llm_agent・感度 AB-PARCEL-ALLOCATION・返済期限「Phase 3(区別実績の取得後・按分係数を返済)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区別実績の取得後・按分係数を返済)」はデータの取得待ち=話題で当てた: 6-6 ②(宅配は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(区別実績の取得後・按分係数を返済)」はデータの取得待ち=話題で当てた: 6-6 ②(宅配は働く人のエージェントへ)〔11-01 段 2 の 3・4〕既定(--rate-rules off)で宅配の過程を動かさない=宅配は無い(W2 は錨に残す=駆動と採点の循環を解く)。区按分は旧道(切替口 legacy)だけ=次の版上げで消す。宣言の形は S2-ledger が直す",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:delivery_last_mile",
    "conf": "expedient",
@@ -3087,7 +3087,7 @@
   {
    "id": "PR-public_service_dispatch",
    "what": "世界過程 public_service_dispatch(mechanism=False・executor=llm_agent・感度 AB-DISPATCH-DELAY・返済期限「Phase 3(署別実績が未取得=空欄・取得後に返済)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(署別実績が未取得=空欄・取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(出動は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(署別実績が未取得=空欄・取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(出動は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=通報を受けた出動は無い(隊員と指令の体が居ない・倒れた人は運ばれない)(宣言 world/processes/absent.py の absent.public_service_dispatch・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:public_service_dispatch",
    "conf": "expedient",
@@ -3098,7 +3098,7 @@
   {
    "id": "PR-street_cleaning",
    "what": "世界過程 street_cleaning(mechanism=False・executor=llm_agent・感度 AB-CLEANING-RATE・返済期限「Phase 3(原単位が空欄=取得後に返済)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(原単位が空欄=取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(清掃は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(原単位が空欄=取得後に返済)」はデータの取得待ち=話題で当てた: 6-6 ②(清掃は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=掃除の巡回は無い(清掃員の体が居ない・街路のごみは残る)(宣言 world/processes/absent.py の absent.street_cleaning・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:street_cleaning",
    "conf": "expedient",
@@ -3109,7 +3109,7 @@
   {
    "id": "PR-infra_daily_load",
    "what": "世界過程 infra_daily_load(mechanism=False・executor=none・感度 AB-INFRA-INTENSITY・返済期限「Phase 3(W5 の実数が空欄=都環境局・区別データの探索後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(W5 の実数が空欄=都環境局・区別データの探索後)」はデータの取得待ち=話題で当てた: 置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(W5 の実数が空欄=都環境局・区別データの探索後)」はデータの取得待ち=話題で当てた: 置き換える段が計画に無い(表し方・見積り・自前規約)=主張の前に感度試験で駆動しないことを示す〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=電気と水の負荷の集計は無い(宣言 world/processes/absent.py の absent.power_water・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "7",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:infra_daily_load",
    "conf": "expedient",
@@ -3131,7 +3131,7 @@
   {
    "id": "PR-road_works_occupancy",
    "what": "世界過程 road_works_occupancy(mechanism=False・executor=llm_agent・感度 AB-ROADWORK-FREQ・返済期限「Phase 3(工事頻度が空欄=占用許可データの取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(工事頻度が空欄=占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(工事頻度が空欄=占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=夜の占用は無い(業者の体が居ない)(宣言 world/processes/absent.py の absent.road_works・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:road_works_occupancy",
    "conf": "expedient",
@@ -3153,7 +3153,7 @@
   {
    "id": "PR-large_event",
    "what": "世界過程 large_event(mechanism=False・executor=engine_rule・感度 AB-EVENT-DELTA・返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)〔11-01 段 2 の 3・4〕既定(--rate-rules off)で人の注入(18:00 の 200 人・21:00 の退出)を外した=催しの人の注入は無い。会場 3 セルの開催と記録は残す。注入は旧道(切替口 legacy)だけ=次の版上げで消す。催しの情報を外の人に届く入力にするのは段 3",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:large_event",
    "conf": "expedient",
@@ -3175,7 +3175,7 @@
   {
    "id": "PR-plan.road_works",
    "what": "PlanSpec plan.road_works(mechanism=False・executor=-・感度 AB-ROADWORK-FREQ・返済期限「Phase 3(占用許可データの取得後)」)",
-   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)",
+   "why": "コードの宣言(第 5 形=世界過程と PlanSpec の mechanism=False+repayment_due の宣言・CLAUDE.md §4 の mechanism|expedient のタグ・検収 M1)。外す段: 返済期限「Phase 3(占用許可データの取得後)」はデータの取得待ち=話題で当てた: 6-6 ②(道路工事は働く人のエージェントへ)〔11-02r §1 #7〕既定(--absent-processes stopped)で止めた=工事の予定を実行しない(辺の抽選は残す=記録しない)(宣言 world/processes/absent.py の absent.road_works・engine/absent_processes.py)。旧道(切替口 legacy)だけが動かす=次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/first_batch.py#process:plan.road_works",
    "conf": "expedient",
@@ -3197,7 +3197,7 @@
   {
    "id": "FB-large_event",
    "what": "フォールバック台帳の行 large_event → (PlanSpec なし=過程そのものの代替)(executor=engine_rule・conf 0.3・被覆「報道で確認できる大規模イベント(主催者・参加者をエージェント化しないぶん=100%)」・返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」)",
-   "why": "コードの宣言(第 6 形=CLAUDE.md §3「エンジン規則でつなぐ(conf 宣言つき・カバー率を台帳へ)」の台帳=WorldRegistry.fallback_ledger() の行・検収 M1。同じ過程の第 5 形の行 PR-large_event と重なる)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)",
+   "why": "コードの宣言(第 6 形=CLAUDE.md §3「エンジン規則でつなぐ(conf 宣言つき・カバー率を台帳へ)」の台帳=WorldRegistry.fallback_ledger() の行・検収 M1。同じ過程の第 5 形の行 PR-large_event と重なる)。外す段: 返済期限「Phase 3(イベント来街増分の実データ取得後・§7.2「expedient 強」)」はデータの取得待ち=話題で当てた: 6-6 ②(催しは働く人のエージェントへ)〔11-01 段 2 の 3・4〕既定(--rate-rules off)で人の注入を外した(PR-large_event の注と同じ)。宣言の形(executor・conf)は S2-ledger が直す",
    "remove_at": "6-6",
    "declared_in": "src/shibuya/world/processes/registry.py#fallback:large_event|",
    "conf": "expedient",
@@ -4555,7 +4555,7 @@
   {
    "id": "BR-BODY-COLLAPSE-RATE",
    "what": "倒れる率 1 万体あたり 1 日 3.0 件(出典なし。東京消防庁の出場件数 935,373 件/年を都の人口で割ると 1 万人・日あたり約 1.8 件だが、救急要請と路上で倒れるは同じでないので同じ桁の丸い値を置いた)",
-   "why": "コードの宣言(expedients)。③ 群の体の急変=D9(決定 10-12 §1-5 の D の論点 3=本人の体・倒れる率は出典を探す=リサーチ)。3-5 で processes/salient.py の docstring の見出しの項から移した。出典が見つかるまで出典なし。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す",
+   "why": "コードの宣言(expedients)。③ 群の体の急変=D9(決定 10-12 §1-5 の D の論点 3=本人の体・倒れる率は出典を探す=リサーチ)。3-5 で processes/salient.py の docstring の見出しの項から移した。出典が見つかるまで出典なし。外す段: 置き換える段が計画に無い=主張の前に感度試験で示す〔11-01 段 2 の 3・4〕既定(--rate-rules off)で外した=体の式ができるまで倒れる人は無い(W3 は錨に残す・回答 11-01 §2・§3・§9)。値 3.0 は旧道(切替口 legacy)だけが使う=次の版上げで宣言ごと消す。出動の過程は残す(発火しない)",
    "remove_at": "7",
    "declared_in": "src/shibuya/engine/body/rules.py#expedients:dbe2c73e",
    "conf": "expedient",
@@ -7085,12 +7085,12 @@
   {
    "id": "DOC-rules42-legacy-switch",
    "what": "規則の表の中身の腕 SHIBUYA_RULES_42=off(engine/economy_rules.py)=4-2 の前の値の再現(給与の天引き 0・レジの税は売った時点で店 → 政府)のためだけの切替口",
-   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)(記録 docs/bench/analysis/wallbounce-1012/rules42/README.md)〔第346 旧道の切替口と死んだ道の削除〕閉じた: 規則の表の中身の腕の切替口 SHIBUYA_RULES_42=off(4-2 の前の値の再現)を消した(環境変数を与えると読み込みで止まる・組み立ては常に規則の表の中身を挿す)。4-2 の前の値は law の無い Stage2Plan を直に作る部品の単体試験の基準の口として残した。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/wallbounce-1012/rules42/README.md",
    "conf": "expedient",
    "since": "2026-10-21",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/economy_rules.py",
@@ -7517,12 +7517,12 @@
   {
    "id": "DOC-rules42b-legacy-switch",
    "what": "規則の表の空欄 3 件の腕 SHIBUYA_RULES_42B=off(engine/economy_rules.py・PayrollInputs.rules_42b)=4-2 の値の再現(住民税は給与所得控除と社会保険料控除だけ・厚年と健保の年齢の上限なし・子ども・子育て拠出金 0)のためだけの切替口",
-   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)(記録 docs/bench/analysis/wallbounce-1012/rules42b/README.md)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)(記録 docs/bench/analysis/wallbounce-1012/rules42b/README.md)〔第346 旧道の切替口と死んだ道の削除〕閉じた: 規則の表の空欄 3 件の腕の切替口 SHIBUYA_RULES_42B=off(4-2 の値の再現)を消した(環境変数を与えると読み込みで止まる)。4-2 の値は部品の単体試験の基準の口として残した(PayrollInputs.rules_42b を偽にして直に作る物・taxes.payroll_tables(r42b=False))。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
    "remove_at": "next-bump",
    "declared_in": "docs/bench/analysis/wallbounce-1012/rules42b/README.md",
    "conf": "expedient",
    "since": "2026-10-22",
-   "status": "active",
+   "status": "removed",
    "remove_basis": "plan",
    "code_at": [
     "src/shibuya/engine/economy_rules.py",
@@ -7637,7 +7637,7 @@
   {
    "id": "DOC-du1-unstaffed-bridge",
    "what": "その店の雇用の行を持つ体が店のセルに居て起きていない店(雇用の行の無い店・体が別の場所に居る店・体が店で寝ている店)は今の conf 宣言つきのつなぎのまま=開閉は OpeningProcess の REPLACEMENT(conf 0.5)・補充は 10:00 の engine_rule・売れ残りは 05:00 に棚 → ビン(雇用の行の体が閉店の作業で捨てた店は除く)。開始の刻みの最初の設定(open_now が負の店)もエンジン(担当の役割行動として代打しない)。〔検収 M4〕補充と開閉の「居る」は同じ判定(種別を見ない)",
-   "why": "決定 10-12 §2 の 2(まだ人の行動で作れない変化はエンジン規則でつなぐ=conf 宣言つき・カバー率を台帳へ)。カバー率は manifest の duties.coverage(雇用の行の出どころ別・店の決まりの出どころ別)と記録 §5",
+   "why": "決定 10-12 §2 の 2(まだ人の行動で作れない変化はエンジン規則でつなぐ=conf 宣言つき・カバー率を台帳へ)。カバー率は manifest の duties.coverage(雇用の行の出どころ別・店の決まりの出どころ別)と記録 §5〔11-01 段 2 の 3・4〕このうち売れ残りの 05:00 のつなぎ(廃棄率)は既定から外した=担当の体の居ない店の売れ残りは捨てられない(担当の体が捨てる分=腕 duties は残る・旧道は切替口 legacy)",
    "remove_at": "6-6",
    "declared_in": "docs/bench/analysis/wallbounce-1012/duties1/README.md",
    "conf": "expedient",
@@ -8344,6 +8344,1705 @@
     "src/shibuya/engine/presence.py",
     "src/shibuya/engine/space/nav1.py"
    ]
+  },
+  {
+   "id": "DOC-s2rules-min-wage-floor-bridge",
+   "what": "最低賃金の床(最賃法 4 条 2 項=給料日に時給が最低賃金を下回る体の月の賃金を、最低賃金 × 月の時間の目安に上げる)を machine のつなぎで残す。規則の表の minimum_wage.tokyo(3 版)は kind: human・床を当てるのは行の params.bridge が machine の間だけ(economy.anchors.min_wage_terms・economy.wages.floor_with_shortfall)。床を当てる直前に下回った体と額を economy.stage2 の rules.minimum_wage_shortfall に数える(床がある間は violation_rows=0)",
+   "why": "回答 11-01 §5(判定は「現実でその場で物理的に止まるか」=最低賃金に足りない賃金は機械では止まらず事後の監督。検知と反応の口(気づいた人・本人・監督)ができるまで machine をつなぎとして残す)・指示書 11-01 段 2 の 5(違反が起きたら記録する器だけ先に)・10-12 §1-4(法に反する行動は起きたことにする)。外す段=検知と反応の口ができる段(計画の段の番号が無い=7 を当てた・実装役が当てた)(記録 docs/bench/analysis/s2-rules-1101/README.md)",
+   "remove_at": "7",
+   "declared_in": "docs/bench/analysis/s2-rules-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/economy/anchors.py",
+    "src/shibuya/economy/wages.py",
+    "src/shibuya/economy/stage2.py"
+   ],
+   "rule_id": "minimum_wage.tokyo"
+  },
+  {
+   "id": "DOC-s2rates-legacy-switch",
+   "what": "切替口 --rate-rules legacy(環境変数 SHIBUYA_RATE_RULES=legacy)は 11-01 段 2 の 4 の版上げの前の値の再現のためだけの道(催しの 200 人注入・E8 の到着の分散・乗車の受け入れ確率・ポイ捨て 0.05 g/人/刻み・売れ残りの廃棄率・宅配の区按分・倒れる率 3.0 件/万体/日)。出勤率のくじは戻らない(道ごと消した)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock は前の版と final が一致(記録 docs/bench/analysis/s2-rates-1101/README.md)。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験=検収 L5): test_du_runs の朝のつなぎ・test_cp2_event_links の補充の行・test_resume_10d の宅配の張り直し・test_state_ledger_10b の t7 の旧道の 1 本・倒れる率の試験の口を使う試験(test_salient・test_rng_scheme_10c・test_ablation23_switches・test_resume_10d・test_salt_seed_split_10f・test_state_checks_10f・test_version_bump_10e)・旧道の規則を見る過程の試験(test_civic・test_goods_flow・test_logistics・test_rail_return・test_presence_executor の E8 の 3 本と催しの経路)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/rate_rules.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "DOC-s2rates-event-held-log",
+   "what": "催しの人の注入を外した後も、会場 3 セルの抽選と開催の記録(ActualLog の SCHEDULED の行=18:00 と 21:00)は残す(旧道の注入と退出の行と同じ形・体は動かさない)",
+   "why": "指示書 11-01 段 2 の 4「催しの開催そのもの(会場 3 セル)は残す」。開催の情報を外の人に届く入力にし、来るかを本人が決めるのは段 3(回答 11-01 §2・§8)。会場の決め方(日の鍵の乱数で 3 セル)は今のまま=未リサーチ(expedient)",
+   "remove_at": "6-1",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/civic.py"
+   ]
+  },
+  {
+   "id": "DOC-s2rates-collapse-test-knob",
+   "what": "倒れる率を直に渡す口(run_day の salient_rate_per_10k・SalientProcess の rate_per_10k_per_day)は旧道(--rate-rules legacy)でだけ効く。腕 off では無視して率 0(removed の印と食い違わない=検収 L3)。manifest の rate_rules.counts に実効の率と件数が出る",
+   "why": "既存の試験と道具(tools/c7/salt_runs.py の腕 sal ほか)が出動の経路を見るのにこの口を使う=その試験は旧道で回す。次の版上げで旧道と一緒に口を消す(記録 docs/bench/analysis/s2-rates-1101/README.md)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/salient.py",
+    "src/shibuya/engine/run.py"
+   ]
+  },
+  {
+   "id": "DOC-s2rates-waste-band-na",
+   "what": "腕 off(既定)のランの店の廃棄の帯(runner.waste_sink_report の band_ok・月次 MER の waste_band_ok)は非該当(None・理由 band_na/waste_band_na=売れ残りの廃棄率を外した)。帯は初期在庫 × SKU の廃棄率の静的な期待(外した #99)で、比べる相手が無い。値(帯・内訳・店の回収量)は残す。要約は「非該当(…)」と書き、tools/c7/c7lib.py は None と読む",
+   "why": "検収 M1(既定のランが毎回 NG を出し、原因が外した規則であることが宣言されていなかった)・回答 11-01 §2。店の売れ残りの廃棄が店員の判断(腕 duties)で既定になったら、帯をその出力と比べ直す",
+   "remove_at": "6-6",
+   "declared_in": "docs/bench/analysis/s2-rates-1101/README.md",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/processes/runner.py",
+    "src/shibuya/economy/census.py",
+    "src/shibuya/cli.py",
+    "src/shibuya/engine/run.py"
+   ]
+  },
+  {
+   "id": "DOC-s2e-absent-legacy-switch",
+   "what": "切替口 --absent-processes legacy(環境変数 SHIBUYA_ABSENT_PROCESSES=legacy)は 11-02r §1 #7 の版上げの前の値の再現のためだけの道(ごみの収集 06〜10 時・街路の掃除の巡回・道路工事の夜の占用・救急と警察の出動・電気と水の負荷)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock は前の版と final と呼数と過程の件数が一致(記録 docs/bench/analysis/s2e-1102/README.md)。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験): tests/engine/processes/test_absent_processes_1102.py の legacy の側・旧道の過程の挙動を見る試験(test_goods_flow・test_logistics・test_civic・test_processes_run ほか=記録 §4 の一覧)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/s2e-1102/README.md",
+   "conf": "expedient",
+   "since": "2026-11-02",
+   "status": "active",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/absent_processes.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "DOC-fix4-defect-legacy-switch",
+   "what": "切替口 --defect-fixes-1103 legacy(環境変数 SHIBUYA_DEFECT_FIXES_1103=legacy)は 11-03 §3 の版上げの前の値の再現のためだけの道(会話の終わりで参加者全員を IDLE に戻す=M10・列の印が移動と乗車で消えない=M11・列の支払いの確かめが現金だけ=M28・届かない承諾を断りに数える=M16)",
+   "why": "回答 10-13b §0-6(版上げで新しい道を既定にしたら古い道の切替口は次の版上げで消す・旧値の再現は安定版のタグで)。legacy の 5,000 体 × 1 日 mock の byte-check は記録 docs/bench/analysis/fix4-1103/README.md §6。次の版上げで切替口を消すときに書き直す試験(旧道に固定した試験): tests/engine/test_defect_fixes_1103.py の legacy の側〔第346 旧道の切替口と死んだ道の削除〕閉じた: 欠陥 4 件の直しの切替口 --defect-fixes-1103 legacy(環境変数 SHIBUYA_DEFECT_FIXES_1103)と会話の系の旧道の分かれ(全員を IDLE に戻す)を消した(環境変数を与えると読み込みで止まる・CLI は引数の誤り・設定の箱の欄も消した)。部品の関数の既定(resolve.apply の defect_fixes=False・_settle_pending_invites の drop_unreachable/keep_activity=False・ConversationManager の count_unreachable=False)は部品の単体試験の基準の口として残した。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/fix4-1103/README.md",
+   "conf": "expedient",
+   "since": "2026-11-03",
+   "status": "removed",
+   "remove_basis": "plan",
+   "code_at": [
+    "src/shibuya/engine/defect_fixes_1103.py",
+    "src/shibuya/cli.py"
+   ]
+  },
+  {
+   "id": "DOC-fix4-dead-accept-probability",
+   "what": "会話の応答率 0.8 の抽選(engine/conversation.py の ACCEPT_PROBABILITY・ConversationManager._accepts=invite に answered=None を渡したときだけ引く)は死んでいる道(今の呼び手=会話の系 engine/systems/talk.py と連絡の道具 engine/contact/layer.py は全部 answered=True)",
+   "why": "棚卸し B §4-1(docs/reference/behavior-audit-B-resolve-world-2026-11-02.md)。宣言(conversation.py の docstring の expedient の項・定数の注)は残っているのに抽選は一度も引かれない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)。状態台帳の欄(conv の accept_probability)も一緒に消す〔第346 旧道の切替口と死んだ道の削除〕閉じた: 死んだ道=会話の応答率 0.8 の抽選(ACCEPT_PROBABILITY・ConversationManager._accepts・accept_probability と domain の引数と状態台帳の欄・乱数の静的な呼び手の表の 1 行・乱数の用途名 conversation.invite)を消した。invite の answered は必ず渡す(呼び手は全部 answered=True だった=既定のランは 1 バイト不変)。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/fix4-1103/README.md §3",
+   "conf": "expedient",
+   "since": "2026-11-03",
+   "status": "removed",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/conversation.py",
+    "src/shibuya/engine/state_ledger.py"
+   ]
+  },
+  {
+   "id": "DOC-fix4-dead-important-extra-turns",
+   "what": "会話の「重要度上位のみ +2 呼」(engine/conversation.py の IMPORTANT_EXTRA_TURNS・ConversationManager の important と max_turns_for)は死んでいる道(組み立て engine/systems/build.py は important を渡さない=対象が空)",
+   "why": "棚卸し B §4-1。契約書 §3 の「重要度上位のみ+2呼」の宣言はあるが、対象の集合をどこからも渡していない=+2 呼は誰にも付かない。消さずに印だけ付けた(次の版上げで消す=11-03 §3 の段 2 の親の発注。外す段は親の案=inferred)〔第346 旧道の切替口と死んだ道の削除〕閉じた: 死んだ道=会話の重要度上位の +2 呼(IMPORTANT_EXTRA_TURNS・ConversationManager の important と extra_turns_for_important の引数と状態台帳の欄)を消した。ハード上限は全員 max_turns(組み立ては対象を渡さなかった=既定のランは 1 バイト不変)。旧値の再現は安定版のタグ stable-v2-before-switch-removal-346(記録 docs/bench/analysis/delete-346/README.md・取り込みの commit は親)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/bench/analysis/fix4-1103/README.md §3",
+   "conf": "expedient",
+   "since": "2026-11-03",
+   "status": "removed",
+   "remove_basis": "inferred",
+   "code_at": [
+    "src/shibuya/engine/conversation.py",
+    "src/shibuya/engine/systems/build.py"
+   ]
+  },
+  {
+   "id": "DEC-1-comeToday",
+   "what": "判断 #1: その日渋谷へ来るか",
+   "why": "いまの決め手: D(W17 の週の表。在圏 0 本なら終日域外=在圏の E7)。行き先: 初期の予定(根拠 C(来る)。訪日の母集団は G の入力)。移すのに要るもの: 日中に「来るか」を変える口・範囲外の人の判断(輪の段)・催しの情報を受ける入口。外すまでのつなぎ: W17 を「初期の予定」と呼び替え、conf 宣言で残す(`BR-W17-IO-SLEEP`)。口ができるまでは外せない",
+   "remove_at": "6-2",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 1",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:ssb",
+    "data:pt2018"
+   ],
+   "routing_row": 1,
+   "drives_note": "W17 の週の表の元=社会生活基本調査(a1-research §6 #20)・PT 2018 で較正(パターン台帳 §9 D11′ の用途欄「W17較正」)。出力が D1′ に入るかは未確認"
+  },
+  {
+   "id": "DEC-2-skipWork",
+   "what": "判断 #2: 仕事・学校を休むか",
+   "why": "いまの決め手: E(出勤のくじ。既定 `--attendance-rate 1.0`)。行き先: L1.5(根拠 D(出勤率を外し、本人の判断へ)・C)。移すのに要るもの: 「休む」の口(腕 `--calendar-3` の休みの申し出を既定へ)・体調と予定を判断の入力にする。外すまでのつなぎ: 率の口 `--attendance-rate` はすぐ外せる。既定 1.0 ではくじが働いていない。外した後は W17 の勤務どおりに来る(初期の予定の扱い)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 2",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 2,
+   "decided": "11-01/§2",
+   "drives_note": "出勤率のくじは既定 1.0=働いていない(a1-research §6 #19・routing #2)"
+  },
+  {
+   "id": "DEC-3-leaveTrain",
+   "what": "判断 #3: いつ家を出るか・どの便で着くか",
+   "why": "いまの決め手: E(E1 間に合う最も遅い便・E8 ±8 便に散らす)。行き先: L1.5(根拠 C(線を選ぶ・定型))。移すのに要るもの: 腕 1b を既定に・判断モデル(見積りと余裕の AT2 は実装済み)。外すまでのつなぎ: E1 は conf で残す。E8 は「散らす」ばらつきの規則で行為ではない(② に当たらない疑い)→ §6-B",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 3",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 3,
+   "decided": "11-01/§2",
+   "drives_note": "E1 と E8 ±8 便は自前の規則(routing #3)"
+  },
+  {
+   "id": "DEC-4-arriveMode",
+   "what": "判断 #4: どう来るか(鉄道でない方面)",
+   "why": "いまの決め手: E(E3 開始の刻みちょうどにゲートのセルへ・所要なし)。行き先: 要判断(根拠 範囲の外の移動。「来る」(初期の予定)の一部か、来かたの選択(L1.5)か、規則からは決まらない → §6-8)。移すのに要るもの: 域外の移動の段。外すまでのつなぎ: E3 は conf で残すしかない。外すと鉄道以外の方面から誰も来なくなる",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 4",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 4,
+   "decided": "11-01/§10-2(6-8)"
+  },
+  {
+   "id": "DEC-5-goHomeTime",
+   "what": "判断 #5: いつ帰るか(予定の終わり)",
+   "why": "いまの決め手: D(W17 の終わり・E4 即時に域外へ)。行き先: 初期の予定(根拠 C(帰る))。移すのに要るもの: 腕 1b を既定に・「帰る」を日中に変える口。外すまでのつなぎ: W17 を初期の予定として残す。E4 の即時退出は conf で残す",
+   "remove_at": "6-2",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 5",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:ssb",
+    "data:pt2018"
+   ],
+   "routing_row": 5,
+   "drives_note": "W17 の週の表の元=社会生活基本調査(a1-research §6 #20)・PT 2018 で較正(パターン台帳 §9 D11′ の用途欄「W17較正」)。出力が D1′ に入るかは未確認"
+  },
+  {
+   "id": "DEC-6-homeDetour",
+   "what": "判断 #6: 帰る途中で別の行動を選んだら",
+   "why": "いまの決め手: E(その場で範囲外へ消す)。行き先: 初期の予定(根拠 C(帰るを本人が日中に変える))。移すのに要るもの: 腕 1b を既定に。外すまでのつなぎ: 消す規則 `BR-E4-EXIT-VANISH` は、1b が既定になったら外す。それまでは conf で残す",
+   "remove_at": "6-2",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 6",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 6
+  },
+  {
+   "id": "DEC-7-talkAtPlanEnd",
+   "what": "判断 #7: 会話中に予定の終わりが来たら",
+   "why": "いまの決め手: E(最大 30 刻み繰り延べ)。行き先: L1.5(根拠 C(終えるか))。移すのに要るもの: 「続けるか」の口(DM8)。外すまでのつなぎ: 30 刻みを conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 7",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 7
+  },
+  {
+   "id": "DEC-8-dropAtLeave",
+   "what": "判断 #8: 帰るとき買物・列をやめるか",
+   "why": "いまの決め手: E(強制で解く)。行き先: L1.5(根拠 C(列を離れる・終えるか))。移すのに要るもの: 「続けるか」の口(DM8)。外すまでのつなぎ: 強制で解く規則を conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 8",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 8
+  },
+  {
+   "id": "DEC-9-returnLater",
+   "what": "判断 #9: 自分で出たあと戻るか・いつ",
+   "why": "いまの決め手: E(E12 60 分後以降の最初の便)。行き先: L1.5(根拠 C(戻る))。移すのに要るもの: 範囲外の判断・予定の器。外すまでのつなぎ: E12 は出典なし。conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 9",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 9
+  },
+  {
+   "id": "DEC-10-bigEvent",
+   "what": "判断 #10: 大きな催しへ行くか・帰るか",
+   "why": "いまの決め手: E(18 時に域外の 200 人を会場へ入れ、21 時に出す)。行き先: 初期の予定(根拠 D(注入は外す)・G(催しの情報は入力)・C(来るかは本人))。移すのに要るもの: 催しの情報を外の人に届ける入口・#1 と同じ「来るか」の口。外すまでのつなぎ: 注入はすぐ外す(集計の量=A・D)。外すと催しの日の人出は 0 になる。注入は §3 で「無い」と宣言",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 10",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 10,
+   "world_process": "large_event",
+   "decided": "11-01/§2",
+   "drives_note": "200 人は自前の定数(集計の量=a1-research §6 #17)"
+  },
+  {
+   "id": "DEC-11-whereToGo",
+   "what": "判断 #11: どこへ行くか(行為と対象)",
+   "why": "いまの決め手: L2(既定は mock の一様)。行き先: L1.5(根拠 C(頻度が高く定型。12.27 呼/体/日)・背骨「日常の判断は判断モデル」)。移すのに要るもの: 判断モデル(DM2 は移動から)・候補の口。外すまでのつなぎ: mock の一様抽選のまま(`BR-MOCK-ACTION-ANCHOR`)",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 11",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 11
+  },
+  {
+   "id": "DEC-12-categoryTarget",
+   "what": "判断 #12: カテゴリ語の行き先をどれにするか",
+   "why": "いまの決め手: E(近い順に 5 セルまで)。行き先: L1.5(根拠 C(店を選ぶ))。移すのに要るもの: 候補の口(DM-0 の「できること」)。外すまでのつなぎ: 近い順を conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 12",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 12
+  },
+  {
+   "id": "DEC-13-wanderArea",
+   "what": "判断 #13: 「あたり」をどこへ歩くか",
+   "why": "いまの決め手: E(半径 2 セルをハッシュで)。行き先: L1.5(根拠 C(道)。優先は低い)。移すのに要るもの: 候補の口。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 13",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 13
+  },
+  {
+   "id": "DEC-14-giveUpFar",
+   "what": "判断 #14: 遠くて着かない行き先をあきらめるか",
+   "why": "いまの決め手: E(60 刻みで TOO_FAR)。行き先: L1.5(根拠 C(終えるか))。移すのに要るもの: 「続けるか」の口。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 14",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 14
+  },
+  {
+   "id": "DEC-15-routeChoice",
+   "what": "判断 #15: 道のどれを通るか",
+   "why": "いまの決め手: E(Dijkstra・既定の重み)。行き先: L1.5(根拠 C(道))。移すのに要るもの: `NavPlanner.candidates` の 3 候補を判断へ渡す。外すまでのつなぎ: 既定の重みを conf で残す(`BR-NAV1-E1`)",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 15",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 15
+  },
+  {
+   "id": "DEC-16-stairsLift",
+   "what": "判断 #16: 階段・エスカレーター・エレベーター",
+   "why": "いまの決め手: E(経路の重みと速さの式)。行き先: L1.5(根拠 C(道))。移すのに要るもの: 同上。外すまでのつなぎ: 同上(`BR-NAV1-E3`)",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 16",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 16
+  },
+  {
+   "id": "DEC-17-walkSpeed",
+   "what": "判断 #17: 歩く速さ",
+   "why": "いまの決め手: L1(U(1.00,1.60) × Kladek の減速)。行き先: L1 残す(根拠 C(§4-1。Kladek 式・Bosina & Weidmann))。移すのに要るもの: —。外すまでのつなぎ: —",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 17",
+   "conf": "mechanism",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 17
+  },
+  {
+   "id": "DEC-18-crowdAvoid",
+   "what": "判断 #18: 混雑の中でどう避けるか",
+   "why": "いまの決め手: —(器だけ・移動は衝突なし)。行き先: 要判断(根拠 §4-1 に無い(答申 R-93 は未読)。C の基準では L1 に残せない。10-12 ③ は残すと書いている → §6-1)。移すのに要るもの: 空間の段の物理・R-93 を読む。外すまでのつなぎ: 衝突なしのまま(作っていない)",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 18",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 18,
+   "decided": "11-01/§10-2(6-1)"
+  },
+  {
+   "id": "DEC-19-boardTrain",
+   "what": "判断 #19: 電車に乗る",
+   "why": "いまの決め手: L2(mock)。行き先: L1.5(根拠 C(線を選ぶ・定型))。移すのに要るもの: 判断モデル・便の候補。外すまでのつなぎ: mock のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 19",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 19
+  },
+  {
+   "id": "DEC-20-linePlatform",
+   "what": "判断 #20: どの線・どのホームへ行くか",
+   "why": "いまの決め手: E(最寄りの行けるホーム)。行き先: L1.5(根拠 C(線を選ぶ))。移すのに要るもの: 行き先と線の候補。外すまでのつなぎ: 最寄りを conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 20",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 20
+  },
+  {
+   "id": "DEC-21-skipTrain",
+   "what": "判断 #21: 来た電車に乗るか見送るか",
+   "why": "いまの決め手: —(停車中の先頭の便に必ず乗せる)。行き先: L1.5(根拠 C(見送るか))。移すのに要るもの: 便の候補(行き先・混み具合)・語彙「見送る」。外すまでのつなぎ: 「電車を見送る人は居ない」と宣言し、先着順はそのまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 21",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 21
+  },
+  {
+   "id": "DEC-22-crowdedBoard",
+   "what": "判断 #22: 混んだ電車に詰めて乗るか",
+   "why": "いまの決め手: E(混雑率 150〜200% で受け入れ 1.0→0.7)。行き先: L1.5(根拠 C(見送るか))。移すのに要るもの: 混み具合の知覚。外すまでのつなぎ: 200% の上限は車両の物理として残せる。150〜200% の受け入れの確率は率の形で、② に当たらない → §6-B",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 22",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 22,
+   "world_process": "rail_operation_static",
+   "decided": "11-01/§2",
+   "drives_note": "150〜200% で 1.0→0.7 は自前の関数(a1-research §6 #21)。混雑率 D10′ は照合の対象(routing §4-2)"
+  },
+  {
+   "id": "DEC-23-stopWaiting",
+   "what": "判断 #23: ホームで待つのをやめるか",
+   "why": "いまの決め手: E(30 刻みで NO_TRAIN)。行き先: L1.5(根拠 C(終えるか))。移すのに要るもの: 「続けるか」の口。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 23",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 23
+  },
+  {
+   "id": "DEC-24-whatAction",
+   "what": "判断 #24: 何をするか(12 語の行為)",
+   "why": "いまの決め手: L2(mock の一様)。行き先: L1.5(根拠 C(頻度が高く定型)。よく考える分は #95 を通して L2 へ上げる)。移すのに要るもの: 判断モデル(第 1 世代は公開重み・無学習)。外すまでのつなぎ: mock のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 24",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 24
+  },
+  {
+   "id": "DEC-25-whichStore",
+   "what": "判断 #25: 名指しの無い買物・食事はどの店か",
+   "why": "いまの決め手: E(最寄り)。行き先: L1.5(根拠 C(店を選ぶ))。移すのに要るもの: 判断モデル・記憶を候補に載せる。外すまでのつなぎ: 最寄りを conf で残す(古典の選び手は腕のまま)",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 25",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 25
+  },
+  {
+   "id": "DEC-26-habitStore",
+   "what": "判断 #26: 習慣の店に行くか",
+   "why": "いまの決め手: —(腕だけ・p_h 0.5)。行き先: L1.5(根拠 C(店を選ぶ))。移すのに要るもの: 親しみの表を判断モデルの入力にする。外すまでのつなぎ: 既定 off のまま。p_h 0.5 は率なので、判断の代わりには使わない",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 26",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 26
+  },
+  {
+   "id": "DEC-27-recalledStore",
+   "what": "判断 #27: 思い出した店を選ぶか",
+   "why": "いまの決め手: —(腕だけ)。行き先: L1.5(根拠 C(店を選ぶ)。思い出すこと自体は L1(#92))。移すのに要るもの: 記憶を既定に・候補に載せる。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 27",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 27
+  },
+  {
+   "id": "DEC-28-queueIfFull",
+   "what": "判断 #28: 満席なら並ぶか",
+   "why": "いまの決め手: E(自動で列へ)。行き先: L1.5(根拠 C(並ぶか))。移すのに要るもの: 「並ぶ/やめる」の候補。外すまでのつなぎ: 自動で並ぶ規則を conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 28",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 28,
+   "world_process": "indoor_occupancy"
+  },
+  {
+   "id": "DEC-29-joinQueue",
+   "what": "判断 #29: 自分から列に並ぶ",
+   "why": "いまの決め手: L2(mock)。行き先: L1.5(根拠 C(並ぶか))。移すのに要るもの: 判断モデル。外すまでのつなぎ: mock のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 29",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 29
+  },
+  {
+   "id": "DEC-30-leaveQueue",
+   "what": "判断 #30: 列を離れるか",
+   "why": "いまの決め手: E(15 刻みで離れる)。行き先: L1.5(根拠 C(列を離れる))。移すのに要るもの: 待ちの長さの知覚・「続けるか」の口。外すまでのつなぎ: conf で残す。16 行表 行 2 の改訂の注も要る",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 30",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 30,
+   "world_process": "indoor_occupancy"
+  },
+  {
+   "id": "DEC-31-leaveSeat",
+   "what": "判断 #31: 席を立つか",
+   "why": "いまの決め手: E(席に着いて 30 刻みで一律に解く)。行き先: L1.5(根拠 C(席を立つ))。移すのに要るもの: 活動の「まで」・「続けるか」の口。外すまでのつなぎ: conf で残す。30 刻みの出力は滞在時間の錨 D8 に入る疑い(⑤)→ §6-B",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 31",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 31,
+   "world_process": "indoor_occupancy",
+   "decided": "11-01/§3",
+   "drives_note": "30 刻みは回転率から置いた exp・出典なし(routing §4-2 #30・31・32)"
+  },
+  {
+   "id": "DEC-32-mealLength",
+   "what": "判断 #32: 食事にかける時間",
+   "why": "いまの決め手: E(宣言は 20 分、実際は 30 分の席の規則で解く)。行き先: L1.5(根拠 C(席を立つ・終えるか))。移すのに要るもの: 同上。外すまでのつなぎ: #31 と同じ。20 分と 30 分の食い違いを直す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 32",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 32,
+   "world_process": "indoor_occupancy",
+   "decided": "11-01/§3",
+   "drives_note": "宣言は 20 分・実際は 30 分の席の規則(routing #32)"
+  },
+  {
+   "id": "DEC-33-walkOut",
+   "what": "判断 #33: 店を出る(歩き出す)",
+   "why": "いまの決め手: L2(mock。移動を選べば席を解く)。行き先: L1.5(根拠 C(席を立つ))。移すのに要るもの: 判断モデル。外すまでのつなぎ: `--seat-release walk` のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 33",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 33
+  },
+  {
+   "id": "DEC-34-seeSign",
+   "what": "判断 #34: 看板を見るか",
+   "why": "いまの決め手: E(`--signage-p-see 1.0`)。行き先: 要判断(根拠 注視が §4-1 の「刺激で注意が向く」に入るのか、本人の向き(判断)なのか決まらない。錨 0.70 は率なので、A により駆動には使えない → §6-1)。移すのに要るもの: 注視の口・p_see の錨を検証に回す。外すまでのつなぎ: 1.0 のまま conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 34",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 34,
+   "decided": "11-01/§10-2(6-1)"
+  },
+  {
+   "id": "DEC-35-signText",
+   "what": "判断 #35: 看板に何が書いてあるか",
+   "why": "いまの決め手: D(W14 で LLM が書いた作り物)。行き先: 要判断(根拠 店の主体が居ない。入力(現実の看板)・店主の L2・作り物の代打のどれにするか → §6-7)。移すのに要るもの: 現実の看板データか店主の体。外すまでのつなぎ: 作り物を `BR-SIGNAGE-FICTION` のまま残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 35",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 35,
+   "decided": "11-01/§10-2(6-7)"
+  },
+  {
+   "id": "DEC-36-buyOrNot",
+   "what": "判断 #36: 買うか",
+   "why": "いまの決め手: L2(mock)。行き先: L1.5(根拠 C(消費: 買うか見送るか))。移すのに要るもの: 判断モデル・語彙「見送る」。外すまでのつなぎ: mock のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 36",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 36
+  },
+  {
+   "id": "DEC-37-itemQty",
+   "what": "判断 #37: 何をいくつ買うか",
+   "why": "いまの決め手: —(1 行 1 個・品は棚の並び)。行き先: L1.5(根拠 C(消費: 何をいくつ))。移すのに要るもの: 品の知覚・数の欄(DM13 の連続値)。外すまでのつなぎ: 1 個と棚の並びを conf で残し、「品と数は本人が選んでいない」と宣言",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 37",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 37
+  },
+  {
+   "id": "DEC-38-priceBalk",
+   "what": "判断 #38: 値段を見て見送るか",
+   "why": "いまの決め手: —(値段は買えなかった後にしか見せない)。行き先: L1.5(根拠 C(消費: 値段を見て見送る))。移すのに要るもの: 値段の知覚(B2)・語彙「見送る」。外すまでのつなぎ: 「値段を見て見送る人は居ない」と宣言",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 38",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 38
+  },
+  {
+   "id": "DEC-39-payMethod",
+   "what": "判断 #39: 現金で払うか口座で払うか",
+   "why": "いまの決め手: E(財布で足りれば現金・足りなければ口座)。行き先: L1.5(根拠 C(支払い))。移すのに要るもの: 判断モデルが方法を答える(答えの欄はある)。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 39",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 39
+  },
+  {
+   "id": "DEC-40-atmWithdraw",
+   "what": "判断 #40: ATM で下ろすか・いくら",
+   "why": "いまの決め手: E(財布が 1 日の消費を切ったら 3 日分)。行き先: L1.5(根拠 C(支払い))。移すのに要るもの: J0 の「お金を下ろす」を既定に。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 40",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 40
+  },
+  {
+   "id": "DEC-41-homeUse",
+   "what": "判断 #41: 家で物を使うか",
+   "why": "いまの決め手: E(19 時に持ち物のある全員が 1 個ずつ)。行き先: L1.5(根拠 C(頻度が高く定型。一覧に名指しは無い))。移すのに要るもの: 家の中の行為の口。外すまでのつなぎ: conf で残す。物の流れは廃棄の錨 W1 に入る疑い(⑤)→ §6-B",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 41",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 41,
+   "world_process": "goods_conservation",
+   "decided": "11-01/§3",
+   "drives_note": "19 時に 1 個ずつは自前(routing #41)。物の流れは goods_conservation の W1 に入る疑い(routing §4-2)"
+  },
+  {
+   "id": "DEC-42-litter",
+   "what": "判断 #42: ごみを捨てる(ポイ捨て)",
+   "why": "いまの決め手: E(セルの人数 × 0.05 g/刻み)。行き先: L1.5(根拠 A(集計の量で駆動しない)・C)。移すのに要るもの: 持ち物の状態・語彙「捨てる」。外すまでのつなぎ: 人数 × 率は集計の量。D の 5 件には入っていないが同じ形 → §6-B(すぐ外すか)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 42",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 42,
+   "world_process": "street_cleaning",
+   "decided": "11-01/§2",
+   "drives_note": "0.05 g/人/刻みの原単位は空欄(a1-research §6 #15)"
+  },
+  {
+   "id": "DEC-43-powerWater",
+   "what": "判断 #43: 電気・水を使うか",
+   "why": "いまの決め手: E(人数 × 0.35 kWh・0.012 m³/時)。行き先: 要判断(根拠 人数 × 原単位は集計(A)。本人の行為(機器を使う)か建物の負荷か決まらない。出力は錨 W5 に入る(⑤ ×)→ §6-8)。移すのに要るもの: 機器を使う行為か建物の主体。外すまでのつなぎ: 原単位は出典なし。外すなら「電気と水の負荷は無い」と宣言",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 43",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 43,
+   "world_process": "infra_daily_load",
+   "decided": "11-01/§10-2(6-8)・11-02r/§1 #7",
+   "drives_note": "原単位は出典なし(routing #43)。〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
+  },
+  {
+   "id": "DEC-44-startTalk",
+   "what": "判断 #44: 話しかけるか",
+   "why": "いまの決め手: L2(mock)。行き先: L1.5(根拠 C(相手を選ぶ)。会話の入口は定型、中身は L2 と読んだ)。移すのに要るもの: 判断モデル。外すまでのつなぎ: mock のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 44",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 44
+  },
+  {
+   "id": "DEC-45-talkWhom",
+   "what": "判断 #45: 誰に話しかけるか",
+   "why": "いまの決め手: E(同じセルの撹拌順の先頭)。行き先: L1.5(根拠 C(相手を選ぶ))。移すのに要るもの: 近くの人を候補に(DM-0)。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 45",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 45
+  },
+  {
+   "id": "DEC-46-acceptInvite",
+   "what": "判断 #46: 誘いに応じるか",
+   "why": "いまの決め手: L2(被招待が自分の呼で答える)。行き先: L1.5(根拠 C(相手を選ぶ・2 択の定型)。誘いの言葉を読んで答えるなら #95 を通して L2)。移すのに要るもの: 判断モデル。外すまでのつなぎ: 今のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 46",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 46
+  },
+  {
+   "id": "DEC-47-reinviteWait",
+   "what": "判断 #47: もう一度誘ってよいか",
+   "why": "いまの決め手: E(拒否 60 分・同じ組 60 分・同じ話し手 30 分)。行き先: L1.5(根拠 C(相手を選ぶ))。移すのに要るもの: 断られた記憶(L1)を候補の入力に。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 47",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 47
+  },
+  {
+   "id": "DEC-48-turnTaking",
+   "what": "判断 #48: 話す番",
+   "why": "いまの決め手: E(招待者から交替)。行き先: 要判断(根拠 会話の中身(L2)か、割り込むかの定型(L1.5)か、2 人なら交替は会話の形として残すか → §6-6)。移すのに要るもの: 割り込みの判断。外すまでのつなぎ: 交替を conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 48",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 48,
+   "decided": "11-01/§10-2(6-6)"
+  },
+  {
+   "id": "DEC-49-utterance",
+   "what": "判断 #49: 何を話すか(ひと言)",
+   "why": "いまの決め手: —(`--speech-port off`)。行き先: L2(根拠 C(会話の中身))。移すのに要るもの: 発話の口を既定に。外すまでのつなぎ: 口が無いので「ひと言は無い」と宣言",
+   "remove_at": "6-4",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 49",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 49
+  },
+  {
+   "id": "DEC-50-backchannel",
+   "what": "判断 #50: 相槌を打つ",
+   "why": "いまの決め手: E(定型 3 語)。行き先: L2(根拠 C(会話の中身))。移すのに要るもの: 発話の口。外すまでのつなぎ: 定型 3 語を conf で残す",
+   "remove_at": "6-4",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 50",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 50
+  },
+  {
+   "id": "DEC-51-endTalk",
+   "what": "判断 #51: 会話を終えるか",
+   "why": "いまの決め手: E(1 体 3 呼で打ち切り・沈黙 5 刻み・60 刻み)。行き先: L1.5(根拠 C(終えるか)。行動契約 §3「終了は LLM に決めさせない」とも合う)。移すのに要るもの: 「続けるか」の口。外すまでのつなぎ: conf で残す。16 行表 行 7 の注を直す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 51",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 51
+  },
+  {
+   "id": "DEC-52-closingLine",
+   "what": "判断 #52: 締めの一言",
+   "why": "いまの決め手: E(「それじゃ、また。」)。行き先: L2(根拠 C(会話の中身))。移すのに要るもの: 発話の口。外すまでのつなぎ: 定型を conf で残す",
+   "remove_at": "6-4",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 52",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 52
+  },
+  {
+   "id": "DEC-53-thirdJoiner",
+   "what": "判断 #53: 3 人目として加わるか",
+   "why": "いまの決め手: E(上限 2)。行き先: L1.5(根拠 C(相手を選ぶ))。移すのに要るもの: 腕 3 を既定に・候補の口・語彙「加わる」。外すまでのつなぎ: 「加わる人は居ない」と宣言し、上限 2 のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 53",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 53
+  },
+  {
+   "id": "DEC-54-refuse",
+   "what": "判断 #54: 断る",
+   "why": "いまの決め手: L2(mock・記録だけ)。行き先: L1.5(根拠 C(定型の 2 択))。移すのに要るもの: 効果先(何を断るのか)。外すまでのつなぎ: mock のまま。「効果が無い」と宣言",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 54",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 54
+  },
+  {
+   "id": "DEC-55-help",
+   "what": "判断 #55: 手伝う",
+   "why": "いまの決め手: L2(mock・いつも失敗)。行き先: 要判断(根拠 定型(L1.5)か熟考(L2)か。傍観者の研究の中心の判断で、C の一覧に名が無い → §6-5)。移すのに要るもの: 援助を求める状態・効果先。外すまでのつなぎ: 「手伝いは成立しない」と宣言",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 55",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 55,
+   "decided": "11-01/§10-1"
+  },
+  {
+   "id": "DEC-56-report",
+   "what": "判断 #56: 通報する",
+   "why": "いまの決め手: L2(mock・E の門)。行き先: 要判断(根拠 同上 → §6-5)。移すのに要るもの: 効果先(検知確率)・通報を受ける体(#110 は無いと宣言)。外すまでのつなぎ: 門を conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 56",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 56,
+   "decided": "11-01/§10-1"
+  },
+  {
+   "id": "DEC-57-noticeAcquaintance",
+   "what": "判断 #57: 知人に気づいて考え直す",
+   "why": "いまの決め手: —(腕で L1・同じ相手 60 分)。行き先: 要判断(根拠 1 行に 2 つ混ざる。気づき(§4-1 に無い)と考え直し(L2「驚いた後に考え直す」か L1.5「終えるか」か)→ §6-4)。移すのに要るもの: 行を 2 つに分ける・関係を既定に。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 57",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 57,
+   "decided": "11-01/§10-2(6-4)"
+  },
+  {
+   "id": "DEC-58-tieStrength",
+   "what": "判断 #58: 人間関係の強さの変化",
+   "why": "いまの決め手: —(腕・ACT-R d=0.5)。行き先: L1 残す(根拠 C(§4-1 記憶の活性と忘却))。移すのに要るもの: 関係を既定に。外すまでのつなぎ: —",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 58",
+   "conf": "mechanism",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 58
+  },
+  {
+   "id": "DEC-59-messaging",
+   "what": "判断 #59: メッセージを読む・返す・かける・出る・切る",
+   "why": "いまの決め手: —(腕 c1・仮=一様)。行き先: L1.5(根拠 C(定型)。文面は L2)。移すのに要るもの: 判断モデル・記録の量の宣言。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 59",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 59
+  },
+  {
+   "id": "DEC-60-noticeCall",
+   "what": "判断 #60: 着信に気づくか",
+   "why": "いまの決め手: —(腕 c1・周辺視 2.0 m)。行き先: 要判断(根拠 §4-2(裏付けなし)なので C では L1 に残せない。判断でもない → §6-1)。移すのに要るもの: 錨。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 60",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 60,
+   "decided": "11-01/§10-2(6-1)"
+  },
+  {
+   "id": "DEC-61-chargePhone",
+   "what": "判断 #61: 充電するか",
+   "why": "いまの決め手: —(腕・家で 0.5/時)。行き先: L1.5(根拠 C(定型))。移すのに要るもの: —。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 61",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 61
+  },
+  {
+   "id": "DEC-62-appointment",
+   "what": "判断 #62: 約束を持ちかける・受ける・断る・どこに書く",
+   "why": "いまの決め手: —(腕 calendar-2・仮)。行き先: L1.5(根拠 C(定型)。文面は L2)。移すのに要るもの: 判断モデル・記録の量。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 62",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 62
+  },
+  {
+   "id": "DEC-63-weeklyPlan",
+   "what": "判断 #63: 1 日の予定(週の表)",
+   "why": "いまの決め手: D(W17。構築時に 8B が書いた表)。行き先: 初期の予定(根拠 C(W17 は初期の予定に格下げ))。移すのに要るもの: 日中に予定を作り直す口。外すまでのつなぎ: W17 を初期の予定と呼び替えて conf 宣言(`BR-K9-MONDAY` も)",
+   "remove_at": "6-2",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 63",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:ssb",
+    "data:pt2018"
+   ],
+   "routing_row": 63,
+   "contributes": [
+    "A5",
+    "A6",
+    "A7"
+   ],
+   "drives_note": "W17 の週の表の元=社会生活基本調査(a1-research §6 #20)・PT 2018 で較正(パターン台帳 §9 D11′ の用途欄「W17較正」)。出力が D1′ に入るかは未確認"
+  },
+  {
+   "id": "DEC-64-replan",
+   "what": "判断 #64: 予定を考え直すか(続けるか)",
+   "why": "いまの決め手: —(腕 1b に plan/continue/deliberate)。行き先: L1.5(根拠 C(終えるか)。直す中身は #96 の L2)。移すのに要るもの: DM8(変化と時刻の入口)・語彙「考え直す」。外すまでのつなぎ: 既定には口が無いので「考え直す人は居ない」と宣言",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 64",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 64
+  },
+  {
+   "id": "DEC-65-activityUntil",
+   "what": "判断 #65: 今の活動をいつまで続けるか",
+   "why": "いまの決め手: L2(「まで」の欄・無ければ 60 分・上限 480 分)。行き先: L1.5(根拠 C(終えるか))。移すのに要るもの: 判断モデルが「まで」を答える。外すまでのつなぎ: 60 分と 480 分を conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 65",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 65
+  },
+  {
+   "id": "DEC-66-nextThink",
+   "what": "判断 #66: 次にいつ考えるか(起床)",
+   "why": "いまの決め手: L1(起床 12 条件・不応期 0〜360 分)。行き先: 要判断(根拠 検出は §4-1(L1)。不応期は §4-2 なので L1 に残さない。置き換え先 DM8 が L1.5 か L2 か決まらない → §6-2)。移すのに要るもの: 驚きの点数・時刻の入口(DM8)。外すまでのつなぎ: 不応期を conf で残す(全部外すと呼が 1.26〜1.28 倍=[H])",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 66",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 66,
+   "decided": "11-01/§10-1"
+  },
+  {
+   "id": "DEC-67-noThinkAsleepOut",
+   "what": "判断 #67: 寝ている人・域外の人は考えない",
+   "why": "いまの決め手: E(就寝抑止 D-56・域外抑止 D-66)。行き先: 要判断(根拠 §4-2(研究の題)。寝ている間は体(L1)の扱いか、域外は範囲外の層(無い)か → §6-2)。移すのに要るもの: 範囲外の判断の段。外すまでのつなぎ: 抑止を conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 67",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 67,
+   "decided": "11-01/§10-1"
+  },
+  {
+   "id": "DEC-68-noWakeInActivity",
+   "what": "判断 #68: 活動中は場所の変化で起こさない",
+   "why": "いまの決め手: E(活動層の抑止)。行き先: 要判断(根拠 起床の門で、研究の裏付けが無い。驚きの点数に置き換えるか → §6-2)。移すのに要るもの: 驚きの点数。外すまでのつなぎ: conf で残す(層ごと外すと呼 7.89 倍=[H])",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 68",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 68,
+   "decided": "11-01/§10-1"
+  },
+  {
+   "id": "DEC-69-sleepOnPlan",
+   "what": "判断 #69: 寝る(予定の時刻に)",
+   "why": "いまの決め手: D(D-62「就寝は計画の実行」)。行き先: 初期の予定(根拠 C(寝る))。移すのに要るもの: 眠気(L1)+寝るの口(#70)。外すまでのつなぎ: W17 のまま conf。1b を立てても W17 のまま残る点を直す",
+   "remove_at": "6-2",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 69",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:ssb",
+    "data:pt2018"
+   ],
+   "routing_row": 69,
+   "contributes": [
+    "A5",
+    "A6"
+   ],
+   "drives_note": "W17 の週の表の元=社会生活基本調査(a1-research §6 #20)・PT 2018 で較正(パターン台帳 §9 D11′ の用途欄「W17較正」)。出力が D1′ に入るかは未確認"
+  },
+  {
+   "id": "DEC-70-sleepSelf",
+   "what": "判断 #70: 寝る(自分で)",
+   "why": "いまの決め手: L2(mock)。行き先: L1.5(根拠 C(休むの仲間・定型)。初期の予定を日中に変える口の 1 つ)。移すのに要るもの: 判断モデル。外すまでのつなぎ: mock のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 70",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 70
+  },
+  {
+   "id": "DEC-71-wakeUp",
+   "what": "判断 #71: 起きる",
+   "why": "いまの決め手: D(次の計画境界で起こす)。行き先: 初期の予定(根拠 C(起きる))。移すのに要るもの: 睡眠の体の状態。外すまでのつなぎ: W17 のまま conf",
+   "remove_at": "6-2",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 71",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:ssb",
+    "data:pt2018"
+   ],
+   "routing_row": 71,
+   "contributes": [
+    "A5",
+    "A6"
+   ],
+   "drives_note": "W17 の週の表の元=社会生活基本調査(a1-research §6 #20)・PT 2018 で較正(パターン台帳 §9 D11′ の用途欄「W17較正」)。出力が D1′ に入るかは未確認"
+  },
+  {
+   "id": "DEC-72-sleepPlace",
+   "what": "判断 #72: どこで寝るか",
+   "why": "いまの決め手: E(自宅のセル)。行き先: L1.5(根拠 C(定型))。移すのに要るもの: 寝る場所の候補。外すまでのつなぎ: conf で残す",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 72",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 72
+  },
+  {
+   "id": "DEC-73-hotelStay",
+   "what": "判断 #73: ホテルに泊まるか",
+   "why": "いまの決め手: E(21 時に泊め 9 時に出す・1 軒 120 室)。行き先: 要判断(根拠 本人の「泊まるか」(初期の予定か L1.5)と、フロント(体が居ない=① ×・錨 W6 に入る=⑤ ×)が 1 行に混ざる → §6-7)。移すのに要るもの: フロントの体か、本人のチェックインの行為。外すまでのつなぎ: conf 0.4 で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 73",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 73,
+   "world_process": "hotel_room_inventory",
+   "decided": "11-01/§10-1",
+   "drives_note": "1 軒 120 室は自前(a1-research §6 #18)"
+  },
+  {
+   "id": "DEC-74-holidayCalendar",
+   "what": "判断 #74: 今日が祝日か・曜日",
+   "why": "いまの決め手: D(内閣府の祝日 CSV)。行き先: 要判断(根拠 外からの決定だが、G の 5 つに名が無い。6 つ目の入力(暦)として足すか → §6-8)。移すのに要るもの: —。外すまでのつなぎ: 今のままでよい(変えられないのが正しい)",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 74",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:cao_syukujitsu"
+   ],
+   "routing_row": 74,
+   "decided": "11-01/§10-2(6-8)",
+   "drives_note": "内閣府の祝日 CSV(routing #74・ライセンス台帳)"
+  },
+  {
+   "id": "DEC-75-checkPlan",
+   "what": "判断 #75: 頭の中の予定を思い出す(時計を見る)",
+   "why": "いまの決め手: —(腕 1b で 30 分ごと)。行き先: L1.5(根拠 C(§4-1 に無いので L1 ではない。棚卸し §4-1 は「意図して思い出すのは判断側」)。棚卸し §1 の「移すべきでない」とは食い違う)。移すのに要るもの: 記憶 M1 の式・語彙「予定を見る」。外すまでのつなぎ: 既定 off(腕では 30 分を conf で)",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 75",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 75
+  },
+  {
+   "id": "DEC-76-hunger",
+   "what": "判断 #76: お腹が減っていく",
+   "why": "いまの決め手: L1(EER/1440 × METs)。行き先: L1 残す(根拠 C(§4-1))。移すのに要るもの: —。外すまでのつなぎ: —(語の区切り 0.25/0.75/1.5 は exp のまま)",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 76",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 76
+  },
+  {
+   "id": "DEC-77-fatigue",
+   "what": "判断 #77: 疲れていく・回復する",
+   "why": "いまの決め手: L1(値は自前)。行き先: 要判断(根拠 意図しないのは明らかだが、値に裏付けが無い(§4-2)。C の基準では L1 に残せない → §6-1)。移すのに要るもの: 疲労の錨。外すまでのつなぎ: 値を conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 77",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 77,
+   "decided": "11-01/§10-2(6-1)"
+  },
+  {
+   "id": "DEC-78-eatInside",
+   "what": "判断 #78: 範囲の中で食べるか",
+   "why": "いまの決め手: L2(mock)。行き先: L1.5(根拠 C(消費・定型))。移すのに要るもの: 判断モデル。外すまでのつなぎ: mock のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 78",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 78
+  },
+  {
+   "id": "DEC-79-eatOutside",
+   "what": "判断 #79: 範囲の外で食べるか・いつ",
+   "why": "いまの決め手: D(W17 の食事の行)。行き先: 初期の予定(根拠 C(範囲外の食事))。移すのに要るもの: 範囲外の判断(輪の段)。外すまでのつなぎ: W17 のまま conf(`BR-MEAL-DEFAULT-W17`)",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 79",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:ssb",
+    "data:pt2018"
+   ],
+   "routing_row": 79,
+   "drives_note": "W17 の週の表の元=社会生活基本調査(a1-research §6 #20)・PT 2018 で較正(パターン台帳 §9 D11′ の用途欄「W17較正」)。出力が D1′ に入るかは未確認"
+  },
+  {
+   "id": "DEC-80-eatHome",
+   "what": "判断 #80: 範囲の中の家で食べるか",
+   "why": "いまの決め手: —(`--home-meal off`)。行き先: L1.5(根拠 C(定型))。移すのに要るもの: 家の食事の行為と物・語彙「家で食べる」。外すまでのつなぎ: 「範囲の中の家で食べる人は居ない」と宣言",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 80",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 80
+  },
+  {
+   "id": "DEC-81-rest",
+   "what": "判断 #81: 休むか",
+   "why": "いまの決め手: L2(活動の欄でその場に留まる・「休憩」は欠番)。行き先: L1.5(根拠 C(休む))。移すのに要るもの: 語彙に「休む」を戻す。外すまでのつなぎ: 活動の欄で留まる形のまま",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 81",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 81
+  },
+  {
+   "id": "DEC-82-feelHeat",
+   "what": "判断 #82: 暑さを感じる",
+   "why": "いまの決め手: L1(写像 2/4/6/8/10 は exp・日陰 0.86 は mech)。行き先: 要判断(根拠 §4-2。WBGT→熱中症の体の式(D)と同じ式に寄せるか → §6-1)。移すのに要るもの: 写像の錨。外すまでのつなぎ: 写像を conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 82",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 82,
+   "decided": "11-01/§10-2(6-1)"
+  },
+  {
+   "id": "DEC-83-collapse",
+   "what": "判断 #83: 急に倒れる",
+   "why": "いまの決め手: L1(1 万体あたり 1 日 3.0 件・出典なし)。行き先: L1 残す(置き換え)(根拠 D(倒れる率は外し、WBGT→熱中症の体の式へ)・E(W3 は検証に残す))。移すのに要るもの: WBGT→熱中症の式とその出典。外すまでのつなぎ: 率はすぐ外す(W3 と循環する)。式ができるまでは「倒れる人は居ない」と宣言",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 83",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "W3"
+   ],
+   "routing_row": 83,
+   "decided": "11-01/§2",
+   "contributes": [
+    "W3"
+   ],
+   "drives_note": "倒れる率 3.0 件/万人日は救急の出場件数から置いた値=W3 と同系(a1-research §6 #8)。倒れた人は出動(public_service_dispatch の contributes=W3)を通して W3 に入る"
+  },
+  {
+   "id": "DEC-84-noticeSalient",
+   "what": "判断 #84: 目立つ出来事に気づくか",
+   "why": "いまの決め手: L1(p_notice)。行き先: L1 残す(根拠 C(§4-1))。移すのに要るもの: —。外すまでのつなぎ: —",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 84",
+   "conf": "mechanism",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 84
+  },
+  {
+   "id": "DEC-85-reactChange",
+   "what": "判断 #85: 周りの様子の変化に反応する",
+   "why": "いまの決め手: L1(B4 のハッシュの変化・不応期 30 分)。行き先: L1 残す(検出だけ)(根拠 C(§4-1 ずれの自動検出)。不応期 30 分は §4-2 なので L1 から外し、#66 と同じ扱いにする)。移すのに要るもの: ずれの大きさを測る(今はハッシュの変化だけ)。外すまでのつなぎ: 不応期 30 分は #66 と一緒に conf",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 85",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 85
+  },
+  {
+   "id": "DEC-86-thresholdRethink",
+   "what": "判断 #86: 空腹・疲れの段を越えて考え直す",
+   "why": "いまの決め手: L1(区切り 4/7/9・不応期 45 分)。行き先: 要判断(根拠 §4-2(閾値に裏付けが無い)→ §6-1)。移すのに要るもの: 閾値の錨。外すまでのつなぎ: conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 86",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 86,
+   "decided": "11-01/§10-2(6-1)"
+  },
+  {
+   "id": "DEC-87-loudSound",
+   "what": "判断 #87: 大きな音に注意が向く",
+   "why": "いまの決め手: —(器だけ)。行き先: L1 残す(根拠 C(§4-1))。移すのに要るもの: 音の伝わり方(段 5-3)。外すまでのつなぎ: 作る段まで空のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 87",
+   "conf": "mechanism",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 87
+  },
+  {
+   "id": "DEC-88-lombard",
+   "what": "判断 #88: うるさいと声が大きくなる(ロンバード)",
+   "why": "いまの決め手: —(器だけ)。行き先: L1 残す(自動の傾きだけ)(根拠 C(一部つき)。声を張るか・話すかは判断)。移すのに要るもの: 音の段 5-3。外すまでのつなぎ: 作る段まで空のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 88",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 88
+  },
+  {
+   "id": "DEC-89-gaze",
+   "what": "判断 #89: どちらを向いているか(視線)",
+   "why": "いまの決め手: E(行き先の向き)。行き先: 要判断(根拠 向きは判断側(§4-1 #84 の注)。ただ毎刻みの量なので、L1.5 にするか、行き先から決まる形(代打)で残すか → §6-4)。移すのに要るもの: 注視の口。外すまでのつなぎ: conf で残す",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 89",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 89,
+   "decided": "11-01/§10-2(6-4)"
+  },
+  {
+   "id": "DEC-90-surprise",
+   "what": "判断 #90: 驚くか",
+   "why": "いまの決め手: —(口の欄 `surprise` が空)。行き先: 要判断(根拠 ずれの自動検出(§4-1=L1)の値とするか、判断モデルの点数(DM5=L1.5)とするか → §6-4)。移すのに要るもの: DM5 の驚きの点数。外すまでのつなぎ: 欄は空のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 90",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 90,
+   "decided": "11-01/§10-2(6-4)"
+  },
+  {
+   "id": "DEC-91-memorize",
+   "what": "判断 #91: 出来事を覚えるか",
+   "why": "いまの決め手: —(腕 `--memory on` で L1・体 128 行)。行き先: 要判断(根拠 §4-1 にあるのは「活性と忘却」だけ。書き込み(覚える)も含めてよいか → §6-3)。移すのに要るもの: 記憶を既定に。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 91",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 91,
+   "decided": "11-01/§10-2(6-3)"
+  },
+  {
+   "id": "DEC-92-recall",
+   "what": "判断 #92: 思い出すか",
+   "why": "いまの決め手: —(腕で L1・τ −2.0)。行き先: L1 残す(根拠 C(§4-1))。移すのに要るもの: 記憶を既定に。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 92",
+   "conf": "mechanism",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 92
+  },
+  {
+   "id": "DEC-93-storeMemory",
+   "what": "判断 #93: 店の良し悪しを覚える・口コミを受ける",
+   "why": "いまの決め手: —(腕 `--store-memory on`)。行き先: 要判断(根拠 #91 と同じ → §6-3)。移すのに要るもの: 記憶を既定に。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 93",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 93,
+   "decided": "11-01/§10-2(6-3)"
+  },
+  {
+   "id": "DEC-94-reflectDay",
+   "what": "判断 #94: 1 日を振り返る(内省)",
+   "why": "いまの決め手: —(就寝で数えるだけ・呼ばない)。行き先: L2(根拠 C(振り返り))。移すのに要るもの: 就寝時の熟考の口・語彙「振り返る」。外すまでのつなぎ: 「振り返りは無い」と宣言(16 行表 行 15 の「42 万呼」も直す)",
+   "remove_at": "6-7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 94",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 94
+  },
+  {
+   "id": "DEC-95-deliberate",
+   "what": "判断 #95: よく考えるか(熟考)",
+   "why": "いまの決め手: —(腕の port に候補「よく考える」)。行き先: L1.5(根拠 C(定型の門。考えた中身は L2))。移すのに要るもの: DM5・上の層(J3)。外すまでのつなぎ: 口が無いので「よく考える段は無い」と宣言(既定は起床のたびに全部 L2)",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 95",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 95
+  },
+  {
+   "id": "DEC-96-planFixSurprise",
+   "what": "判断 #96: 予想と違ったので計画を直す",
+   "why": "いまの決め手: —(予想の欄 `prediction` が空)。行き先: L2(根拠 C(予想と違って直す))。移すのに要るもの: 予想の器。外すまでのつなぎ: 「無い」と宣言",
+   "remove_at": "6-7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 96",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 96
+  },
+  {
+   "id": "DEC-97-storeHoursRun",
+   "what": "判断 #97: 店を開ける・閉める",
+   "why": "いまの決め手: E(W7 の表どおり・代打 99.6%)。行き先: L1.5(根拠 C(店員の定型の仕事)。担当が居ないときは B の代打)。移すのに要るもの: 担当の体を店に居させる・腕 `--duties` を既定に。外すまでのつなぎ: 代打で残す(5 条件は §4-2 で全部 ○)",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 97",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 97,
+   "world_process": "store_opening"
+  },
+  {
+   "id": "DEC-98-restock",
+   "what": "判断 #98: 棚を補充するか",
+   "why": "いまの決め手: E(補充点 0.95・居なければ 10 時に代打)。行き先: L1.5(根拠 C・B)。移すのに要るもの: 同上。外すまでのつなぎ: 代打で残すが、⑤ に疑いがある(`contributes=W1・E5`)→ §6-B",
+   "remove_at": "11-01p-3",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 98",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 98,
+   "world_process": "shelf_stock_restock",
+   "decided": "11-01/§3",
+   "drives_note": "補充点・ロットは自前(a1-research §6 #14)。contributes=W1・E5(routing §4-2)"
+  },
+  {
+   "id": "DEC-99-discardUnsold",
+   "what": "判断 #99: 売れ残りを捨てるか",
+   "why": "いまの決め手: E(05 時に廃棄率を掛ける)。行き先: L1.5(根拠 C・A)。移すのに要るもの: 同上。外すまでのつなぎ: 廃棄率は率の形(② ×)なので、代打としては残せない → §6-B",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 99",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 99,
+   "world_process": "waste_collection",
+   "decided": "11-01/§2",
+   "drives_note": "SKU 別の廃棄率(a1-research §6 #15)。W1 の帯は同じ定数から作った自己整合(パターン台帳 §9 W1)"
+  },
+  {
+   "id": "DEC-100-serveCustomer",
+   "what": "判断 #100: 接客する",
+   "why": "いまの決め手: —(役割語「接客」に適用が無い)。行き先: L2(根拠 C(接客))。移すのに要るもの: 効果先・店員の発話の口。外すまでのつなぎ: 「接客は無い」と宣言",
+   "remove_at": "6-6",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 100",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 100
+  },
+  {
+   "id": "DEC-101-changePrice",
+   "what": "判断 #101: 値段を変えるか",
+   "why": "いまの決め手: —(`pricing.py` の改定はエンジンに結線されていない)。行き先: L2(根拠 C(値段を変える=店主)・D(改定確率は入れない)・E(E7 は検証に残す))。移すのに要るもの: 店主の体・価格の口(役割語「価格改定」の適用)。外すまでのつなぎ: 「価格は構築時の値で固定」と宣言。Calvo の改定確率と β は結線しない(β を E7 に合わせない)",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 101",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 101,
+   "decided": "11-01/§2",
+   "calibration_declined": [
+    "E7"
+   ],
+   "drives_note": "価格は構築時の値で固定・Calvo の改定確率と β は結線しない・β を E7 に合わせない(回答 11-01 §3・routing #101)"
+  },
+  {
+   "id": "DEC-102-inboundDelivery",
+   "what": "判断 #102: 品を運ぶ(納品)",
+   "why": "いまの決め手: E(05〜08 時の乱数・15% 遅れ)。行き先: 無いと宣言(根拠 C(配送員の体が居ない=① ×))。移すのに要るもの: 発注と配送員の体。外すまでのつなぎ: 外すと棚に物が入らず、初期在庫(全店 64 個)が減る一方になる。外す時期 → §6-B",
+   "remove_at": "6-6",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 102",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 102,
+   "world_process": "delivery_inbound",
+   "decided": "11-01/§10-1",
+   "drives_note": "05〜08 時の乱数・15% 遅れは自前(goods_flow.py)。納品=入力(回答 11-01 §10-1)"
+  },
+  {
+   "id": "DEC-103-wastePickup",
+   "what": "判断 #103: ごみを集める",
+   "why": "いまの決め手: E(06〜10 時にセル順)。行き先: 無いと宣言(根拠 C(① ×)・⑤ ×(`contributes=W1`))。移すのに要るもの: 収集員の体。外すまでのつなぎ: 外すとごみが溜まる一方になる。W1 の検証は、収集ができるまで比べられない",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 103",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 103,
+   "world_process": "waste_collection",
+   "decided": "11-02r/§1 #7",
+   "drives_note": "〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
+  },
+  {
+   "id": "DEC-104-streetSweep",
+   "what": "判断 #104: 道を掃く",
+   "why": "いまの決め手: E(05〜07・13〜15 時に 8 セル/刻み)。行き先: 無いと宣言(根拠 C(① ×)・⑤ ×(`contributes=W1`))。移すのに要るもの: 清掃員の体。外すまでのつなぎ: すぐ外せる",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 104",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 104,
+   "world_process": "street_cleaning",
+   "decided": "11-02r/§1 #7",
+   "drives_note": "〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
+  },
+  {
+   "id": "DEC-105-parcelDelivery",
+   "what": "判断 #105: 宅配する",
+   "why": "いまの決め手: E(区按分 27,000 個/日)。行き先: 無いと宣言(根拠 D(宅配は無い)・E(W2 は検証に残す)・① ② ⑤ すべて ×)。移すのに要るもの: 配達員の体と注文。外すまでのつなぎ: すぐ外す",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 105",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "W2"
+   ],
+   "routing_row": 105,
+   "world_process": "delivery_last_mile",
+   "decided": "11-01/§2",
+   "drives_note": "区按分 27,000 個/日=W2 の値(a1-research §6 #16)"
+  },
+  {
+   "id": "DEC-106-roadWorks",
+   "what": "判断 #106: 道路を工事する",
+   "why": "いまの決め手: E(毎晩 6 辺・22〜05 時)。行き先: 無いと宣言(根拠 C(業者の体が居ない=① ×))。移すのに要るもの: 業者と占用許可。外すまでのつなぎ: すぐ外せる",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 106",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 106,
+   "world_process": "road_works_occupancy",
+   "decided": "11-02r/§1 #7",
+   "drives_note": "〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
+  },
+  {
+   "id": "DEC-107-runTrains",
+   "what": "判断 #107: 電車を走らせる(発車・遅れ)",
+   "why": "いまの決め手: D(実ダイヤ 8 線・遅れは作らない)。行き先: 代打(つなぎ)(根拠 B(① 乗務員は母集団に居る・② ダイヤどおり走らせるのは行為・③ conf 0.6 と返済の段あり)・G(運行の乱れは入力))。移すのに要るもの: 乗務員と指令の体・エージェント・乱れの入力の口。外すまでのつなぎ: 残す。④ 代打の回数の計器を足す。⑤ は △(§4-1)",
+   "remove_at": "6-6",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 107",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:timetables_w12"
+   ],
+   "routing_row": 107,
+   "world_process": "rail_operation_static",
+   "decided": "11-01/§10-2(6-7)",
+   "drives_note": "実ダイヤ 8 線(W12)"
+  },
+  {
+   "id": "DEC-108-runBuses",
+   "what": "判断 #108: バスを走らせる",
+   "why": "いまの決め手: E(06〜23 時 10 分おき・乗客 0)。行き先: 要判断(根拠 運転士の体が居るか、棚卸しでは確かめていない(① 不明)。乗客が 0 で誰も使えない → §6-7)。移すのに要るもの: 運転士の体・乗車の行為。外すまでのつなぎ: conf で残すか、すぐ外すか",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 108",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 108,
+   "world_process": "bus_taxi_operation",
+   "decided": "11-01/§10-2(6-7)",
+   "drives_note": "06〜23 時 10 分おきは自前(logistics.py BUS_HEADWAY_MIN)"
+  },
+  {
+   "id": "DEC-109-driveCars",
+   "what": "判断 #109: 車を運転する",
+   "why": "いまの決め手: E(道の種類の既定交通量・通過 0.55)。行き先: 要判断(根拠 運転者の体が無い(① ×)・既定交通量は集計(② ×)・D5′ の較正に入る(⑤ ×)ので代打にできない。「無い」か、通過交通を境界の外の入力(G の 6 つ目)とするか → §6-8)。移すのに要るもの: —。外すまでのつなぎ: 外すと車の流れと音が消える",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 109",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "data:road_census_r3"
+   ],
+   "routing_row": 109,
+   "world_process": "vehicle_cross_section",
+   "decided": "11-01/§10-1",
+   "drives_note": "道の種類の既定交通量=W10 が道路交通センサス R3 の同じ行から作った klass 既定(traffic.py の docstring)=D5′ と同じ調査"
+  },
+  {
+   "id": "DEC-110-dispatch",
+   "what": "判断 #110: 救急・警察が出動する",
+   "why": "いまの決め手: E(倒れたら 100% 出動・中央値 8 分)。行き先: 無いと宣言(根拠 C(隊員の体が居ない=① ×)・⑤ ×(`contributes=W3`)・E(W3 は検証に残す))。移すのに要るもの: 通報を受ける体・隊員。外すまでのつなぎ: すぐ外せる。倒れる率も外すので、出動 0 件([A] でも 0)は変わらない",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 110",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "W3"
+   ],
+   "routing_row": 110,
+   "world_process": "public_service_dispatch",
+   "decided": "11-02r/§1 #7",
+   "drives_note": "出動の回数は倒れる率(W3 と同系)で決まる(a1-research §6 #8)。〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analysis/s2e-1102/README.md)"
+  },
+  {
+   "id": "DEC-111-pressRelease",
+   "what": "判断 #111: 公式に知らせる(報道)",
+   "why": "いまの決め手: E(07・12・18 時に定型文)。行き先: 要判断(根拠 広報の体が無い(① ×)・C1 に入る(⑤ ×)ので代打にできない。「無い」か、区の発信を「区の政策の決定」の入力(G)として届けるか → §6-7)。移すのに要るもの: 広報の体か入力の口。外すまでのつなぎ: 定型文はすぐ外せる",
+   "remove_at": "next-bump",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 111",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "drives_from": [
+    "none"
+   ],
+   "routing_row": 111,
+   "world_process": "press_official_release",
+   "decided": "11-01/§10-2(6-7)",
+   "drives_note": "07・12・18 時の定型文"
+  },
+  {
+   "id": "DEC-112-shiftPlan",
+   "what": "判断 #112: 翌週のシフトを組む・休みの申し出に返事",
+   "why": "いまの決め手: —(腕 calendar-3・仮=一様)。行き先: 要判断(根拠 店長の体は居る(つなぎは最初の担当)。週 1 の定型(L1.5・J0 の口あり)か、熟考(L2)か → §6-7)。移すのに要るもの: 雇い主のエージェント。外すまでのつなぎ: 既定 off のまま",
+   "remove_at": "7",
+   "declared_in": "docs/reference/decision-routing-2026-11-01.md §1 行 112",
+   "conf": "expedient",
+   "since": "2026-11-01",
+   "status": "active",
+   "remove_basis": "inferred",
+   "routing_row": 112,
+   "decided": "11-01/§10-2(6-7)"
   }
  ]
 }

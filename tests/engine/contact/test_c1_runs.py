@@ -8,14 +8,14 @@ import dataclasses
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.contact import layer as LY
-from shibuya.engine.run import run_day
-from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.interim_bundles.contact import layer as LY
+from shibuya.runtime.run import run_day
+from shibuya.society.tools import record as TR
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, STEP_NS, c1
 
@@ -119,8 +119,8 @@ def test_arm_rows_enter_the_hashes_only_when_the_owner_exists():
 
 
 def test_cli_run_kind_is_arm(monkeypatch):
-    from shibuya import cli
-    from shibuya.engine import run_kind as RK
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)  # 試験の中は種類が test になる=外して腕の数え方を見る
     kw = dict(n_agents=30, seed=1, world_dir=None, n_cells=9, ticks=30, checkpoint_every=30, vocab_version="v3")
@@ -134,8 +134,8 @@ def test_cli_run_kind_is_arm(monkeypatch):
 
 def test_cli_flag_sets_the_arm(monkeypatch):
     """CLI の ``--contact`` は環境変数より強い(組み立てが読む切替口を置く)。"""
-    from shibuya import cli
-    from shibuya.engine.contact import arm as A
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.foundation.arms import contact as A
 
     seen = {}
 
@@ -151,8 +151,8 @@ def test_cli_flag_sets_the_arm(monkeypatch):
 
 
 def test_the_contact_system_runs_only_on_the_arm():
-    from shibuya.engine.systems import conductor as CD
-    from shibuya.engine.systems.table import SPECS
+    from shibuya.runtime.systems import conductor as CD
+    from shibuya.runtime.systems.table import SPECS
 
     sp = SPECS["contact"]
     assert sp.when == "contact" and sp.timing == "tick" and sp.writes.soa == frozenset()

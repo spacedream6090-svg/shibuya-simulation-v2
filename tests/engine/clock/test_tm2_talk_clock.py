@@ -24,14 +24,14 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya import cli
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine import batching as BA
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import speech_clock as TC
-from shibuya.engine.llm_bridge import LANE_SECONDS
-from shibuya.engine.speech.port import mora_count
+from shibuya.interfaces.cli import main as cli
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.queues import batching as BA
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.clocks import speech as TC
+from shibuya.runtime.inference.bridge import LANE_SECONDS
+from shibuya.foundation.text.mora import mora_count
 
 ROOT = Path(__file__).resolve().parents[3]
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -154,10 +154,19 @@ def test_think_time_is_not_added_to_the_gap():
     first, nxt, end = c._tc_line[9][:3]
     assert nxt - end == TC.GAP_NS == 7_000_000
     assert "TM2" in TC.THINK_TIME_COUNTED_BY
-    tree = ast.parse((ROOT / "src" / "shibuya" / "engine" / "speech_clock.py").read_text(encoding="utf-8"))
+    tree = ast.parse((ROOT / "src" / "shibuya" / "runtime" / "clocks" / "speech.py").read_text(encoding="utf-8"))
     names = {a.name for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) for a in n.names}
     mods = {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
-    assert "shibuya.engine.llm_bridge" not in mods and "LANE_SECONDS" not in names
+    # 〔割る段 5a の G0〕前は字面の "shibuya.engine.llm_bridge"=割る段で名が無くなると何も確かめずに通る。描画の橋のモジュールは
+    # 定義の置き場(``__module__``)から作る(移す道具が import の文を割り先へ向けるので、割った後は割り先の名になる)
+    # 〔G0 の検収 低-5〕割った後に禁じるのは橋(考える時間と道の秒=LLMBridge の置き場)だけ。型の口(RenderedPrompt・Renderer)は
+    # foundation の推論の口へ行き、時計が読んでも考える時間は二重に数えない=禁じない。代わりに考える時間の名は、どこから読んでも禁じる
+    from shibuya.runtime.inference.bridge import LANE_SECONDS, LLMBridge
+
+    bridge_mods = {LLMBridge.__module__}
+    think_names = {"LANE_SECONDS", "LANE_THINK_TOKENS", "ALPHA_THINK_SECONDS_PER_TOKEN", "delta_think_ticks"}
+    assert LANE_SECONDS and bridge_mods
+    assert not (mods & bridge_mods) and not (names & think_names)
 
 
 def _gap_of_a_new_conversation() -> int:
@@ -408,7 +417,7 @@ def test_arm_plumbing():
 
 def test_a_bad_environment_arm_fails_at_import():
     env = dict(os.environ, PYTHONIOENCODING="utf-8", **{TC.ENV: "bogus"})
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.speech_clock"], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.runtime.clocks.speech"], capture_output=True, text=True,
                        encoding="utf-8", env=env, timeout=120)
     assert r.returncode != 0 and TC.ENV in r.stderr
 

@@ -17,9 +17,9 @@ from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.ledger_api import LedgerBundle
-from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.foundation.ports.ledger import LedgerBundle
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import World
 
 H, S, B, W = int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.BANK), int(Sector.ROW)
 

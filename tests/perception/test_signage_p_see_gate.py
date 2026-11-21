@@ -28,16 +28,19 @@ import math
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
-from shibuya.engine.run import run_day
-from shibuya.perception import templates as T
-from shibuya.perception.attention import P_SEE_MEDIUM_RANGE, gate_stage1
-from shibuya.perception.renderer import (
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.runtime.run import run_day
+from shibuya.foundation.text import templates as T
+from shibuya.mind.percept.attention import P_SEE_MEDIUM_RANGE, gate_stage1
+from shibuya.mind.percept.draw import (
     SIGNAGE_P_SEE_DEFAULT,
     Renderer,
+)
+from shibuya.mind.percept.notice import (
     check_signage_p_see,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: 看板ありの参照場面の指紋(``tests/perception/test_ablation6_signage.py`` と**同じ値**)。
@@ -348,7 +351,7 @@ def test_run_day_refuses_a_bad_probability():
 
 
 def test_cli_run_passes_the_gate_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -362,7 +365,7 @@ def test_cli_run_passes_the_gate_through_kwargs():
     [([], 1.0), (["--signage-p-see", "0.30"], 0.30), (["--signage-p-see", "0.14"], 0.14)],
 )
 def test_cli_main_has_the_flag(monkeypatch, argv, expected):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -378,7 +381,7 @@ def test_cli_main_has_the_flag(monkeypatch, argv, expected):
 
 
 def test_cli_main_rejects_a_bad_probability():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit):
         cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9",

@@ -18,11 +18,12 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
-from shibuya.engine.run import run_day
-from shibuya.perception import templates as T
-from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.runtime.run import run_day
+from shibuya.foundation.text import templates as T
+from shibuya.mind.percept.draw import Renderer
+from shibuya.world.model.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: 看板ありの参照場面の指紋(``tests/perception/test_ablation1.py`` と**同じ場面・同じ値**)。
@@ -172,7 +173,7 @@ def test_run_day_signage_off_changes_the_prompt_but_not_the_mock_actions():
 
 
 def test_cli_run_passes_signage_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -183,7 +184,7 @@ def test_cli_run_passes_signage_through_kwargs():
 
 @pytest.mark.parametrize("argv,expected", [([], True), (["--no-signage"], False)])
 def test_cli_main_has_the_no_signage_flag(monkeypatch, argv, expected):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 

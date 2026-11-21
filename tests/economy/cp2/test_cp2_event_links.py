@@ -7,6 +7,7 @@ who=払い手, whom=受け手, cause))`` を書き、id を生ログの行に入
 - 単体: 1 対 1・欄の中身・刻みの幅・原因の無い行・記録 off・溢れた輪・補充の物の行と代金の行が同じ id。
 - ラン(data・世界資産 200 体・既定 v3): 運賃(原因=過程 rail)と補充の代金(原因=過程 shelf)の行が出来事と 1 対 1・
   計器の数(出来事の行・原因の無い行)と記録の分布(``金:持ち出し``・``金:域外仕入``)が合う・物の補充の行の目印=代金の行。
+  段階 2 の外(基準の口)で見る。〔第347・検収 M2〕同じ 1 対 1 を段階 2 on のラン(段階 2 の語と原因を含む)でも見る。
 """
 
 from __future__ import annotations
@@ -14,14 +15,14 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND
+from shibuya.foundation.time_consts import NS_PER_SECOND
 from shibuya.economy import ops as OPS
 from shibuya.economy.accounts import AccountCode, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.links import MoneyEventLink
-from shibuya.engine.events.log import EventLog, LlmCall, Process
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.links import MoneyEventLink
+from shibuya.foundation.journal.log import EventLog, LlmCall, Process
 
 H, S, W = int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.ROW)
 RAIL, SHELF = Process("rail"), Process("shelf")
@@ -129,13 +130,20 @@ def test_restock_goods_row_shares_the_payment_event():
 def test_run_rows_and_events_are_one_to_one(monkeypatch):
     """ラン(世界資産 200 体・既定 v3・1 日): 金の生ログの目印のある行と出来事の記録の金の行が 1 対 1。
 
-    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=この試験(1-9 の土台の金の行=持ち出しと域外仕入だけ)は切替口 off で
-    見る。段階 2 の語(賃金・引き出し・カード・税ほか)と原因の 1 対 1 は ``tests/economy/stage2`` が見る。
+    〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=この試験(1-9 の土台の金の行=持ち出しと域外仕入だけ)は段階 2 の外で
+    見る。段階 2 の語(賃金・引き出し・カード・税ほか)と原因の 1 対 1 は ``tests/economy/stage2`` が見る。〔第347〕切替口 off の
+    代わりに、試験の中だけの束(段階 2 の口を持たない台帳・off と同じ形=``tests/economy/_stage2_outside.py``)で回す。
     """
-    from shibuya import cli
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.interfaces.cli import main as cli
 
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
+    from tests.economy import _stage2_outside as SO
+
+    SO.use_outside_bundle(monkeypatch)
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 4〕売れ残りの廃棄率を外すと 200 体では棚が補充点を割らない(補充の行 0)=補充の行の目印を見るため旧道で。
+    # 〔第347〕切替口 --rate-rules legacy の代わりに、試験の中だけで実行器と計画実行層に部品の口(率の規則の旧道)を挿す
+    legacy_world_rules(monkeypatch, absent=False)
     res = cli.run(n_agents=200, seed=1, world_dir="data/world/v2", vocab_version="v3")
     led, g, log = res.ledger.money, res.ledger.goods, res.event_log
     rows = led.raw_rows()
@@ -164,9 +172,70 @@ def test_run_rows_and_events_are_one_to_one(monkeypatch):
     assert set(zip(gt[restock].tolist(), gs[restock].tolist())) <= ids
 
 
+#: 〔第347・検収 M2〕段階 2 on のランで、金の語ごとに許す原因(下の試験の期待値)。取り直したラン: 世界資産 200 体・seed 1・
+#: 既定 v3・1 日・率の規則の旧道(助け)・段階 2 on(部品は全部・ATM は OSM の表)=金の出来事 503 行(消費支出 253・カード 121・
+#: 持ち出し 121・引き出し 7・域外仕入 1)。カード(IC の運賃=口座の脚・科目は預金純増)の原因も過程 rail になる。
+_STAGE2_CAUSES = {
+    "金:持ち出し": ("rail",), "金:カード": ("rail",), "金:域外仕入": ("shelf",),
+    "金:消費支出": ("llm",), "金:引き出し": ("llm", "atm"),
+}
+
+
+def _cause_name(c) -> str:  # noqa: ANN001
+    return "llm" if isinstance(c, LlmCall) else str(c.name)
+
+
+@pytest.mark.requires_data("world_v2:w17_schedule.parquet", "osm:poi_tags_overpass_20260928.json")
+def test_run_rows_and_events_are_one_to_one_on_stage2(monkeypatch):
+    """〔第347・検収 M2〕上の試験と同じ 1 対 1 を、段階 2 on(今のランが通る道=cli の台帳に段階 2 が挿さる)で見る。
+
+    上の試験は段階 2 の外(基準の口)で 1-9 の土台の金の行だけを見る。こちらは段階 2 の語(カード・引き出し)と原因(呼・ATM)を
+    含めて、目印のある行=出来事の金の行(1 対 1)・語と科目の対応(段階 2 の語は預金純増)・額・原因の規則・日次の記録の数・
+    補充の物の行の目印を見る。期待値は上の ``_STAGE2_CAUSES`` の注のランから取り直した。
+    """
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.economy import stage2_bind as ES2
+
+    monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
+    monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
+    from tests.engine._legacy_world import legacy_world_rules
+
+    legacy_world_rules(monkeypatch, absent=False)  # 補充の行を起こす(上の試験と同じ)
+    res = cli.run(n_agents=200, seed=1, world_dir="data/world/v2", vocab_version="v3")
+    led, g, log = res.ledger.money, res.ledger.goods, res.event_log
+    assert led.stage2 is not None  # 段階 2 on の道
+    rows = led.raw_rows()
+    t, s = led.raw_event_ids()
+    have = s >= 0
+    assert led.meter.overflow == 0 and rows.shape[0] == led.meter.rows
+    assert int(have.sum()) == led.meter.events > 0
+    assert int((~have).sum()) == led.meter.uncaused
+    money_events = [e for e in log.events() if V.family_of(e.what) == V.FAMILY_MONEY]
+    assert len(money_events) == led.meter.events
+    ids = set(zip(t[have].tolist(), s[have].tolist()))
+    assert len(ids) == int(have.sum()) and ids == {e.id for e in money_events}
+    for i in np.flatnonzero(have):
+        e = log.get((int(t[i]), int(s[i])))
+        code = int(rows[i, 6])
+        # 段階 2 の語(``MONEY_EXTRA_WHAT``)は科目 預金純増 の行に付く・ほかは科目の語そのもの
+        assert e.what == OPS.what_of(code) or int(OPS.MONEY_EXTRA_WHAT[e.what]) == code, (e.what, code)
+        assert e.how_much == int(rows[i, 5])
+        assert _cause_name(e.cause) in _STAGE2_CAUSES[e.what], (e.what, e.cause)
+    words = {e.what for e in money_events}
+    assert {"金:カード", "金:引き出し", "金:消費支出", "金:持ち出し"} <= words  # 段階 2 の語が立つ(空振りしない)
+    daily = res.run_manifest_fields()["daily"][0]
+    by = daily["events"]["by_what"]
+    assert sum(by.get(w, 0) for w in _STAGE2_CAUSES) == led.meter.events
+    assert daily["economy"]["event_rows"] == led.meter.events
+    gt, gs = g.delivery_event_ids()
+    restock = g.delivery_rows()[:, 4] == 0
+    assert restock.any() and (gs[restock] >= 0).all() and (gs[~restock] < 0).all()
+    assert set(zip(gt[restock].tolist(), gs[restock].tolist())) <= ids
+
+
 def test_economy_constants_match_the_events_vocabulary():
     """economy は engine.events を import しない(層の契約)=金の語・原因の種類の名を写しで持つ。写しが 1-3 と同じ。"""
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     assert OPS.MONEY_FAMILY == V.FAMILY_MONEY
     assert OPS.CAUSE_KINDS == EV.CAUSE_KINDS
@@ -181,12 +250,19 @@ def test_economy_and_the_ledger_api_do_not_import_engine_events():
     import ast
     from pathlib import Path
 
-    src = Path(__file__).resolve().parents[3] / "src" / "shibuya"
-    files = sorted((src / "economy").glob("*.py")) + [src / "engine" / "ledger_api.py"]
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
+    from shibuya.foundation.ports import ledger as LAPI
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ economy の走査と包みの名 "shibuya.engine.events"・"shibuya.llm"。
+    # 範囲は元の置き場で決める: 走査は元の置き場が economy(直下)のファイルと ledger_api・読んではいけないのは元の置き場が
+    # engine/events と llm のモジュール(段 4 で economy の包みに入る engine・core のファイルは前と同じく走査しない=層の決まりは
+    # 段 4 の後に親が見直す)
+    files = PL.files_from(OPS, recursive=False) + [Path(LAPI.__file__)]
+    banned = PL.names_from(V, LLM)
     bad = []
     for f in files:
         for n in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
-            mods = ([n.module or ""] if isinstance(n, ast.ImportFrom)
-                    else [a.name for a in n.names] if isinstance(n, ast.Import) else [])
-            bad += [f"{f.name}:{m}" for m in mods if m.startswith(("shibuya.engine.events", "shibuya.llm"))]
-    assert bad == [], bad
+            bad += [f"{f.name}:{m}" for m in PL.imported(n) if banned.hits(m)]
+    assert len(files) > 5 and bad == [], bad

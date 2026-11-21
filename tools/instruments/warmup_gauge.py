@@ -73,7 +73,7 @@ REPO = HERE.parent.parent
 if str(REPO / "src") not in sys.path:  # pragma: no cover - 実行時の経路(規則はエンジンの側の 1 か所)
     sys.path.insert(0, str(REPO / "src"))
 
-from shibuya.engine.experiment.warmup import RULE, rule_record, rule_sha256  # noqa: E402
+from shibuya.experiments.port.warmup import RULE, rule_record, rule_sha256  # noqa: E402
 
 SCHEMA = "shibuya.tools.instruments/warmup_gauge/1"
 #: 判定の状態。

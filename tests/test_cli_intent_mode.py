@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.perception.templates import DEFAULT_INTENT_MODE, INTENT_MODES
+from shibuya.foundation.text.templates import DEFAULT_INTENT_MODE, INTENT_MODES
 
 SMALL = dict(
     n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -18,15 +18,15 @@ SMALL = dict(
 
 @pytest.mark.parametrize("mode", ["open", "hint"])
 def test_cli_run_passes_intent_mode_through_kwargs(mode):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
-    res = cli.run(intent_mode=mode, **SMALL)
+    res = cli.run(intent_mode=mode, vocab_version="v1", **SMALL)  # 〔Q13 commit ①・Q13-7〕open/hint は語彙 v1 だけ=明示
     assert res.run_manifest_fields()["intent_mode"] == mode
     assert res.intent_mode == mode
 
 
 def test_cli_run_defaults_to_vocab():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(**SMALL)
     assert res.run_manifest_fields()["intent_mode"] == DEFAULT_INTENT_MODE == "vocab"
@@ -42,7 +42,7 @@ def test_cli_run_defaults_to_vocab():
     ],
 )
 def test_cli_main_has_the_intent_mode_flag(monkeypatch, argv, expected):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -63,7 +63,7 @@ def test_cli_main_has_the_intent_mode_flag(monkeypatch, argv, expected):
 
 def test_cli_choices_come_from_the_templates_module(capsys):
     """choices は ``templates.INTENT_MODES`` が正典(文字列を CLI 側に二重に持たない)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit):
         cli.main(["--intent-mode", "free"])

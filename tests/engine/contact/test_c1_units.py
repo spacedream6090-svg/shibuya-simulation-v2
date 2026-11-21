@@ -9,23 +9,23 @@ import itertools
 import numpy as np
 import pytest
 
-from shibuya.agents.state import WakeCondition
-from shibuya.engine.contact import arm as A
-from shibuya.engine.contact import attention as AT
-from shibuya.engine.contact import device as DV
-from shibuya.engine.contact import port as P
-from shibuya.engine.contact.book import ContactBook
-from shibuya.engine.contact.chat_state import CHAT_MAX_BLOCKS, CHAT_SILENCE_STEPS, ChatBook, pair_key
-from shibuya.engine.contact.deliver import Mailbox
-from shibuya.engine.contact import layer as LY
-from shibuya.engine.contact.layer import ENGINE_WORDS, PERSON_WORDS, W_DELIVERED, W_LATER, W_READ, W_SENT, audit_causes
-from shibuya.engine.conversation import ConvState
-from shibuya.engine.decision.port import DecisionContext
-from shibuya.engine.events.log import Event, LlmCall, Process
-from shibuya.engine.tools import contacts as CT
-from shibuya.engine.tools.groups import GroupList
-from shibuya.perception import contact_view as CV
-from shibuya.perception.facts import (
+from shibuya.foundation.vocab.agent_codes import WakeCondition
+from shibuya.foundation.arms import contact as A
+from shibuya.mind.plan import contact_attention as AT
+from shibuya.world.things import device as DV
+from shibuya.mind.plan import contact_port as P
+from shibuya.interim_bundles.contact.book import ContactBook
+from shibuya.society.contact.chat_state import CHAT_MAX_BLOCKS, CHAT_SILENCE_STEPS, ChatBook, pair_key
+from shibuya.society.contact.deliver import Mailbox
+from shibuya.interim_bundles.contact import layer as LY
+from shibuya.interim_bundles.contact.layer import ENGINE_WORDS, PERSON_WORDS, W_DELIVERED, W_LATER, W_READ, W_SENT, audit_causes
+from shibuya.society.conversation import ConvState
+from shibuya.foundation.ports.decision import DecisionContext
+from shibuya.foundation.journal.log import Event, LlmCall, Process
+from shibuya.foundation.vocab import contact_flags as CT
+from shibuya.society.tools.groups import GroupList
+from shibuya.foundation.ports import percept_contact as CV
+from shibuya.foundation.ports.percept import (
     BodyView, IntentView, Percept, SceneView, SeenObject, SeenPerson, SelfView, Sound, TimeView, WakeView,
 )
 

@@ -1,0 +1,658 @@
+{
+ "schema": "shibuya.tests/mind-world-reads/1",
+ "title": "心の読みの一覧の固定の表(心の区分が、持ち主が心でない SoA の列を直接読む所)",
+ "about": "試験 tests/engine/state/test_mind_world_reads.py が、走査の道具 shibuya.runtime.state.ledger_ast.scan の strict の読みから数えた組ごとの数と完全一致で比べる。元の一覧は docs/reference/mind-world-reads-2026-11-09.md(82 か所)・第347 の自己更新の規則の直しで店の値段の 1 か所が入って 83 か所(記録 docs/bench/analysis/self-update-347/README.md)。直し方は試験の HOW_TO_FIX(増えたら決定の後だけ足す・減ったら下げる)。",
+ "made_at": "第347(本体の段 4-10 の頭 ff28372d の上・自己更新の規則の直しの後)",
+ "owners": {
+  "world": [
+   "cell",
+   "node",
+   "band",
+   "xy",
+   "path_next_node",
+   "target_node",
+   "edge_id",
+   "edge_s",
+   "kind",
+   "age",
+   "sex",
+   "hunger",
+   "fatigue",
+   "thermal",
+   "weight_kg",
+   "eer_kcal",
+   "since_meal_kcal",
+   "energy_balance",
+   "activity",
+   "talk_partner",
+   "transit_state",
+   "transit_ref",
+   "poi_ref",
+   "poi_since",
+   "queue_poi",
+   "queue_since",
+   "plan_flags",
+   "nav_ox",
+   "nav_oy",
+   "nav_of",
+   "nav_tgt",
+   "nav_t",
+   "nav_fi",
+   "nav_wait",
+   "nav_node"
+  ],
+  "act": [
+   "board_line",
+   "board_since",
+   "sleep_pending",
+   "intent_action",
+   "intent_target",
+   "intent_kind",
+   "intent_since",
+   "activity_until",
+   "activity_kind",
+   "last_action",
+   "last_result",
+   "last_result_tick"
+  ],
+  "economy": [
+   "money",
+   "holdings"
+  ],
+  "mind": [
+   "focus_target",
+   "focus_ttl",
+   "hunger_stage",
+   "fatigue_stage",
+   "thermal_stage",
+   "refractory_until",
+   "fam_thing",
+   "fam_first",
+   "fam_last",
+   "fam_visits",
+   "fam_exposures",
+   "mem_kind",
+   "mem_tick",
+   "mem_last",
+   "mem_cell",
+   "mem_partner",
+   "mem_object",
+   "mem_result",
+   "mem_importance",
+   "mem_n",
+   "sm_poi",
+   "sm_valence",
+   "sm_precision",
+   "sm_first",
+   "sm_last",
+   "sm_n",
+   "sm_source",
+   "rel_partner",
+   "rel_kind",
+   "rel_sign",
+   "rel_first",
+   "rel_last",
+   "rel_n"
+  ]
+ },
+ "owners_note": "案 K の分け(agents の列だけ)。cells・pois・知覚の列(world_places)は世界。数えるのは心の列でない列。",
+ "world_places": [
+  "cells",
+  "pois",
+  "perception"
+ ],
+ "scope": {
+  "dirs": [
+   "mind/"
+  ],
+  "split": [],
+  "md_source": {
+   "path": "docs/reference/package-map-final-2026-11-09-files.md",
+   "sha256": "25523d33250a1d79382541b2cd489e5f91bec950a2fd1a126da7d9ffcbf7cd2d",
+   "note": "割るファイルの割り先は全ファイルの表 §4 から写した(記号の欄の項のうち 1 つの `…` だけのもの・今のファイルに無い記号は除いた)。割る段で割るファイルが無くなったら作り直す。〔2026-11-19・割る段 6 の S6-G0 の表と順〕§4-14 の直し(裁定 Q2=_cell_of_node を act/ops/rail.py へ・裁定 Q3=write_b4_hash と write_intero_stages の書き分け)に合わせ、sha を直した表に合わせた(心の割り先は変わらない=数は同じ)〔2026-11-19・割る段 6 の M0〕行 244・244a と §4-25 の注(延ばしていた `mora_count` の行を、割る段の順の 24 本目に載せた)に合わせ、sha を直した表に合わせた(割り先と名は変わらない=数は同じ)〔2026-11-20・割る段 7 の G-M〕行 305・305a〜305c と §4-23(主な割り先を `world/model/percept_scene.py` へ・名を G-R2 の後のクラスの名へ・名の行かない割り先 3 つを外した)に合わせ、sha を直した表に合わせた(`scope.split` の renderer の項は G-R2 で付け替え済み=変えない・数は同じ)"
+  }
+ },
+ "key_counts": [
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._eating_by_cell",
+   "column": "activity",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._eating_by_cell",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._eating_by_cell",
+   "column": "poi_ref",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._ipf",
+   "column": "activity",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._ipf",
+   "column": "age",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._ipf",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._ipf",
+   "column": "sex",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._ipf",
+   "column": "transit_state",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._meal_p_word",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._meal_p_word",
+   "column": "hunger",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy._place_kind",
+   "column": "poi_ref",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.accrue_awake",
+   "column": "activity",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.accrue_awake",
+   "column": "hunger",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.accrue_awake",
+   "column": "transit_state",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.activity_probs",
+   "column": "age",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.activity_probs",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.activity_probs",
+   "column": "sex",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.answer",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.bind",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.bind",
+   "column": "kind",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.meal_probability",
+   "column": "hunger",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ClassicalPolicy.rebuild_derived",
+   "column": "kind",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ok_self",
+   "column": "activity",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/classical.py",
+   "symbol": "ok_self",
+   "column": "poi_ref",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/decision/layer.py",
+   "symbol": "DecisionLayer.__init__",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/decision/sources.py",
+   "symbol": "build_candidates",
+   "column": "kind",
+   "owner": "world",
+   "count": 1,
+   "other_object": {
+    "count": 1,
+    "note": "想起した記憶の行 `it` の種類"
+   }
+  },
+  {
+   "path": "mind/judge/store_choice.py",
+   "symbol": "StoreChoice.__init__",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/store_choice.py",
+   "symbol": "StoreChoice.__init__",
+   "column": "price",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/store_choice.py",
+   "symbol": "StoreChoice.recall",
+   "column": "hunger",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/judge/store_choice.py",
+   "symbol": "StoreChoice.recall",
+   "column": "money",
+   "owner": "economy",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/body_events.py",
+   "symbol": "BodyEventLink.conversation_end",
+   "column": "cell",
+   "owner": "world",
+   "count": 1,
+   "other_object": {
+    "count": 1,
+    "note": "閉じた会話のセッション `s` のセル"
+   }
+  },
+  {
+   "path": "mind/memory/familiarity.py",
+   "symbol": "FamiliarityLayer.after_tick",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "intent_kind",
+   "owner": "act",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "intent_target",
+   "owner": "act",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "last_action",
+   "owner": "act",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "last_result",
+   "owner": "act",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "poi_ref",
+   "owner": "world",
+   "count": 2
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "queue_poi",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer._query",
+   "column": "talk_partner",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.after_tick",
+   "column": "cell",
+   "owner": "world",
+   "count": 2,
+   "other_object": {
+    "count": 1,
+    "note": "顕著な出来事 `ev`(salient の出来事の物)のセル"
+   }
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.after_tick",
+   "column": "last_action",
+   "owner": "act",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.after_tick",
+   "column": "last_result",
+   "owner": "act",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.after_tick",
+   "column": "last_result_tick",
+   "owner": "act",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.after_tick",
+   "column": "poi_ref",
+   "owner": "world",
+   "count": 4
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.after_tick",
+   "column": "queue_poi",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.note_attended",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory.py",
+   "symbol": "MemoryLayer.note_utterance",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/memory/memory_store.py",
+   "symbol": "to_item",
+   "column": "cell",
+   "owner": "world",
+   "count": 1,
+   "other_object": {
+    "count": 1,
+    "note": "記憶の器の行 `MemoryView` のセル"
+   }
+  },
+  {
+   "path": "mind/memory/memory_store.py",
+   "symbol": "to_item",
+   "column": "kind",
+   "owner": "world",
+   "count": 1,
+   "other_object": {
+    "count": 1,
+    "note": "記憶の器の行 `MemoryView` の種類"
+   }
+  },
+  {
+   "path": "mind/memory/wom.py",
+   "symbol": "WomExtractor.from_world",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/percept/draw.py",
+   "symbol": "Renderer._with_memory_line",
+   "column": "kind",
+   "owner": "world",
+   "count": 1,
+   "other_object": {
+    "count": 1,
+    "note": "想起した記憶の行 `it` の種類"
+   }
+  },
+  {
+   "path": "mind/percept/draw.py",
+   "symbol": "memory_item_text",
+   "column": "cell",
+   "owner": "world",
+   "count": 1,
+   "other_object": {
+    "count": 1,
+    "note": "想起した記憶の行 `item` のセル"
+   }
+  },
+  {
+   "path": "mind/percept/draw.py",
+   "symbol": "memory_item_text",
+   "column": "kind",
+   "owner": "world",
+   "count": 1,
+   "other_object": {
+    "count": 1,
+    "note": "想起した記憶の行 `item` の種類"
+   }
+  },
+  {
+   "path": "mind/percept/notice.py",
+   "symbol": "SignageNotice._signage_body",
+   "column": "open_from",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/percept/notice.py",
+   "symbol": "SignageNotice._signage_body",
+   "column": "open_to",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/layer.py",
+   "symbol": "RelationLayer._edge_view",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/layer.py",
+   "symbol": "RelationLayer._same_cell_hits",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/layer.py",
+   "symbol": "RelationLayer.acquaintance_candidates",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/layer.py",
+   "symbol": "RelationLayer.choose_talk_partners",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/layer.py",
+   "symbol": "RelationLayer.choose_talk_partners",
+   "column": "xy",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/layer.py",
+   "symbol": "RelationLayer.copresent_step",
+   "column": "xy",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/layer.py",
+   "symbol": "RelationLayer.partners_in_cell",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/relations/people.py",
+   "symbol": "PeopleRelationLayer.partners_in_cell",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector._cell_changes",
+   "column": "density_stage",
+   "owner": "world",
+   "count": 1
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector._interoception",
+   "column": "fatigue",
+   "owner": "world",
+   "count": 2
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector._interoception",
+   "column": "hunger",
+   "owner": "world",
+   "count": 2
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector._interoception",
+   "column": "thermal",
+   "owner": "world",
+   "count": 2
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector._interoception_scoped",
+   "column": "fatigue",
+   "owner": "world",
+   "count": 2
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector._interoception_scoped",
+   "column": "hunger",
+   "owner": "world",
+   "count": 2
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector._interoception_scoped",
+   "column": "thermal",
+   "owner": "world",
+   "count": 2
+  },
+  {
+   "path": "mind/system1/change_detect.py",
+   "symbol": "ChangeDetector.detect",
+   "column": "cell",
+   "owner": "world",
+   "count": 1
+  }
+ ],
+ "totals": {
+  "sites": 83,
+  "keys": 72
+ },
+ "totals_other_object": 8
+}

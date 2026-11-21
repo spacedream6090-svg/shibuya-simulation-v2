@@ -16,12 +16,12 @@ import fnmatch
 
 import pytest
 
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.systems import allow as AL
-from shibuya.engine.systems import boxes as BX
-from shibuya.engine.systems import static_check as SC
-from shibuya.engine.systems.spec import TIMINGS
-from shibuya.engine.systems.table import SPECS, SYSTEMS
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.systems import allow as AL
+from shibuya.runtime.systems import boxes as BX
+from shibuya.validation.static import system_static_check as SC
+from shibuya.runtime.systems.spec import TIMINGS
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
 
 ORDER = (
     "build", "day_head",
@@ -67,7 +67,7 @@ def test_d3_detects_undeclared_reads_and_writes():
     """負の対照(T2・D ③): 宣言に無い箱の属性の参照・scratch の書き・resolve の口の呼び出しが見つかる。"""
 
     def sys_fake(ctx, b):  # noqa: ANN001, ANN202
-        from shibuya.engine import resolve as R
+        from shibuya.mind import ops as R
 
         x = b.layers.conv
         b.scratch.plan = x

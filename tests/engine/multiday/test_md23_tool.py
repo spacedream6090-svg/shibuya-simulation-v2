@@ -11,7 +11,7 @@ import datetime as dt
 
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
+from shibuya.foundation.time_consts import STEPS_PER_DAY
 
 from tests.engine.multiday._md import WORLD, tool
 

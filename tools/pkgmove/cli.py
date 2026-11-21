@@ -1,0 +1,521 @@
+# -*- coding: utf-8 -*-
+"""移す段 3 の道具の入口。使い方は ``tools/pkgmove/README.md``。
+
+    python tools/pkgmove/cli.py map [--check]                 # 全ファイルの表 → tools/pkgmove/map.toml
+    python tools/pkgmove/cli.py allow [--check]               # tests と tools の許可の一覧 → tools/pkgmove/allow_tests_tools.toml
+    python tools/pkgmove/cli.py move --stage foundation [--tree <木>] [--out-dir <置き場>]           # 書かない(既定)
+    python tools/pkgmove/cli.py move --stage foundation --apply --tree <木> [--out-dir <置き場>]    # 書く
+
+終了コード: 0=できた(書かない実行では差分と報告だけ)・1=守りが止めた(凍結の値が変わる・許可の一覧の外が変わる・鍵の取り違え・
+import の文が結ぶ名が変わる・``--check`` の食い違い)・2=断った(保留の行の名指し・本体の作業木への ``--apply`` か報告の置き場・
+使い方の誤り)・3=書いた後の import の確かめが落ちた(木は書いたまま=写しの木か git で戻せる作業木で回す)。
+
+    python tools/pkgmove/cli.py importcheck --tree <木> [--out <JSON>]   # 全モジュールを 1 本ずつ最初から import
+
+〔割る段 5a〕割る行(split)を 1 本ずつ当てる(``split.py``・親の裁定 Q10=案 A):
+
+    python tools/pkgmove/cli.py split --next [--tree <木>] [--out-dir <置き場>]              # 次の 1 本(書かない)
+    python tools/pkgmove/cli.py split --only <今の道> [--tree <木>] [--out-dir <置き場>]     # 名指し(順が違えば断る)
+    python tools/pkgmove/cli.py split --next --apply --tree <木> [--out-dir <置き場>]         # 書く(本体の作業木は断る)
+    python tools/pkgmove/cli.py split --through <今の道>|all --out-dir <置き場>              # 書かない実行だけ: 次の本から順に
+                                                                                            # メモリの中で当てて本ごとの報告
+    python tools/pkgmove/cli.py split … --map <対応表> [--contracts <決まり>]               # 〔割る段 6・E9〕表と決まりを渡す
+                                                                                            # (順は表の割る行の split_order)
+
+割る段の終了コード: 0=できた・2=断った(表せない・順が違う・手で直す読みが残る)か守りが止めた(親の発注=守りが「同じ」で
+なければ当てない)・3=書いた後の import の確かめが落ちた。
+
+〔割る段 7 の G0-道具・E1〕1 つのファイルの中でクラスを分けた前と後の照合(``shapecheck.py``・書かない):
+
+    python tools/pkgmove/cli.py shapecheck --before <道か commit:道> --after <道か commit:道> [--allow-import <文>] [--json <置き場>]
+    python tools/pkgmove/cli.py shapecheck --before <道か commit:道> --plan-counts [--table <道か commit:道>]   # 形を変える前の数
+
+照合の終了コード: 0=⓪〜⑨ の 10 項目とも同じ・1=違う項目が在る・2=使い方の誤り(文法の誤り・表の名がソースと合わないを含む)か
+「形の変更ではない(クラスが 1 つのまま)」。
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+if __name__ == "__main__":
+    _here = os.path.normcase(os.path.abspath(os.path.dirname(__file__)))
+    sys.path[:] = [p for p in sys.path if os.path.normcase(os.path.abspath(p or os.curdir)) != _here]
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from pkgmove import allow as AL  # noqa: E402
+from pkgmove import guard as G  # noqa: E402
+from pkgmove import importcheck as IC  # noqa: E402
+from pkgmove import move as MV  # noqa: E402
+from pkgmove import strings as ST  # noqa: E402
+from pkgmove.model import Tree, area_of, is_self, parse, symbols_of  # noqa: E402
+from pkgmove.table import MAP_REL, STAGES, build_map_text, load_map  # noqa: E402
+
+REPO = Path(__file__).resolve().parents[2]
+EXIT_OK, EXIT_STOP, EXIT_REFUSE, EXIT_IMPORT = 0, 1, 2, 3
+
+
+def _git_marker(path: Path) -> Path | None:
+    """``path`` とその親で最初に見つかる ``.git``(ディレクトリかファイル)。無ければ ``None``(git の外)。"""
+    p = Path(os.path.realpath(path))
+    for d in (p, *p.parents):
+        g = d / ".git"
+        if g.exists():
+            return g
+    return None
+
+
+def is_main_worktree(path: Path) -> bool:
+    """``path`` が git の本体の作業木(か、その中)なら ``True``=書かない。
+
+    断る側に倒す(検収 M-2): ``path`` とその親に ``.git`` が 1 つも無いときだけ「git の外」(``False``)。見つかった ``.git`` が
+    ディレクトリなら本体(``True``)。ファイル(``git worktree add`` の作業木・submodule)なら git に ``--git-dir`` と
+    ``--git-common-dir`` を聞き、違えばほかの作業木(``False``)。git が失敗したら ``True``。呼び手の ``GIT_DIR`` などの
+    環境変数は外して聞く(左右されない)。
+    """
+    marker = _git_marker(path)
+    if marker is None:
+        return False
+    if marker.is_dir():
+        return True
+    env = {k: v for k, v in os.environ.items() if not k.upper().startswith("GIT_")}
+    try:
+        r = subprocess.run(["git", "-C", str(path if Path(path).exists() else marker.parent), "rev-parse",
+                            "--path-format=absolute", "--git-dir", "--git-common-dir"],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
+    except OSError:
+        return True
+    lines = [x.strip() for x in r.stdout.splitlines() if x.strip()]
+    if r.returncode != 0 or len(lines) < 2:
+        return True
+    nc = lambda p: os.path.normcase(os.path.realpath(p))  # noqa: E731
+    return nc(lines[0]) == nc(lines[1])
+
+
+def cmd_map(a: argparse.Namespace) -> int:
+    text = build_map_text(REPO)
+    out = REPO / MAP_REL
+    if a.check:
+        same = out.is_file() and out.read_text(encoding="utf-8") == text
+        print("同じ" if same else "違う(cli.py map で作り直す)")
+        return EXIT_OK if same else EXIT_STOP
+    with open(out, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+    doc = load_map(out)
+    kinds: dict[str, int] = {}
+    for r in doc.rows:
+        kinds[r.kind] = kinds.get(r.kind, 0) + 1
+    print(f"書いた: {MAP_REL}(行 {len(doc.rows)}・{kinds}・保留 {sum(1 for r in doc.rows if r.held)})")
+    return EXIT_OK
+
+
+def scan_allow(tree: Tree) -> tuple[list[tuple[str, str]], ST.StrStats]:
+    """tests と tools の走査: 段 4 の全段(保留を除く)で道の文字列の書き換えが起きる (ファイル, 記号)。"""
+    import ast
+
+    mapdoc = load_map(REPO / MAP_REL)
+    rows, _held = MV.select_rows(mapdoc, STAGES)
+    rows = [r for r in rows if MV._row_state(tree, r) == "apply"]
+    frozen = G.Frozen.load(lambda rel: (REPO / rel).read_text(encoding="utf-8"))
+    ctx, relmap = MV.make_ctx(tree, rows, frozen)
+    rules = ST.PathRules(relmap=relmap)
+    stats = ST.StrStats()
+    for p in sorted(tree.files):
+        if area_of(p) not in ("tests", "tools") or is_self(p):
+            continue
+        text = tree.files[p]
+        try:
+            t = parse(text)
+        except SyntaxError:
+            continue
+        ST.rewrite_file_strings(ctx, rules, p, text, t, symbols_of(text), {}, stats, scan_all=True)
+    return sorted(stats.sites), stats
+
+
+def cmd_allow(a: argparse.Namespace) -> int:
+    tree = Tree.load(REPO)
+    sites, stats = scan_allow(tree)
+    note = ("段 4 の全段(保留の行を除く)の対応で、tests と tools の文字列の定数に道の書き換えが起きる記号。"
+            "触らなかったもの(日本語の文・凍結の名・f 文字列・字面に当てられないもの)は move の報告に出る。")
+    text = AL.render_tests_tools(sites, note)
+    out = REPO / AL.ALLOW_TT_REL
+    if a.check:
+        same = out.is_file() and out.read_text(encoding="utf-8") == text
+        print("同じ" if same else "違う(cli.py allow で作り直す)")
+        return EXIT_OK if same else EXIT_STOP
+    with open(out, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+    print(f"書いた: {AL.ALLOW_TT_REL}(記号 {len(sites)}・ファイル {len({f for f, _ in sites})}・"
+          f"書き換え {dict(stats.rewritten)}・触らなかった {len(stats.skipped)})")
+    return EXIT_OK
+
+
+def cmd_move(a: argparse.Namespace) -> int:
+    stages = STAGES if a.stage == "all" else tuple(s.strip() for s in a.stage.split(",") if s.strip())
+    if a.apply and not a.tree:
+        print("--apply には --tree が要る(書く置き場を名指す)", file=sys.stderr)
+        return EXIT_REFUSE
+    root = Path(a.tree).resolve() if a.tree else REPO
+    if a.apply and is_main_worktree(root):
+        print(f"本体の作業木(か、その中)へは書かない: {root}(段 4 で使う作業木は親が決める)", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.out_dir and is_main_worktree(Path(a.out_dir)):
+        print(f"報告の置き場が本体の作業木(か、その中)にある: {a.out_dir}(木の外か、ほかの作業木に置く)", file=sys.stderr)
+        return EXIT_REFUSE
+    if not (root / "src" / "shibuya").is_dir():
+        print(f"木に src/shibuya が無い: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    mapdoc = load_map(REPO / MAP_REL)
+    tree = Tree.load(root, extra=AL.RECORD_TOOLS)
+    frozen = G.Frozen.load(lambda rel: (root / rel).read_text(encoding="utf-8"))
+    ledger = root / MV.LEDGER_REL
+    try:
+        plan = MV.make_plan(tree, mapdoc, stages, only=a.only or (), allow_tt=AL.load_tests_tools(REPO), frozen=frozen,
+                            ledger_text=ledger.read_text(encoding="utf-8") if ledger.is_file() else None,
+                            pyproject_text=(root / "pyproject.toml").read_bytes().decode("utf-8")
+                            if (root / "pyproject.toml").is_file() else None)
+    except MV.Refused as e:
+        print(f"断った: {e}", file=sys.stderr)
+        return EXIT_REFUSE
+    except MV.Stopped as e:
+        print("守りが止めた(書いていない):", *e.errors, sep="\n  ", file=sys.stderr)
+        return EXIT_STOP
+    rep = MV.report(plan)
+    tag = "all" if a.stage == "all" else "_".join(stages)
+    if a.out_dir:
+        od = Path(a.out_dir)
+        od.mkdir(parents=True, exist_ok=True)
+        (od / f"pkgmove_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
+                                                       encoding="utf-8", newline="\n")
+        (od / f"pkgmove_{tag}.diff").write_text(MV.unified_diff(plan), encoding="utf-8", newline="\n")
+    summary = {k: rep[k] for k in ("stages", "rows_applied", "rows_applied_by_kind", "file_moves", "import_statements",
+                                   "import_files", "import_via_head", "import_via_package", "import_split_statements", "path_strings",
+                                   "class_id_keys", "class_ids_resorted", "changed_files", "untouched_count",
+                                   "untouched_broad_constants", "bridging_ledger", "guards")}
+    summary["refused_held"] = [r["old"] for r in rep["refused_held"]]
+    summary["rows_already"] = len(rep["rows_already"])
+    summary["created_heads"] = len(rep["created_heads"])
+    summary["emptied_heads"] = len(rep["emptied_heads"])
+    summary["deleted"] = len(rep["deleted"])
+    summary["skipped_in_allowlist"] = len(rep["skipped_in_allowlist"])
+    summary["warnings"] = len(rep["warnings"])
+    summary["dropped_reexports"] = {k: len(v) for k, v in rep["dropped_reexports"].items()}
+    summary["dropped_all"] = {k: len(v) for k, v in rep["dropped_all"].items()}
+    summary["package_data_keys"] = rep["package_data_keys"]
+    summary["ledger_paths_added"] = rep["ledger_paths_added"]
+    print(json.dumps(summary, ensure_ascii=False, indent=1))
+    if a.apply:
+        pruned = MV.apply(plan, root)
+        print(f"書いた: {root.name}(ファイル {len(plan.changed) + len(plan.file_moves)}・移した {len(plan.file_moves)})")
+        print(f"消した古いディレクトリ(__pycache__ のほかに何も無い): {len(pruned)}", *pruned, sep="\n  ")
+        doc = IC.check(root, jobs=a.import_jobs, gone=MV.gone_packages(mapdoc, root))
+        doc["removed_cache_only_dirs"] = pruned
+        if a.out_dir:
+            (Path(a.out_dir) / f"pkgmove_{tag}_imports.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n",
+                                                                       encoding="utf-8", newline="\n")
+        print(IC.summary(doc))
+        if not IC.ok(doc):
+            print("書いた後の import の確かめが落ちた(木は書いたまま=写しの木か git で戻せる作業木で回すこと):",
+                  *list(doc["bad"].items())[:10], sep="\n  ", file=sys.stderr)
+            return EXIT_IMPORT
+    else:
+        print("書いていない(dry-run)。書くのは --apply --tree <置き場> のときだけ")
+    return EXIT_OK
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sp = sub.add_parser("map", help="全ファイルの表から対応表 TOML を作る")
+    sp.add_argument("--check", action="store_true", help="書かずに、今の TOML が作り直しと同じかを見る")
+    sp = sub.add_parser("allow", help="tests と tools の許可の一覧を走査で作る")
+    sp.add_argument("--check", action="store_true")
+    sp = sub.add_parser("move", help="段を移す(既定は書かずに差分と報告だけ)")
+    sp.add_argument("--stage", required=True, help=f"段の名({', '.join(STAGES)})かコンマ区切りか all")
+    sp.add_argument("--only", action="append", help="今の道筋(src/shibuya からの相対)で行を名指す(何回でも)")
+    sp.add_argument("--tree", default="", help="木の根(既定は道具のリポ)。--apply のときは要る")
+    sp.add_argument("--out-dir", default="", help="報告の JSON と差分を書く置き場(木の外)")
+    sp.add_argument("--apply", action="store_true", help="木へ書く(本体の作業木は断る)。書いた後に import の確かめを回す")
+    sp.add_argument("--import-jobs", type=int, default=4, help="書いた後の import の確かめの並べる数(既定 4)")
+    sp = sub.add_parser("split", help="〔割る段 5a〕割る行を 1 本ずつ当てる(既定は書かずに差分と報告だけ)")
+    g = sp.add_mutually_exclusive_group(required=True)
+    g.add_argument("--next", action="store_true", help="木の次の割る行(順の次の 1 本)")
+    g.add_argument("--only", default="", help="割る行を今の道(表の old)で名指す(順が違えば断る)")
+    g.add_argument("--through", default="", help="書かない実行だけ: 次の本から、この行(か all)まで順にメモリの中で当てる")
+    sp.add_argument("--tree", default="", help="木の根(既定は道具のリポ)。--apply のときは要る")
+    sp.add_argument("--out-dir", default="", help="報告の JSON と差分を書く置き場(木の外)")
+    sp.add_argument("--apply", action="store_true", help="木へ書く(本体の作業木は断る)。書いた後に import の確かめを回す")
+    sp.add_argument("--import-jobs", type=int, default=4)
+    sp.add_argument("--map", default="", help="〔割る段 6・E9〕対応表 TOML の道(既定は道具のリポの map.toml)。渡せば割る段の順も"
+                                             "この表の割る行の split_order から読む")
+    sp.add_argument("--contracts", default="", help="〔割る段 6・E9〕import の決まりの元 TOML の道(既定は道具のリポの contracts.toml)")
+    sp = sub.add_parser("importcheck", help="木の src/shibuya の全モジュールを 1 本ずつ新しく import できるか")
+    sp.add_argument("--tree", required=True)
+    sp.add_argument("--out", default="", help="結果の JSON を書く道(木の外)")
+    sp.add_argument("--jobs", type=int, default=4)
+    sp = sub.add_parser("contracts", help="段の木の import の決まり(pyproject の [tool.importlinter] の節)を作る")
+    sp.add_argument("--stage", required=True, help="段の名(contracts.toml の stage_order)")
+    sp.add_argument("--tree", required=True, help="段を当てた木の根")
+    sp.add_argument("--check", action="store_true", help="木の pyproject の節が作り直しと同じかを見る(違えば 1)")
+    sp.add_argument("--apply", action="store_true", help="木の pyproject の節を書き換える(本体の作業木は断る)")
+    sp.add_argument("--out", default="", help="報告の JSON を書く道(木の外)。書くときは効いている例外の数も回す")
+    sp.add_argument("--probe", action="store_true", help="効いている例外の数を回す(--out が無くても)")
+    sp = sub.add_parser("shapecheck", help="〔割る段 7・E1〕1 つのファイルの中でクラスを分けた前と後を照合する(書かない)")
+    sp.add_argument("--before", required=True, help="前の字面: ファイルの道か git の blob(<commit>:<道>=木を写さない)")
+    sp.add_argument("--after", default="", help="後の字面: ファイルの道か <commit>:<道>(--plan-counts のときは要らない)")
+    sp.add_argument("--plan-counts", action="store_true",
+                    help="後を渡さず、前の 1 つのファイルから計画の分け方(全ファイルの表 §4)の数を出す")
+    sp.add_argument("--src-rel", default="perception/renderer.py", help="全ファイルの表 §4 の節(src/shibuya からの道)")
+    sp.add_argument("--table", default="", help="--plan-counts で読む全ファイルの表(道か <commit>:<道>・既定は道具のリポの表)")
+    sp.add_argument("--allow-import", action="append", default=[],
+                    help="〔検収の後の直し 中-2〕後に足してよい import の文(ast.unparse の字面・1 つずつ・既定は無し=足した import は 0)")
+    sp.add_argument("--json", default="", help="結果の JSON を書く道(木の外=作業木の中に書かない)")
+    a = ap.parse_args(argv)
+    return {"map": cmd_map, "allow": cmd_allow, "move": cmd_move, "importcheck": cmd_importcheck,
+            "contracts": cmd_contracts, "split": cmd_split, "shapecheck": cmd_shapecheck}[a.cmd](a)
+
+
+def cmd_shapecheck(a: argparse.Namespace) -> int:
+    """〔割る段 7 の G0-道具・E1・親の決め事 2〕形の変更の照合(``shapecheck.py``)。終了コード: 0=照合がすべて同じ・
+    1=違う項目が在る・2=使い方の誤り(文法の誤り・表の名がソースと合わないを含む)か「形の変更ではない(クラスが 1 つのまま)」
+    (同じとは言わない)。``--plan-counts`` は数を出すだけ(0)。"""
+    from pkgmove import shapecheck as SC
+
+    try:
+        before = SC.read_source(a.before, REPO)
+        if a.plan_counts:
+            table = SC.read_source(a.table, REPO) if a.table else (REPO / SC.TABLE_REL).read_text(encoding="utf-8")
+            sides = SC.table_method_sides(table, a.src_rel)
+            doc = SC.plan_counts(before, sides)
+            print(json.dumps(doc, ensure_ascii=False, indent=1))
+            rc = EXIT_OK
+        else:
+            if not a.after:
+                print("断った: --after が要る(--plan-counts のほか)", file=sys.stderr)
+                return EXIT_REFUSE
+            res = SC.check(before, SC.read_source(a.after, REPO), allow_imports=tuple(a.allow_import))
+            doc = res.as_dict()
+            print(SC.render_text(res))
+            rc = EXIT_OK if res.ok else (EXIT_REFUSE if res.kind != "形の変更" else EXIT_STOP)
+    except SC.ShapeError as e:
+        print(f"断った: {e}", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.json:
+        Path(a.json).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return rc
+
+
+def cmd_split(a: argparse.Namespace) -> int:
+    """〔割る段 5a〕割る行を当てる(``split.py``)。"""
+    from pkgmove import contracts as CT
+    from pkgmove import split as SP
+    from pkgmove.table import SPLIT_ORDER, split_order_of
+
+    if a.apply and not a.tree:
+        print("--apply には --tree が要る(書く置き場を名指す)", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.apply and a.through:
+        print("--through は書かない実行だけ(--apply は 1 本ずつ)", file=sys.stderr)
+        return EXIT_REFUSE
+    root = Path(a.tree).resolve() if a.tree else REPO
+    if a.apply and is_main_worktree(root):
+        print(f"本体の作業木(か、その中)へは書かない: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.out_dir and is_main_worktree(Path(a.out_dir)):
+        print(f"報告の置き場が本体の作業木(か、その中)にある: {a.out_dir}(木の外か、ほかの作業木に置く)", file=sys.stderr)
+        return EXIT_REFUSE
+    if not (root / "src" / "shibuya").is_dir():
+        print(f"木に src/shibuya が無い: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    # 〔検収 低-4〕木の src の shibuya を読むので、木の src に __pycache__ を書かない(書かない実行は木を変えない)
+    sys.dont_write_bytecode = True
+    if str(root / "src") not in sys.path:
+        sys.path.insert(0, str(root / "src"))  # つなぎの宣言の走査(src の純な関数)を木の src から読む
+    order: tuple[str, ...] | None = None  # 既定は table.SPLIT_ORDER(〔割る段 6・E9〕--map を渡せば表の割る行の split_order)
+    if a.map:
+        try:
+            mapdoc = load_map(Path(a.map))
+            order = split_order_of(mapdoc)
+        except (OSError, ValueError) as e:
+            print(f"断った: 対応表を読めない: {e}", file=sys.stderr)
+            return EXIT_REFUSE
+    else:
+        mapdoc = load_map(REPO / MAP_REL)
+    seq = SPLIT_ORDER if order is None else order
+    tree = Tree.load(root, extra=AL.RECORD_TOOLS)
+    frozen = G.Frozen.load(lambda rel: (root / rel).read_text(encoding="utf-8"))
+    spec = CT.load_spec(Path(a.contracts) if a.contracts else REPO / CT.CONTRACTS_REL)  # 〔検収 高-1〕割る前と後の import の決まり
+    ledger = root / SP.LEDGER_REL
+    ledger_text = ledger.read_text(encoding="utf-8") if ledger.is_file() else None
+    od = Path(a.out_dir) if a.out_dir else None
+    if od is not None:
+        od.mkdir(parents=True, exist_ok=True)
+    try:
+        if a.through:
+            start = SP.next_split(tree, mapdoc, order)
+            if start is None:
+                print("割る段は全部当たっている")
+                return EXIT_OK
+            last = seq[-1] if a.through == "all" else a.through
+            if last not in seq or seq.index(last) < seq.index(start):
+                print(f"--through の行が順に無いか、次の本 {start} より前: {a.through}", file=sys.stderr)
+                return EXIT_REFUSE
+            rc = EXIT_OK
+            rows = []
+            for old in seq[seq.index(start): seq.index(last) + 1]:
+                try:
+                    plan = SP.make_split_plan(tree, mapdoc, old, frozen=frozen, ledger_text=ledger_text, strict=False,
+                                              contracts_spec=spec, order=order)
+                except (SP.SplitRefused, SP.SplitStopped) as e:
+                    errs = e.errors if isinstance(e, SP.SplitStopped) else [str(e)]
+                    rows.append({"row": old, "stopped": errs})
+                    print(f"{old}: 止めた: {errs[:5]}", file=sys.stderr)
+                    rc = EXIT_REFUSE
+                    break
+                rep = SP.report(plan)
+                rows.append({k: rep[k] for k in ("row", "split_order", "dests", "guards", "manual", "import_statements",
+                                                 "import_split_statements", "class_id_keys", "ledger_paths_added",
+                                                 "path_string_sites", "deleted", "created_heads", "emptied_heads",
+                                                 "unwritten", "contracts", "excluded_sites", "table_key_sites",
+                                                 "alias_declared", "ledger_paths_split", "path_declared", "patch_checked",
+                                                 "patch_unseen", "patch_load_time", "patch_declared")})
+                if od is not None:
+                    tag = f"{plan.row.split_order:02d}"
+                    (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
+                                                               encoding="utf-8", newline="\n")
+                    (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
+                print(f"{old}: 守り {plan.guards}・手で直す {len(plan.manual)}"
+                      + (f"・別名の割り先の宣言 {len(plan.alias_declared)}" if plan.alias_declared else "")
+                      + (f"・前向きの表 {len(plan.ledger_paths_split)}" if plan.ledger_paths_split else "")
+                      + (f"・道の文字列の割り先の宣言 {len(plan.path_declared)}" if plan.path_declared else "")
+                      + (f"・差し替えの確かめ {len(plan.patch_checked)}" if plan.patch_checked else "")
+                      + (f"・宣言で確かめた差し替え {len(plan.patch_declared)}" if plan.patch_declared else "")
+                      + (f"・見られなかった差し替え {len(plan.patch_unseen)}" if plan.patch_unseen else ""))
+                tree = plan.after
+            if od is not None:
+                (od / "split_through_summary.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n",
+                                                               encoding="utf-8", newline="\n")
+            print("書いていない(dry-run=メモリの中で順に当てた)")
+            return rc
+        old = a.only or SP.next_split(tree, mapdoc, order)
+        if old is None:
+            print("割る段は全部当たっている")
+            return EXIT_OK
+        plan = SP.make_split_plan(tree, mapdoc, old, frozen=frozen, ledger_text=ledger_text, strict=True,
+                                  contracts_spec=spec, order=order)
+    except SP.SplitRefused as e:
+        print(f"断った: {e}", file=sys.stderr)
+        return EXIT_REFUSE
+    except SP.SplitStopped as e:
+        print("守りが止めた(書いていない):", *e.errors, sep="\n  ", file=sys.stderr)
+        return EXIT_REFUSE
+    rep = SP.report(plan)
+    if od is not None:
+        tag = f"{plan.row.split_order:02d}"
+        (od / f"split_{tag}_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1) + "\n",
+                                                   encoding="utf-8", newline="\n")
+        (od / f"split_{tag}.diff").write_text(SP.unified_diff(plan), encoding="utf-8", newline="\n")
+    print(json.dumps({k: rep[k] for k in ("row", "split_order", "source", "dests", "names_by_dest", "import_statements",
+                                          "import_split_statements", "class_id_keys", "ledger_paths_added", "deleted",
+                                          "created_heads", "emptied_heads", "guards", "alias_declared",
+                                          "ledger_paths_split", "path_declared", "patch_checked", "patch_unseen",
+                                          "patch_declared")},
+                     ensure_ascii=False, indent=1))
+    if not a.apply:
+        print("書いていない(dry-run)。書くのは --apply --tree <置き場> のときだけ")
+        return EXIT_OK
+    pruned = SP.apply(plan, root)
+    print(f"書いた: {root.name}(ファイル {len(plan.changed) + len(plan.dests)}・消した {len(plan.deleted)})")
+    doc = IC.check(root, jobs=a.import_jobs, gone=MV.gone_packages(mapdoc, root))
+    doc["removed_cache_only_dirs"] = pruned
+    if od is not None:
+        (od / f"split_{plan.row.split_order:02d}_imports.json").write_text(
+            json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(IC.summary(doc))
+    if not IC.ok(doc):
+        print("書いた後の import の確かめが落ちた(木は書いたまま):", *list(doc["bad"].items())[:10], sep="\n  ",
+              file=sys.stderr)
+        return EXIT_IMPORT
+    return EXIT_OK
+
+
+def cmd_importcheck(a: argparse.Namespace) -> int:
+    root = Path(a.tree).resolve()
+    if not (root / "src" / "shibuya").is_dir():
+        print(f"木に src/shibuya が無い: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.out and is_main_worktree(Path(a.out)):
+        print(f"結果の置き場が本体の作業木(か、その中)にある: {a.out}(木の外か、ほかの作業木に置く)", file=sys.stderr)
+        return EXIT_REFUSE
+    doc = IC.check(root, jobs=a.jobs, gone=MV.gone_packages(load_map(REPO / MAP_REL), root))
+    if a.out:
+        Path(a.out).write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(IC.summary(doc))
+    for m, e in list(doc["bad"].items())[:20]:
+        print(f"  {m}: {e[:300]}")
+    return EXIT_OK if IC.ok(doc) else EXIT_IMPORT
+
+
+def cmd_contracts(a: argparse.Namespace) -> int:
+    """段の木の import の決まり(親の決定=brief_contracts)。--apply は木の pyproject の節だけを書き換える。"""
+    from pkgmove import contracts as CT
+
+    root = Path(a.tree).resolve()
+    if a.apply and is_main_worktree(root):
+        print(f"本体の作業木(か、その中)へは書かない: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    if a.out and is_main_worktree(Path(a.out)):
+        print(f"報告の置き場が本体の作業木(か、その中)にある: {a.out}", file=sys.stderr)
+        return EXIT_REFUSE
+    if not (root / "src" / "shibuya").is_dir() or not (root / "pyproject.toml").is_file():
+        print(f"木に src/shibuya か pyproject.toml が無い: {root}", file=sys.stderr)
+        return EXIT_REFUSE
+    spec = CT.load_spec(REPO / CT.CONTRACTS_REL)
+    try:
+        contracts, rep = CT.build(spec, load_map(REPO / MAP_REL), Tree.load(root), a.stage)
+        raw = (root / "pyproject.toml").read_bytes().decode("utf-8")
+        head, cur = CT.split_pyproject(raw)
+    except CT.ContractsError as e:
+        print(f"断った: {e}", file=sys.stderr)
+        return EXIT_REFUSE
+    text = CT.render(spec, a.stage, contracts)
+    same = CT.same_section(cur, text)
+    if a.out or a.probe:  # 〔検収 中-1〕効いている例外の数(木を変えずに子のプロセスで回す)
+        try:
+            rep["ignore_effective"] = CT.effective_ignores(root, spec, contracts, rep)
+        except CT.ContractsError as e:
+            print(f"断った: {e}", file=sys.stderr)
+            return EXIT_REFUSE
+    summary = {"stage": a.stage, "contracts_old": rep["n_old"], "contracts_new": rep["n_new"],
+               "ignore_lines": sum(len(c.get("ignore_imports", [])) for c in contracts),
+               "ignore_unique": rep["ignore_unique"], "ignore_gone_at": rep["ignore_gone_at"],
+               "ignore_effective": {k: v for k, v in rep.get("ignore_effective", {}).items() if k != "detail"},
+               "dropped_old": rep["dropped_old"], "not_expressed": rep["not_expressed"], "fallbacks": rep["fallbacks"],
+               "uncovered": rep.get("uncovered", []),
+               "same_as_tree": same}
+    print(json.dumps(summary, ensure_ascii=False, indent=1))
+    if a.out:
+        Path(a.out).write_text(json.dumps({**rep, "section": text}, ensure_ascii=False, indent=1) + "\n",
+                               encoding="utf-8", newline="\n")
+    if a.check:
+        print("同じ" if same else "違う(cli.py contracts --apply で作り直す)")
+        return EXIT_OK if same else EXIT_STOP
+    if a.apply:
+        if same:
+            print("同じ(書いていない)")
+            return EXIT_OK
+        eol = "\r\n" if "\r\n" in raw else "\n"
+        with open(root / "pyproject.toml", "w", encoding="utf-8", newline="") as f:
+            f.write(head + text.replace("\n", eol))
+        print(f"書いた: {root.name}/pyproject.toml の [tool.importlinter](契約 {len(contracts)})")
+        return EXIT_OK
+    print(text, end="")
+    return EXIT_OK
+
+
+if __name__ == "__main__":
+    sys.exit(main())

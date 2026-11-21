@@ -62,7 +62,7 @@ REPO = HERE.parent.parent
 if str(REPO / "src") not in sys.path:  # pragma: no cover - 実行時の経路(時間の定数を core.time_consts から)
     sys.path.insert(0, str(REPO / "src"))
 
-from shibuya.core.time_consts import STEP_SECONDS  # noqa: E402
+from shibuya.foundation.time_consts import STEP_SECONDS  # noqa: E402
 SCHEMA = "shibuya.tools.instruments/batch_width_gauge/1"
 #: 正解の幅の既定(T1 の世界の事象の時刻の粒度=刻みの幅 ``STEP_SECONDS``=60 秒)。
 DEFAULT_REF_WIDTH = STEP_SECONDS
@@ -208,8 +208,8 @@ def markdown(tab: Mapping[str, Any]) -> str:
 # ---------------------------------------------------------------- ラン(子プロセス)
 _CHILD = r"""
 import json, sys
-from shibuya import cli
-from shibuya.core.time_consts import NS_PER_SECOND
+from shibuya.interfaces.cli import main as cli
+from shibuya.foundation.time_consts import NS_PER_SECOND
 kw = json.loads(sys.argv[1])
 res = cli.run(**kw)
 m = res.run_manifest_fields()
@@ -222,7 +222,7 @@ print(json.dumps({"final": res.final_hash[:16], "calls": int(res.llm_calls),
                                                   "hear_cross", "cross_moves")} if c else None,
                   "message_delay_max_s": max(b.get("boundary_delay_ns_max", 0) or 0,
                                              c.get("message_delay_ns_max", 0) or 0) / NS_PER_SECOND,
-                  "run_kind": m.get("run_kind")}, ensure_ascii=False))
+                  "run_kind": m.get("run_kind"), "vocab_version": m.get("vocab_version")}, ensure_ascii=False))
 """
 
 
@@ -246,6 +246,8 @@ def _ints(s: str) -> list[int]:
 def cmd_run(a: argparse.Namespace) -> int:
     kw: dict[str, Any] = {"n_agents": a.agents, "world_dir": a.world, "population_seed": a.population_seed}
     kw.update(json.loads(a.kw or "{}"))
+    # 〔第347・Q13〕--kw に語彙が無ければ前と同じラン=語彙 v1(cli.run の既定は v3 になった・--kw の値が勝つ)
+    kw.setdefault("vocab_version", "v1")
     src = Path(a.src).resolve() if a.src else (REPO / "src")
     jobs = [(w, s) for w in _ints(a.widths) for s in _ints(a.salts)]
     out = Path(a.out)

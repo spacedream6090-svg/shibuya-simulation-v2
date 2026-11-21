@@ -33,11 +33,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import Tape
+from shibuya.interfaces.cli import main as cli
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.test_sim_time_T import ALL_ARMS
 
@@ -195,8 +195,8 @@ def test_ledger_rows_moved_by_10d():
 # ================================================================= (iii) キャッシュを持ち越さない再開
 _CHILD = r"""
 import json, sys
-from shibuya import cli
-from shibuya.engine import resume as RS
+from shibuya.interfaces.cli import main as cli
+from shibuya.runtime.state import resume as RS
 kw = json.loads(sys.argv[1])
 res = cli.run(resume_from=sys.argv[2], tape_path=sys.argv[3], **kw)
 print(json.dumps([[c.tick, c.combined, c.behavior_hash, c.full_hash] for c in res.checkpoints]))
@@ -220,7 +220,7 @@ def test_resume_in_a_fresh_process_with_empty_caches(world_straight, tmp_path):
 
 # ================================================================= (iv) 日次の締め・保存則・体の数
 def test_daily_close_runs_once_per_day(monkeypatch):
-    from shibuya.engine.processes.runner import WorldProcessRunner
+    from shibuya.world.laws.runner import WorldProcessRunner
 
     seen: list[tuple[int, bool]] = []
     orig = WorldProcessRunner.end_of_day
@@ -239,7 +239,7 @@ def test_daily_close_runs_once_per_day(monkeypatch):
 
 @real_data
 def test_two_day_world_run_closes_money_goods_and_bodies_each_day(monkeypatch):
-    from shibuya.engine.ledger_api import LedgerBundle
+    from shibuya.foundation.ports.ledger import LedgerBundle
 
     closes: list[int] = []
     orig = LedgerBundle.end_of_day
@@ -249,7 +249,7 @@ def test_two_day_world_run_closes_money_goods_and_bodies_each_day(monkeypatch):
         return orig(self, day)
 
     monkeypatch.setattr(LedgerBundle, "end_of_day", spy)
-    from shibuya.engine.presence import PlanExecutor
+    from shibuya.world.laws.presence import PlanExecutor
 
     arrive_ticks: list[int] = []
     orig_step = PlanExecutor.step
@@ -285,10 +285,11 @@ def test_two_day_world_run_closes_money_goods_and_bodies_each_day(monkeypatch):
 @real_data
 def test_no_money_is_added_at_the_head_of_day_two_or_on_resume(monkeypatch, tmp_path):
     from shibuya.economy.ledger import Ledger
-    from shibuya.engine import resolve as R
+    # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R_INIT=act/ops/init_writes。割る前は全部 resolve)
+    from shibuya.act.ops import init_writes as R_INIT
 
     counts = {"households": 0, "stores": 0, "initialize": 0}
-    oh, os_, oi = Ledger.endow_households, Ledger.endow_stores, R.initialize
+    oh, os_, oi = Ledger.endow_households, Ledger.endow_stores, R_INIT.initialize
 
     def eh(self, *a, **k):
         counts["households"] += 1
@@ -304,7 +305,7 @@ def test_no_money_is_added_at_the_head_of_day_two_or_on_resume(monkeypatch, tmp_
 
     monkeypatch.setattr(Ledger, "endow_households", eh)
     monkeypatch.setattr(Ledger, "endow_stores", es)
-    monkeypatch.setattr(R, "initialize", ini)
+    monkeypatch.setattr(R_INIT, "initialize", ini)
     kw = dict(WORLD_KW, checkpoint_every=360)
     res = cli.run(**kw)
     assert counts == {"households": 1, "stores": 1, "initialize": 1}  # 0 日目の頭の 1 回だけ
@@ -366,15 +367,23 @@ def test_resume_refuses_a_ledger_that_was_already_endowed(tmp_path, monkeypatch)
         k["endow"] = True
         return orig(*args, **k)
 
+    # 〔割る段 5b の G3〕build_ledger_bundle を呼ぶ時に読むのは cli.run(割った後は interfaces.cli.main)=差し替えは main の
+    # 別名で(別名 cli の割り先は tools/pkgmove/split.py の SPLIT_ALIAS_DESTS の宣言。定義の割り先 wire_economy へ向けると届かない)
     monkeypatch.setattr(cli, "build_ledger_bundle", endowed)
     with pytest.raises(ValueError, match="自動補充"):
         cli.run(resume_from=tmp_path / "s" / a.resume["state_files"][-1]["file"], **kw)
 
 
 # ================================================================= (vii) counter の乱数
-def test_counter_rng_resume_draws_once(tmp_path):
-    kw = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, checkpoint_every=10,
-              salient_rate_per_10k=3000.0)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
+def test_counter_rng_resume_draws_once(tmp_path, monkeypatch):
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔11-02r §1 #7〕出動の経路も旧道でだけ
+    # 動く。〔第347〕切替口(--rate-rules・--absent-processes の腕)と run_day(salient_rate_per_10k=…) の代わりに、試験の中だけで
+    # 実行器に部品の口(両方の旧道・倒れる率 3,000)を挿す=通しのランも再開の 2 本も同じ
+    legacy_world_rules(monkeypatch, salient_rate=3000.0)
+    kw = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2,
+              checkpoint_every=10)  # 〔第330・RET〕rng_scheme を消した(counter だけ)
     straight = run_day(tape_path=tmp_path / "s", **kw)
     a, b = _split(run_day, kw, 1000, tmp_path)
     _assert_resume_equals_straight(straight, tmp_path / "s", a, b, tmp_path, 1000)
@@ -465,7 +474,7 @@ def test_cli_switches_for_sim_days_and_resume(tmp_path):
     """親の答え 7: ``--sim-days``・``--resume-from``(と書き出し先 ``--state-out``)を engine.run と cli で同じ綴りで。"""
     import argparse
 
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
 
     ap = argparse.ArgumentParser()
     add_calendar_args(ap)
@@ -484,17 +493,22 @@ def test_cli_switches_for_sim_days_and_resume(tmp_path):
 
 
 @real_data
-def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path):
+def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path, monkeypatch):
     """親の答え 5: 2 日目の頭で W7 の曜日の行と世界過程の日ごとの乱数の表を暦の口の日で引き直す。"""
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 4〕宅配の配達済みの張り直しは旧道だけ=旧道で見る。〔第347〕切替口 --rate-rules legacy の代わりに、試験の
+    # 中だけで実行器と計画実行層に部品の口(率の規則の旧道)を挿す
+    legacy_world_rules(monkeypatch, absent=False)
 
     res = cli.run(checkpoint_every=360, **WORLD_KW)
     rn = res.runner
     cal_key1 = 1  # 1 日目の日の鍵=日番号 1(〔第330・RET〕前の注: day_index モードの 0+1=同じ値)
     assert rn.opening.day_index == 1                     # 火曜の行(table_weekday(1))
-    from shibuya.engine.processes.goods_flow import DELIVERY_WINDOW
+    from shibuya.world.laws.goods_flow import DELIVERY_WINDOW
 
-    from shibuya.core.rng import k19_counters
+    from shibuya.foundation.rng import k19_counters
 
     # 10e(E4・K19・U2): counter(既定)は日の鍵を 1 語目に置く
     plan = stream(1, "world.delivery_inbound", *k19_counters(cal_key1)).integers(  # 〔第330・RET〕方式の引数を消した
@@ -508,7 +522,7 @@ def test_daily_tables_are_relaid_from_the_calendar_day(tmp_path):
 
 def test_ipf_cache_key_has_the_day(monkeypatch):
     """親の答え 4: classical の c_t の覚え書きの鍵に日がある(2 日目は 2 日目の状態から作る)。"""
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
 
     orig_bind = CL.ClassicalPolicy.bind
     seen: list = []
@@ -532,8 +546,8 @@ def test_b3_weather_and_the_environment_read_the_same_day_on_day_two(tmp_path):
     """検収 D1・T2: 2 日目の 12 時の B3 の天候の語と、環境の過程の暑さの段が、同じ再生の実日の W13 の行から来る。"""
     import pyarrow.parquet as pq
 
-    from shibuya.perception import templates as T
-    from shibuya.perception.renderer import PerceptionAssets
+    from shibuya.foundation.text import templates as T
+    from shibuya.world.model.percept_scene import PerceptionAssets
 
     res = cli.run(checkpoint_every=360, tape_path=tmp_path / "tape", **WORLD_KW)
     env = res.runner.environment
@@ -575,10 +589,11 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
     1 句を出す条件 ``last_result_tick == 控えの tick`` を満たす)。通しと止めたランは控えを入れ、再開のランは入れない
     (保存から戻る)。
     """
-    from shibuya.agents.state import ResultCode
-    from shibuya.engine import poi_target as PT
-    from shibuya.engine import resolve as R
-    from shibuya.perception import renderer as RD
+    from shibuya.foundation.vocab.agent_codes import ResultCode
+    from shibuya.act import target as PT
+    from shibuya.act.ops import body_writes as R
+    # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+    from shibuya.mind.percept.draw import Renderer
 
     resolvers: list = []
     orig_init = PT.TargetResolver.__init__
@@ -597,7 +612,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
         return orig_ab(agents, tick, *a, **k)
 
     notes: list = []
-    orig_note = RD.Renderer._named_closed_text
+    orig_note = Renderer._named_closed_text
 
     def note_spy(self, i):  # 読むだけ(返す値はそのまま)
         out = orig_note(self, i)
@@ -607,7 +622,7 @@ def test_named_closed_memo_survives_a_resume(tmp_path, monkeypatch):
 
     monkeypatch.setattr(PT.TargetResolver, "__init__", init)
     monkeypatch.setattr(R, "advance_body", advance_body)
-    monkeypatch.setattr(RD.Renderer, "_named_closed_text", note_spy)
+    monkeypatch.setattr(Renderer, "_named_closed_text", note_spy)
     kw = dict(n_agents=200, seed=1, n_cells=9, ticks=TPD, sim_days=2, checkpoint_every=1, vocab_version="v3",
               budget=200.0)
     straight = run_day(tape_path=tmp_path / "s", **kw)
@@ -636,7 +651,7 @@ def test_fleet_inflight_calls_at_the_day_boundary(tmp_path, monkeypatch):
 
     合成の日課は 23 時台に起床が無いので、体 0〜4 に 23:59 の計画境界を足して、日の最後の tick に呼を出す。
     """
-    from shibuya.agents import schedule as SCH
+    from shibuya.world.facts import mock_schedule as SCH
     from tests.engine.test_fleet_wiring import make_client
     from tests.llm.test_fleet import FakeVLLM
 
@@ -704,25 +719,27 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
     import dataclasses
     from datetime import datetime
 
-    from shibuya.agents.state import AgentState
-    from shibuya.perception import normalize as N
-    from shibuya.perception import renderer as RD
-    from shibuya.perception import templates as T
-    from shibuya.world.state import World
+    from shibuya.world.model.agent_table import AgentState
+    from shibuya.foundation.text import normalize as N
+    # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+    from shibuya.world.model.percept_scene import PerceptionAssets, _TickCache
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.foundation.text import templates as T
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=4, seed=1)
     a = AgentState(2)
     assets = dataclasses.replace(
-        RD.PerceptionAssets.synthetic(w),
+        PerceptionAssets.synthetic(w),
         weather_by_date_hour={("2026-07-28", 12): ("曇", T.DAYLIGHT_WORDS[1], T.HEAT_STAGE_WORDS[1]),
                               ("2026-07-29", 12): ("雨", T.DAYLIGHT_WORDS[1], T.HEAT_STAGE_WORDS[0])},
     )
-    r = RD.Renderer(w, a, assets)
+    r = Renderer(w, a, assets)
     day = {"d": "2026-07-28"}
     r.weather_date_fn = lambda: day["d"]
 
     def b3(when: datetime) -> str:
-        return r._b3(RD._TickCache(when=when, band5=N.time_band(when))).decode("utf-8")
+        return r._b3(_TickCache(when=when, band5=N.time_band(when))).decode("utf-8")
 
     first = b3(datetime(2026, 8, 3, 12, 0))     # 暦の日付は実日と別(日付の語は暦・天候は実日)
     day["d"] = "2026-07-29"
@@ -730,6 +747,7 @@ def test_b3_weather_follows_the_replay_date_of_each_day():
     assert T.TEMPLATES["B3.weather"].format(weather="曇", daylight=T.DAYLIGHT_WORDS[1]) in first
     assert T.TEMPLATES["B3.weather"].format(weather="雨", daylight=T.DAYLIGHT_WORDS[1]) in second
     assert T.TEMPLATES["B3.heat"].format(heat=T.HEAT_STAGE_WORDS[0]) in second
-    # 口が無ければ暦の日付で引く(合成世界・既定の旧経路)
+    # 口が無ければ暦の日付で引く(合成世界・既定の旧経路)。〔A48・第347〕表に無い時は合成の世界だけ宣言した決まった天気
+    # (``declared_weather_by_hour``=晴)になる(実データの資産なら止まる=tests/perception/test_weather_a48.py)
     r.weather_date_fn = None
     assert "雨" not in b3(datetime(2026, 8, 4, 12, 0)) or ("2026-08-04", 12) in assets.weather_by_date_hour

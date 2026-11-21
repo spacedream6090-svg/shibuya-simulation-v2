@@ -1,0 +1,39 @@
+{
+ "config": "no_processes",
+ "kw": {
+  "processes": false,
+  "vocab_version": "v3"
+ },
+ "agents": 200,
+ "ticks": 1440,
+ "seed": 1,
+ "world": "data/world/v2",
+ "final16": "93f64d2d62567abc",
+ "llm_calls": 1754,
+ "weather_days": [
+  {
+   "day": 0,
+   "calendar_date": "2026-07-13",
+   "replay_date": "2026-07-13",
+   "stratum": "夏|平日|雨",
+   "how": "actual",
+   "widened": "",
+   "shadow_date": "",
+   "shadow_fallback": false,
+   "sunrise_min": 275.0,
+   "sunset_min": 1139.0
+  }
+ ],
+ "weather_declared": false,
+ "wall_s": 6.3,
+ "weather_calls": {
+  "loaded_row": 228
+ },
+ "time_view_port": {
+  "words_fn": 1754
+ },
+ "require_weather_days": {
+  "calls": 1,
+  "dates_checked": 365
+ }
+}

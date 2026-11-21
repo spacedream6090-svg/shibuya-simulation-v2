@@ -13,22 +13,25 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentState, AgentKind
-from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
-from shibuya.engine import resolve as R
-from shibuya.engine.presence import (
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
+from shibuya.act.ops import rail as R
+from shibuya.world.laws.presence import (
     ARRIVAL_SPREAD_MAX_TRAINS,
     RETURN_MIN_AWAY_MIN,
     FLAG_HAS_PLAN,
     FLAG_HOME_OUT,
-    PlanBlocks,
     PlanExecutor,
+)
+from shibuya.world.laws.presence_plan import (
+    PlanBlocks,
     _mix64,
 )
-from shibuya.engine.processes.rail import RailProcess
-from shibuya.engine.run import run_day
-from shibuya.world.assets import ProcessAssets
-from shibuya.world.state import World
+from shibuya.world.laws.rail import RailProcess
+from shibuya.runtime.run import run_day
+from shibuya.world.model.assets import ProcessAssets
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 WORLD_DIR = Path("data/world/v2")
@@ -134,12 +137,12 @@ W17_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕02114fb577f3 = 差し替えの世界(W16 を W21 に)の W17(残す W16 の体の行+W21 の体へ
     # 提供者の行の写し=記録 pop43)。5,000 体・seed 1・1 日の値は親の検収の前の実装役の実測(記録 pop43 §16)。
     "02114fb577f3": {
-        "null_arm_final": "872136c8ef8115f3", "null_arm_llm_calls": 99_453,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "null_arm_final_hunger_v1": "1e31a0c273bb60c0", "null_arm_llm_calls_hunger_v1": 98_856,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 730512bf7cc6b877 / 95_208=--space legacy で戻る・段 1 の nav1(cell)は 83070878d560b37f / 83_456・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 f2d9ae6144d0e8ad / 95_054=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 09c7907e713e40e6=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "null_arm_final_l4x1": "9c5b3b6d353b7767", "null_arm_llm_calls_l4x1": 40_983,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b239860914d1a3b0 / 41_089=--space legacy で戻る・段 1 の nav1(cell)は 857b1a00cec8b0c8 / 40_990・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 b239860914d1a3b0 / 41_089=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 2a4e22a1554081a8=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "v3_default_final": "7bfe215641b792ac", "v3_default_llm_calls": 62_176,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "v3_default_final_hunger_v1": "b47d44e750e93dc3", "v3_default_llm_calls_hunger_v1": 61_072,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 2e5ba0c90fc90099 / 63_618=--space legacy で戻る・段 1 の nav1(cell)は eddffcada215af43 / 60_293・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 938434492bf062bd / 63_600=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 4c71d4d44f9f7c57=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-        "v3_default_final_l4x1": "c50febb360d57315", "v3_default_llm_calls_l4x1": 36_541,  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b698b0e54a588536 / 36_759=--space legacy で戻る・段 1 の nav1(cell)は 74d21977568e45a8 / 36_420・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 bec0c89bf3ebbf8b / 36_759=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 aea727f0a508f2c7=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final": "2875768fc19e02e8", "null_arm_llm_calls": 95_645,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 2767525651ddb7ce / 101_035=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 872136c8ef8115f3 / 99_453=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final_hunger_v1": "0d7100b43a0d591c", "null_arm_llm_calls_hunger_v1": 93_187,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 37fe9e3db225e9a8 / 97_047=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 1e31a0c273bb60c0 / 98_856=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 730512bf7cc6b877 / 95_208=--space legacy で戻る・段 1 の nav1(cell)は 83070878d560b37f / 83_456・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 f2d9ae6144d0e8ad / 95_054=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 09c7907e713e40e6=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "null_arm_final_l4x1": "5b6024762b1431d6", "null_arm_llm_calls_l4x1": 40_875,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 9df2be95f55a809a / 40_835=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 9c5b3b6d353b7767 / 40_983=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b239860914d1a3b0 / 41_089=--space legacy で戻る・段 1 の nav1(cell)は 857b1a00cec8b0c8 / 40_990・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 b239860914d1a3b0 / 41_089=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 2a4e22a1554081a8=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final": "c8d68704b7b0760d", "v3_default_llm_calls": 60_939,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0 / 61_066=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac / 62_176=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final_hunger_v1": "41f2cfaa2f750081", "v3_default_llm_calls_hunger_v1": 60_341,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 09ff5fd88bb4bc09 / 60_375=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 b47d44e750e93dc3 / 61_072=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 2e5ba0c90fc90099 / 63_618=--space legacy で戻る・段 1 の nav1(cell)は eddffcada215af43 / 60_293・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 938434492bf062bd / 63_600=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 4c71d4d44f9f7c57=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+        "v3_default_final_l4x1": "b57ce0f65ffd628f", "v3_default_llm_calls_l4x1": 36_441,  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 335f80ac58b648e0 / 36_350=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 c50febb360d57315 / 36_541=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 b698b0e54a588536 / 36_759=--space legacy で戻る・段 1 の nav1(cell)は 74d21977568e45a8 / 36_420・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果 on(切替口を消した)の値(前 bec0c89bf3ebbf8b / 36_759=退去の効果 off)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 aea727f0a508f2c7=SHIBUYA_RULES_42=off で戻る・記録 rules42)
         "v1_outside_blocks": 522_182, "v1_outside_dist": [82, 137_156, 117_612, 43_787],
         "s5000_v1": {"n_blocks": 8_697, "zero": 1, "outside": 7_730, "in": 967},
         "s5000_v2": {"n_blocks": 6_413, "zero": 136, "outside": 5_446, "in": 967},
@@ -234,8 +237,6 @@ def make_layer(
     assets=None,
     n_cells: int = 9,
     ticks: int = 1_440,
-    attendance_rate: float = 1.0,
-    kind=None,
     with_rail: bool = True,
 ):
     w, a = make_world_agents(n, n_cells=n_cells, home_cell=home_cell)
@@ -252,12 +253,9 @@ def make_layer(
         day_index=0,
         home_cell=home_cell,
         direction_node=np.zeros(n, dtype=np.int64) if direction is None else direction,
-        kind=np.zeros(n, dtype=np.int64) if kind is None else kind,
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail,
         assets=pa,
         ticks=ticks,
-        attendance_rate=attendance_rate,
     )
     return w, a, rail, layer
 
@@ -276,7 +274,11 @@ def test_the_layer_draws_no_random_numbers():
     """①(§7): 層は ``core.rng`` を 1 語も引かない(T4 規模不変・帰無腕とのバイト一致)。"""
     import ast
 
-    src = Path("src/shibuya/engine/presence.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕presence の元の名を定義する今のファイルの全部で見る(割った後に主な割り先だけを見て 2 つ目の割り先
+    # presence_plan の _mix64 ほかが外れない。割る前は engine/presence.py=前と同じ範囲)
+    src = PL.split_source("engine/presence.py")
     tree = ast.parse(src)
     # docstring の言及は無視して、**実コード**に乱数源が無いことを見る
     for node in ast.walk(tree):
@@ -309,11 +311,11 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
     再現には切替口 ``report_precondition=False`` を渡す(旧 checkpoint は版を分けて残す=
     docs/bench/analysis/d113-defects-2026-09-26/README.md §0)。既定 on の値は同 §0 の表。
     """
-    from shibuya.cli import run as cli_run  # golden は台帳つきの標準入口で録られている
+    from shibuya.interfaces.cli.main import run as cli_run  # golden は台帳つきの標準入口で録られている
 
     def _run():
         return cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), plan_executor=False,
-                       report_precondition=False)
+                       report_precondition=False, vocab_version="v1")  # 〔Q13 commit ①〕golden は語彙 v1(前の既定を明示)
 
     res = _run()
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
@@ -332,9 +334,9 @@ def test_null_arm_reproduces_the_recorded_checkpoint():
 def test_v3_default_reproduces_the_recorded_checkpoint():
     """第277(二層の段 3): 語彙 v3 の既定(CLI の既定・活動層 on・mock v3 形)の golden。
 
-    v1 の golden(上の null arm)はそのまま=ライブラリの既定は v1。v3 は**新しい行**。
+    v1 の golden(上の null arm)はそのまま(〔Q13〕ライブラリの既定は v3 になった=帰無腕は語彙 v1 を明示)。v3 は**新しい行**。
     """
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
 
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ
         GE.assert_aa(lambda: cli_run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3"),
@@ -351,23 +353,25 @@ def test_v3_default_reproduces_the_recorded_checkpoint():
 
 
 @real_data
-def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
+def test_l4_scale_1_reproduces_the_stage_2c_checkpoints(monkeypatch):
     """3 段目(D-99 (a′)・D-110): 上限スイッチ ``l4_scale=1.0`` で旧挙動(L4 按分・持ち越し 2 tick)。
 
     〔改訂(第330・RET)〕前は段 2c の検収値そのもの(10e より前の final の定義・乱数・世界の資産・暦)を再現していた(ACT
     の commit で通った)。旧値を再現する切替口を消したので、上限スイッチ(+空腹 v1・退去の効果 off)の**今の値**を固定する
     (上限スイッチと従来の配り方 ``call_budget_per_tick``/``POOL_CAP_TICKS`` が効いている証拠)。
     """
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
+    from tests.engine.body._hunger_v1 import hunger_v1
 
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), l4_scale=1.0, hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
-        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
+        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw), _FINAL_CALLS)
         return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_l4x1" not in g:
         pytest.skip(f"実 W17 の l4x1 golden が無い(md5 {w17_digest()})")
-    null = cli_run(plan_executor=False, report_precondition=False, **kw)
+    null = cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw)
     assert null.final_hash.startswith(g["null_arm_final_l4x1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_l4x1"]
     v3 = cli_run(vocab_version="v3", **kw)
@@ -377,23 +381,25 @@ def test_l4_scale_1_reproduces_the_stage_2c_checkpoints():
 
 
 @real_data
-def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
+def test_hunger_model_v1_reproduces_the_stage_3_checkpoints(monkeypatch):
     """5 段目 5a(D-118 K5 (a)): 空腹の旧規則 ``hunger_model="v1"``。
 
     energy の 4 欄は ``energy_columns`` のランだけ確保する=v1 は SoA も挙動も energy の欄を持たない。
     〔改訂(第330・RET)〕前は 3 段目の既定値そのものを再現していた(ACT の commit で通った)。旧値の切替口を消したので、
     空腹 v1(+退去の効果 off)の**今の値**を固定する。
     """
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
+    from tests.engine.body._hunger_v1 import hunger_v1
 
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), hunger_model="v1")  # 〔第 2 部〕退去の効果 off を外した
     if W17_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(帰無腕の 1 本)
-        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, **kw), _FINAL_CALLS)
+        GE.assert_aa(lambda: cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw), _FINAL_CALLS)
         return
     g = W17_GOLDEN.get(w17_digest())
     if g is None or "v3_default_final_hunger_v1" not in g:
         pytest.skip(f"実 W17 の hunger v1 golden が無い(md5 {w17_digest()})")
-    null = cli_run(plan_executor=False, report_precondition=False, **kw)
+    null = cli_run(plan_executor=False, report_precondition=False, vocab_version="v1", **kw)
     assert null.final_hash.startswith(g["null_arm_final_hunger_v1"])
     assert int(null.llm_calls) == g["null_arm_llm_calls_hunger_v1"]
     assert null.run_manifest_fields()["hunger_model"] == "v1"
@@ -406,7 +412,7 @@ def test_hunger_model_v1_reproduces_the_stage_3_checkpoints():
 def test_leave_effect_switch_is_removed():
     """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕退去の効果の切替口 ``leave_effect=False``(第301 以前=9a の前)は消した=渡すと
     止まる(旧値の再現は安定版のタグ)。前は退去の効果 off の今の値を固定した(*_leave_off の行=消した)。"""
-    from shibuya.cli import run as cli_run
+    from shibuya.interfaces.cli.main import run as cli_run
 
     with pytest.raises(TypeError):
         cli_run(n_agents=10, ticks=2, leave_effect=False)
@@ -754,9 +760,8 @@ def test_arrival_spread_never_exceeds_capacity_times_the_cap():
         w, a, wk, day_index=0,
         home_cell=np.full(n, -1, dtype=np.int64),
         direction_node=np.zeros(n, dtype=np.int64),
-        kind=np.zeros(n, dtype=np.int64),
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail, assets=pa, ticks=1_440,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕E8 の分散は旧道(切替口)だけ
     )
     per_train = np.bincount(layer.arrival_train[layer.arrival_train >= 0], minlength=6)
     assert layer.n_spread_moved > 0
@@ -788,9 +793,8 @@ def test_arrival_spread_stays_inside_the_eight_train_window():
         w, a, wk, day_index=0,
         home_cell=np.full(n, -1, dtype=np.int64),
         direction_node=np.zeros(n, dtype=np.int64),
-        kind=np.zeros(n, dtype=np.int64),
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail, assets=pa, ticks=1_440,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕E8 の分散は旧道(切替口)だけ
     )
     e1 = layer.arrival_train_e1
     got = layer.arrival_train
@@ -827,9 +831,8 @@ def test_overflow_on_the_last_train_stays_on_its_own_e1_train():
         w, a, wk, day_index=0,
         home_cell=np.full(n, -1, dtype=np.int64),
         direction_node=np.zeros(n, dtype=np.int64),
-        kind=np.zeros(n, dtype=np.int64),
-        agent_id=np.arange(n, dtype=np.int64),
         rail=rail, assets=pa, ticks=1_440,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕E8 の分散は旧道(切替口)だけ
     )
     e1, got = layer.arrival_train_e1, layer.arrival_train
     sv = np.flatnonzero(e1 >= 0)
@@ -895,8 +898,8 @@ def test_derive_folding_matches_the_parent_verified_counts():
     **域外居住 346,445 体の在圏ブロック 306,410 本 / うち 0 本の体 85,766**。
     ここでは 5,000 体標本の実測を golden として釘付ける(親が再実行して検収する値)。
     """
-    from shibuya.agents.population import load_population, sample_population
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.population_reader import load_population, sample_population
+    from shibuya.world.facts.weekly_reader import load_weekly
 
     full = load_population(WORLD_DIR, n=None, seed=1)
     wk_full = load_weekly(WORLD_DIR)
@@ -943,7 +946,7 @@ def test_the_real_civic_path_pulls_and_pushes_through_the_layer():
 
     引き込み候補は「その日在圏予定のある域外の体」だけ・退場は翌 tick に戻らない。
     """
-    from shibuya.engine.processes.civic import EVENT_WINDOW, LargeEventProcess
+    from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
 
     n = 12
     rows = []
@@ -962,7 +965,8 @@ def test_the_real_civic_path_pulls_and_pushes_through_the_layer():
     )
     layer.initialize()
     ev = LargeEventProcess(
-        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=4
+        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=4,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕催しの人の注入は旧道(切替口)だけ
     )
     ev.presence = layer
     lo, hi = EVENT_WINDOW
@@ -994,31 +998,21 @@ def test_native_mode_and_other_exit_modes_are_reserved():
         PlanExecutor(w, a, wk, home_cell=np.array([-1]), exit_mode="board_intent")
     with pytest.raises(ValueError):
         PlanExecutor(w, a, wk, home_cell=np.array([-1]), exit_mode="teleport")
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):  # 〔11-01 段 2 の 4〕出勤率の引数は消した
         PlanExecutor(w, a, wk, home_cell=np.array([-1]), attendance_rate=1.5)
 
 
-def test_attendance_rate_removes_a_deterministic_share_of_commuters():
-    """§6 E6: ``attendance_rate`` は通勤・通学の一部を**決定論で**終日域外にする。"""
+def test_everyone_attends_after_the_attendance_lottery_was_removed():
+    """〔11-01 段 2 の 4〕出勤率のくじ(E6)は消した=全員出勤(日を変えても誰も休まない・ブロックは全員分)。"""
     n = 400
     rows = [(i, 0, 400, ACT_SLEEP, PK_OUT, -1) for i in range(n)]
     rows += [(i, 500, 900, ACT_WORK, PK_WORK, 3) for i in range(n)]
     wk = make_weekly(rows, n)
-    kinds = np.where(np.arange(n) % 2 == 0, int(AgentKind.COMMUTER), int(AgentKind.VISITOR))
     home = np.full(n, -1, dtype=np.int64)
-    _, _, _, full = make_layer(wk, n=n, home_cell=home, kind=kinds)
-    _, _, _, part = make_layer(
-        wk, n=n, home_cell=home, kind=kinds, attendance_rate=0.88
-    )
+    _, _, _, full = make_layer(wk, n=n, home_cell=home)
     assert int(full.absent.sum()) == 0
-    assert 0 < int(part.absent.sum()) < n // 2
-    assert not part.absent[kinds == int(AgentKind.VISITOR)].any()  # 来街者は対象外
-    # 同じ入力なら同じ体が抜ける(乱数ではない)
-    _, _, _, part2 = make_layer(
-        wk, n=n, home_cell=home, kind=kinds, attendance_rate=0.88
-    )
-    assert np.array_equal(part.absent, part2.absent)
-    assert part.blocks.n_blocks == full.blocks.n_blocks - int(part.absent.sum())
+    assert not full.absent_on(1).any() and not full.absent_on(5).any()
+    assert full.counters()["absent"] == 0.0
 
 
 def test_mix64_matches_the_build_side_definition():

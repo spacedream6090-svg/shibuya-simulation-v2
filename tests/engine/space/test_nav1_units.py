@@ -13,12 +13,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.geometry import desired_speeds
-from shibuya.engine.space import nav1 as N
-from shibuya.world import navmesh as NV
+from shibuya.world.model.geometry import desired_speeds
+from shibuya.world.model.space import nav1 as N
+from shibuya.world.model import navmesh as NV
 from tests.build_space import synth as SY
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "space" / "nav1.py"
+SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "world" / "model" / "space" / "nav1.py"
 
 
 @pytest.fixture(scope="module")
@@ -182,16 +182,27 @@ def test_resume_replans_the_same_route(space, tmp_path):
 
 def test_engine_does_not_decide_for_the_person():
     """AST: nav1 は判断の層・LLM・選び手を読まない(速さは体の属性・経路は既定の重み=宣言)。"""
+    import sys
+
+    from shibuya.act import activity, intent
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
+    from shibuya.foundation.ports.choice import ChoiceContext
+    from shibuya.mind.judge.chooser import ClassicalChooser
+    from shibuya.mind.judge import classical
+    from shibuya.mind.judge.decision import layer as DLAYER
+
+    from tests import _places as PL
+
     tree = ast.parse(SRC.read_text(encoding="utf-8"))
     mods = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module:
-            mods.add(node.module)
-        elif isinstance(node, ast.Import):
-            mods.update(a.name for a in node.names)
-    banned = ("shibuya.llm", "shibuya.engine.decision", "shibuya.engine.chooser", "shibuya.engine.intent",
-              "shibuya.engine.classical", "shibuya.engine.activity")
-    assert not [m for m in mods if m.startswith(banned)]
+        mods.update(PL.imported(node))
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面の包みの名 "shibuya.llm"・"shibuya.engine.decision" と 4 本のモジュールの名。
+    # 包みは元の置き場(llm・engine/decision)にあったモジュールの今の名、モジュールは __name__ から作る
+    # 〔割る段 5a の G0〕選び手は名の定義の置き場から引く(割ると選び手と選び手の口の 2 つのモジュールになる=両方を禁じる)
+    choosers = sorted({sys.modules[x.__module__] for x in (ChoiceContext, ClassicalChooser)}, key=lambda m: m.__name__)
+    banned = PL.names_from(LLM, DLAYER) | PL.module_names(*choosers, intent, classical, activity)
+    assert not [m for m in mods if banned.hits(m)], sorted(m for m in mods if banned.hits(m))
     assert any("既定の重み" in e and "本人の判断ではない" in e for e in N.NAV1_EXPEDIENTS)
 
 
@@ -199,7 +210,7 @@ def test_p_notice_tiny_distance_is_one_without_overflow():
     """連続の位置で出る、ごく近い距離の一次検出(s^e が溢れる所)は極限の 1(NaN にしない)。"""
     import warnings
 
-    from shibuya.perception.p_notice import p1_primary
+    from shibuya.world.model.notice_reach import p1_primary
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -243,12 +254,25 @@ def test_l3_ramp_inside_is_on_the_line_and_within_the_speed_bound():
         assert int(ofi[0]) == 1
 
 
-def test_l4_space_argument_beats_the_environment(monkeypatch):
-    monkeypatch.setenv("SHIBUYA_SPACE", "legacy")
-    assert N.space_env_override("nav1") == "nav1"
-    assert N.space_env_override(None) == "legacy"
-    monkeypatch.delenv("SHIBUYA_SPACE")
-    assert N.space_env_override(None) == N.DEFAULT_SPACE == "nav1"  # 〔段 5-1b・版上げ 4 回目〕既定は nav1(段 1 は legacy)
+def test_l4_the_requested_space_takes_only_nav1_and_ignores_the_environment(monkeypatch):
+    """〔第347 止めた切替口の削除〕前(``test_l4_space_argument_beats_the_environment``)は ``space_env_override`` の順(引数 →
+    環境変数 → 既定)。切替口を消した: ``space_env_override`` は無い・頼んだ値は ``None`` と ``"nav1"`` だけ受けて nav1・
+    ``"legacy"`` は止める(消した口・タグ・試験の中だけの口の名)・名の誤りも止める・環境変数は読まない(読み込みで止める名は
+    一覧にある)・試験の中だけの口の印は既定 False。"""
+    from shibuya.foundation.arms import removed as RSW
+
+    assert not hasattr(N, "space_env_override")
+    assert N.requested_space(None) == N.requested_space("") == N.requested_space("nav1") == N.DEFAULT_SPACE == "nav1"
+    with pytest.raises(ValueError, match="space='legacy' は消した口.*stable-v2-before-switch-removal-347.*試験の中だけの口"):
+        N.requested_space("legacy")
+    with pytest.raises(ValueError, match="space は"):
+        N.requested_space("bogus")
+    monkeypatch.setenv("SHIBUYA_SPACE", "legacy")  # 読み込みの後に置いても、頼んだ値の読みには入らない(入口の止めは別の試験)
+    assert N.requested_space(None) == "nav1"
+    assert N.ENV_REMOVED_SPACE == "SHIBUYA_SPACE" and N.ENV_REMOVED_SPACE in RSW.REMOVED_ENV
+    assert RSW.REMOVED_CLI_FLAGS["--space"] == N.ENV_REMOVED_SPACE
+    assert RSW.tag_of(N.ENV_REMOVED_SPACE) == RSW.REMOVED_SWITCH_TAG_347
+    assert N.legacy_for_tests() is False and N._LEGACY_FOR_TESTS is False
     import inspect
 
     assert inspect.signature(N.NavSpace.__init__).parameters["tick_seconds"].default is inspect.Parameter.empty
@@ -263,18 +287,22 @@ def test_q4_production_world_is_the_one_with_a_build_hash(tmp_path):
 
 
 def test_m5_hop_walk_steps_legacy_is_one_step_per_node_and_nav1_uses_the_speed():
-    from shibuya.engine.calendar_self import hop_walk_steps
+    from shibuya.interim_bundles.calendar_self import hop_walk_steps
 
     steps = np.array([3, 0, 10])
     assert hop_walk_steps(steps, None, [0, 1, 2]).tolist() == [3, 0, 10]
     hop = np.array([0.5, 0.25, 0.4])  # 節 1 つの刻み(平均の辺長 ÷ 本人の m/刻み)
     assert hop_walk_steps(steps, hop, [0, 1, 2]).tolist() == pytest.approx([1.5, 0.0, 4.0])
-    src = (SRC.parents[1] / "calendar2" / "layer.py").read_text(encoding="utf-8")
+    from shibuya.interim_bundles.calendar2 import layer as C2_LAYER
+
+    # 〔段 4 の下ごしらえ〕読むファイルはモジュールの __file__ から(前は nav1.py の 2 つ上のディレクトリからの相対の道
+    # =段 4 で nav1 と calendar2 は別々の包みへ移る)
+    src = Path(C2_LAYER.__file__).read_text(encoding="utf-8")
     assert "hop_walk_steps(" in src
 
 
 def test_q3_b6_mark_text_for_nav1_and_no_b8():
-    from shibuya.engine import proximity as P
+    from shibuya.world.model import proximity as P
 
     m = P.marks_for("nav1")
     assert set(m) == {"B6"} and "面の上" in m["B6"]
@@ -284,7 +312,7 @@ def test_q3_b6_mark_text_for_nav1_and_no_b8():
 def test_m4a_surface_counts_leave_out_the_agents_inside_buildings(space):
     from types import SimpleNamespace
 
-    from shibuya.agents.state import Activity
+    from shibuya.foundation.vocab.agent_codes import Activity
 
     m = space.mesh
     ax, ay, af = space.anchor_of(np.array([0, 0, 0, 0, 0, 0]))

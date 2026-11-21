@@ -14,14 +14,21 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
-from shibuya.agents.state import Activity, AgentState, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.run import run_day
-from shibuya.llm import LLMResponse, format_two_line
-from shibuya.llm.contract import ACTION_WORD_EAT, EAT_ACTION_CODE
-from shibuya.world.state import World
+from shibuya.world.facts.mock_schedule import synthesize
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_INIT=act/ops/init_writes・R_SHOP=act/ops/shop。割る前は全部 resolve)
+from shibuya.act import apply as R
+from shibuya.act.ops import init_writes as R_INIT
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.runtime.run import run_day
+from shibuya.foundation.ports.inference import LLMResponse
+from shibuya.foundation.vocab.actions import format_two_line
+from shibuya.foundation.vocab.actions import ACTION_WORD_EAT, EAT_ACTION_CODE
+from shibuya.world.model.state import World
 
 
 class WordLLM:
@@ -51,7 +58,7 @@ def _scene(n: int = 8, tick: int = 700, money: int = 10_000, hunger: int = 9):
     """飲食店のセルに n 体を置いた 1 tick の場面。"""
     w = World.synthetic(n_cells=16, seed=1)
     a = AgentState(n)
-    R.initialize(a, w, synthesize(n, 1, w.n_cells))
+    R_INIT.initialize(a, w, synthesize(n, 1, w.n_cells))
     eatery = int(np.flatnonzero(w.eatery_mask)[0])
     cell = int(w.pois.cell[eatery])
     with a.writable():
@@ -65,7 +72,7 @@ def _scene(n: int = 8, tick: int = 700, money: int = 10_000, hunger: int = 9):
 def _eat(w, a, tick, n):
     space = C.ResourceSpace(w.n_poi, a.n, w.n_cells)
     ids = np.arange(n, dtype=np.int64)
-    batch = C.intents_from_responses(
+    batch = CW.intents_from_responses(
         a, w, space, tick, ids, np.zeros(n, dtype=np.int64),
         np.full(n, EAT_ACTION_CODE, dtype=np.int64),
     )
@@ -105,7 +112,7 @@ def test_eating_relieves_hunger_and_keeps_the_agent_in_the_shop():
     _, out = _eat(w, a, tick, 8)
     ate = np.flatnonzero(a.registry.last_result == int(ResultCode.OK))
     assert ate.size == out.n_meals > 0
-    assert int(a.registry.hunger[ate[0]]) == 9 - R.EAT_HUNGER_RELIEF
+    assert int(a.registry.hunger[ate[0]]) == 9 - R_SHOP.EAT_HUNGER_RELIEF
     assert int(a.registry.activity[ate[0]]) == int(Activity.SHOPPING), "在店=その tick は動かない"
     assert int(a.registry.last_action[ate[0]]) == EAT_ACTION_CODE
 
@@ -113,7 +120,7 @@ def test_eating_relieves_hunger_and_keeps_the_agent_in_the_shop():
 def test_the_declared_dwell_is_expedient_and_reuses_the_existing_seat_machinery():
     """所要時間 20 分は**契約行の宣言値**(専用タイマーは未実装=在席の回転率に従う)。"""
     assert R.EAT_DWELL_MINUTES == 20
-    assert R.EAT_HUNGER_RELIEF == R.BUY_HUNGER_RELIEF, "新しい数を作らない(既存値の再利用)"
+    assert R_SHOP.EAT_HUNGER_RELIEF == R_SHOP.BUY_HUNGER_RELIEF, "新しい数を作らない(既存値の再利用)"
 
 
 # ------------------------------------------------------------------ (iii) 失敗コード
@@ -160,27 +167,29 @@ def test_the_eat_resource_is_the_shop_like_a_purchase():
 # ------------------------------------------------------------------ (i) 既定のバイト不変
 def test_the_v1_apply_table_is_untouched():
     assert len(R._APPLY) == 13 and EAT_ACTION_CODE not in R._APPLY
-    assert len(R._APPLY_V2) == 14 and R._APPLY_V2[EAT_ACTION_CODE] is R._apply_eat
+    assert len(R._APPLY_V2) == 14 and R._APPLY_V2[EAT_ACTION_CODE] is R_SHOP._apply_eat
     assert R._APPLY_BY_VOCAB["v1"] is R._APPLY
     assert R._ACTION_ORDER_BY_VOCAB["v2"][-1] == EAT_ACTION_CODE
     assert R._ACTION_ORDER_BY_VOCAB["v1"] == R._ACTION_ORDER_BY_VOCAB["v2"][:-1]
 
 
 def test_the_default_run_is_byte_identical():
-    """既定(v1)の checkpoint・呼数・行動分布は、語彙 v2 を足しても 1 ビットも動かない。"""
+    """既定の checkpoint・呼数・行動分布は、その版の明示と 1 ビットも違わない。〔Q13・第347〕既定は v3(前は v1=CLI の既定に
+    そろえた)。v1 で「食事」が出ないことは ``test_v2_is_a_different_run_but_still_conserves`` の v1 のランが見る。"""
     base = run_day(**SMALL)
-    explicit = run_day(vocab_version="v1", **SMALL)
-    assert base.vocab_version == "v1"
+    explicit = run_day(vocab_version="v3", **SMALL)
+    assert base.vocab_version == "v3"
     assert base.final_hash == explicit.final_hash != ""
     assert base.llm_calls == explicit.llm_calls > 0
     assert base.action_usage == explicit.action_usage
-    assert base.meals == explicit.meals == 0
-    assert ACTION_WORD_EAT not in base.action_usage
+    assert base.meals == explicit.meals
+    v1 = run_day(vocab_version="v1", **SMALL)
+    assert v1.meals == 0 and ACTION_WORD_EAT not in v1.action_usage
 
 
 def test_v2_is_a_different_run_but_still_conserves():
     """v2 は**別の値**(mock の抽選語彙も 13 語になる)。保存則と在庫は破れない。"""
-    v1 = run_day(**SMALL)
+    v1 = run_day(vocab_version="v1", **SMALL)  # 〔Q13 commit ①〕語彙 v1 を明示(前のライブラリの既定)
     v2 = run_day(vocab_version="v2", **SMALL)
     assert v2.final_hash != v1.final_hash
     assert v2.conserved and v2.min_stock >= 0
@@ -195,7 +204,7 @@ def test_unknown_vocab_version_is_refused():
 # ------------------------------------------------------------------ ラン全体(段0 → 食事)
 def test_stage0_dictionary_v3_grounds_eating_into_the_new_word():
     """「食べる」は v1 では 購入、v2 では **食事** に着地する(段0 辞書 v3)。"""
-    v1 = run_day(llm=WordLLM("食べる"), **OPEN_HOURS)
+    v1 = run_day(llm=WordLLM("食べる"), vocab_version="v1", **OPEN_HOURS)  # 〔Q13 commit ①〕語彙 v1 を明示
     v2 = run_day(llm=WordLLM("食べる"), vocab_version="v2", **OPEN_HOURS)
     assert v1.action_usage.get("購入", 0) > 0 and ACTION_WORD_EAT not in v1.action_usage
     assert v2.action_usage.get(ACTION_WORD_EAT, 0) > 0 and "購入" not in v2.action_usage
@@ -223,13 +232,17 @@ def test_action_usage_reaches_the_run_manifest():
     assert sum(res.action_usage.values()) > 0
 
 
-def test_action_usage_of_the_default_run_carries_the_v1_version():
-    from shibuya.llm.contract import ACTION_VOCAB_12
+def test_action_usage_of_the_default_run_carries_the_v3_version():
+    """〔Q13・第347〕既定のランの manifest は語彙 v3(前は v1)。v1 のランの鍵は前のまま(12 語 + エンジン継続)。"""
+    from shibuya.foundation.vocab.actions import ACTION_VOCAB_12, action_words
 
     res = run_day(**SMALL)
     fields = res.run_manifest_fields()
-    assert fields["vocab_version"] == "v1"
-    assert fields["synonym_table_version"] == "undefined-synonyms-v2"
-    # 既定のランに出る鍵は「12 語 + エンジン継続」だけ(役割語は待機へ落ちる・食事は無い)
-    assert set(fields["action_usage"]) <= {"(エンジン継続)", *ACTION_VOCAB_12}
+    assert fields["vocab_version"] == "v3"
+    assert fields["synonym_table_version"] == "undefined-synonyms-v5"
+    assert set(fields["action_usage"]) <= {"(エンジン継続)", *action_words("v3")}
     assert fields["action_usage"]
+    old = run_day(vocab_version="v1", **SMALL).run_manifest_fields()
+    assert old["vocab_version"] == "v1" and old["synonym_table_version"] == "undefined-synonyms-v2"
+    # v1 のランに出る鍵は「12 語 + エンジン継続」だけ(役割語は待機へ落ちる・食事は無い)
+    assert set(old["action_usage"]) <= {"(エンジン継続)", *ACTION_VOCAB_12} and old["action_usage"]

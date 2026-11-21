@@ -43,9 +43,9 @@ def M():
 
 # ---------------------------------------------------------------- 腕の作り方
 def test_eleven_flags_are_accepted_by_parse_refractory_scale(M):
-    from shibuya import cli
-    from shibuya.agents.state import N_WAKE_CONDITIONS, REFRACTORY_MINUTES, WakeCondition
-    from shibuya.engine import resolve as R
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, REFRACTORY_MINUTES, WakeCondition
+    from shibuya.mind import ops as R
 
     conds = M.conditions()
     assert conds == tuple(WakeCondition(i).name for i in range(N_WAKE_CONDITIONS))
@@ -90,9 +90,10 @@ def test_arm_names_and_plan(M):
 
 def test_factor_zero_means_no_suppression_in_the_arbiter(M):
     """既知の答え: 1 刻み前に条件 i で呼んだ体 i が、いま同じ条件 i で起きる。"""
-    from shibuya.agents.state import WAKE_CONDITION_CLASS
-    from shibuya.engine import resolve as R
-    from shibuya.engine.arbiter import WakeCandidates, arbitrate
+    from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS
+    from shibuya.mind import ops as R
+    from shibuya.mind.system1.wake import WakeCandidates
+    from shibuya.runtime.arbiter import arbitrate
 
     n = 11
     tick = 100
@@ -301,6 +302,9 @@ def test_gates_outside_table_symbols_are_defined_in_their_files(M):
     """表の外の門の一覧: 名と出典だけ・出典は「ファイル+記号」(行番号なし)・その記号の定義がファイルに実在する。"""
     import re
 
+    from tests import _places as PL
+
+    src_head = f"src/{PL.PKG.name}/"
     assert len(M.GATES_OUTSIDE_TABLE) >= 5
     for g in M.GATES_OUTSIDE_TABLE:
         assert set(g) == {"name", "source"}
@@ -309,8 +313,16 @@ def test_gates_outside_table_symbols_are_defined_in_their_files(M):
         assert refs
         for path, sym in refs:
             assert re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", sym), sym
+            # 〔段 4 の下ごしらえ〕出典の文(記録の道具の記録の文=移す道具は書き換えない)は元の置き場の道で書く。src の .py は
+            # 元の道から今の道を引いて読む(移す前の木では同じ道)。〔再検収 L-6〕元の道として引けなければ、その道が今の木に
+            # 在るか(段 4 の後に新しい道で書いた出典)
+            if path.startswith(src_head) and path.endswith(".py"):
+                path = src_head + PL.declared_path_now(path[len(src_head):])
             text = (ROOT / path).read_text(encoding="utf-8")
             assert M.symbol_defined(text, sym), (path, sym)
+    # 負の対照: 元の道でも今の木の道でもない出典は引けない
+    with pytest.raises(KeyError):
+        PL.declared_path_now("zz_no_such_dir/zz_not_declared.py")
     # 負の対照: 無い記号・使うだけで定義の無い名は通らない
     assert not M.symbol_defined("x = REL_ACQ_PAIR_REFRACTORY_MIN + 1\n", "REL_ACQ_PAIR_REFRACTORY_MIN")
     assert M.symbol_defined("REL_ACQ_PAIR_REFRACTORY_MIN: Final[int] = 60\n", "REL_ACQ_PAIR_REFRACTORY_MIN")

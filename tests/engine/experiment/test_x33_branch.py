@@ -15,10 +15,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
-from shibuya.core.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
-from shibuya.engine.experiment import branch as BR
-from shibuya.engine.experiment.form import ExperimentForm
+from shibuya.interfaces.cli import main as cli
+from shibuya.foundation.time_consts import NS_PER_SECOND, SECONDS_PER_DAY
+from shibuya.experiments.drive import branch as BR
+from shibuya.experiments.port.form import ExperimentForm
 
 from tests.engine.experiment._x33 import form
 
@@ -49,10 +49,10 @@ WKW = dict(n_agents=1000, seed=1, world_dir=str(WORLD_DIR), sim_days=2, vocab_ve
 
 def _open_at_noon_on_day2() -> list[int]:
     """2 日目(火曜)の正午に W7 で開いている店(番号の昇順)。"""
-    from shibuya.engine.calendar import DEFAULT_WORLD_START, SimCalendar, load_holidays
-    from shibuya.engine.processes.opening import rows_of_day
-    from shibuya.world.assets import load_process_assets_or_synthetic
-    from shibuya.world.state import World
+    from shibuya.world.facts.calendar import DEFAULT_WORLD_START, SimCalendar, load_holidays
+    from shibuya.world.laws.opening import rows_of_day
+    from shibuya.world.model.assets import load_process_assets_or_synthetic
+    from shibuya.world.model.state import World
 
     w = World.load(WORLD_DIR)
     pa = load_process_assets_or_synthetic(WORLD_DIR, w.assets)
@@ -210,7 +210,7 @@ def test_input_match_negative_controls():
     # 再開で動く欄は宣言した値のときだけ許す
     # 〔第 2 期 2-4 V5〕group_norms.cost.ticks は観測の節に移した=今の節の表では設定の差に出ない。RESUME_DERIVED は 2-4 より前の
     # 節の表(cost ごと設定)で録った基準との比べのために残す=その表を manifest に載せた基準で負の対照を見る
-    from shibuya.engine import manifest_sections as MS
+    from shibuya.foundation.manifest import sections as MS
 
     old_paths = {k: v for k, v in MS.PATHS.items() if not k.startswith("group_norms.cost")}
     old_paths["group_norms.cost"] = MS.CONFIG
@@ -300,7 +300,7 @@ def test_synthetic_branch_with_the_classical_policy(tmp_path):
 def test_world_resume_with_the_same_form_equals_straight(tmp_path):
     """申込書つきのラン(1 日目の正午から 200 店の休業)を日の境目で止めて同じ申込書で再開すると、通しのランと同じ
     (再開のランは表へ当て直すだけ=決定の行は親のラン・日の頭で張り直した営業時間の表に当て直す)。"""
-    from shibuya.core.time_consts import SECONDS_PER_HOUR
+    from shibuya.foundation.time_consts import SECONDS_PER_HOUR
 
     kw = dict(n_agents=300, seed=1, world_dir=str(WORLD_DIR), sim_days=2, vocab_version="v3", checkpoint_every=120)
     f = form(subject={"level": "L1", "ids": _open_at_noon_on_day2()[:200]}, start=12 * SECONDS_PER_HOUR * NS_PER_SECOND)

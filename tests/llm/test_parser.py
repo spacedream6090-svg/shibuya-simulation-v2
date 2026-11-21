@@ -10,14 +10,14 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.actions import (
     ALL_ACTION_WORDS,
     NO_TARGET,
     UNDEFINED_ACTION,
     TargetKind,
     format_two_line,
 )
-from shibuya.llm.parser import (
+from shibuya.act.intake.parser import (
     CANONICAL_LABELS,
     LABEL_ALIASES,
     LABEL_ALIASES_C6,
@@ -495,13 +495,13 @@ def test_d113_positional_behaviour_without_unknown_labels_is_unchanged():
 
 
 # ================================================================ 語彙 v3(第274・D-116 二層・アジェンダ §1-2)
-from shibuya.llm.contract import (  # noqa: E402
+from shibuya.foundation.vocab.actions import (  # noqa: E402
     ALL_ACTION_WORDS_V3,
     NONE_ACTION_CODE,
     UntilKind,
     format_two_line_v3,
 )
-from shibuya.llm.parser import CANONICAL_LABELS_V3, LABEL_ALIASES_V3  # noqa: E402
+from shibuya.act.intake.parser import CANONICAL_LABELS_V3, LABEL_ALIASES_V3  # noqa: E402
 
 V3_TEXT = "理由: 腹が減った\n行動: 食事 対象: カフェ 活動: 昼を食べる まで: 30分"
 

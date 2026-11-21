@@ -1,0 +1,395 @@
+{
+ "label": "n5000_ts1_h0",
+ "argv": [
+  "--llm",
+  "mock",
+  "--agents",
+  "5000",
+  "--ticks",
+  "3600",
+  "--seed",
+  "1",
+  "--batch-width-s",
+  "1"
+ ],
+ "tick_seconds": 1,
+ "agents": 5000,
+ "ticks": 3600,
+ "seed": 1,
+ "profiled": false,
+ "wall_s": 46.806,
+ "ms_per_tick": 13.002,
+ "engine_wall_s": 46.343,
+ "peak_mb": 539.7,
+ "llm_calls": 38001,
+ "final16": "3219c1d8a738b1aa",
+ "system_total_s": {
+  "activity_intent": 0.5635,
+  "apply_responses": 1.4011,
+  "arbiter": 0.4574,
+  "body": 0.5788,
+  "checkpoint": 0.1166,
+  "close_final": 0.0149,
+  "conversation": 0.1978,
+  "decide": 16.1179,
+  "detect": 0.7827,
+  "drain": 0.0,
+  "energy_after": 0.2427,
+  "llm_receive": 0.0325,
+  "memory": 0.0237,
+  "observe": 1.3875,
+  "perceive_prepare": 7.649,
+  "phase_a": 0.4588,
+  "phase_b": 0.2333,
+  "phase_c": 11.7715,
+  "plan_boundary": 0.1342,
+  "presence": 0.2307,
+  "report": 0.0068,
+  "wake_assemble": 0.0816,
+  "wake_filter": 0.0514,
+  "wake_sources": 0.0568,
+  "world": 1.1301
+ },
+ "system_tick_s": {
+  "activity_intent": 0.5635,
+  "apply_responses": 1.4011,
+  "arbiter": 0.4574,
+  "body": 0.5788,
+  "checkpoint": 0.1166,
+  "close_final": 0.0,
+  "conversation": 0.1978,
+  "decide": 16.1179,
+  "detect": 0.7827,
+  "drain": 0.0,
+  "energy_after": 0.2427,
+  "llm_receive": 0.0325,
+  "memory": 0.0237,
+  "observe": 1.3875,
+  "perceive_prepare": 7.649,
+  "phase_a": 0.4588,
+  "phase_b": 0.2333,
+  "phase_c": 11.7715,
+  "plan_boundary": 0.1342,
+  "presence": 0.2307,
+  "report": 0.0,
+  "wake_assemble": 0.0816,
+  "wake_filter": 0.0514,
+  "wake_sources": 0.0568,
+  "world": 1.1301
+ },
+ "system_run_level_s": {
+  "close_final": 0.0149,
+  "drain": 0.0,
+  "report": 0.0068
+ },
+ "system_calls": {
+  "activity_intent": 3600,
+  "apply_responses": 3600,
+  "arbiter": 3600,
+  "body": 3600,
+  "checkpoint": 3600,
+  "close_final": 1,
+  "conversation": 3600,
+  "decide": 3600,
+  "detect": 3600,
+  "drain": 1,
+  "energy_after": 3600,
+  "llm_receive": 3600,
+  "memory": 3600,
+  "observe": 3600,
+  "perceive_prepare": 3600,
+  "phase_a": 3600,
+  "phase_b": 3600,
+  "phase_c": 3600,
+  "plan_boundary": 3600,
+  "presence": 3600,
+  "report": 1,
+  "wake_assemble": 3600,
+  "wake_filter": 3600,
+  "wake_sources": 3600,
+  "world": 3600
+ },
+ "phase_seconds": {
+  "presence": 0.2897,
+  "detect": 0.7403,
+  "arbiter": 0.4324,
+  "llm": 16.0744,
+  "fleet_wait": 0.0,
+  "phase_a": 1.7829,
+  "phase_b": 0.2114,
+  "phase_c": 11.7091,
+  "movement": 0.8792,
+  "movement_cpu": 0.8281,
+  "checkpoint": 0.0917,
+  "group_norms": 1.4932,
+  "group_norms_tick_ms_max": 5.2124
+ },
+ "process_seconds": {
+  "environment": 0.0671,
+  "rail": 0.2977,
+  "opening": 0.0322,
+  "crowd": 0.5236,
+  "traffic": 0.0068,
+  "delivery_inbound": 0.0301,
+  "shelf": 0.046,
+  "waste": 0.0053,
+  "street_cleaning": 0.0131,
+  "last_mile": 0.003,
+  "bus_taxi": 0.0046,
+  "road_works": 0.0046,
+  "hotel": 0.0046,
+  "infra": 0.0218,
+  "press": 0.0049,
+  "large_event": 0.0037,
+  "dispatch": 0.0019,
+  "salient": 0.0254
+ },
+ "diag_totals": {
+  "deferred": 0,
+  "promoted": 0,
+  "degraded": 0,
+  "suppressed": 9251,
+  "merged": 4532,
+  "candidates": 97936,
+  "calls": 38001,
+  "pending_wakes": 0,
+  "pending_apply": 114001,
+  "intents": 929989,
+  "conflicts": 936,
+  "unresolved": 936,
+  "moved": 891876,
+  "arrived": 1134,
+  "purchases": 1871,
+  "conversations": 1266,
+  "reflections": 213,
+  "undefined_actions": 0,
+  "parse_errors": 0,
+  "tape_misses": 0,
+  "conversations_opened": 83,
+  "sleep_suppressed": 2855,
+  "outside_suppressed": 43297
+ },
+ "by_hour_system_s": {
+  "activity_intent": [
+   0.56346
+  ],
+  "apply_responses": [
+   1.40111
+  ],
+  "arbiter": [
+   0.4574
+  ],
+  "body": [
+   0.57875
+  ],
+  "checkpoint": [
+   0.11659
+  ],
+  "close_final": [
+   0.0
+  ],
+  "conversation": [
+   0.19778
+  ],
+  "decide": [
+   16.11793
+  ],
+  "detect": [
+   0.78266
+  ],
+  "drain": [
+   0.0
+  ],
+  "energy_after": [
+   0.24274
+  ],
+  "llm_receive": [
+   0.03255
+  ],
+  "memory": [
+   0.02366
+  ],
+  "observe": [
+   1.38753
+  ],
+  "perceive_prepare": [
+   7.64896
+  ],
+  "phase_a": [
+   0.45884
+  ],
+  "phase_b": [
+   0.23332
+  ],
+  "phase_c": [
+   11.77147
+  ],
+  "plan_boundary": [
+   0.13424
+  ],
+  "presence": [
+   0.23072
+  ],
+  "report": [
+   0.0
+  ],
+  "wake_assemble": [
+   0.08158
+  ],
+  "wake_filter": [
+   0.05143
+  ],
+  "wake_sources": [
+   0.05676
+  ],
+  "world": [
+   1.13006
+  ]
+ },
+ "by_hour_diag": {
+  "deferred": [
+   0
+  ],
+  "promoted": [
+   0
+  ],
+  "degraded": [
+   0
+  ],
+  "suppressed": [
+   9251
+  ],
+  "merged": [
+   4532
+  ],
+  "candidates": [
+   97936
+  ],
+  "calls": [
+   38001
+  ],
+  "pending_wakes": [
+   0
+  ],
+  "pending_apply": [
+   114001
+  ],
+  "intents": [
+   929989
+  ],
+  "conflicts": [
+   936
+  ],
+  "unresolved": [
+   936
+  ],
+  "moved": [
+   891876
+  ],
+  "arrived": [
+   1134
+  ],
+  "purchases": [
+   1871
+  ],
+  "conversations": [
+   1266
+  ],
+  "reflections": [
+   213
+  ],
+  "undefined_actions": [
+   0
+  ],
+  "parse_errors": [
+   0
+  ],
+  "tape_misses": [
+   0
+  ],
+  "conversations_opened": [
+   83
+  ],
+  "sleep_suppressed": [
+   2855
+  ],
+  "outside_suppressed": [
+   43297
+  ]
+ },
+ "presence_counters": {
+  "home_out": 4421.0,
+  "blocks": 6413.0,
+  "all_day_outside": 136.0,
+  "absent": 0.0,
+  "arrivals": 5743.0,
+  "departures": 5659.0,
+  "arrive_skipped": 67.0,
+  "arrive_skipped_in_area": 67.0,
+  "arrive_skipped_pulled_in": 0.0,
+  "returned_to_block": 228.0,
+  "plan_stranded_eod": 3633.0,
+  "depart_skipped": 3.0,
+  "exit_deferred": 4.0,
+  "exit_forced": 0.0,
+  "shopping_interrupted": 158.0,
+  "queue_balked": 0.0,
+  "gate_arrivals": 624.0,
+  "spread_moved": 0.0,
+  "spread_overflow": 0.0,
+  "pulled_in": 0.0,
+  "pushed_out": 0.0,
+  "departed_by_llm": 327.0,
+  "depart_dropped": 93.0,
+  "rearmed": 0.0,
+  "placed_at_start": 231.0,
+  "home_out_slept_inside": 1.0,
+  "wake_in_area_03": 0.09859154929577464,
+  "wake_in_area_09": 0.975669099756691,
+  "wake_in_area_12": 0.9899172699069286,
+  "in_area_03": 852.0,
+  "in_area_09": 2877.0,
+  "in_area_12": 3868.0,
+  "plan_match_in": 0.5503738607378684,
+  "plan_match_out": 0.9772668546261578,
+  "day_night_ratio_09_03": 3.3767605633802815
+ },
+ "presence_exit": {
+  "exit_mode": "immediate",
+  "departures": 5659,
+  "deferred": 4,
+  "forced_after_defer": 0,
+  "shopping_interrupted": 158,
+  "queue_balked": 0,
+  "exit_cell_in_area_by_hour": "[252.0, 294.0, 289.0, 286.0, 283.0, 294.0, 390.0, 635.0, 1517.0, 2169.0, 2778.0, 2767.0, 2624.0, 2467.0, 2190.0, 2097.0, 2100.0, 2027.0, 1836.0, 1593.0, 1392.0, 1135.0, 922.0, 753.0]",
+  "platform_cell_in_area_by_hour": "[0.0, 0.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.0, 17.0, 43.0, 84.0, 136.0, 159.0, 172.0, 177.0, 172.0, 159.0, 170.0, 137.0, 106.0, 96.0, 80.0, 73.0, 68.0]",
+  "exit_cell_density_stage_max_by_hour": "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]",
+  "immediate": 5659
+ },
+ "calls_by_hour": [
+  189,
+  151,
+  117,
+  116,
+  182,
+  362,
+  947,
+  3231,
+  4144,
+  4380,
+  2733,
+  1952,
+  2105,
+  1367,
+  1141,
+  1183,
+  1407,
+  2394,
+  2997,
+  2310,
+  2144,
+  1097,
+  748,
+  604
+ ]
+}

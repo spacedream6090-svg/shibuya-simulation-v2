@@ -69,7 +69,7 @@ TICKS_PER_HOUR = 60
 
 def event_classes() -> list[dict[str, Any]]:
     """``EventClass`` を**優先順(昇順)**に並べた記述。値と並びは src から取る。"""
-    from shibuya.core.types import EventClass
+    from shibuya.foundation.types import EventClass
 
     out: list[dict[str, Any]] = []
     for i, member in enumerate(sorted(EventClass, key=int)):

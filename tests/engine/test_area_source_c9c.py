@@ -19,18 +19,18 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.change_detect import ChangeDetector
-from shibuya.engine.geometry import EdgeGeometry
-from shibuya.engine.processes.crowd import (
+from shibuya.mind.system1.change_detect import ChangeDetector
+from shibuya.world.model.geometry import EdgeGeometry
+from shibuya.world.laws.crowd import (
     DEFAULT_SEAT_AREA_M2,
     SEAT_AREA_M2,
     CrowdProcess,
     seats_for_categories,
 )
-from shibuya.engine.run import run_day
-from shibuya.perception.renderer import PerceptionAssets
-from shibuya.world import assets as WA
-from shibuya.world.state import World
+from shibuya.runtime.run import run_day
+from shibuya.world.model.percept_scene import PerceptionAssets
+from shibuya.world.model import assets as WA
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
 ASSET = WORLD_DIR / WA.WALKABLE_AREA_FILENAME
@@ -100,7 +100,7 @@ def test_the_same_denominator_reaches_detector_and_geometry():
     world.cells.density[:] = 100
     wide = ChangeDetector(4, world.n_cells, walkable_area_m2=assets.walkable_area_m2)
     tight = ChangeDetector(4, world.n_cells, walkable_area_m2=small)
-    from shibuya.engine.change_detect import b4_block_raw
+    from shibuya.world.model.scene_hash import b4_block_raw
 
     los_wide = b4_block_raw(world, 0, walkable_area_m2=wide.walkable_area_m2)[:, 0]
     los_tight = b4_block_raw(world, 0, walkable_area_m2=tight.walkable_area_m2)[:, 0]
@@ -153,7 +153,7 @@ def test_seat_area_override_changes_the_seat_count_only_when_given():
 
 def test_crowd_process_keeps_the_current_table_by_default():
     world = World.synthetic(n_cells=9, seed=1)
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     p = CrowdProcess(world, AgentState(4))
     assert p.seat_area_m2 == SEAT_AREA_M2

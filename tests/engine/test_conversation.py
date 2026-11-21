@@ -1,6 +1,7 @@
 """engine.conversation のテスト(行動契約書 §3 会話プロトコル)。
 
-開始ゲート5条件/応答判定0.8の決定論/話者交替(招待者始まり)/ハード終了 max_turns 3(+2)/
+開始ゲート5条件/被招待者の返事(〔第346〕応答率 0.8 の抽選=死んだ道は消した)/話者交替(招待者始まり)/
+ハード終了 max_turns 3(〔第346〕重要度上位の +2 呼=死んだ道は消した)/
 ソフト終了(話題スタック空・沈黙・退去・セル離脱)/1人1会話/拒否履歴/
 会話ターン起床(不応期0)/診断計数。
 """
@@ -10,11 +11,9 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
-from shibuya.core.rng import stream
-from shibuya.core.types import EventClass
-from shibuya.engine.conversation import (
-    ACCEPT_PROBABILITY,
+from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
+from shibuya.foundation.types import EventClass
+from shibuya.society.conversation import (
     BACKCHANNELS,
     CLOSING_UTTERANCE,
     D_TALK_METERS,
@@ -27,12 +26,11 @@ SEED = 20260908
 
 
 def _manager(**kw) -> ConversationManager:
-    kw.setdefault("accept_probability", 1.0)  # ゲートと進行の検査では応答判定を固定
     return ConversationManager(SEED, **kw)
 
 
 def _open(m: ConversationManager, a=1, b=2, tick=0, cell=5):
-    return m.invite(a, b, tick, cell, same_cell=True, partner_idle=True)
+    return m.invite(a, b, tick, cell, same_cell=True, partner_idle=True, answered=True)
 
 
 # ---------------------------------------------------------------- 開始ゲート
@@ -84,31 +82,28 @@ def test_refusal_memory_blocks_the_pair_for_a_while():
     assert m.gate(1, 2, 40, same_cell=True, partner_idle=True).ok
 
 
-# ---------------------------------------------------------------- 応答判定
-def test_accept_is_deterministic_for_the_same_key():
-    a = ConversationManager(SEED)
-    b = ConversationManager(SEED)
-    for tick in range(20):
-        assert (a._accepts(7, tick)) == (b._accepts(7, tick))
+# ---------------------------------------------------------------- 被招待者の返事
+def test_the_dead_accept_lottery_is_removed():
+    """〔第346 死んだ道の削除〕応答率 0.8 の抽選(``answered=None`` のときだけ引いた)は消した=返事は必ず渡す。"""
+    import inspect
 
+    from shibuya.society import conversation as CV
 
-def test_accept_uses_the_declared_rng_stream():
     m = ConversationManager(SEED)
-    # 運用設計書 §2.5: カウンタ=(tick, entity_id, …) → (tick=3, inviter=7)
-    expected = bool(stream(SEED, "conversation.invite", 3, 7).random() < ACCEPT_PROBABILITY)
-    assert m._accepts(7, 3) is expected
-
-
-def test_accept_rate_is_about_zero_point_eight():
-    m = ConversationManager(SEED)
-    hits = sum(m._accepts(a, t) for a in range(200) for t in range(10))
-    assert 0.75 <= hits / 2_000 <= 0.85
+    for name in ("_accepts", "accept_probability"):
+        assert not hasattr(m, name), name
+    assert not hasattr(CV, "ACCEPT_PROBABILITY")
+    assert inspect.signature(m.invite).parameters["answered"].default is inspect.Parameter.empty
+    with pytest.raises(TypeError):
+        m.invite(1, 2, 0, 5, same_cell=True, partner_idle=True)  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        ConversationManager(SEED, accept_probability=0.8)  # type: ignore[call-arg]
 
 
 def test_non_response_is_an_ignored_event_and_costs_no_call():
-    m = ConversationManager(SEED, accept_probability=0.0)
-    assert m.invite(1, 2, 0, 5, same_cell=True, partner_idle=True) is None
-    assert m.n_ignored_invites == 1 and m.ignored_events == [(0, 1, 2)]
+    m = ConversationManager(SEED)
+    assert m.invite(1, 2, 0, 5, same_cell=True, partner_idle=True, answered=False) is None
+    assert m.n_ignored_invites == 1 and m.n_declined == 1 and m.ignored_events == [(0, 1, 2)]
     assert m.counters()["utterance_blocks"] == 0
     assert not m.is_busy(1) and not m.is_busy(2)
 
@@ -193,15 +188,24 @@ def test_hard_stop_at_max_turns_three_calls_per_agent():
     assert m.counters()["closed_hard"] == 1
 
 
-def test_important_agents_get_two_extra_calls():
-    m = _manager(important=[1], topics_per_session=50)
+def test_the_dead_important_extra_calls_are_removed():
+    """〔第346 死んだ道の削除〕重要度上位の +2 呼(組み立ては対象を渡さなかった)は消した=全員 ``max_turns``。"""
+    from shibuya.society import conversation as CV
+
+    assert not hasattr(CV, "IMPORTANT_EXTRA_TURNS")
+    with pytest.raises(TypeError):
+        _manager(important=[1])  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        _manager(extra_turns_for_important=2)  # type: ignore[call-arg]
+    m = _manager(topics_per_session=50)
+    assert not hasattr(m, "important") and not hasattr(m, "extra_turns_for_important")
     s = _open(m, 1, 2)
-    assert s.max_turns_of == {1: MAX_TURNS + 2, 2: MAX_TURNS}
+    assert s.max_turns_of == {1: MAX_TURNS, 2: MAX_TURNS} and m.max_turns_for(1) == MAX_TURNS
     for tick in range(1, 40):
         if s.state is not ConvState.PARTICIPATING:
             break
         m.utterance(s.speaker, tick, action="会話", comment="…")
-    assert s.calls[1] == MAX_TURNS + 2 and s.calls[2] == MAX_TURNS
+    assert s.calls[1] == MAX_TURNS and s.calls[2] == MAX_TURNS
 
 
 def test_soft_stop_when_the_topic_stack_is_empty():
@@ -279,8 +283,6 @@ def test_counters_report_openings_and_reasons():
 def test_invalid_configuration_is_rejected():
     with pytest.raises(ValueError):
         ConversationManager(SEED, max_participants=4)
-    with pytest.raises(ValueError):
-        ConversationManager(SEED, accept_probability=1.5)
 
 
 # ---------------------------------------------------------------- run_day 結線
@@ -291,7 +293,8 @@ class _TalkLLM:
         self.n_calls = 0
 
     def complete(self, request):
-        from shibuya.llm import LLMResponse, format_two_line
+        from shibuya.foundation.ports.inference import LLMResponse
+        from shibuya.foundation.vocab.actions import format_two_line
 
         self.n_calls += 1
         word = "会話" if request.tick % 2 else "退去"
@@ -300,11 +303,12 @@ class _TalkLLM:
 
 def test_run_day_opens_conversation_sessions_when_resolve_creates_them():
     """resolve が会話を成立させたら ``ConversationManager`` が受け取り、話者を起こす。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(
         n_agents=400, seed=5, ticks=360, checkpoint_every=360, n_cells=2,
         budget=400.0, llm=_TalkLLM(),
+        vocab_version="v1",  # 〔Q13 commit ①〕台本は語彙 v1 の 2 行形(前のライブラリの既定を明示)
     )
     counters = res.conversation_counters
     assert counters["sessions_opened"] > 0, counters
@@ -317,7 +321,7 @@ def test_run_day_opens_conversation_sessions_when_resolve_creates_them():
 def test_run_day_leaves_no_conversing_agent_without_a_session():
     """層2指摘(C3): 不応答/却下の招待側が CONVERSING に取り残されない。
     被招待側は C4 まで IDLE のままなので、日末の CONVERSING 数 == 活動セッション数。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=400, seed=11, ticks=360)
     c = res.conversation_counters

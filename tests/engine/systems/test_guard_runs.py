@@ -13,12 +13,12 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.core import write_permit as WP
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import overrides as OV
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
+from shibuya.foundation import write_permit as WP
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import conductor as CD
+from shibuya.validation.static import system_overrides as OV
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
 
 KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppression=False, vocab_version="v3",
           memory="on", relations="on", rel_copresent="on", store_memory="on", checkpoint_every=60)
@@ -55,7 +55,7 @@ def test_guard_on_and_off_give_the_same_final(base_final):
     ("world", "agents.thermal", "set_thermal"),
     ("decide", "agents.mem_last", "write_memory"),                # 会話ターンの発話 → 記憶
     ("relations_wake", "agents.rel_last", "write_relations"),     # 同席の書き手
-    ("detect", "agents.hunger_stage", "apply_detection"),         # field(変数) の書き(別名の表)
+    ("detect", "agents.hunger_stage", "write_intero_stages"),     # field(変数) の書き(別名の表)
     ("activity_intent", "agents.activity_kind", "set_activity"),
     ("plan_boundary", "agents.activity", "wake_from_plan"),
 ])
@@ -165,6 +165,14 @@ def test_box_rooted_ufunc_at_outside_resolve_is_caught_by_B():
     (numpy の ufunc.at は旗を見ない=限界)。段 B(試験)が書いた系に出し、静的(D⑦)が置き場で落とす。"""
     import numpy as np
 
+    probe = np.zeros(1, dtype=np.int32)
+    probe.flags.writeable = False
+    try:  # numpy の ufunc.at が読み取り専用の旗を素通りする版か(2.5.5 から numpy 自身が止める)
+        np.add.at(probe, [0], 1)
+        hole = True
+    except ValueError:
+        hole = False
+
     def inject(ctx, b):  # noqa: ANN001, ANN202
         np.add.at(b.soa.agents.registry.money, [0], 1)
         return True
@@ -173,8 +181,16 @@ def test_box_rooted_ufunc_at_outside_resolve_is_caught_by_B():
         pr = PR.Probe(check=CD.declared_check(SPECS), ticks=frozenset(range(300, 320)), families=FAM)
         PR.ACTIVE = pr
         try:
-            run_day(**KW)
+            if hole:
+                run_day(**KW)
+            else:
+                # 〔第347〕numpy 2.5.5 から: 凍った配列への ufunc.at は numpy 自身が止める(段 A と同じ効き目)。
+                # 段 B まで届かないので、ここではランが ValueError で止まることだけを確かめる。
+                with pytest.raises(ValueError, match="read-only"):
+                    run_day(**KW)
         finally:
             PR.ACTIVE = None
+    if not hole:
+        return
     assert done["n"] == 1
     assert any(s == "perceive_prepare" and k == "agents.money" for _t, s, k in pr.violations), pr.violations[:5]

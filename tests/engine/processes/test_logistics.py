@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.engine.processes.logistics import (
+from shibuya.world.laws.logistics import (
     BUS_HEADWAY_MIN,
     BUS_SERVICE_WINDOW,
     CELL_AREA_M2,
@@ -16,7 +16,7 @@ from shibuya.engine.processes.logistics import (
     LastMileProcess,
     RoadWorksProcess,
 )
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 
 from .conftest import WORLD_DIR, make_world, real_data
 
@@ -24,7 +24,7 @@ from .conftest import WORLD_DIR, make_world, real_data
 # ================================================================= 宅配ラストマイル
 def test_parcels_are_the_ward_number_scaled_by_the_bbox_area():
     world = make_world(64)
-    lm = LastMileProcess(world)
+    lm = LastMileProcess(world, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     share = 64 * CELL_AREA_M2 / SHIBUYA_WARD_AREA_M2
     assert lm.bbox_share == share
     assert lm.parcels_today == round(PARCELS_PER_DAY_WARD * share)
@@ -36,7 +36,7 @@ def test_parcels_follow_the_household_weights():
     hh = np.zeros(16, dtype=np.int64)
     hh[3] = 10
     hh[7] = 30
-    lm = LastMileProcess(world, household_per_cell=hh)
+    lm = LastMileProcess(world, household_per_cell=hh, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     assert lm.parcels_per_cell[7] > lm.parcels_per_cell[3] > 0
     assert int(lm.parcels_per_cell[[0, 1, 2]].sum()) == 0
 
@@ -44,7 +44,7 @@ def test_parcels_follow_the_household_weights():
 def test_parcels_are_delivered_on_the_hourly_curve():
     world = make_world(16)
     hh = np.full(16, 5, dtype=np.int64)
-    lm = LastMileProcess(world, household_per_cell=hh)
+    lm = LastMileProcess(world, household_per_cell=hh, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     for t in range(1_440):
         lm.step(t)
     assert 0 < int(lm.delivered.sum()) <= lm.parcels_today
@@ -78,8 +78,8 @@ def test_bus_arrives_on_an_equal_interval_plan():
 @real_data
 def test_bus_stops_come_from_osm_and_land_on_cells():
     """OSM の ``highway=bus_stop`` 127 点がセルへ写像される(座標欠落は幹線へ置く=expedient)。"""
-    from shibuya.world.assets import load_process_assets
-    from shibuya.world.state import World
+    from shibuya.world.model.assets import load_process_assets
+    from shibuya.world.model.state import World
 
     world = World.load(WORLD_DIR)
     assets = load_process_assets(WORLD_DIR, world.assets)
@@ -106,7 +106,7 @@ def test_road_works_occupy_at_night_and_clear_in_the_morning():
         edge_length_m=np.full(20, 50.0),
         edge_klass_names=("residential",),
     )
-    rw = RoadWorksProcess(world, assets, master_seed=1, n_works=4)
+    rw = RoadWorksProcess(world, assets, master_seed=1, n_works=4, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の占用を見る
     assert rw.active and rw.planned_edges.size == 4
     lo, hi = ROADWORK_WINDOW
     rw.step(lo)  # 22:00

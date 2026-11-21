@@ -12,8 +12,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.core import hashing as H
-from shibuya.core import types as T
+from shibuya.foundation import hashing as H
+from shibuya.foundation import types as T
 
 
 # ---------------- types ----------------

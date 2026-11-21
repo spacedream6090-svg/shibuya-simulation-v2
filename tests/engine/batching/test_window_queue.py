@@ -13,10 +13,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS
-from shibuya.engine import batching as BA
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine.scheduler import Scheduler
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS
+from shibuya.foundation.queues import batching as BA
+from shibuya.foundation.manifest import sections as MS
+from shibuya.foundation.queues.scheduler import Scheduler
 
 S = NS_PER_SECOND
 

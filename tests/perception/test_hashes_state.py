@@ -5,13 +5,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.perception import hashes as H
-from shibuya.perception.state import PERCEPTION_BYTE_CAP, PerceptionState, heading_from_vector
+from shibuya.foundation.text import hashes as H
+from shibuya.world.model.percept_state import PERCEPTION_BYTE_CAP, PerceptionState, heading_from_vector
 
 
 # ---------------------------------------------------------------- ハッシュ三役
 def test_block_hash_is_xxh64_of_the_rendered_bytes():
-    from shibuya.core.hashing import xxh64
+    from shibuya.foundation.hashing import xxh64
 
     data = "[B4 密度] 歩行者密度は段階Cです。".encode("utf-8")
     assert H.block_hash(data) == xxh64(data)
@@ -68,7 +68,7 @@ def test_m12_two_bytes_for_p_notice_state():
 def test_invocation_distance_is_not_double_declared_by_default():
     """既定では宣言しない(単体ベンチの逃げ道だけ)。〔10e(E1・Q9)〕``agents.state`` の死蔵の
     ``invocation_distance`` は消した(どちらの SoA にも既定では無い)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     assert "invocation_distance" not in dict(AgentState(2).registry.arrays)
     assert "invocation_distance" not in dict(PerceptionState(2).registry.arrays)

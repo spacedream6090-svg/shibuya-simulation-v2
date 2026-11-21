@@ -1,0 +1,15 @@
+{
+  "common": 1,
+  "n_a": 12,
+  "n_a_unique": 12,
+  "n_b": 3,
+  "n_b_unique": 3,
+  "only_a": 11,
+  "only_a_overlapping_b": 2,
+  "only_b": 2,
+  "only_b_overlapping_a": 2,
+  "same_order": false,
+  "same_set": false,
+  "same_set_casefold": false,
+  "schema": "shibuya.tools/instruments/sealed_tokens_compare/1"
+}

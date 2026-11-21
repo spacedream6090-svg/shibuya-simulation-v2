@@ -10,13 +10,17 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from shibuya.engine.tape import Replay, TapeMiss, TapeRow, TapeWriter
-from shibuya.llm import (
+from shibuya.runtime.inference.tape import Replay, TapeMiss, TapeRow, TapeWriter
+from shibuya.foundation.vocab.actions import (
     ACTION_VOCAB_12,
     NO_TARGET,
     TWO_LINE_RE,
+)
+from shibuya.foundation.ports.inference import (
     LLMClient,
     LLMRequest,
+)
+from shibuya.runtime.inference.mock import (
     MockLLM,
     TapeLLM,
 )

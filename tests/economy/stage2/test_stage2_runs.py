@@ -4,7 +4,9 @@
   保存則の残差 0(毎日)・来街者の口座がある・``RunResult.conserved``(式に段階 2 の項を足した)が成り立つ。
 - 部品を 1 つずつ止めると当該の流れが 0 になる(5 部品)。
 - 負の対照: 営業時間の外の ATM では引き出せない。
-- 腕 off: 段階 2 の欄が立たない・台帳に段階 2 が挿されない・生ログの方法の列は 0・保存則の検算は通る。
+- 段階 2 の外の台帳(〔第347〕前は腕 off): 段階 2 の欄が立たない・台帳に段階 2 が挿されない・生ログの方法の列は 0・保存則の
+  検算は通る。切替口 off の代わりに、試験の中だけの束(段階 2 の口を持たない台帳=``tests/economy/_stage2_outside.py``・手順 0 で
+  off と同じ値を確かめた=記録 ``docs/bench/analysis/switch-removal-347/README.md``)で回す。
 - 腕 port(候補の口)と一緒: 「お金を下ろす」の候補と支払いの注が出る・mock の行為は腕 legacy と同じ(final が同じ)。
 
 合成の世界には OSM の ATM の点が乗らないので、ATM の表は試験の切替口(``set_atm_table``)で 8 セルに 1 つ 24 時間の ATM を置く。
@@ -21,10 +23,11 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_stage2 as ES2
-from shibuya.engine.ledger_api import LedgerBundle
-from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.economy import stage2_bind as ES2
+from shibuya.foundation.ports.ledger import LedgerBundle
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import World
+from tests.economy import _stage2_outside as SO
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 N = 300
@@ -51,13 +54,12 @@ def _atm_everywhere(n_cells: int, hours: str = "24/7", every: int = 8) -> ES2.At
 
 @pytest.fixture
 def arm(monkeypatch):
-    """腕と部品と ATM の表を試験の中だけ切り替える(終わったら元に戻す)。"""
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
+    """部品と ATM の表を試験の中だけ切り替える(終わったら元に戻す)。〔第347〕経済の段階 2 は既定 on のまま(前は切替口の
+    腕を off にしてから on にした)。段階 2 の外は ``_run(outside=True)``(試験の中だけの束)。"""
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
 
-    def set_(name: str, parts=ES2.PARTS, atm_hours: str | None = "24/7") -> None:
-        ES2.set_arm(name)
+    def set_(parts=ES2.PARTS, atm_hours: str | None = "24/7") -> None:
         ES2.set_parts(parts)
         world = World.synthetic(n_cells=64, seed=2)
         ES2.set_atm_table(None if atm_hours is None else _atm_everywhere(world.n_cells, atm_hours))
@@ -65,9 +67,11 @@ def arm(monkeypatch):
     return set_
 
 
-def _run(sim_days: int = 2, small: bool = True, **kw):
+def _run(sim_days: int = 2, small: bool = True, outside: bool = False, **kw):
+    """``outside``=段階 2 の外の台帳(段階 2 の口 ``attach_stage2`` を持たない=試験の中だけの束)。"""
     world = World.synthetic(n_cells=64, seed=2)
-    led = (_SmallWallets if small else Ledger)(N, world.n_poi)
+    cls = _SmallWallets if small else Ledger
+    led = (SO.outside(cls) if outside else cls)(N, world.n_poi)
     goods = GoodsLedger.from_pois(np.arange(world.n_poi) % 3, np.asarray(world.pois.stock),
                                   np.asarray(world.pois.price), n_agents=N)
     bundle = LedgerBundle(money=led, goods=goods, census=lambda d: CS.daily_census(led, goods, day=d))
@@ -88,7 +92,7 @@ def _flow(led: Ledger, code: AccountCode, a: int | None = None, b: int | None = 
 
 @pytest.fixture
 def on_run(arm):
-    arm("on")
+    arm()
     return _run()
 
 
@@ -133,7 +137,7 @@ def test_all_parts_move_money_and_keep_the_books(on_run):
 
 @pytest.mark.parametrize("off", ES2.PARTS)
 def test_turning_one_part_off_zeroes_its_flow(arm, off):
-    arm("on", parts=tuple(p for p in ES2.PARTS if p != off))
+    arm(parts=tuple(p for p in ES2.PARTS if p != off))
     res, led = _run()
     run = led.stage2.s2_meter["run"]
     for d in res.run_manifest_fields()["daily"]:
@@ -162,18 +166,19 @@ def test_turning_one_part_off_zeroes_its_flow(arm, off):
 
 def test_negative_a_closed_atm_gives_no_withdrawal(arm):
     """負の対照: どの ATM も営業時間の外(全部の曜日 off)なら、財布が小さくても引き出せない。"""
-    arm("on", atm_hours="Mo-Su off")
+    arm(atm_hours="Mo-Su off")
     _res, led = _run(sim_days=1)
     w = led.stage2.s2_meter["run"]["withdraw"]
     assert w["asked"] == 0 and w["count"] == 0
-    arm("on", atm_hours="Mo-Fr 09:00-09:01")  # 1 分だけ開く=その刻みに判断した体だけが下ろせる
+    arm(atm_hours="Mo-Fr 09:00-09:01")  # 1 分だけ開く=その刻みに判断した体だけが下ろせる
     _res, led2 = _run(sim_days=1)
     assert led2.stage2.s2_meter["run"]["withdraw"]["asked"] < 300
 
 
-def test_arm_off_changes_nothing_on_the_ledger(arm):
-    arm("off")
-    res, led = _run(sim_days=2)
+def test_a_ledger_outside_stage2_changes_nothing(arm):
+    """〔第347〕前は切替口 off(``test_arm_off_changes_nothing_on_the_ledger``)。段階 2 の外の台帳で同じことを見る。"""
+    arm()
+    res, led = _run(sim_days=2, outside=True)
     m = res.run_manifest_fields()
     assert led.stage2 is None and led.credit is None and led._stage2_pairs is False
     assert "stage2" not in m["economy"] and all("stage2" not in d["economy"] for d in m["daily"])
@@ -183,16 +188,17 @@ def test_arm_off_changes_nothing_on_the_ledger(arm):
     assert m["decision_port"]["stage2"] is None
 
 
-def test_off_parts_spec_without_the_arm_is_ignored(arm):
-    arm("off", parts=("wages",))
-    res, led = _run(sim_days=1)
+def test_parts_spec_outside_stage2_is_ignored(arm):
+    """〔第347〕前は切替口 off(``test_off_parts_spec_without_the_arm_is_ignored``)。段階 2 の外の台帳では部品の指定は効かない。"""
+    arm(parts=("wages",))
+    res, led = _run(sim_days=1, outside=True)
     assert led.stage2 is None and "stage2" not in res.run_manifest_fields()["economy"]
 
 
 def test_port_arm_shows_the_candidates_and_keeps_the_mock_actions(arm, monkeypatch):
-    from shibuya.engine.decision import layer as DL
+    from shibuya.mind.judge.decision import layer as DL
 
-    arm("on")
+    arm()
     base, _ = _run(sim_days=1)
     monkeypatch.setattr(DL, "_ARM", DL.ARM_PORT)
     res, _led = _run(sim_days=1)
@@ -204,9 +210,9 @@ def test_port_arm_shows_the_candidates_and_keeps_the_mock_actions(arm, monkeypat
 
 
 def test_atms_live_in_the_fixtures(arm):
-    from shibuya.engine.systems import boxes as BX
+    from shibuya.runtime.systems import boxes as BX
 
-    arm("on")
+    arm()
     seen = {}
     orig = BX.Fixtures.__init__
 

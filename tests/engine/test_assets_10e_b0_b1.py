@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -21,7 +22,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.world import assets as WA
+from shibuya.world.model import assets as WA
 
 WORLD_DIR = Path(__file__).resolve().parents[2] / "data" / "world" / "v2"
 HAS_WORLD = WA.assets_available(WORLD_DIR) and (WORLD_DIR / "w10_noise_stage_day.npy").is_file()
@@ -77,7 +78,7 @@ def test_b0_world_reader_records_the_file_and_cell_hashes(tmp_path):
 
 @needs_world
 def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(world_dir=str(WORLD_DIR), **SMALL)
     fs = res.run_manifest_fields()["frozen_sources"]
@@ -103,17 +104,27 @@ def test_b0_manifest_lists_what_the_run_read_and_the_two_noise_readers_agree():
 
 @needs_world
 def test_b0_hashes_stay_out_of_the_final(monkeypatch):
-    from shibuya import cli
-    from shibuya.engine.processes import environment as ENV
-    from shibuya.perception import renderer as REN
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.world.laws import environment as ENV
+    from shibuya.world.model.percept_scene import PerceptionAssets
 
     a = cli.run(world_dir=str(WORLD_DIR), **SMALL)
     fake = lambda path: "0" * 64  # noqa: E731
-    for mod in (WA, REN, ENV):
+    # 〔割る段 5a の G1〕元の置き場の読み手は file_sha256 の定義の置き場(割ると主な割り先)。別名の素の使い方は道具が割り先を決められない
+    # 〔割る段 7 の G0〕renderer の側は、file_sha256 を呼ぶ時に名を引くモジュール(PerceptionAssets.load の定義の置き場=割ると場面の側)
+    for mod in (sys.modules[WA.file_sha256.__module__], sys.modules[PerceptionAssets.load.__module__], ENV):
         monkeypatch.setattr(mod, "file_sha256", fake)
     b = cli.run(world_dir=str(WORLD_DIR), **SMALL)
     fa, fb = a.run_manifest_fields()["frozen_sources"], b.run_manifest_fields()["frozen_sources"]
     assert fa != fb and set(fa) == set(fb)
+    # 〔割る段 7 の G0・検収の中-2〕renderer の側の差し替えが届いたこと: 知覚の資産の鍵(``perception:`` の頭=組み立てが付ける字面・
+    # 割っても変わらない)は 5 つ。ファイルの sha256 の 4 つは全部が差し替えた値(ほかの 2 つの差し替えだけでは変わらない鍵)、
+    # 集約した騒音の段の指紋 1 つ(``array_sha256``=file_sha256 を通らない)は変わらない
+    pk = sorted(k for k in fb if k.startswith("perception:"))
+    agg = "perception:noise_stage_cells"
+    files = [k for k in pk if k != agg]
+    assert len(pk) == 5 and agg in pk and len(files) == 4, pk
+    assert all(fb[k] == "0" * 64 != fa[k] for k in files) and fb[agg] == fa[agg], files
     assert a.final_hash == b.final_hash
     assert [c.combined for c in a.checkpoints] == [c.combined for c in b.checkpoints]
     assert a.llm_calls == b.llm_calls
@@ -124,12 +135,16 @@ def test_b1_switch_is_gone():
     import argparse
     import inspect
 
-    from shibuya import cli
-    from shibuya.engine.run import add_calendar_args, run_day
-    from shibuya.perception.renderer import PerceptionAssets
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.interfaces.cli.run_args import add_calendar_args
+    from shibuya.runtime.run import run_day
+    from shibuya.world.model.percept_scene import PerceptionAssets
 
+    # 〔割る段 5a の G1〕消した口の名は読み込みの口の置き場で見る(割ると主な割り先。2 つ目の割り先 foundation.vocab.place_words へ
+    # 行くのは店の語の定数 SYNTHETIC_POI_CATS だけ)
+    loader = sys.modules[WA.load_assets.__module__]
     for gone in ("AssetSource", "asset_source", "PRE10E_FAMILIES", "PRE10E_DEFAULT_DIR"):
-        assert not hasattr(WA, gone), gone
+        assert not hasattr(loader, gone), gone
     assert "world_assets_pre10e" not in inspect.signature(run_day).parameters
     assert "pre10e" not in inspect.signature(WA.load_assets).parameters
     assert "pre10e" not in inspect.signature(WA.load_process_assets).parameters

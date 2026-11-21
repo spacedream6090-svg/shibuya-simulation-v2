@@ -744,7 +744,7 @@ def test_real_rights_rows_pass_engine_grant(built):
     〔第337 4-2〕閉じた表の正は engine の ``OBJECTS_OF_KIND``(4-2 で ``own → store`` が入り、店の持ち主の行 286 は中になった)。
     資産の列 ``in_closed_table`` は組んだ時の表の値なので、ここでは engine の表から引き直して比べる(列との差は店の持ち主の行だけ)。
     """
-    from shibuya.engine.rights.ledger import OBJECTS_OF_KIND, Right, Rights
+    from shibuya.world.facts.rights.ledger import OBJECTS_OF_KIND, Right, Rights
 
     out, _man = built
     r = pq.read_table(out / "w21_rights_initial.parquet").to_pydict()

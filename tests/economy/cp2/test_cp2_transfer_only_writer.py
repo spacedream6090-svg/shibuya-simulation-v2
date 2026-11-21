@@ -23,7 +23,7 @@ import pytest
 
 from shibuya.economy import ops as OPS
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.systems import allow as AL
+from shibuya.runtime.systems import allow as AL
 
 from tests.economy.cp2 import money_writers as MW
 
@@ -102,7 +102,7 @@ def test_only_the_ledger_ports_call_the_primitive():
 def test_the_apply_cash_alias_rows_are_gone():
     """``_apply_cash`` の別名の 4 行は消え、帳簿の口の呼び出しから AST で引く(閉包は前と同じ)。"""
     assert not any("_apply_cash" in why for _w, why in AL.ALIAS_WRITES.values())
-    assert set(AL.ALIAS_WRITES) == {"apply_detection"}
+    assert set(AL.ALIAS_WRITES) == {"write_intero_stages"}
     callers = {f for f, _ln, _p in AL.index().transfer_callers}
     # 〔2-1・検収 A7〕引き出しの口(withdraw_many)を呼ぶ _stage2_withdraw が足された(腕 on だけが呼ぶ)
     assert callers == {"_complete_buy", "_complete_eat", "_board_riders", "initialize", "_stage2_withdraw"}
@@ -113,7 +113,7 @@ def test_the_apply_cash_alias_rows_are_gone():
 
 def test_the_household_ports_exist_and_move_household_cash():
     """口の名の表(engine 側)は economy の口と突き合う: 世帯を払い手か受け手にする Ledger の口と運賃の口。"""
-    from shibuya.engine.processes.rail import RailProcess
+    from shibuya.world.laws.rail import RailProcess
 
     assert set(AL.TRANSFER_PORTS_HOUSEHOLD) == {"purchase_many", "endow_households", "pay_fares", "withdraw_many"}
     from types import MappingProxyType
@@ -151,7 +151,7 @@ def test_negative_alias():
 def test_negative_ufunc_at():
     """負の対照 2(np.add.at): writeable=False を無視して書ける形(numpy 2.5 実測)。"""
     bad = _bad("import numpy as np\ndef leak(agents):\n    np.add.at(agents.registry.money, [0], 1)\n",
-               "engine/presence.py")
+               "world/laws/presence.py")
     assert [(w.func, w.attr, w.form) for w in bad] == [("leak", "money", "ufunc.at")]
     bad = _bad("import numpy as np\ndef leak(world):\n    rev = world.pois.revenue\n    np.subtract.at(rev, [1], 2)\n")
     assert [(w.attr, w.form) for w in bad] == [("revenue", "ufunc.at")]
@@ -160,7 +160,7 @@ def test_negative_ufunc_at():
 def test_negative_attribute_chain():
     """負の対照 3(属性の鎖): 箱から台帳をたどって生ログと売上の写しを書く。"""
     bad = _bad("def leak(b, world):\n    b.layers.ledger.money._raw_amt[0] = 1\n    world.pois.revenue[3] += 7\n"
-               "    b.layers.ledger.money._raw_pos += 1\n", "engine/systems/act.py")
+               "    b.layers.ledger.money._raw_pos += 1\n", "runtime/systems/act.py")
     assert [(w.attr, w.form) for w in bad] == [("_raw_amt", "添字への代入"), ("revenue", "添字への代入(+=)"),
                                               ("_raw_pos", "属性の差し替え(+=)")]
 

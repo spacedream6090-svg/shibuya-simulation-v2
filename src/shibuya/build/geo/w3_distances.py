@@ -20,7 +20,7 @@ from typing import Any
 import numpy as np
 from numba import njit, prange
 
-from shibuya.core import rng
+from shibuya.foundation import rng
 
 from . import common as C
 

@@ -15,8 +15,8 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya.core.budget import budget_by_id, load_budget_table, parse_limit
-from shibuya.engine.scheduler import Scheduler
+from shibuya.foundation.budget import budget_by_id, load_budget_table, parse_limit
+from shibuya.foundation.queues.scheduler import Scheduler
 
 N_EVENTS = 1_000_000
 N_TICKS = 1_440

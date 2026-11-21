@@ -86,19 +86,25 @@ def test_economy_never_calls_the_world_write_window():
 
 def test_engine_does_not_import_economy():
     """依存逆転: engine は economy を import しない(import-linter の層契約の同型検査)。"""
+    from shibuya.economy import ledger as ECONOMY
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.act import intent as ENGINE
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ engine の走査と包みの名 "shibuya.economy"。範囲は元の置き場で
+    # 決める: 走査は元の置き場が engine(下の包みも)のファイル・読んではいけないのは元の置き場が economy のモジュール
+    # (段 4 で engine から economy の包みへ移る 2 本は前と同じく走査する側)
+    economy = PL.names_from(ECONOMY)
+    files = PL.files_from(ENGINE)
+    assert len(files) > 100
     offenders: list[str] = []
-    for path in sorted((SRC / "engine").rglob("*.py")):
+    for path in files:
         text = path.read_text(encoding="utf-8")
         tree = ast.parse(text)
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom) and (node.module or "").startswith(
-                "shibuya.economy"
-            ):
+            if any(economy.hits(m) for m in PL.imported(node)):
                 offenders.append(str(path))
-            if isinstance(node, ast.Import):
-                for a in node.names:
-                    if a.name.startswith("shibuya.economy"):
-                        offenders.append(str(path))
     assert offenders == []
 
 
@@ -136,6 +142,22 @@ def test_attached_agent_money_is_not_unfrozen_by_the_ledger():
     assert int(money.sum()) == 400
 
 
+def _ufunc_at_ignores_readonly() -> bool:
+    """numpy の ``ufunc.at`` が読み取り専用の旗を素通りする版か。
+
+    〔第347〕numpy 2.5.5 から、読み取り専用の配列への ``ufunc.at`` は numpy 自身が ValueError で止める
+    (CI が 2.5.5 を入れて、穴の実在を記録する試験 4 本が落ちた)。穴のある版と塞がった版の両方で通るように、
+    試験はこの見分けで枝を分ける。静的な検査(D⑦)と配列単位の守りは、穴のある版のために残す。
+    """
+    probe = np.zeros(1, dtype=np.int32)
+    probe.flags.writeable = False
+    try:
+        np.add.at(probe, [0], 1)
+    except ValueError:
+        return False
+    return True
+
+
 def test_numpy_add_at_ignores_the_readonly_flag():
     """発見の記録: ``np.add.at`` は読み取り専用配列に**書けてしまう**。
 
@@ -147,5 +169,10 @@ def test_numpy_add_at_ignores_the_readonly_flag():
     a.flags.writeable = False
     with pytest.raises(ValueError):
         a[0] = 1
-    np.add.at(a, np.array([0]), np.array([5], dtype=np.int32))
-    assert int(a[0]) == 5  # ← フラグが効いていない
+    if _ufunc_at_ignores_readonly():
+        np.add.at(a, np.array([0]), np.array([5], dtype=np.int32))
+        assert int(a[0]) == 5  # ← フラグが効いていない
+    else:  # 〔第347〕numpy 2.5.5 から: numpy 自身が止める(穴は塞がった)
+        with pytest.raises(ValueError):
+            np.add.at(a, np.array([0]), np.array([5], dtype=np.int32))
+        assert int(a[0]) == 0

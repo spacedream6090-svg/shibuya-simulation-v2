@@ -26,7 +26,7 @@ from typing import Any, Final, Mapping
 import numpy as np
 import pyarrow as pa
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
 
 from ..geo import common as C
 from . import attr_fns as A

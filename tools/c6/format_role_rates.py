@@ -44,7 +44,7 @@ WATCHED_ROLE_WORDS: tuple[str, ...] = ("補充", "開閉店", "発車", "停車"
 
 
 def texts_from_tape(path: str | Path) -> list[str]:
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     # D-58: 繰り延べ行(応答空)は書式エラー率の分母に入れない
     return [str(r.response) for r in Tape(path).rows() if not r.deferred]
@@ -119,6 +119,7 @@ def main(argv: list[str] | None = None) -> int:
 
     diagnostics_day: dict | None = None
     source = ""
+    vocab_version: str | None = None  # 〔第347・Q13〕回したランの語彙(テープ・応答を読むときは無い)
     if args.tape:
         texts = texts_from_tape(args.tape)
         source = f"tape={args.tape}"
@@ -149,10 +150,12 @@ def main(argv: list[str] | None = None) -> int:
                 world_dir=c6lib.world_dir_of(args),
                 tape_path=tape_dir,
                 fleet=client,
+                extra={"vocab_version": "v1"},  # 〔第347・Q13〕前と同じラン=語彙 v1 を明示(cli.run の既定は v3 になった)
             )
         finally:
             if client is not None:
                 client.close()
+        vocab_version = str(res.vocab_version)
         texts = texts_from_tape(tape_dir)
         diagnostics_day = {k: float(v) for k, v in res.diagnostics_day().items()}
         source = f"smoke({route}) tape={tape_dir}"
@@ -161,6 +164,7 @@ def main(argv: list[str] | None = None) -> int:
     payload = {
         "test": "format_role_rates",
         "source": source,
+        "vocab_version": vocab_version,
         "temperature": args.temperature,
         "score": score,
         "watched_role_words": list(WATCHED_ROLE_WORDS),

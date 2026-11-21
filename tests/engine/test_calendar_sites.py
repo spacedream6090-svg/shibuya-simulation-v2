@@ -16,20 +16,23 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
-from shibuya.agents.state import AgentState
-from shibuya.engine.calendar import SimCalendar, load_holidays
-from shibuya.engine.presence import _mix64, attendance_draw
-from shibuya.engine.processes import environment as ENV
-from shibuya.engine.processes.runner import WorldProcessRunner
-from shibuya.engine.run import (
+from shibuya.world.facts.mock_schedule import synthesize
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.facts.calendar import SimCalendar, load_holidays
+from shibuya.world.laws import environment as ENV
+from shibuya.world.laws.runner import WorldProcessRunner
+from shibuya.runtime.result import (
     DEFAULT_RESPONSE_DELAY,
+)
+from shibuya.runtime.run import (
     _named_closed_lookup,
+)
+from shibuya.interfaces.cli.run_args import (
     add_calendar_args,
     add_fleet_args,
     calendar_kwargs_from_args,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 from tests import _data_ids as D
 from tests.engine.test_calendar import write_csv
@@ -78,8 +81,8 @@ def test_runner_reads_the_real_calendar(table):
     r = _runner(calendar=cal)
     assert r.environment._weekday_kind() == "土休"                    # noqa: SLF001 - 祝日は土休
     # 〔第330・10e E3〕祝日は W7 の祝日の行(PH)。PH の規則の無い店(今の W7 は全部)は日曜の行=今と同じ開閉
-    from shibuya.engine.calendar import OPENING_ROW_PH
-    from shibuya.engine.processes.opening import rows_of_day
+    from shibuya.world.facts.calendar import OPENING_ROW_PH
+    from shibuya.world.laws.opening import rows_of_day
     assert r.opening.day_index == OPENING_ROW_PH
     _pd = np.arange(8, dtype=np.int8)
     assert np.array_equal(rows_of_day(np.zeros(8), _pd, OPENING_ROW_PH, None), _pd == 6)   # 祝日は日曜の行
@@ -123,16 +126,17 @@ def test_named_closed_next_day_comes_from_the_calendar(table):
 
 
 # ================================================================= ◐ #19 出勤率
-def test_attendance_draw_keeps_day0_and_moves_from_day1():
-    a = np.arange(5_000, dtype=np.int64)
-    old = (_mix64(a.astype(np.uint64)) % np.uint64(10_000)).astype(np.int64)
-    assert np.array_equal(attendance_draw(a, day=0, seed=1), old)
-    assert np.array_equal(attendance_draw(a, day=0, seed=99), old)          # 0 日目は seed に依らない(今のまま)
-    d1 = attendance_draw(a, day=1, seed=1)
-    assert np.mean(d1 != old) > 0.99
-    assert np.mean(attendance_draw(a, day=1, seed=2) != d1) > 0.99         # 1 日目からは seed で変わる
-    assert np.mean(attendance_draw(a, day=2, seed=1) != d1) > 0.99
-    assert (d1 >= 0).all() and (d1 < 10_000).all()
+def test_the_attendance_draw_was_removed():
+    """〔11-01 段 2 の 4〕出勤率のくじ(E6)は道ごと消した=全員出勤の宣言(``engine.rate_rules`` の attendance)。"""
+    import importlib
+
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕消した名は presence の元の名を定義する今のモジュールの全部に無い(割った後に割り先の 1 つだけを見ない。
+    # 割る前は shibuya.engine.presence=前と同じ範囲)
+    for rel in PL.split_files("engine/presence.py"):
+        mod = importlib.import_module(PL.module_of(rel))
+        assert not hasattr(mod, "attendance_draw") and not hasattr(mod, "ATTENDANCE_KINDS"), rel
 
 
 # ================================================================= 切替口の引数
@@ -157,7 +161,7 @@ def test_cli_switches_and_defaults():
 
 
 def test_cli_main_accepts_the_switches():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     ap_args = ["--agents", "20", "--world", "no-such-world", "--cells", "9", "--ticks", "5",
                "--start-date", "2026-07-13"]  # 〔第330・RET〕--calendar-weekday・〔第 2 部〕--response-delay を消した
@@ -167,8 +171,8 @@ def test_cli_main_accepts_the_switches():
 # ================================================================= #10 鉄道(実の資産があるときだけ)
 @pytest.mark.requires_data("world_v2")
 def test_rail_timetable_kind_comes_from_the_calendar(table):
-    from shibuya.engine.processes.rail import RailProcess
-    from shibuya.world.assets import load_process_assets_or_synthetic
+    from shibuya.world.laws.rail import RailProcess
+    from shibuya.world.model.assets import load_process_assets_or_synthetic
 
     world = World.load_or_synthetic(Path("data/world/v2"), n_cells=139, seed=1)
     pa = load_process_assets_or_synthetic("data/world/v2", world.assets)

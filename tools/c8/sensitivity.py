@@ -159,12 +159,18 @@ def _module_stage(rel: str) -> str | None:
 
 def engine_read_graph(manifest: Mapping[str, Any], src_root: Path | None = None) -> dict[str, Any]:
     """D-44 (c): 段 → 出力 → 読み口(エンジン直接/下流の段)→ 推移的な到達(**純関数に近い**=src を読むだけ)。"""
-    root = Path(src_root) if src_root is not None else c8lib.REPO_ROOT / "src" / "shibuya"
     strings: dict[str, list[tuple[int, str]]] = {}
-    for f in sorted(root.rglob("*.py")):
-        if "__pycache__" in f.parts:
-            continue
-        strings[f.relative_to(root).as_posix()] = _code_strings(f)
+    if src_root is not None:
+        root = Path(src_root)
+        for f in sorted(root.rglob("*.py")):
+            if "__pycache__" in f.parts:
+                continue
+            strings[f.relative_to(root).as_posix()] = _code_strings(f)
+    else:
+        # 〔コードの区分の移動 段 4〕読み口のファイルは**元の置き場の道**で書き、エンジン側かは元の包みで決める(段 4 で engine などの
+        # ファイルが別の包みへ移っても、同じファイルを同じ側に数える。移す前の木では元の道=今の道)。
+        for rel, old in sorted(c8lib.src_origins().items(), key=lambda kv: kv[1]):
+            strings[old] = _code_strings(c8lib.SRC_PKG / rel)
     stages = [str(s["stage"]) for s in manifest.get("stages", ())]
     outputs = {str(s["stage"]): [Path(str(o.get("path") if isinstance(o, Mapping) else o).replace("\\", "/")).name
                                  for o in s.get("outputs", ())] for s in manifest.get("stages", ())}

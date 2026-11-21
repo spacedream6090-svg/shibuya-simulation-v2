@@ -13,7 +13,7 @@ import sys
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.tape import CALLS_FILENAME
+from shibuya.runtime.inference.tape import CALLS_FILENAME
 
 ARGS = ["--agents", "40", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "120",
         "--memory", "on"]
@@ -23,7 +23,7 @@ def _columns(tmp_path, name: str, env_arm: str, cli_arm: str | None) -> int:
     tape = tmp_path / name
     argv = [*ARGS, "--tape", str(tape)] + ([] if cli_arm is None else ["--memory-store", cli_arm])
     env = dict(os.environ, SHIBUYA_MEMORY_STORE=env_arm, PYTHONIOENCODING="utf-8")
-    code = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+    code = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
     r = subprocess.run([sys.executable, "-c", code, *argv], capture_output=True, text=True, encoding="utf-8",
                        env=env, timeout=600)
     assert r.returncode == 0, r.stderr[-2000:]

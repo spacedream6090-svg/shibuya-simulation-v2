@@ -9,7 +9,7 @@ from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.ledger_api import EntityRef
+from shibuya.foundation.ports.ledger import EntityRef
 
 
 def _world(n_h: int = 6, n_s: int = 3):

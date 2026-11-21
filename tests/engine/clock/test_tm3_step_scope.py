@@ -19,18 +19,20 @@ import sys
 import numpy as np
 import pytest
 
-from shibuya import cli
-from shibuya.agents.state import AgentState
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import change_detect as CD
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import step_scope as SS
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CO
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
-from shibuya.world.state import World
+from shibuya.interfaces.cli import main as cli
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.mind.system1 import change_detect as CD
+# 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.vocab.agent_codes import INTERO_VARS
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.clocks import step_scope as SS
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import conductor as CO
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
+from shibuya.world.model.state import World
 
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 TPD = STEPS_PER_DAY
@@ -53,7 +55,7 @@ def _agents(n: int, seed: int) -> AgentState:
     rng = np.random.default_rng(seed)
     for f in ("hunger", "fatigue", "thermal"):
         a.registry.field(f)[:] = rng.integers(0, 11, size=n)
-    for _v, sf in CD.INTERO_VARS:
+    for _v, sf in INTERO_VARS:
         a.registry.field(sf)[:] = rng.integers(0, 4, size=n)  # 値と合わない段も混ぜる(多段の跨ぎを含む)
     return a
 
@@ -94,7 +96,9 @@ def test_scoped_interoception_equals_the_full_one_on_a_superset(seed):
 
 def _drive(a: AgentState, w: World, steps: int, rng, use_scope: bool, keep_crossed: bool = True):
     """値を乱数で少し動かしながら検出 → 段の書き戻しを繰り返す(全員を見る版と印の版)。"""
-    from shibuya.engine import resolve as R
+    # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
+    from shibuya.act.ops import detect_writes as R
+    from shibuya.mind import ops as R_MIND
 
     det = CD.ChangeDetector(a.n, w.n_cells)
     sc = SS.StepScope(a.n)
@@ -106,14 +110,16 @@ def _drive(a: AgentState, w: World, steps: int, rng, use_scope: bool, keep_cross
             v[k] = rng.integers(0, 11, size=k.size)
         if use_scope:
             res = sc.detect(det, w, a, t)
-            R.apply_detection(a, w, res)
+            R.write_b4_hash(w, res)
+            R_MIND.write_intero_stages(a, res)
             sc.after_detection(a, res)
             if not keep_crossed:
                 with SS._OG.writing(sc):  # 負の対照: 跨いだ体を印に残さない(持ち主の中を白箱で書き換える)
                     sc._ss_crossed = np.empty(0, dtype=np.int64)
         else:
             res = det.detect(w, a, t)
-            R.apply_detection(a, w, res)
+            R.write_b4_hash(w, res)
+            R_MIND.write_intero_stages(a, res)
         out.append([(c.agent_id.tolist(), c.new_stage.tolist()) for c in res.crossings])
     return out, sc
 
@@ -138,9 +144,12 @@ def test_marks_are_exactly_the_changed_columns_and_the_crossed():
     sc = SS.StepScope(a.n)
     assert sc.marks(a) is None  # 写しの無い最初は全員
     res = sc.detect(det, w, a, 0)
-    from shibuya.engine import resolve as R
+    # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
+    from shibuya.act.ops import detect_writes as R
+    from shibuya.mind import ops as R_MIND
 
-    R.apply_detection(a, w, res)
+    R.write_b4_hash(w, res)
+    R_MIND.write_intero_stages(a, res)
     sc.after_detection(a, res)
     crossed = _crossing_set(res)
     a.registry.hunger[[3, 7]] = (a.registry.hunger[[3, 7]] + 1) % 11
@@ -213,7 +222,7 @@ def test_changed_run_matches_all_on_world_assets():
 
 
 _ARGS = ["--agents", "20", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "30"]
-_CODE = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+_CODE = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
 
 
 def test_cli_step_scope_beats_the_environment_and_is_an_arm(tmp_path):
@@ -241,10 +250,13 @@ def test_m2_step_scope_refuses_writes_from_outside():
     a = _agents(50, 1)
     det = CD.ChangeDetector(a.n, w.n_cells)
     sc = SS.StepScope(a.n)
-    from shibuya.engine import resolve as R
+    # 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/detect_writes・R_MIND=mind/ops。割る前は全部 resolve)
+    from shibuya.act.ops import detect_writes as R
+    from shibuya.mind import ops as R_MIND
 
     res = sc.detect(det, w, a, 0)
-    R.apply_detection(a, w, res)
+    R.write_b4_hash(w, res)
+    R_MIND.write_intero_stages(a, res)
     sc.after_detection(a, res)
     for name, value in (("_ss_copy", {}), ("_ss_crossed", np.arange(3)), ("_ss_meter", {}), ("n", 1), ("x", 1)):
         with pytest.raises(AttributeError):
@@ -261,6 +273,7 @@ def test_m2_step_scope_refuses_writes_from_outside():
         sc._ss_meter["steps"] = 99
     # 持ち主の書く口は書ける(2 回目の検出)
     res = sc.detect(det, w, a, 1)
-    R.apply_detection(a, w, res)
+    R.write_b4_hash(w, res)
+    R_MIND.write_intero_stages(a, res)
     sc.after_detection(a, res)
     assert sc._ss_meter["steps"] == 2

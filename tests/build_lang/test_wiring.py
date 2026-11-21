@@ -18,11 +18,13 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
-from shibuya.perception import templates as T
-from shibuya.perception.normalize import AgentDependentWordError
-from shibuya.perception.renderer import PerceptionAssets, Renderer, _load_frozen_text
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.normalize import AgentDependentWordError
+from shibuya.world.model.percept_scene import PerceptionAssets, _load_frozen_text
+from shibuya.mind.percept.draw import Renderer
+from shibuya.world.model.state import World
 
 #: 旧 v1.1 の凍結値 = 8f2959d0d3fbe75ee0ca5a634425447bb316baaa6b36af9c570fa34eeb5617ef(6b で v1.2 へ張り替え)
 #: 旧 v1.2 の凍結値 = 1f6c7d6227a11de049dde39d43728fa5919ccf263a0165ea5273b0d052150560(7c で v1.3 へ張り替え)
@@ -262,7 +264,7 @@ def test_w15_token_cap_derivation_still_holds(capsys):
     +[B2 地物])。W6/W8 が更新されて他行が伸びたらここで気づく。
     """
     from shibuya.build.lang import w15_cell_static as W15
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
     d = Path("data/world/v2")
     w = World.load(d)

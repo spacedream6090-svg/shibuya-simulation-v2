@@ -20,12 +20,16 @@ import re
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState, ResultCode
-from shibuya.engine.run import _inviter_of, run_day
-from shibuya.llm import LLMResponse, format_two_line, parse_two_line
-from shibuya.perception import templates as T
-from shibuya.perception.renderer import INVITE_REASON, Renderer, person_word
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import AgentKind, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.runtime.run import _inviter_of, run_day
+from shibuya.foundation.ports.inference import LLMResponse
+from shibuya.foundation.vocab.actions import format_two_line
+from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
+from shibuya.foundation.text import templates as T
+from shibuya.mind.percept.draw import INVITE_REASON, Renderer
+from shibuya.foundation.text.percept_words import person_word
+from shibuya.world.model.state import World
 
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
 #: プロンプトから招待者を読む正規表現(端から端までの LLM が使う)。
@@ -158,7 +162,7 @@ def test_only_the_pending_invitee_gets_an_inviter():
     会話ターン以外で起きた呼も承諾/拒否として消費される。条件で絞ると、その呼には
     招待文が載らないまま「拒否」と数えられる。
     """
-    from shibuya.agents.state import WakeCondition
+    from shibuya.foundation.vocab.agent_codes import WakeCondition
 
     conv = _FakeConv({7: 3})
     turn = int(WakeCondition.CONVERSATION_TURN)

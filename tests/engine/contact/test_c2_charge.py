@@ -9,12 +9,12 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.core.time_consts import SECONDS_PER_HOUR, STEP_SECONDS
-from shibuya.engine.bridging import ledger as BR
-from shibuya.engine.contact import deliver as DL
-from shibuya.engine.contact import device as DV
-from shibuya.engine.contact import port as P
-from shibuya.engine.contact.layer import W_BATTERY, W_CHARGE, W_DELIVERED, W_UNPLUG, audit_causes
+from shibuya.foundation.time_consts import SECONDS_PER_HOUR, STEP_SECONDS
+from shibuya.foundation.decl import bridging as BR
+from shibuya.society.contact import deliver as DL
+from shibuya.world.things import device as DV
+from shibuya.mind.plan import contact_port as P
+from shibuya.interim_bundles.contact.layer import W_BATTERY, W_CHARGE, W_DELIVERED, W_UNPLUG, audit_causes
 
 from tests.engine.contact._c1 import STEP_NS, by_kind, choose
 from tests.engine.contact._c2 import Harness2, loud

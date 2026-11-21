@@ -10,7 +10,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.growth import check_growth
+from shibuya.foundation.growth import check_growth
 from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.anchors import WASTE_TONNES_PER_DAY

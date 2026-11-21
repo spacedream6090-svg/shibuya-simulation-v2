@@ -20,14 +20,15 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core import write_permit as WP
-from shibuya.core.time_consts import NS_PER_STEP
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_ledger_ast as SA
-from shibuya.engine.memory import GIST_PER_AGENT, IMPORTANCE_MAX, MemoryLayer
-from shibuya.engine import memory_store as MS
-from shibuya.engine.systems import guard as G
-from shibuya.engine.systems.table import SPECS
+from shibuya.foundation import write_permit as WP
+from shibuya.foundation.time_consts import NS_PER_STEP
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import ledger_ast as SA
+from shibuya.mind.memory.memory import GIST_PER_AGENT, IMPORTANCE_MAX, MemoryLayer
+from shibuya.mind.memory import memory_store as MS
+from shibuya.foundation import write_guard as G
+from shibuya.runtime.systems.table import SPECS
+from tests import _places as PL
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
 
@@ -42,26 +43,45 @@ def _ev(step: int, kind: int, partner: int = -1, obj: int = 5, result: int = 0, 
 
 # ================================================================= 置き場と層
 def test_store_is_one_module_beside_the_memory_table():
-    import shibuya.engine.memory as M
+    import shibuya.mind.memory.memory as M
 
-    assert Path(MS.__file__).resolve() == (SRC / "engine" / "memory_store.py").resolve()
-    assert MS.__name__ == "shibuya.engine.memory_store"
+    assert Path(MS.__file__).resolve() == (SRC / "mind" / "memory" / "memory_store.py").resolve()
+    assert MS.__name__ == "shibuya.mind.memory.memory_store"
     assert Path(M.__file__).name == "memory.py" and not hasattr(M, "__path__")  # 今の表のモジュールは package にしない
-    assert not (SRC / "engine" / "memory").exists()
+    # 表のモジュールと同じ名のディレクトリが無い(〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ engine/memory)
+    assert not Path(M.__file__).with_suffix("").exists()
+
+
+def _layers() -> tuple[PL.Names, PL.Names]:
+    """(読んでよい層, 読んではいけない層)。元の置き場で決める(〔段 4 の下ごしらえ・親の裁定 L-7〕前は包みの名の字面:
+    読んでよい=engine・perception・llm・agents・world・core、いけない=economy・census・build。包みは、そこにあった(ある)
+    モジュールを 1 つずつ import して元の置き場から今の名を引く=移す前の木では前の字面と同じ範囲)。census は頭 1 本だけの
+    包みで段 4 の delete の段で消える(残るモジュールが無い)ので、:data:`CENSUS` の字面のまま。"""
+    import shibuya.build as BUILD
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
+    from shibuya.world.facts import population_reader as AGENTS  # 〔親の裁定 Q13〕元の置き場が agents/ に残るモジュール
+    from shibuya.foundation import time_consts as CORE
+    from shibuya.economy import ledger as ECONOMY
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.act import intent as ENGINE
+    # 〔割る段 7 の G0・親の裁定 Q12〕範囲の手がかりは、元の置き場が perception の、割らずに移したモジュール(割る段 7 で renderer を割ると包み perception が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.foundation.text import templates as PERCEPTION
+    from shibuya.world.model import state as WORLD
+
+    return PL.names_from(ENGINE, PERCEPTION, LLM, AGENTS, WORLD, CORE), PL.names_from(ECONOMY, BUILD)
+
+
+CENSUS = "shibuya.census"
 
 
 def test_store_imports_only_allowed_layers():
     """器は engine の層の契約(engine > perception|llm > world|agents > core)を守る(import-linter と同じ向き)。"""
-    tree = ast.parse((SRC / "engine" / "memory_store.py").read_text(encoding="utf-8"))
-    mods = set()
-    for n in ast.walk(tree):
-        if isinstance(n, ast.ImportFrom) and n.module:
-            mods.add(n.module)
-        elif isinstance(n, ast.Import):
-            mods |= {a.name for a in n.names}
-    inner = {m for m in mods if m.startswith("shibuya")}
-    assert inner and all(m.split(".")[1] in ("engine", "perception", "llm", "agents", "world", "core") for m in inner)
-    assert not any(m.startswith(("shibuya.economy", "shibuya.census", "shibuya.build")) for m in inner)
+    tree = ast.parse(Path(MS.__file__).read_text(encoding="utf-8"))
+    allowed, banned = _layers()
+    # 読むモジュール(``from P import 子のモジュール`` は子・それ以外は P)が、どれも読んでよい層にあり、いけない層に無い
+    inner = [m for n in ast.walk(tree) for m in PL.imported(n) if m.split(".")[0] == PL.PKG.name]
+    bad = [m for m in inner if not allowed.has(m) or banned.hits(m) or m.startswith(CENSUS)]
+    assert inner and bad == [], (bad, sorted(inner))
 
 
 # ================================================================= 欄
@@ -116,7 +136,7 @@ def test_delattr_is_closed():
 
 def test_closed_tables_cannot_be_changed():
     """検収 L2: 閉じた表(器の列の表・テープの腕の列の表)は書き換えられない。"""
-    from shibuya.engine import tape as TP
+    from shibuya.runtime.inference import tape as TP
 
     with pytest.raises(TypeError):
         MS._COL_SPEC["_ms_new"] = (np.int8, 0)  # type: ignore[index]
@@ -145,7 +165,7 @@ def test_remember_new_merge_and_pointer_to_the_last_occurrence():
 
 def test_remember_evicts_the_lowest_score_row_like_the_table():
     """満杯=score 最小の行(同点は番号の小さい方)を追い出す。今の ``MemoryLayer._write`` と行が同じ。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     n_rows = 3
     agents = AgentState(1, memory_columns=True, memory_n=n_rows)
@@ -194,7 +214,7 @@ def test_strength_is_capped_like_the_fixed_table():
 
 def test_value_drift_from_the_table_is_caught_at_write(monkeypatch):
     """検収 M1: 行の番号が同じでも、器の値(ここでは重要度)が表とずれたら書いた所で落ちる(負の対照)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     def write_some(layer, agents):
         for step, kind, obj in ((0, 1, 5), (1, 2, 6), (2, 1, 5)):
@@ -289,7 +309,7 @@ def test_ledger_rows_are_out_of_both_hashes_and_the_state_file():
     assert (m0r.behavior, m0r.restore) == (SL.DIAG, SL.DISCARDABLE)
     paths = [p for _k, p in SL.full_items()] + [p for _k, p in SL.behavior_items()]
     assert not [p for p in paths if "memory_store" in p]
-    assert SL.OWNER_CLASSES["mem_layer.memory_store"] == ("engine/memory_store.py", "MemoryStore")
+    assert SL.OWNER_CLASSES["mem_layer.memory_store"] == ("mind/memory/memory_store.py", "MemoryStore")
     slots = set(MS.MemoryStore.__slots__)
     # 〔第 2 期 2-3〕記録の目印の seq は腕の行 M0L(軸 1 no・軸 2 required=腕のランだけ full-hash と状態のファイル)
     m0l = SL.row("M0L")
@@ -319,7 +339,7 @@ def test_runtime_owner_coverage_with_the_store():
 
 # ================================================================= 作り直し(再開)
 def test_rebuild_from_the_table_gives_the_same_rows():
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     from tests.engine.memory._m0 import table_vs_store
 

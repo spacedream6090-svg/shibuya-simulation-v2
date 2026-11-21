@@ -18,14 +18,14 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine import calendar_self as CS1
-from shibuya.engine import calendar_shadow as CSH
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.decision.port import (
+from shibuya.interim_bundles import calendar_self as CS1
+from shibuya.world.facts import w20_calendar_reader as CSH
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import ledger as SL
+from shibuya.foundation.ports.decision import (
     DELIBERATE_KIND, SOURCE_CONTINUE, SOURCE_DELIBERATE, SOURCE_PLAN, Choice, DecisionContext, DecisionPort,
 )
-from shibuya.engine.systems.table import SPECS
+from shibuya.runtime.systems.table import SPECS
 
 
 # ================================================================= 宣言
@@ -53,7 +53,7 @@ def test_manifest_section_ledger_rows_and_system_declarations():
     assert r.items == ("calendar_self.cal_store",)
     m = SL.row("C1BM")
     assert m.behavior == SL.DIAG and m.restore == SL.REQUIRED and m.arm == CS1.LEDGER_ARM_NAME
-    assert SL.OWNER_CLASSES["calendar_self"] == ("engine/calendar_self.py", "CalendarSelf")
+    assert SL.OWNER_CLASSES["calendar_self"] == ("interim_bundles/calendar_self.py", "CalendarSelf")
     assert CS1.CalendarSelf.LEDGER_ARM == CS1.LEDGER_ARM_NAME
     assert not any(k in ("C1B", "C1BM") for k, _p in SL.full_items())  # 腕の行=既定のハッシュに入らない
     assert SL.arm_items({"calendar_self": None}, behavior=True) == ()
@@ -70,7 +70,7 @@ def test_w20_place_words_are_the_build_side_copy():
 
 
 def test_tool_registry_has_clock_and_forecast():
-    from shibuya.engine.tools import registry as TR
+    from shibuya.society.tools import registry as TR
 
     reg = TR.default_registry()
     assert reg.get(TR.CLOCK).stage == "6-2" and reg.get(TR.FORECAST).stage == "6-2"
@@ -80,7 +80,7 @@ def test_tool_registry_has_clock_and_forecast():
 
 
 def test_bridges_rows_are_in_the_ledger():
-    from shibuya.engine.bridging import ledger as BR
+    from shibuya.foundation.decl import bridging as BR
 
     led = BR.default_ledger()
     for b in CS1.BRIDGES:
@@ -304,7 +304,7 @@ def test_reminder_times_come_through_choose():
 
 def test_clock_tool_row_decides_minute_reading():
     """〔検収 L4〕時計の道具の行を読む(知っていれば分単位で読める)。"""
-    from shibuya.engine.tools import registry as TR
+    from shibuya.society.tools import registry as TR
 
     layer = _layer()
     assert layer._clock_known(0)  # 台帳が無ければ知っている扱い

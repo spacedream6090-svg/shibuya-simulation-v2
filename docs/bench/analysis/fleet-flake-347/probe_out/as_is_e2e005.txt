@@ -1,0 +1,18 @@
+[  3.02] healed server_requests=[28, 34, 54]
+[  4.03] server_requests=[28, 34, 54] direct=['ok 0.016s', 'ok 0.000s', 'ok 0.000s'] in_flight=(15, 14, 12) outstanding=41
+         <AsyncConnectionPool [Requests: 0 active, 16 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 16 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 13 queued | Connections: 16 active, 0 idle]>
+[  8.06] server_requests=[28, 34, 54] direct=['ok 0.000s', 'ok 0.000s', 'ok 0.000s'] in_flight=(67, 67, 66) outstanding=200
+         <AsyncConnectionPool [Requests: 0 active, 14 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 15 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 13 queued | Connections: 16 active, 0 idle]>
+[ 12.08] server_requests=[28, 34, 54] direct=['ok 0.000s', 'ok 0.016s', 'ok 0.000s'] in_flight=(3, 1, 5) outstanding=9
+         <AsyncConnectionPool [Requests: 0 active, 3 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 2 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 5 queued | Connections: 16 active, 0 idle]>
+[ 16.11] server_requests=[28, 34, 54] direct=['ok 0.000s', 'ok 0.000s', 'ok 0.000s'] in_flight=(25, 31, 25) outstanding=81
+         <AsyncConnectionPool [Requests: 0 active, 10 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 9 queued | Connections: 16 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 7 queued | Connections: 16 active, 0 idle]>
+[ 16.31] end fleet_calls=6000.0 fleet_ok=0.0 fleet_answered=0.0 fleet_deferred_timeout=5860.0 fleet_deferred_queue_full=0.0 fleet_error_other=140.0 fleet_conn_retry_same=1601.0 fleet_conn_retry_other=420.0 server_requests=[28, 34, 54]

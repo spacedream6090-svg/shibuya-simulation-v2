@@ -5,7 +5,7 @@ from __future__ import annotations
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.tape import (
+from shibuya.runtime.inference.tape import (
     BLOCKS_FILENAME,
     CALLS_FILENAME,
     CALLS_SCHEMA,

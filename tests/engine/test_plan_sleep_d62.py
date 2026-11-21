@@ -20,12 +20,19 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents import weekly as W
-from shibuya.agents.state import Activity, AgentState, WakeCondition
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.world.facts import weekly_reader as W
+from shibuya.foundation.vocab.agent_codes import Activity, WakeCondition
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/plan_writes・R_APPLY=act/apply・R_INIT=act/ops/init_writes。割る前は全部 resolve)
+from shibuya.act.ops import plan_writes as R
+from shibuya.act import apply as R_APPLY
+from shibuya.act.ops import init_writes as R_INIT
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import World
 
 # ================================================================= 道具
 
@@ -110,8 +117,8 @@ def test_sleep_boundary_walks_home_and_sleeps_on_arrival():
     for t in range(11, 60):
         if int(a.registry.activity[0]) == int(Activity.SLEEPING):
             break
-        intents = C.engine_continuations(a, C.ResourceSpace(w.n_poi, a.n, w.n_cells), t)
-        R.apply(intents, C.IntentBatch.empty(), a, w, t)
+        intents = CW.engine_continuations(a, C.ResourceSpace(w.n_poi, a.n, w.n_cells), t)
+        R_APPLY.apply(intents, C.IntentBatch.empty(), a, w, t)
     assert int(a.registry.activity[0]) == int(Activity.SLEEPING)
     assert int(a.registry.sleep_pending[0]) == 0
     assert int(a.registry.cell[0]) == int(home[0])
@@ -144,12 +151,12 @@ def test_choosing_another_action_drops_the_sleep_intent():
     assert int(a.registry.sleep_pending[0]) == 1
     intents = C.IntentBatch(
         np.array([0], dtype=np.int64),
-        np.array([C.ACT_REST], dtype=np.int8),
+        np.array([CV.ACT_REST], dtype=np.int8),
         np.array([-1], dtype=np.int32),
         np.array([-1], dtype=np.int32),
         np.array([C.tick_start_ns(2)], dtype=np.int64),
     )
-    R.apply(intents, C.IntentBatch.empty(), a, w, 2)
+    R_APPLY.apply(intents, C.IntentBatch.empty(), a, w, 2)
     assert int(a.registry.sleep_pending[0]) == 0
     assert int(a.registry.activity[0]) == int(Activity.RESTING)
 
@@ -181,7 +188,7 @@ def test_sleep_boundary_makes_no_call_and_wake_boundary_does(monkeypatch):
     off = run_day(**DAY, plan_sleep=False)
     calls_on = on.column("calls")
     calls_off = off.column("calls")
-    from shibuya.agents.schedule import synthesize
+    from shibuya.world.facts.mock_schedule import synthesize
 
     sched = synthesize(DAY["n_agents"], DAY["seed"], DAY["n_cells"])
     bed = np.unique(sched.base_ticks[:, 4])
@@ -200,7 +207,7 @@ def test_sleep_boundary_makes_no_call_and_wake_boundary_does(monkeypatch):
 
 def test_salient_wake_is_still_exempt_while_asleep():
     """D-56 の例外(顕著行為は寝ていても起こす)は D-62 の後も生きている。"""
-    from shibuya.engine.arbiter import arbitrate
+    from shibuya.runtime.arbiter import arbitrate
 
     from .test_sleep_suppression_d56 import SALT, _asleep, _cands
 
@@ -249,13 +256,13 @@ def test_set_initial_activity_keeps_the_rail_preassignment():
         a.registry.activity[1] = int(Activity.WAITING)
         a.registry.transit_state[2] = 1
         a.registry.activity[2] = int(Activity.RIDING)
-    n = R.set_initial_activity(a, np.full(4, int(Activity.SLEEPING), dtype=np.int8))
+    n = R_INIT.set_initial_activity(a, np.full(4, int(Activity.SLEEPING), dtype=np.int8))
     assert n == 2
     assert int(a.registry.activity[0]) == int(Activity.SLEEPING)
     assert int(a.registry.activity[1]) == int(Activity.WAITING)
     assert int(a.registry.activity[2]) == int(Activity.RIDING)
     with pytest.raises(ValueError):
-        R.set_initial_activity(a, np.zeros(3, dtype=np.int8))
+        R_INIT.set_initial_activity(a, np.zeros(3, dtype=np.int8))
 
 
 def test_boundary_events_full_agrees_with_boundary_events():

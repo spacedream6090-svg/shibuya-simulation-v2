@@ -39,7 +39,7 @@ from ..geo.common import (  # noqa: F401  (再輸出)
     write_npz,
     write_parquet,
 )
-from shibuya.core.time_consts import MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_HOUR
 
 __all__ = [
     "BAND_OF_LAYER",

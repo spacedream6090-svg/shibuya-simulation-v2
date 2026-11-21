@@ -1,0 +1,4154 @@
+{
+ "about": "A07 種別ごとの事実(返事その 8 §6-1 の 4)。値は出さない(型・異なる値の数・埋まっている割合だけ)",
+ "kind_counts": {
+  "all": {
+   "COMMUTER": 172806,
+   "CREW": 1017,
+   "DISPATCHER": 24,
+   "FOREIGN_VISITOR": 17404,
+   "REGULAR_VISITOR": 20000,
+   "RESIDENT": 33081,
+   "STUDENT": 33385,
+   "VISITOR": 58602,
+   "WORKER": 9539
+  },
+  "run": {
+   "COMMUTER": 2254,
+   "CREW": 474,
+   "DISPATCHER": 24,
+   "FOREIGN_VISITOR": 228,
+   "REGULAR_VISITOR": 261,
+   "RESIDENT": 431,
+   "STUDENT": 435,
+   "VISITOR": 765,
+   "WORKER": 128
+  }
+ },
+ "n_population": 345858,
+ "n_run": 5000,
+ "w16_duty_roster": {
+  "agents": 21193,
+  "columns_first_row": {
+   "age": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_table": 78,
+    "type": "uint8"
+   },
+   "direction_node": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 0.9578,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 11,
+    "type": "int32"
+   },
+   "kind": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_table": 4,
+    "type": "int8"
+   },
+   "post": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.2743,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 39,
+    "type": "string"
+   },
+   "role": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_table": 25,
+    "type": "string"
+   },
+   "sex": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_table": 2,
+    "type": "int8"
+   },
+   "work_cell": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 0.7257,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_table": 290,
+    "type": "int32"
+   }
+  },
+  "id_matches_population_kind_age_sex": 21193,
+  "rows": 21193,
+  "share_with_rows": {
+   "all": {
+    "COMMUTER": 0.1147,
+    "CREW": 1.0,
+    "DISPATCHER": 1.0,
+    "FOREIGN_VISITOR": 0.0,
+    "REGULAR_VISITOR": 0.0,
+    "RESIDENT": 0.0,
+    "STUDENT": 0.0,
+    "VISITOR": 0.0,
+    "WORKER": 0.0349
+   },
+   "run": {
+    "COMMUTER": 0.1158,
+    "CREW": 1.0,
+    "DISPATCHER": 1.0,
+    "FOREIGN_VISITOR": 0.0,
+    "REGULAR_VISITOR": 0.0,
+    "RESIDENT": 0.0,
+    "STUDENT": 0.0,
+    "VISITOR": 0.0,
+    "WORKER": 0.0625
+   }
+  }
+ },
+ "w16_population": {
+  "all": {
+   "age": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 106,
+    "type": "uint8"
+   },
+   "chome_key": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 42,
+    "type": "string"
+   },
+   "direction_node": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.9784,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 11,
+    "type": "int32"
+   },
+   "duty_role": {
+    "fill_by_kind": {
+     "COMMUTER": 0.1147,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0349
+    },
+    "n_distinct_all": 26,
+    "type": "string"
+   },
+   "home_building": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9415,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9501
+    },
+    "n_distinct_all": 3400,
+    "type": "int32"
+   },
+   "home_cell": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 356,
+    "type": "int32"
+   },
+   "household_id": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 28291,
+    "type": "int32"
+   },
+   "industry_key": {
+    "fill_by_kind": {
+     "COMMUTER": 0.966,
+     "CREW": 0.178,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4951,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9265
+    },
+    "n_distinct_all": 16,
+    "type": "string"
+   },
+   "is_foreign": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.001,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0829,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0907,
+     "WORKER": 0.0856
+    },
+    "n_distinct_all": 2,
+    "type": "bool"
+   },
+   "org_id": {
+    "fill_by_kind": {
+     "COMMUTER": 0.8349,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.2898
+    },
+    "n_distinct_all": 9734,
+    "type": "int32"
+   },
+   "persona_employment": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 6,
+    "type": "string"
+   },
+   "persona_occupation": {
+    "fill_by_kind": {
+     "COMMUTER": 0.9826,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5159,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9505
+    },
+    "n_distinct_all": 12,
+    "type": "string"
+   },
+   "pool_index": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.6401,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 109150,
+    "type": "int32"
+   },
+   "pool_layer": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.6401,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 5,
+    "type": "int8"
+   },
+   "purpose": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 6,
+    "type": "int8"
+   },
+   "school_cell": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 1.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 54,
+    "type": "int32"
+   },
+   "sex": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 2,
+    "type": "int8"
+   },
+   "synthetic": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.5001,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 2,
+    "type": "bool"
+   },
+   "w21_person_id": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 215793,
+    "type": "int32"
+   },
+   "wage_monthly": {
+    "fill_by_kind": {
+     "COMMUTER": 0.8368,
+     "CREW": 0.2026,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4006,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.5421
+    },
+    "n_distinct_all": 138619,
+    "type": "int64"
+   },
+   "work_cell": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 421,
+    "type": "int32"
+   }
+  },
+  "run": {
+   "age": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 106,
+    "type": "uint8"
+   },
+   "chome_key": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 42,
+    "type": "string"
+   },
+   "direction_node": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.9578,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 11,
+    "type": "int32"
+   },
+   "duty_role": {
+    "fill_by_kind": {
+     "COMMUTER": 0.1158,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_all": 26,
+    "type": "string"
+   },
+   "home_building": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9536,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9453
+    },
+    "n_distinct_all": 3400,
+    "type": "int32"
+   },
+   "home_cell": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 356,
+    "type": "int32"
+   },
+   "household_id": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 28291,
+    "type": "int32"
+   },
+   "industry_key": {
+    "fill_by_kind": {
+     "COMMUTER": 0.9667,
+     "CREW": 0.3354,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4896,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9219
+    },
+    "n_distinct_all": 16,
+    "type": "string"
+   },
+   "is_foreign": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0021,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.065,
+     "STUDENT": 0.0,
+     "VISITOR": 0.1007,
+     "WORKER": 0.1016
+    },
+    "n_distinct_all": 2,
+    "type": "bool"
+   },
+   "org_id": {
+    "fill_by_kind": {
+     "COMMUTER": 0.8425,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.3594
+    },
+    "n_distinct_all": 9734,
+    "type": "int32"
+   },
+   "persona_employment": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 6,
+    "type": "string"
+   },
+   "persona_occupation": {
+    "fill_by_kind": {
+     "COMMUTER": 0.9818,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5035,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9609
+    },
+    "n_distinct_all": 12,
+    "type": "string"
+   },
+   "pool_index": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.2743,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 109150,
+    "type": "int32"
+   },
+   "pool_layer": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.2743,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 5,
+    "type": "int8"
+   },
+   "purpose": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 6,
+    "type": "int8"
+   },
+   "school_cell": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 1.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 54,
+    "type": "int32"
+   },
+   "sex": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 2,
+    "type": "int8"
+   },
+   "synthetic": {
+    "fill_by_kind": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.5563,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_all": 2,
+    "type": "bool"
+   },
+   "w21_person_id": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 215793,
+    "type": "int32"
+   },
+   "wage_monthly": {
+    "fill_by_kind": {
+     "COMMUTER": 0.8323,
+     "CREW": 0.3903,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.3643,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.5781
+    },
+    "n_distinct_all": 138619,
+    "type": "int64"
+   },
+   "work_cell": {
+    "fill_by_kind": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_all": 421,
+    "type": "int32"
+   }
+  }
+ },
+ "w16_purpose_share": {
+  "all": {
+   "COMMUTER": {
+    "0": 1.0
+   },
+   "CREW": {
+    "5": 1.0
+   },
+   "DISPATCHER": {
+    "5": 1.0
+   },
+   "FOREIGN_VISITOR": {
+    "3": 1.0
+   },
+   "REGULAR_VISITOR": {
+    "3": 1.0
+   },
+   "RESIDENT": {
+    "4": 1.0
+   },
+   "STUDENT": {
+    "1": 1.0
+   },
+   "VISITOR": {
+    "2": 0.3048,
+    "3": 0.6952
+   },
+   "WORKER": {
+    "4": 1.0
+   }
+  },
+  "run": {
+   "COMMUTER": {
+    "0": 1.0
+   },
+   "CREW": {
+    "5": 1.0
+   },
+   "DISPATCHER": {
+    "5": 1.0
+   },
+   "FOREIGN_VISITOR": {
+    "3": 1.0
+   },
+   "REGULAR_VISITOR": {
+    "3": 1.0
+   },
+   "RESIDENT": {
+    "4": 1.0
+   },
+   "STUDENT": {
+    "1": 1.0
+   },
+   "VISITOR": {
+    "2": 0.3242,
+    "3": 0.6758
+   },
+   "WORKER": {
+    "4": 1.0
+   }
+  }
+ },
+ "w17_schedule": {
+  "agents": 345858,
+  "columns_first_row": {
+   "activity_code": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 12,
+    "type": "int8"
+   },
+   "block_kind": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 5,
+    "type": "int8"
+   },
+   "day": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "int8"
+   },
+   "end_min": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1373,
+    "type": "int16"
+   },
+   "place_kind": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 12,
+    "type": "int8"
+   },
+   "start_min": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1433,
+    "type": "int16"
+   },
+   "target_cell": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 426,
+    "type": "int32"
+   }
+  },
+  "rows": 3074698,
+  "share_with_rows": {
+   "all": {
+    "COMMUTER": 1.0,
+    "CREW": 1.0,
+    "DISPATCHER": 1.0,
+    "FOREIGN_VISITOR": 1.0,
+    "REGULAR_VISITOR": 1.0,
+    "RESIDENT": 1.0,
+    "STUDENT": 1.0,
+    "VISITOR": 1.0,
+    "WORKER": 1.0
+   },
+   "run": {
+    "COMMUTER": 1.0,
+    "CREW": 1.0,
+    "DISPATCHER": 1.0,
+    "FOREIGN_VISITOR": 1.0,
+    "REGULAR_VISITOR": 1.0,
+    "RESIDENT": 1.0,
+    "STUDENT": 1.0,
+    "VISITOR": 1.0,
+    "WORKER": 1.0
+   }
+  }
+ },
+ "w17_schedule_per_agent": {
+  "median_rows_per_agent_run": {
+   "COMMUTER": 9.0,
+   "CREW": 8.0,
+   "DISPATCHER": 10.0,
+   "FOREIGN_VISITOR": 10.0,
+   "REGULAR_VISITOR": 10.0,
+   "RESIDENT": 10.0,
+   "STUDENT": 10.0,
+   "VISITOR": 10.0,
+   "WORKER": 10.0
+  },
+  "share_any_start_min": {
+   "COMMUTER": 1.0,
+   "CREW": 1.0,
+   "DISPATCHER": 1.0,
+   "FOREIGN_VISITOR": 1.0,
+   "REGULAR_VISITOR": 1.0,
+   "RESIDENT": 1.0,
+   "STUDENT": 1.0,
+   "VISITOR": 1.0,
+   "WORKER": 1.0
+  },
+  "share_any_target_cell": {
+   "COMMUTER": 0.9965,
+   "CREW": 0.365,
+   "DISPATCHER": 1.0,
+   "FOREIGN_VISITOR": 0.0,
+   "REGULAR_VISITOR": 0.0,
+   "RESIDENT": 1.0,
+   "STUDENT": 0.9977,
+   "VISITOR": 0.0,
+   "WORKER": 1.0
+  }
+ },
+ "w20_calendar_1a": {
+  "agents": 345858,
+  "columns_first_row": {
+   "certainty": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 2,
+    "type": "int8"
+   },
+   "commit": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 3,
+    "type": "int8"
+   },
+   "end_min": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.8509,
+     "CREW": 0.7975,
+     "DISPATCHER": 0.875,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4269,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.8594
+    },
+    "n_distinct_table": 1164,
+    "type": "int16"
+   },
+   "place_kind": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 8,
+    "type": "int8"
+   },
+   "recurrence": {
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 1.0,
+     "DISPATCHER": 1.0,
+     "FOREIGN_VISITOR": 1.0,
+     "REGULAR_VISITOR": 1.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 1.0,
+     "VISITOR": 1.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 4,
+    "type": "int8"
+   },
+   "start_min": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.8509,
+     "CREW": 0.7975,
+     "DISPATCHER": 0.875,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4269,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.8594
+    },
+    "n_distinct_table": 991,
+    "type": "int16"
+   },
+   "target_cell": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.8509,
+     "CREW": 0.5907,
+     "DISPATCHER": 0.875,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 1.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.8594
+    },
+    "n_distinct_table": 422,
+    "type": "int32"
+   }
+  },
+  "rows": 2421006,
+  "share_with_rows": {
+   "all": {
+    "COMMUTER": 1.0,
+    "CREW": 1.0,
+    "DISPATCHER": 1.0,
+    "FOREIGN_VISITOR": 1.0,
+    "REGULAR_VISITOR": 1.0,
+    "RESIDENT": 1.0,
+    "STUDENT": 1.0,
+    "VISITOR": 1.0,
+    "WORKER": 1.0
+   },
+   "run": {
+    "COMMUTER": 1.0,
+    "CREW": 1.0,
+    "DISPATCHER": 1.0,
+    "FOREIGN_VISITOR": 1.0,
+    "REGULAR_VISITOR": 1.0,
+    "RESIDENT": 1.0,
+    "STUDENT": 1.0,
+    "VISITOR": 1.0,
+    "WORKER": 1.0
+   }
+  }
+ },
+ "w20_calendar_1a_per_agent": {
+  "median_rows_per_agent_run": {
+   "COMMUTER": 7.0,
+   "CREW": 7.0,
+   "DISPATCHER": 7.0,
+   "FOREIGN_VISITOR": 7.0,
+   "REGULAR_VISITOR": 7.0,
+   "RESIDENT": 7.0,
+   "STUDENT": 7.0,
+   "VISITOR": 7.0,
+   "WORKER": 7.0
+  },
+  "share_any_target_cell": {
+   "COMMUTER": 0.9991,
+   "CREW": 0.7257,
+   "DISPATCHER": 1.0,
+   "FOREIGN_VISITOR": 0.0,
+   "REGULAR_VISITOR": 0.0,
+   "RESIDENT": 0.0,
+   "STUDENT": 1.0,
+   "VISITOR": 0.0,
+   "WORKER": 1.0
+  },
+  "share_any_timed_commit": {
+   "COMMUTER": 0.9991,
+   "CREW": 0.9958,
+   "DISPATCHER": 1.0,
+   "FOREIGN_VISITOR": 0.0,
+   "REGULAR_VISITOR": 0.0,
+   "RESIDENT": 0.5197,
+   "STUDENT": 0.0,
+   "VISITOR": 0.0,
+   "WORKER": 1.0
+  }
+ },
+ "w21_linked_share": {
+  "all": {
+   "COMMUTER": 1.0,
+   "CREW": 0.3599,
+   "DISPATCHER": 0.0,
+   "FOREIGN_VISITOR": 0.0,
+   "REGULAR_VISITOR": 0.0,
+   "RESIDENT": 1.0,
+   "STUDENT": 0.0,
+   "VISITOR": 0.0,
+   "WORKER": 1.0
+  },
+  "run": {
+   "COMMUTER": 1.0,
+   "CREW": 0.7257,
+   "DISPATCHER": 0.0,
+   "FOREIGN_VISITOR": 0.0,
+   "REGULAR_VISITOR": 0.0,
+   "RESIDENT": 1.0,
+   "STUDENT": 0.0,
+   "VISITOR": 0.0,
+   "WORKER": 1.0
+  }
+ },
+ "w21_people": {
+  "columns": {
+   "age": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 106,
+    "type": "int16"
+   },
+   "commute_mode": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 4,
+    "type": "string"
+   },
+   "commute_path_m": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1610,
+    "type": "int32"
+   },
+   "department_id": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.8349,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.2898
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.8425,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.3594
+    },
+    "n_distinct_table": 17858,
+    "type": "int32"
+   },
+   "duty_role": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.1147,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0349
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_table": 12,
+    "type": "string"
+   },
+   "emp_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 9,
+    "type": "string"
+   },
+   "emp_status_before_split": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.126,
+     "CREW": 0.1495,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1256,
+     "CREW": 0.3186,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 2,
+    "type": "string"
+   },
+   "employment_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 6,
+    "type": "string"
+   },
+   "entry_node": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3382,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.6835,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 9,
+    "type": "string"
+   },
+   "familiar_listed": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 53,
+    "type": "int16"
+   },
+   "familiar_outside": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 30,
+    "type": "int16"
+   },
+   "home_cell": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 356,
+    "type": "int32"
+   },
+   "home_chome_key": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 42,
+    "type": "string"
+   },
+   "household_id": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 28291,
+    "type": "int32"
+   },
+   "industry_key": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.966,
+     "CREW": 0.178,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4951,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9265
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.9667,
+     "CREW": 0.3354,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4896,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9219
+    },
+    "n_distinct_table": 16,
+    "type": "string"
+   },
+   "industry_major": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 21,
+    "type": "string"
+   },
+   "is_dept_head": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.1005,
+     "CREW": 0.0039,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0508
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1043,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0703
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "is_org_head": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0547,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0288
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0586,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0547
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 2,
+    "type": "string"
+   },
+   "known_places": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 926,
+    "type": "int32"
+   },
+   "labour_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.902,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9026,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 4,
+    "type": "string"
+   },
+   "occupation_major": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 13,
+    "type": "string"
+   },
+   "org_code": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.8349,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.2898
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.8425,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.3594
+    },
+    "n_distinct_table": 9734,
+    "type": "string"
+   },
+   "org_index": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.8349,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.2898
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.8425,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.3594
+    },
+    "n_distinct_table": 9734,
+    "type": "int32"
+   },
+   "org_role": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 12,
+    "type": "string"
+   },
+   "origin_muni": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 651,
+    "type": "string"
+   },
+   "persona_kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "place_capacity": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 55,
+    "type": "int16"
+   },
+   "relation": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 12,
+    "type": "string"
+   },
+   "residence_years": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 198077,
+    "type": "float"
+   },
+   "role": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 3,
+    "type": "string"
+   },
+   "seat_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 6,
+    "type": "string"
+   },
+   "sex": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 2,
+    "type": "int8"
+   },
+   "supervisor_id": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.7802,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.2609
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.7839,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.3047
+    },
+    "n_distinct_table": 17249,
+    "type": "int32"
+   },
+   "synthetic": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "bool"
+   },
+   "w16_kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 3,
+    "type": "int8"
+   },
+   "weekly_hours_hint": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.8368,
+     "CREW": 0.2026,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4006,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.5421
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.8323,
+     "CREW": 0.3903,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.3643,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.5781
+    },
+    "n_distinct_table": 52595,
+    "type": "float"
+   },
+   "work_cell": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 421,
+    "type": "int32"
+   },
+   "work_chome_key": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 43,
+    "type": "string"
+   },
+   "workplace_area": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 5,
+    "type": "string"
+   }
+  },
+  "joined_all": 215792,
+  "joined_run": 3157,
+  "rows": 215792
+ },
+ "w21_persona_short": {
+  "columns": {
+   "chars": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 390,
+    "type": "int32"
+   },
+   "first_language": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9875,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9866
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.993,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9844
+    },
+    "n_distinct_table": 15,
+    "type": "string"
+   },
+   "lang": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 2,
+    "type": "string"
+   },
+   "lang_basis": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 3,
+    "type": "string"
+   },
+   "named_org": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "int32"
+   },
+   "named_poi": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9998,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9998
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9977,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": -1,
+    "type": "list<element: int32>"
+   },
+   "text": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 215792,
+    "type": "string"
+   },
+   "text_source": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "text_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "version": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   }
+  },
+  "joined_all": 215792,
+  "joined_run": 3157,
+  "rows": 215792
+ },
+ "w21_persons": {
+  "columns": {
+   "age": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 106,
+    "type": "int16"
+   },
+   "chome_key": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 41,
+    "type": "string"
+   },
+   "duty_role": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "emp_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 9,
+    "type": "string"
+   },
+   "employment_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 6,
+    "type": "string"
+   },
+   "home_building": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9415,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9501
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9536,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9453
+    },
+    "n_distinct_table": 3400,
+    "type": "int32"
+   },
+   "home_cell": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 355,
+    "type": "int32"
+   },
+   "household_id": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 28290,
+    "type": "int32"
+   },
+   "industry_key": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0079,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4951,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9265
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0127,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4896,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9219
+    },
+    "n_distinct_table": 16,
+    "type": "string"
+   },
+   "industry_major": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 20,
+    "type": "string"
+   },
+   "is_foreign": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.001,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0829,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0856
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0021,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.065,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.1016
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "int8"
+   },
+   "labour_status": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.902,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9026,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 4,
+    "type": "string"
+   },
+   "marital": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.902,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.9026,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 5,
+    "type": "string"
+   },
+   "member_no": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 7,
+    "type": "int8"
+   },
+   "nationality_group": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "occupation_major": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 13,
+    "type": "string"
+   },
+   "persona_kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "relation": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 11,
+    "type": "string"
+   },
+   "residence_period": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 6,
+    "type": "string"
+   },
+   "role": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "school_kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 11,
+    "type": "string"
+   },
+   "school_place": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0029,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0399,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.024
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0063,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0394,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0312
+    },
+    "n_distinct_table": 4,
+    "type": "string"
+   },
+   "sex": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 2,
+    "type": "int8"
+   },
+   "synthetic": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "bool"
+   },
+   "workplace_kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 5,
+    "type": "string"
+   }
+  },
+  "joined_all": 42642,
+  "joined_run": 579,
+  "rows": 42642
+ },
+ "w21_prior_places_rows_per_person": {
+  "all": {
+   "COMMUTER": {
+    "median_rows": 12.0,
+    "share_with_rows": 1.0
+   },
+   "CREW": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.3599
+   },
+   "DISPATCHER": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "FOREIGN_VISITOR": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "REGULAR_VISITOR": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "RESIDENT": {
+    "median_rows": 16.0,
+    "share_with_rows": 1.0
+   },
+   "STUDENT": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "VISITOR": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "WORKER": {
+    "median_rows": 25.0,
+    "share_with_rows": 1.0
+   }
+  },
+  "run": {
+   "COMMUTER": {
+    "median_rows": 12.0,
+    "share_with_rows": 1.0
+   },
+   "CREW": {
+    "median_rows": 10.0,
+    "share_with_rows": 0.7257
+   },
+   "DISPATCHER": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "FOREIGN_VISITOR": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "REGULAR_VISITOR": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "RESIDENT": {
+    "median_rows": 16.0,
+    "share_with_rows": 1.0
+   },
+   "STUDENT": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "VISITOR": {
+    "median_rows": 0.0,
+    "share_with_rows": 0.0
+   },
+   "WORKER": {
+    "median_rows": 25.0,
+    "share_with_rows": 1.0
+   }
+  }
+ },
+ "w21_rights_run": {
+  "agents": 66307,
+  "columns_first_row": {
+   "block": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.2294,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.6125,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.7812
+    },
+    "n_distinct_table": 3,
+    "type": "string"
+   },
+   "kind": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.2294,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.6125,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.7812
+    },
+    "n_distinct_table": 3,
+    "type": "string"
+   },
+   "object_kind": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.2294,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.6125,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.7812
+    },
+    "n_distinct_table": 3,
+    "type": "string"
+   }
+  },
+  "rows": 67303,
+  "share_with_rows": {
+   "all": {
+    "COMMUTER": 0.2208,
+    "CREW": 0.3402,
+    "DISPATCHER": 0.0,
+    "FOREIGN_VISITOR": 0.0,
+    "REGULAR_VISITOR": 0.0,
+    "RESIDENT": 0.6218,
+    "STUDENT": 0.0,
+    "VISITOR": 0.0,
+    "WORKER": 0.7591
+   },
+   "run": {
+    "COMMUTER": 0.2294,
+    "CREW": 0.7257,
+    "DISPATCHER": 0.0,
+    "FOREIGN_VISITOR": 0.0,
+    "REGULAR_VISITOR": 0.0,
+    "RESIDENT": 0.6125,
+    "STUDENT": 0.0,
+    "VISITOR": 0.0,
+    "WORKER": 0.7812
+   }
+  }
+ },
+ "w21c_w20_attributes": {
+  "agents": 215792,
+  "columns_first_row": {
+   "age": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 106,
+    "type": "int16"
+   },
+   "census_middles": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "duty_role": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 12,
+    "type": "string"
+   },
+   "employed": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "employment_pool": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 6,
+    "type": "string"
+   },
+   "home_cell": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 356,
+    "type": "int32"
+   },
+   "industry": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 16,
+    "type": "string"
+   },
+   "kind": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 3,
+    "type": "int8"
+   },
+   "lead_min": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 42,
+    "type": "int16"
+   },
+   "occupation": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 12,
+    "type": "string"
+   },
+   "place_hint": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 5,
+    "type": "int8"
+   },
+   "school": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "school_cell": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "int32"
+   },
+   "seat_and_school": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "seat_nonworking": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "bool"
+   },
+   "shift": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "work_cell": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 421,
+    "type": "int32"
+   },
+   "workplace": {
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 4,
+    "type": "int8"
+   }
+  },
+  "id_matches_population_agent_id_run": 0,
+  "id_matches_w21_person_id_run": 3157,
+  "rows": 215792,
+  "share_with_rows": {
+   "all": {
+    "COMMUTER": 0.0,
+    "CREW": 0.0,
+    "DISPATCHER": 0.0,
+    "FOREIGN_VISITOR": 0.0,
+    "REGULAR_VISITOR": 0.0,
+    "RESIDENT": 0.0,
+    "STUDENT": 0.0,
+    "VISITOR": 0.0,
+    "WORKER": 0.0
+   },
+   "run": {
+    "COMMUTER": 0.0,
+    "CREW": 0.0,
+    "DISPATCHER": 0.0,
+    "FOREIGN_VISITOR": 0.0,
+    "REGULAR_VISITOR": 0.0,
+    "RESIDENT": 0.0,
+    "STUDENT": 0.0,
+    "VISITOR": 0.0,
+    "WORKER": 0.0
+   }
+  }
+ },
+ "w21c_w20_attributes_by_person": {
+  "columns": {
+   "age": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 106,
+    "type": "int16"
+   },
+   "census_middles": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "string"
+   },
+   "duty_role": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.1147,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0349
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.1158,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0625
+    },
+    "n_distinct_table": 12,
+    "type": "string"
+   },
+   "employed": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5291,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5197,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "employment_pool": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 6,
+    "type": "string"
+   },
+   "home_cell": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 356,
+    "type": "int32"
+   },
+   "industry": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.966,
+     "CREW": 0.178,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4951,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9265
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.9667,
+     "CREW": 0.3354,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.4896,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9219
+    },
+    "n_distinct_table": 16,
+    "type": "string"
+   },
+   "kind": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 3,
+    "type": "int8"
+   },
+   "lead_min": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0216,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0422,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 42,
+    "type": "int16"
+   },
+   "occupation": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.9826,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5159,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9505
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.9818,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.5035,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.9609
+    },
+    "n_distinct_table": 12,
+    "type": "string"
+   },
+   "place_hint": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 5,
+    "type": "int8"
+   },
+   "school": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0867,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0882,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "school_cell": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "int32"
+   },
+   "seat_and_school": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0029,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0161,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0244
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0063,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0139,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0312
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "seat_nonworking": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0,
+     "CREW": 0.0,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0
+    },
+    "n_distinct_table": 1,
+    "type": "bool"
+   },
+   "shift": {
+    "fill_by_kind_all": {
+     "COMMUTER": 0.0808,
+     "CREW": 0.3382,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.021
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 0.0785,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 0.0391
+    },
+    "n_distinct_table": 2,
+    "type": "bool"
+   },
+   "work_cell": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 0.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 421,
+    "type": "int32"
+   },
+   "workplace": {
+    "fill_by_kind_all": {
+     "COMMUTER": 1.0,
+     "CREW": 0.3599,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "fill_by_kind_run": {
+     "COMMUTER": 1.0,
+     "CREW": 0.7257,
+     "DISPATCHER": 0.0,
+     "FOREIGN_VISITOR": 0.0,
+     "REGULAR_VISITOR": 0.0,
+     "RESIDENT": 1.0,
+     "STUDENT": 0.0,
+     "VISITOR": 0.0,
+     "WORKER": 1.0
+    },
+    "n_distinct_table": 4,
+    "type": "int8"
+   }
+  },
+  "joined_all": 215792,
+  "joined_run": 3157,
+  "rows": 215792
+ }
+}

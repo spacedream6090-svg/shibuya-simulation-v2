@@ -15,7 +15,7 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from shibuya.core.growth import check_growth
+from shibuya.foundation.growth import check_growth
 from shibuya.economy import checks as CK
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import (
@@ -26,7 +26,7 @@ from shibuya.economy.ledger import (
     growth_declarations,
     raw_capacity_for,
 )
-from shibuya.engine.ledger_api import EntityRef, TransferStatus
+from shibuya.foundation.ports.ledger import EntityRef, TransferStatus
 
 H, S, E, B, G, W = (
     Sector.HOUSEHOLD, Sector.STORE, Sector.EMPLOYER, Sector.BANK, Sector.GOVERNMENT, Sector.ROW

@@ -13,10 +13,10 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine.events import log as EV
-from shibuya.engine.run import run_day
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
+from shibuya.foundation.journal import log as EV
+from shibuya.runtime.run import run_day
 
 HERE = Path(__file__).resolve().parent
 FROZEN = json.loads((HERE / "manifest_events_keys_frozen.json").read_text(encoding="utf-8"))

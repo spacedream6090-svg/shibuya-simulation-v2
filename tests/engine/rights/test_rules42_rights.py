@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.rights import initial as RI
-from shibuya.engine.rights import ledger as L
+from shibuya.world.facts.rights import initial as RI
+from shibuya.world.facts.rights import ledger as L
 
 
 def test_old_codes_are_kept_and_new_kinds_are_appended():

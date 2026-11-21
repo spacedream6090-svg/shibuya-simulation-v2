@@ -39,7 +39,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from shibuya.core.hashing import blake3_u64
+from shibuya.foundation.hashing import blake3_u64
 
 from ..geo import common as C
 from ..pop.w16_population import (
@@ -57,7 +57,7 @@ from ..pop.w16_population import (
 )
 from . import pool_facts as PF
 from . import vocab as V
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W17"
 STAGE_VERSION = "1.2.0"  # 1.1.0 = 第1回パイロット後の改版 / 1.2.0 = 第2回後=日見出し形+構造化出力 regex(§4 登録簿)

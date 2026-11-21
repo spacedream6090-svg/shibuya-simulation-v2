@@ -62,7 +62,7 @@ ROOTS: dict[str, Path] = {
 
 
 def _world_v2_loadable() -> bool:
-    from shibuya.world.assets import assets_available
+    from shibuya.world.model.assets import assets_available
 
     return assets_available(ROOTS["world_v2"])
 

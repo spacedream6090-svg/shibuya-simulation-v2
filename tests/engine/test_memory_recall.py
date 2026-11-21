@@ -18,17 +18,19 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     MEMORY_FIELDS,
     RESULT_TEXT,
     AgentKind,
-    AgentState,
     ResultCode,
     WakeCondition,
 )
-from shibuya.engine import memory as M
-from shibuya.engine.familiarity import place_thing
-from shibuya.engine.tape import (
+from shibuya.world.model.agent_table import (
+    AgentState,
+)
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory.familiarity import place_thing
+from shibuya.runtime.inference.tape import (
     CALLS_FILENAME,
     CALLS_SCHEMA,
     CALLS_SCHEMA_V2_DEFAULTS,
@@ -38,10 +40,10 @@ from shibuya.engine.tape import (
     TapeRow,
     TapeWriter,
 )
-from shibuya.perception import templates as T
-from shibuya.perception.channels import estimate_tokens
-from shibuya.perception.renderer import Renderer, memory_item_text
-from shibuya.world.state import World
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.channels import estimate_tokens
+from shibuya.mind.percept.draw import Renderer, memory_item_text
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -103,7 +105,7 @@ def test_id_match_comes_first_and_the_rest_is_filled_by_score():
 
 
 def test_partner_object_place_and_last_result_are_query_keys():
-    from shibuya.engine import commit as C
+    from shibuya.foundation.vocab import act_codes as C
 
     a = table()
     lay = M.MemoryLayer(3, 16, minutes_per_tick=1.0)
@@ -166,7 +168,7 @@ def test_item_templates():
 
 def test_abbreviation_words_fall_back_to_the_cell_id_and_drop_the_gist():
     """⑥ 省略記法: POI 名に禁止語 → その行のセルの ID・要旨に禁止語 → 要旨を載せない(宣言)。"""
-    from shibuya.perception import normalize as N
+    from shibuya.foundation.text import normalize as N
 
     ok = RESULT_TEXT[int(ResultCode.OK)]
     assert fmt(item(kind=1, obj=0, cell=2), names=("理容等の店",)) == f"9:05 c2で購入({ok})。"
@@ -290,7 +292,7 @@ def test_a_v2_tape_reads_recalled_rows_as_empty(tmp_path):
 # ================================================================= (e)(f) ラン
 @pytest.fixture(scope="module")
 def runs(tmp_path_factory):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     d = tmp_path_factory.mktemp("mem6b")
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
@@ -348,17 +350,21 @@ def test_k5_counts_revisits_after_a_failure_and_k2_counts_repeats():
 
 
 def test_memory_tau_is_passed_and_checked():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, memory="on", memory_tau=float("nan"))
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     assert '"--memory-tau"' in text and "memory_tau=float(args.memory_tau)" in text
 
 
 def test_recall_has_no_loop_over_rows():
     """P4: 想起は行の走査を配列演算で行う(for は想起した ≤k 件だけ)。"""
-    tree = ast.parse((SRC / "engine/memory.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/memory/memory.py").read_text(encoding="utf-8"))
     fn = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == "recall")
     loops = [s for s in ast.walk(fn) if isinstance(s, (ast.For, ast.While, ast.comprehension))]
     assert not any(isinstance(s, ast.While) for s in loops)

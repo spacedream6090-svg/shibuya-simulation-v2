@@ -18,24 +18,33 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity
-from shibuya.engine.contact import attention as AT
-from shibuya.engine.contact import layer as LY
-from shibuya.engine.contact import port as P
-from shibuya.engine.contact.layer import W_LOOK, W_READ, audit_causes
-from shibuya.engine.conversation import ConvState
-from shibuya.engine.decision import layer as DCL
-from shibuya.engine.decision import ports as DPS
-from shibuya.engine.decision.port import DecisionContext
-from shibuya.engine.events.log import LlmCall
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import table as TB
-from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.mind.plan import contact_attention as AT
+from shibuya.interim_bundles.contact import book as _BOOK
+from shibuya.society.contact import calls as _CALLS
+from shibuya.society.contact import chat_state as _CHAT
+from shibuya.society.contact import deliver as _DELIVER
+from shibuya.world.things import device as _DEVICE
+from shibuya.interim_bundles.contact import layer as LY
+from shibuya.mind.plan import contact_port as P
+from shibuya.interim_bundles.contact.layer import W_LOOK, W_READ, audit_causes
+from shibuya.society.conversation import ConvState
+from shibuya.mind.judge.decision import layer as DCL
+from shibuya.mind.judge.decision import ports as DPS
+from shibuya.foundation.ports.decision import DecisionContext
+from shibuya.foundation.journal.log import LlmCall
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import table as TB
+from shibuya.society.tools import record as TR
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, ROOT, STEP_NS, Harness, by_kind, c1, choose
 
-SRC = ROOT / "src" / "shibuya" / "engine" / "contact"
+#: 読む連絡のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る。
+#: 段 4 で連絡の包みの一部だけが動く=保留の 4 本は残る)。
+LAYER_PY = Path(LY.__file__)
+#: 読んだ時刻を作らない側のモジュール(前は ``SRC / "deliver.py"`` ほかのファイルの名の一覧)。
+NO_READ_NS = (_DELIVER, _DEVICE, AT, _CHAT, _CALLS, _BOOK, P)
 
 
 @pytest.fixture
@@ -233,11 +242,11 @@ def _cause_problems(src: str) -> list[str]:
 
 
 def test_m2_ast_person_events_come_only_from_decisions():
-    assert _cause_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _cause_problems(LAYER_PY.read_text(encoding="utf-8")) == []
     # 読んだ時刻を作るのは層だけ(届く側=deliver・道具・向きのコードは read_ns を作らない)
-    for f in ("deliver.py", "device.py", "attention.py", "chat_state.py", "calls.py", "book.py", "port.py"):
-        tree = ast.parse((SRC / f).read_text(encoding="utf-8"))
-        assert not [k for k in ast.walk(tree) if isinstance(k, ast.keyword) and k.arg in ("read_ns", "sent_ns")], f
+    for m in NO_READ_NS:
+        tree = ast.parse(Path(m.__file__).read_text(encoding="utf-8"))
+        assert not [k for k in ast.walk(tree) if isinstance(k, ast.keyword) and k.arg in ("read_ns", "sent_ns")], m.__name__
 
 
 def test_m2_ast_negative_control_catches_a_planted_rule():

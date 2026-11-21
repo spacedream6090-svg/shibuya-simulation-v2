@@ -16,7 +16,7 @@ import pytest
 from shibuya.economy import credit as CR
 from shibuya.economy.accounts import STAGE2_PAIRS, AccountCode, Sector, is_allowed
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 
 
 def _table() -> ES2.AtmTable:
@@ -48,7 +48,7 @@ def test_stage2_pairs_table_cannot_be_written():
 
 
 def test_stage2_plan_is_sealed_except_runner_once():
-    from shibuya.engine.calendar import SimCalendar
+    from shibuya.world.facts.calendar import SimCalendar
 
     p = ES2.Stage2Plan(parts=ES2.PARTS, kinds=np.zeros(4), monthly_hours=np.ones(4), hours_source="default", atms=None,
                        calendar=SimCalendar(dt.datetime(2026, 8, 24)), tick_seconds=60, n_agents=4,

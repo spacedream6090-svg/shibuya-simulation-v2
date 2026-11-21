@@ -1,5 +1,7 @@
 """10e(版上げ 1 回目)の byte-check と「動いた量」の控え。
 
+〔11-09〕今の道具は ``tools/bytecheck/``(README.md)。この道具は記録の再現のために残す。
+
 比べ方は [byte_check_10c.py](../../wallbounce-1003/10c/byte_check_10c.py) と同じ 19 構成(W6 の 15 腕+店の記憶・関係・
 古典・古典+記憶+関係。mock/classical 5,000 体・seed 1・1 シミュ日・テープつき)。``one`` は 10c の欄に加えて
 行動の件数(``action_usage``)・起床の内訳・最後の checkpoint の behavior-hash と full-hash(全桁)・締めの後の 2 本・
@@ -81,19 +83,19 @@ def cmd_one(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     import shibuya
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     w2 = _wave2()
     kw = dict(w2.configs()[args.config])
     kw.update(json.loads(args.kw or "{}"))
     if args.drop_behavior_item:  # 検収 R1 の照合: HEAD の写しで behavior-hash の項から道筋を外して回す
-        from shibuya.engine import state_ledger as SL
+        from shibuya.runtime.state import ledger as SL
 
         _real = SL.behavior_items
         _drop = set(args.drop_behavior_item.split(","))
         SL.behavior_items = lambda: tuple(x for x in _real() if x[1] not in _drop)  # type: ignore[assignment]
     if args.multiset_items:  # 検収 R1 の照合: HEAD の写しで list の並びを状態から外す(多重集合でハッシュ)
-        from shibuya.engine import state_hashes as SH
+        from shibuya.runtime.state import hashes as SH
 
         _res = SH.resolve_item
         _ms = set(args.multiset_items.split(","))

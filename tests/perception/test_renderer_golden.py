@@ -17,15 +17,18 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentKind, AgentState, ResultCode
-from shibuya.perception import hashes as H
-from shibuya.perception import templates as T
-from shibuya.perception.renderer import (
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.text import hashes as H
+from shibuya.foundation.text import templates as T
+from shibuya.world.model.percept_scene import (
     DEFAULT_START_DATETIME,
     PerceptionAssets,
+)
+from shibuya.mind.percept.draw import (
     Renderer,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 DATA_DIR = Path("data/world/v2")
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
@@ -127,7 +130,7 @@ def test_c_rendering_is_deterministic():
 
 
 def test_c2_prompt_hash_is_blake3_of_the_concatenated_blocks():
-    from shibuya.core.hashing import blake3_hex
+    from shibuya.foundation.hashing import blake3_hex
 
     w, a = build()
     out = Renderer(w, a, seed=7).render(0, 760, 3)
@@ -192,7 +195,7 @@ def test_f_five_minute_rounding_gives_identical_b3():
 # ---------------------------------------------------------------- (g)
 def test_g_guard_catches_a_planted_person_id_in_b2():
     """§2.4 ⑧ の機械検査: B2 に ``P-12`` を仕込むと描画が例外で落ちる。"""
-    from shibuya.perception.normalize import AgentDependentWordError
+    from shibuya.foundation.text.normalize import AgentDependentWordError
 
     w, a = build()
     assets = PerceptionAssets.synthetic(w)
@@ -385,7 +388,7 @@ def test_out_of_world_agent_renders_the_fixed_empty_phrases():
 @pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_j_real_world_render_100_agents(capsys):
     """実資産(520 セル)で 100 体描画 → 予算・⑧・キャッシュ命中率を検査する。"""
-    from shibuya.perception.normalize import assert_no_agent_dependent_words
+    from shibuya.foundation.text.normalize import assert_no_agent_dependent_words
 
     w = World.load(DATA_DIR)
     assets = PerceptionAssets.load(DATA_DIR, w)
@@ -436,7 +439,8 @@ def test_j2_real_assets_carry_names_noise_and_weather():
     assert set(np.unique(assets.noise_stage_day)) <= {0, 1, 2, 3}
     weather = assets.weather(datetime(2026, 7, 28, 12, 0))
     assert weather[0] in T.WEATHER_WORDS and weather[1] in T.DAYLIGHT_WORDS
-    # 表に無い日付でも決定論的に落ちる
-    assert assets.weather(datetime(2020, 1, 1, 12, 0)) == assets.weather(
-        datetime(2019, 5, 5, 12, 0)
-    )
+    # 〔A48・第347〕表に無い日付は止まる(前は「その時の最頻値」に落ちていた=補いは消した)。日付と時が文に出る
+    assert not assets.is_synthetic and assets.declared_weather_by_hour == {}
+    with pytest.raises(ValueError, match="2020-01-01 12 時"):
+        assets.weather(datetime(2020, 1, 1, 12, 0))
+    assert assets.missing_weather_hours("2026-07-28") == ()

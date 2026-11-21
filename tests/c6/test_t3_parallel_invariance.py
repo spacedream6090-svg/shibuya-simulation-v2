@@ -48,12 +48,18 @@ def _run_hash(threads: str, extra: list[str] | None = None) -> dict:
 
 def test_no_parallel_loop_exists_in_the_engine_at_run_time():
     """「並列度の口」の不在を機械で固定する(増えたら T3 の測り方を変える合図)。"""
-    from pathlib import Path
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.act import intent as ENGINE
 
-    root = Path(__file__).resolve().parents[2] / "src" / "shibuya" / "engine"
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕前は字面のディレクトリ src/shibuya/engine の走査。元の置き場が engine のファイルを
+    # 対応表で引く(段 4 で engine のファイルがほかの包みへ移っても同じファイル)
+    files = PL.files_from(ENGINE)
+    assert len(files) > 100
     hits = [
         p.name
-        for p in root.rglob("*.py")
+        for p in files
         if "prange" in p.read_text(encoding="utf-8")
         or "parallel=True" in p.read_text(encoding="utf-8")
     ]

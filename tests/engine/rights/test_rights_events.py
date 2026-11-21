@@ -16,18 +16,21 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import ResultCode
-from shibuya.engine import resolve as R
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.links import ActualLogLink
-from shibuya.engine.llm_bridge import LLMBridge
-from shibuya.engine.processes.opening import OpeningProcess
-from shibuya.engine.rights import ledger as L
-from shibuya.engine.rights import record as RR
-from shibuya.llm import LLMResponse, format_two_line
-from shibuya.llm.contract import ACTION_CODES
-from shibuya.world.processes.actual_log import ActualLog
+from shibuya.foundation.vocab.agent_codes import ResultCode
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/law_writes・R_RAIL=act/ops/rail。割る前は全部 resolve)
+from shibuya.act.ops import law_writes as R
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.links import ActualLogLink
+from shibuya.runtime.inference.bridge import LLMBridge
+from shibuya.world.laws.opening import OpeningProcess
+from shibuya.world.facts.rights import ledger as L
+from shibuya.world.facts.rights import record as RR
+from shibuya.foundation.ports.inference import LLMResponse
+from shibuya.foundation.vocab.actions import format_two_line
+from shibuya.foundation.vocab.actions import ACTION_CODES
+from shibuya.world.ledger.actual_log import ActualLog
 
 from tests.engine.processes.conftest import fake_plan_assets, make_agents, make_world
 
@@ -101,7 +104,7 @@ def test_the_opening_process_records_a_revoked_staff_and_still_opens():
     rid = next(i for i, r in enumerate(proc.rights)
                if r.kind == L.EMPLOY and r.object == (L.STORE, 0) and r.holder == (L.AGENT, staff))
     proc.rights.revoke(rid, 1, None)                       # 担当の雇用を終える(書く口の 2 つ目)
-    R.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
+    R_RAIL.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
     log.begin_step(0)
     proc.step(600)
     assert bool(world.open_mask(600)[0]) is True           # 止めない
@@ -172,7 +175,7 @@ KW = dict(n_agents=60, seed=3, n_cells=9, ticks=720, budget=60.0, checkpoint_eve
 
 @pytest.mark.parametrize("word", ["開閉店", "発車"])
 def test_role_words_inside_the_decide_system(word, monkeypatch):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(llm=WordLLM(word), **KW)
     m = res.run_manifest_fields()["rights"]["unauthorized"]
@@ -192,7 +195,7 @@ def test_role_words_inside_the_decide_system(word, monkeypatch):
 
 # ================================================================= 既定のランでは 0
 def test_a_default_run_records_nothing():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=3, n_cells=9, ticks=240, budget=60.0, vocab_version="v3", checkpoint_every=120)
     assert res.event_log.what_counts().get(WHAT, 0) == 0

@@ -15,10 +15,16 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from shibuya.agents.state import Activity, AgentState, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+from shibuya.act import apply as R
+from shibuya.runtime.systems import allow as _AL
+from shibuya.runtime.systems import table as _SYSTEMS
+from shibuya.world.model.state import World
+from tests import _places as _PL
 
 SRC = Path("src/shibuya")
 SALT = b"salt-two-phase"
@@ -45,15 +51,18 @@ def test_thaw_is_never_called_outside_the_state_modules():
     callers = sorted(
         str(p).replace("\\", "/") for p in SRC.rglob("*.py") if _calls_attr(p, "thaw")
     )
-    assert set(callers) <= {"src/shibuya/agents/state.py", "src/shibuya/world/state.py"}, callers
+    assert set(callers) <= {"src/shibuya/world/model/agent_table.py", "src/shibuya/world/model/state.py"}, callers
 
 
 def test_only_resolve_writes_to_the_world():
-    """``.writable(`` を**呼ぶ**のは engine/resolve.py だけ(=世界への書き込み口は1本)。"""
+    """``.writable(`` を**呼ぶ**のは resolve の書き手のファイルだけ(=世界への書き込み口は resolve)。〔割る段 6 の S6-G0〕前は
+    ``engine/resolve.py`` の 1 本と字面で比べた。今は書き手の一覧 ``allow.RESOLVE_FILES`` の部分集合で、空でない(割る前は同じ
+    1 本・割った後は書き手の割り先のどれか)。"""
     callers = sorted(
         str(p).replace("\\", "/") for p in SRC.rglob("*.py") if _calls_writable(p)
     )
-    assert callers == ["src/shibuya/engine/resolve.py"], callers
+    writers = {(SRC / rel).as_posix() for rel in _AL.RESOLVE_FILES}
+    assert callers and set(callers) <= writers, callers
 
 
 def test_frozen_state_rejects_direct_updates():
@@ -68,26 +77,56 @@ def test_frozen_state_rejects_direct_updates():
         w.pois.stock[0] = 0
 
 
-_HOT_PATHS = (
-    "engine/run.py",
-    "engine/resolve.py",
-    "engine/commit.py",
-    "engine/change_detect.py",
-    # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
-    "economy/ops.py",
-    # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
-    *sorted(str(p.relative_to(SRC)).replace("\\", "/") for p in (SRC / "engine" / "systems").glob("*.py")),
-)
+def _hot_paths() -> tuple[str, ...]:
+    """ホットパスのファイル(src/shibuya からの今の道)。〔再検収 M-3〕表を引くのは試験の中(モジュールの読み込みの時点で引くと、
+    表が古いときに試験の全体の収集が止まる)。"""
+    out = (
+        # 〔割る段 5b の G0・5a の G4・G5 の検収の中-1〕割る行のファイルは、ホットパスの名を定義する今のファイルを表から引く
+        # (道具は字面の道を主な割り先へだけ書き換える=割った後に 2 つ目以降の割り先へ移った名が黙って外れる)。割る前は元の
+        # ファイル 1 本=前と同じ範囲。run は run_day と RunResult・commit は arbitrate_resources と intents_from_responses
+        # (CLI の引数の口 run_args と語彙の定数 act_codes はホットパスでない)。change_detect は ChangeDetector とセルの B4 の
+        # 関数 b4_block_raw・b4_block_hashes(5a の G5 で親が手で足した world/model/scene_hash.py の行を同じ形に寄せた。語彙の
+        # 定数 INTERO_* が行った foundation/vocab/agent_codes.py はホットパスでない)
+        *_PL.split_files("engine/run.py", ("run_day", "RunResult")),
+        # 〔割る段 6 の S6-G0・親の裁定 R1〕resolve は、元の docstring(逐次ループ宣言)を持つ主な割り先=``apply`` を定義する
+        # ファイル(割る前は ``engine/resolve.py`` の 1 本)。ループを探す範囲(``_loop_scan_paths``)は割り先の全部へ広げた
+        # (〔S6-G0 の表と順〕対応表の名の表が S6-A の 2 つの名に直った後に足した)
+        *_PL.split_files("engine/resolve.py", ("apply",)),
+        *_PL.split_files("engine/commit.py", ("arbitrate_resources", "intents_from_responses")),
+        *_PL.split_files("engine/change_detect.py", ("ChangeDetector", "b4_block_raw", "b4_block_hashes")),
+        # 第 1 期 1-9: お金の基本操作(購入・運賃・補充の代金が毎刻み通る=口の約束 1-9 の受入の試験)
+        "economy/ops.py",
+        # 1-0: run_day を系に分けた先(弱めない=対象を広げる・草案 §3-3 の 16)
+        # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の直下。元の置き場が系の包みの直下のファイルを対応表で引く
+        # (段 4 で系の包みは 3 つの包みへ分かれる。道は src/shibuya からの今の道)
+        *_PL.rels_from(_SYSTEMS, recursive=False),
+    )
+    assert len(out) > 25
+    return out
+
+
 #: 個体数ぶんの Python ループ(P4 で禁止)を疑う書き方。
 _AGENT_LOOP_RE = re.compile(
     r"for\s+\w+\s+in\s+range\(\s*(?:n_agents|self\.n_agents|agents\.n|len\(agents\)|self\.n\b)"
 )
 
 
+def _loop_scan_paths() -> tuple[str, ...]:
+    """個体数ぶんのループを探す検査の範囲: ホットパスに、割る 3 行(run・commit・change_detect)の名の全部の割り先を足す。
+    〔割る段 5b の G0 の直し・親の直し〕``_hot_paths`` は名で引く形なので、割った後は引数の口(``interfaces/cli/run_args.py``)と
+    語彙の定数のファイル(``act_codes``・``agent_codes``)が外れる。毎刻み通るコードではないが、返事その 8 §1-1 (b)「確かめる範囲を
+    減らさない」に合わせ、ループを探す検査だけは割り先の全部を見る(割る前の木では前と同じファイル+``agent_codes``)。"""
+    # 鍵は割る口の第 1 引数に字面で書く(割る道具はこの形の鍵を書き換えない=割った後も表を引く。並びの字面にすると道として
+    # 書き換わる)
+    extra = [*_PL.split_files("engine/run.py"), *_PL.split_files("engine/commit.py"), *_PL.split_files("engine/change_detect.py"),
+             *_PL.split_files("engine/resolve.py")]  # 〔割る段 6 の S6-G0・裁定 R1〕resolve の割り先の全部(割る前は元の 1 本)
+    return tuple(dict.fromkeys([*_hot_paths(), *extra]))
+
+
 def test_no_python_loop_over_agents_in_engine_hot_paths():
-    """P4: エンジンのホットパスに**個体数ぶんの逐次ループ**を書かない。"""
+    """P4: エンジンのホットパスに**個体数ぶんの逐次ループ**を書かない(範囲は :func:`_loop_scan_paths`)。"""
     offenders = []
-    for rel in _HOT_PATHS:
+    for rel in _loop_scan_paths():
         text = (SRC / rel).read_text(encoding="utf-8")
         for m in _AGENT_LOOP_RE.finditer(text):
             line = text[: m.start()].count("\n") + 1
@@ -96,13 +135,18 @@ def test_no_python_loop_over_agents_in_engine_hot_paths():
 
 
 def test_every_hot_path_declares_its_sequential_loops():
-    """P4「逐次ループの新設は宣言必須」= モジュール docstring に『逐次ループ宣言』がある。"""
-    for rel in _HOT_PATHS:
+    """P4「逐次ループの新設は宣言必須」= モジュール docstring に『逐次ループ宣言』がある。〔割る段 5b の G0 の直し〕範囲は
+    ``_hot_paths``(名で引く形)のまま=引数の口と語彙の定数のファイルには宣言が無い(ループを探す検査だけ割り先の全部に広げた)。"""
+    for rel in _hot_paths():
         text = (SRC / rel).read_text(encoding="utf-8")
+        # 〔段 4 の下ごしらえ〕段 4 で空にした包みの頭(0 バイト=親の決定 9・コードもループも無い)は宣言の対象の外。移す前の木の
+        # 対象に空のファイルは無いので、移す前の範囲は前と同じ
+        if not text and rel.endswith("__init__.py"):
+            continue
         assert "逐次ループ宣言" in text, rel
     # 新規ファイル全体でも同じ規律
-    for rel in ("agents/state.py", "agents/schedule.py", "world/assets.py",
-                "world/graph.py", "world/state.py", "engine/arbiter.py"):
+    for rel in ("world/model/agent_table.py", "world/facts/mock_schedule.py", "world/model/assets.py",
+                "world/model/graph.py", "world/model/state.py", "runtime/arbiter.py"):
         assert "逐次ループ宣言" in (SRC / rel).read_text(encoding="utf-8"), rel
 
 
@@ -121,7 +165,7 @@ def _buy_intents(space, agents, poi_id, n, tick=600):
     ids = np.arange(n, dtype=np.int64)
     return C.IntentBatch(
         agent_id=ids,
-        action_code=np.full(n, C.ACT_BUY, dtype=np.int8),
+        action_code=np.full(n, CV.ACT_BUY, dtype=np.int8),
         target_id=np.full(n, poi_id, dtype=np.int32),
         resource_id=space.poi(np.full(n, poi_id)),
         t_notice_ns=np.full(n, C.tick_start_ns(tick), dtype=np.int64),
@@ -156,7 +200,7 @@ def test_free_intents_never_contend():
     ids = np.arange(6, dtype=np.int64)
     intents = C.IntentBatch(
         ids,
-        np.full(6, C.ACT_WAIT, dtype=np.int8),
+        np.full(6, CV.ACT_WAIT, dtype=np.int8),
         np.full(6, -1, dtype=np.int32),
         np.full(6, -1, dtype=np.int32),
         np.zeros(6, dtype=np.int64),
@@ -171,7 +215,7 @@ def test_conversation_partner_capacity_is_one():
     ids = np.array([1, 2, 3], dtype=np.int64)
     intents = C.IntentBatch(
         ids,
-        np.full(3, C.ACT_TALK, dtype=np.int8),
+        np.full(3, CV.ACT_TALK, dtype=np.int8),
         np.zeros(3, dtype=np.int32),
         space.partner(np.zeros(3)),
         np.zeros(3, dtype=np.int64),
@@ -189,7 +233,7 @@ def test_earlier_t_notice_wins_before_the_hash():
     n = 4
     intents = C.IntentBatch(
         np.arange(n, dtype=np.int64),
-        np.full(n, C.ACT_BUY, dtype=np.int8),
+        np.full(n, CV.ACT_BUY, dtype=np.int8),
         np.zeros(n, dtype=np.int32),
         space.poi(np.zeros(n)),
         C.tick_start_ns(600) + np.array([500, 100, 900, 300], dtype=np.int64),
@@ -215,14 +259,14 @@ def test_one_per_agent_keeps_the_llm_intent_over_the_engine_step():
     ids = np.array([3, 3, 5], dtype=np.int64)
     b = C.IntentBatch(
         ids,
-        np.array([C.ENGINE_STEP, C.ACT_BUY, C.ENGINE_STEP], dtype=np.int8),
+        np.array([CV.ENGINE_STEP, CV.ACT_BUY, CV.ENGINE_STEP], dtype=np.int8),
         np.array([1, 2, 3], dtype=np.int32),
         np.array([-1, 7, -1], dtype=np.int32),
         np.zeros(3, dtype=np.int64),
     )
     out = b.one_per_agent()
     assert out.agent_id.tolist() == [3, 5]
-    assert int(out.action_code[0]) == C.ACT_BUY
+    assert int(out.action_code[0]) == CV.ACT_BUY
 
 
 # ================================================================= T3(順序不変)
@@ -235,7 +279,7 @@ def _run_phase_abc(order: list[int], tick: int = 600) -> tuple[str, str]:
     intents = C.IntentBatch(
         agent_id=np.arange(n, dtype=np.int64),
         action_code=np.array(
-            [C.ACT_BUY, C.ACT_WAIT, C.ACT_REST, C.ACT_MOVE] * 3, dtype=np.int8
+            [CV.ACT_BUY, CV.ACT_WAIT, CV.ACT_REST, CV.ACT_MOVE] * 3, dtype=np.int8
         ),
         target_id=np.where(np.arange(n) % 4 == 3, (np.arange(n) % 4).astype(np.int32), poi),
         resource_id=np.where(np.arange(n) % 4 == 0, space.poi(poi), -1).astype(np.int32),

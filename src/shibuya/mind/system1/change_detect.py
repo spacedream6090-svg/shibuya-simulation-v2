@@ -1,0 +1,357 @@
+"""engine.change_detect — 起床条件 (i)(ii) の検出器(予算行 **P6**)。
+
+正典
+- 知覚契約書 §6 起床条件: 「(i) 所属セルの **B4 ハッシュ変化**(密度段階の跨ぎ・騒音段階・
+  構造物・顕著行為の到達) (ii) **B5 変化**(内受容閾値・知人出現・近接上位kの入替・被注視・
+  傍受ヒット)」。**push 禁止・pull-on-wake**——本モジュールは「起床候補」を作るだけで、
+  誰を実際に呼ぶかは ``engine.arbiter`` が決める。
+- 実装計画書 §3: 「変化検出: セル B2/B4 のバイト列を **xxhash で 453 回**(宣言済みの小ループ)、
+  個体 B5 は**配列比較**」。
+- 知覚契約書 §6 不応期表「(ii)内受容閾値 45 分・**閾値ヒステリシスで置換を試す**」
+  → 本モジュールは段の上げ下げに 1 段ぶんのヒステリシス帯を入れる。
+- 予算宣言表 **P6**「≤2 ms/tick@40万体・139セル(ベクトル化・**逐次ループなし**)」。
+  ``tests/engine/test_change_detect_p6.py`` が 40万体×453セルで実測して報告する
+  (セル数の食い違い=139/453/520 は ``world.assets`` の docstring に記録)。
+- 知覚契約書 §2「B2/B4 のバイト列ハッシュ=prefixキャッシュキー=変化検出器=dormant再送抑止」
+  (三役・追加コストなし)。本モジュールが作る ``b4_hash`` がその1本。
+
+**書き込みはしない**: 検出器は世界にも個体にも書かない(運用設計書 §2.2 Phase C=
+``engine.resolve`` が唯一の書き手)。新しい ``b4_hash`` と内受容段は結果に載せて返し、
+``resolve.write_b4_hash``・``resolve.write_intero_stages`` が書き込む。
+
+逐次ループ宣言(P4)
+1. ``b4_block_hashes``: **変化したセル数**ぶんの xxh64 ループ(上限=セル数 453/520。
+   実装計画書が明示的に許した小ループ)。
+2. ``ChangeDetector.detect``: 内受容 **3 変数**ぶんのループ(個体数には比例しない)。
+3. ``_cell_wake_numba``: **個体数ぶんの numba nogil ループ1本**(実装計画書 §4
+   「計算は numba nogil/Warp」)。NumPy 版(``np.take``+``flatnonzero``)は int32 添字の
+   内部変換で 1.43 ms/tick@40万体かかり P6 を単独で食う。numba 版は 0.25 ms。
+   numba が無い環境では NumPy 版へ自動で落ちる(結果は**バイト一致**・テストで検査)。
+
+expedient(本モジュール分)
+- (C3 結線で解消) B4 の欄は **知覚側の描画欄**(``perception.hashes.b4_field_row`` =
+  LOS 6 段・騒音段・流れ・顕著行為ダイジェスト)に切り替えた。C2 の「密度段8値・騒音段・
+  営業中POI数」は描画の欄と別物で、描画バイト変化の 48% を取りこぼしていた
+  (``docs/ops/build-report-C3.md`` §2)。**営業中POI数は欄から外した**(描画に出ないため
+  起床させるのは過検出。契約書 §6 (i) の列挙にも無い)。
+- (解消済み) 流れ・顕著行為ダイジェストは C3 では常に 0 だった。今は描画の前計算(``perception.b4_field_rows``)が
+  世界過程の流れと顕著行為を入れた B4 の欄を変化の検出へ渡す(``engine.systems.perceive``)。
+- 内受容の段の刻み ``INTERO_UP_EDGES``(4/7/9)とヒステリシス幅 1。契約書は「閾値」としか
+  言わず値を与えていない。
+- (ii) のうち **知人出現・近接入替・被注視・傍受** は本モジュールでは検出しない(内受容と B4 の欄だけ)。
+  知人出現は関係の層(``engine.relations`` の ``acquaintance_candidates``・関係の腕のランだけ)が起床の候補を
+  出す(``engine.systems.talk.sys_relations_wake``)。4 つを起床の条件でなく知覚の事実として扱う決定はつなぎの
+  台帳 BR-WAKE-CONDITION-CLASS(回答 10-13b §4-2 の 1)。
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Final
+import numpy as np
+from shibuya.foundation.vocab.agent_codes import WAKE_CONDITION_CLASS, WakeCondition
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.model.state import World
+from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES, INTERO_VARS
+from shibuya.world.model.scene_hash import b4_block_hashes, b4_block_raw
+
+__all__ = [
+    "INTERO_HYSTERESIS", "B4_FIELD_COLUMNS", "B5Crossing", "DetectResult", "ChangeDetector",
+]
+
+
+#: ヒステリシス幅(下げ側の閾値 = 上げ側 − この値・expedient)。
+INTERO_HYSTERESIS: Final[int] = 1
+
+#: B4 の**描画に使う欄**の並び(``perception.hashes.b4_field_row`` と 1 対 1)。
+B4_FIELD_COLUMNS: Final[tuple[str, ...]] = (
+    "los_stage",  # 歩行者密度 LOS 6 段(人/m²・分母=歩行可能面積)
+    "noise_stage",  # 騒音段階 4 段(W10 昼夜場 or 動的上書き)
+    "flow",  # 流れ 3 値(方向データが入るまで 0)
+    "salient_digest",  # 顕著行為の到達(行の xxh64 下位 31 bit・無ければ 0)
+)
+
+
+def _cell_wake_numpy(cell: np.ndarray, cell_mask: np.ndarray, out: np.ndarray) -> int:
+    """変化セルに居る個体の索引を ``out`` に詰め、件数を返す(NumPy 版・参照実装)。"""
+    hit = np.take(cell_mask, cell, mode="clip") & (cell >= 0)
+    idx = np.flatnonzero(hit)
+    out[: idx.size] = idx
+    return int(idx.size)
+
+
+def _make_cell_wake():
+    """numba があれば nogil カーネル、無ければ NumPy 版を返す。"""
+    try:  # pragma: no cover - 環境依存
+        from numba import njit
+    except Exception:  # pragma: no cover - numba 無し環境
+        return _cell_wake_numpy, False
+
+    @njit(cache=True, nogil=True, boundscheck=False)
+    def _kernel(cell, cell_mask, out):  # pragma: no cover - numba がコンパイルする
+        k = 0
+        for i in range(cell.shape[0]):
+            c = cell[i]
+            if c >= 0 and cell_mask[c]:
+                out[k] = i
+                k += 1
+        return k
+
+    return _kernel, True
+
+
+_CELL_WAKE, CELL_WAKE_USES_NUMBA = _make_cell_wake()
+
+
+@dataclass(frozen=True)
+class B5Crossing:
+    """1 変数ぶんの閾値跨ぎ(``resolve`` が段を書き戻すための最小情報)。"""
+
+    var: int  # 0=hunger / 1=fatigue / 2=thermal
+    stage_field: str
+    agent_id: np.ndarray  # int64・昇順
+    new_stage: np.ndarray  # uint8
+
+
+@dataclass(frozen=True)
+class DetectResult:
+    """1 tick 分の検出結果(**世界には書かない**)。"""
+
+    tick: int
+    #: 変化したセルの索引(昇順)。
+    changed_cells: np.ndarray
+    #: 変化したセルの新しい B4 ハッシュ(``changed_cells`` と同じ並び)。
+    changed_b4_hash: np.ndarray
+    #: 起床条件 (i) の対象個体(昇順)。
+    cell_wake_agents: np.ndarray
+    #: 起床条件 (ii) 内受容の跨ぎ(変数ごと)。
+    crossings: tuple[B5Crossing, ...]
+
+    @property
+    def b5_wake_agents(self) -> np.ndarray:
+        """内受容で起きる個体(3 変数の和集合・昇順)。"""
+        parts = [c.agent_id for c in self.crossings if c.agent_id.size]
+        if not parts:
+            return np.empty(0, dtype=np.int64)
+        return np.unique(np.concatenate(parts))
+
+    def candidates(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """起床候補 ``(agent_id, condition, class_rank)``。
+
+        並びは **条件番号の昇順 → 個体 id の昇順**(挿入順に依存しない=T3 の前提)。
+        同一個体が複数条件で出ることがある(合流はアービタの仕事=§6 運用規定②)。
+        """
+        blocks: list[tuple[np.ndarray, WakeCondition]] = []
+        b5 = self.b5_wake_agents
+        if b5.size:
+            blocks.append((b5, WakeCondition.INTEROCEPTION))
+        if self.cell_wake_agents.size:
+            blocks.append((self.cell_wake_agents, WakeCondition.CELL_BLOCK))
+        if not blocks:
+            e = np.empty(0, dtype=np.int64)
+            return e, np.empty(0, dtype=np.int8), np.empty(0, dtype=np.int64)
+        agent = np.concatenate([b[0] for b in blocks])
+        cond = np.concatenate(
+            [np.full(b[0].size, int(b[1]), dtype=np.int8) for b in blocks]
+        )
+        cls = np.concatenate(
+            [
+                np.full(b[0].size, int(WAKE_CONDITION_CLASS[int(b[1])]), dtype=np.int64)
+                for b in blocks
+            ]
+        )
+        return agent, cond, cls
+
+
+class ChangeDetector:
+    """B4 ハッシュと B5 閾値の変化検出器(scratch を持ち回して確保を避ける)。
+
+    Example:
+        >>> from shibuya.world.state import World
+        >>> from shibuya.agents.state import AgentState
+        >>> w = World.synthetic(n_cells=9, seed=0); a = AgentState(4)
+        >>> det = ChangeDetector(a.n, w.n_cells)
+        >>> res = det.detect(w, a, tick=0)
+        >>> res.tick
+        0
+    """
+
+    def __init__(
+        self,
+        n_agents: int,
+        n_cells: int,
+        walkable_area_m2: np.ndarray | float | None = None,
+    ) -> None:
+        """
+        Args:
+            n_agents / n_cells: 規模。
+            walkable_area_m2: 密度→人/m² の分母(知覚側 ``PerceptionAssets.walkable_area_m2``)。
+                None なら ``DEFAULT_WALKABLE_AREA_M2``。**レンダラと同じ分母**を渡すこと
+                (違う分母だと LOS 段がずれ、起床条件 (i) が描画バイトと食い違う)。
+        """
+        self.n_agents = int(n_agents)
+        self.n_cells = int(n_cells)
+        self.walkable_area_m2 = walkable_area_m2
+        #: 〔段 5-1b〕nav1 のランでは B4 の密度の段を ``world.cells.density_stage``(``NavSpace.per_m2`` の推定)から取る
+        #: (組み立てが True にする・legacy は False=今の ``density ÷ walkable_area_m2``)
+        self.los_from_stage = False
+        self._prev_raw: np.ndarray | None = None
+        # scratch(1 tick ごとの確保を避ける=Windows のページフォルトが P6 を食う)
+        self._b1 = np.empty(self.n_agents, dtype=bool)
+        self._b2 = np.empty(self.n_agents, dtype=bool)
+        self._b3 = np.empty(self.n_agents, dtype=bool)
+        self._up = [np.empty(self.n_agents, dtype=bool) for _ in INTERO_VARS]
+        self._dn = [np.empty(self.n_agents, dtype=bool) for _ in INTERO_VARS]
+        self._hit = [np.empty(self.n_agents, dtype=bool) for _ in INTERO_VARS]
+        self._any = np.empty(self.n_agents, dtype=bool)
+        self._cell_mask = np.zeros(self.n_cells, dtype=np.bool_)
+        self._wake_buf = np.empty(self.n_agents, dtype=np.int64)
+
+    # ---- (i) セル ----
+    def _cell_changes(
+        self, world: World, tick: int, field_rows: np.ndarray | None = None
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        if field_rows is None:
+            raw = b4_block_raw(world, tick, walkable_area_m2=self.walkable_area_m2,
+                               los_stage=world.cells.density_stage if self.los_from_stage else None)
+        else:
+            raw = np.ascontiguousarray(np.asarray(field_rows, dtype=np.int32))
+        if self._prev_raw is None or self._prev_raw.shape != raw.shape:
+            rows = np.arange(raw.shape[0], dtype=np.int64)
+        else:
+            rows = np.flatnonzero(np.any(raw != self._prev_raw, axis=1)).astype(np.int64)
+        hashes = b4_block_hashes(raw, rows)
+        self._prev_raw = raw
+        return raw, rows, hashes
+
+    # ---- (ii) 内受容 ----
+    def _interoception(self, agents: AgentState) -> tuple[B5Crossing, ...]:
+        edges = INTERO_UP_EDGES
+        stages = [agents.registry.field(sf).view(np.uint8) for _, sf in INTERO_VARS]
+        # 逐次ループ宣言2: 内受容 3 変数ぶん(個体数には比例しない)
+        for var, (value_field, _stage_field) in enumerate(INTERO_VARS):
+            v = agents.registry.field(value_field)
+            p = stages[var]
+            up, dn, hit = self._up[var], self._dn[var], self._hit[var]
+            up[:] = False
+            dn[:] = False
+            for k, e in enumerate(edges):
+                # 上げ: 段 k にいて上げ閾値 e[k] に達した
+                np.equal(p, k, out=self._b1)
+                np.greater_equal(v, e, out=self._b2)
+                np.logical_and(self._b1, self._b2, out=self._b3)
+                np.logical_or(up, self._b3, out=up)
+                # 下げ: 段 k+1 にいて下げ閾値 e[k]-h を割った(ヒステリシス)
+                np.equal(p, k + 1, out=self._b1)
+                np.less(v, e - INTERO_HYSTERESIS, out=self._b2)
+                np.logical_and(self._b1, self._b2, out=self._b3)
+                np.logical_or(dn, self._b3, out=dn)
+            np.logical_or(up, dn, out=hit)
+        # 3 変数ぶんの走査を 1 回にまとめる(``flatnonzero`` は 40万体で 0.3 ms/回)
+        np.logical_or(self._hit[0], self._hit[1], out=self._any)
+        np.logical_or(self._any, self._hit[2], out=self._any)
+        if not self._any.any():
+            return tuple(
+                B5Crossing(var, sf, np.empty(0, dtype=np.int64), np.empty(0, dtype=np.uint8))
+                for var, (_, sf) in enumerate(INTERO_VARS)
+            )
+        idx_all = np.flatnonzero(self._any).astype(np.int64)
+        out: list[B5Crossing] = []
+        for var, (_, stage_field) in enumerate(INTERO_VARS):
+            sub = self._hit[var][idx_all]
+            idx = idx_all[sub]
+            p = stages[var]
+            new = (
+                p[idx].astype(np.int16)
+                + self._up[var][idx].astype(np.int16)
+                - self._dn[var][idx].astype(np.int16)
+            ).astype(np.uint8)
+            out.append(B5Crossing(var, stage_field, idx, new))
+        return tuple(out)
+
+    # ---- (ii) 内受容(〔第 6 期 6-3 T3〕変化の印の体だけ) ----
+    def _interoception_scoped(self, agents: AgentState, idx: np.ndarray) -> tuple[B5Crossing, ...]:
+        """``_interoception`` と同じ判定を体の配列 ``idx``(昇順)だけに通す(``engine.step_scope`` の腕 changed)。
+
+        ``idx`` が「判定の結果が変わりうる体」を全部含めば、全員を見る版と同じ結果(同じ体・同じ昇順・同じ新しい段)。
+        作業の配列は持ち回さない(印の数ぶんの一時の配列)。逐次ループ宣言: 内受容 3 変数 × 段の境目 3 つ(体数に比例しない)。
+        """
+        edges = INTERO_UP_EDGES
+        ups: list[np.ndarray] = []
+        dns: list[np.ndarray] = []
+        hits: list[np.ndarray] = []
+        stages: list[np.ndarray] = []
+        for value_field, stage_field in INTERO_VARS:  # 逐次: 3 変数
+            v = agents.registry.field(value_field)[idx]
+            p = agents.registry.field(stage_field).view(np.uint8)[idx]
+            up = np.zeros(idx.size, dtype=bool)
+            dn = np.zeros(idx.size, dtype=bool)
+            for k, e in enumerate(edges):  # 逐次: 段の境目 3 つ
+                up |= (p == k) & (v >= e)
+                dn |= (p == k + 1) & (v < e - INTERO_HYSTERESIS)
+            ups.append(up)
+            dns.append(dn)
+            hits.append(up | dn)
+            stages.append(p)
+        any_ = hits[0] | hits[1] | hits[2]
+        if not any_.any():
+            return tuple(
+                B5Crossing(var, sf, np.empty(0, dtype=np.int64), np.empty(0, dtype=np.uint8))
+                for var, (_, sf) in enumerate(INTERO_VARS)
+            )
+        sel = np.flatnonzero(any_)
+        out: list[B5Crossing] = []
+        for var, (_, stage_field) in enumerate(INTERO_VARS):  # 逐次: 3 変数
+            sub = sel[hits[var][sel]]
+            new = (
+                stages[var][sub].astype(np.int16)
+                + ups[var][sub].astype(np.int16)
+                - dns[var][sub].astype(np.int16)
+            ).astype(np.uint8)
+            out.append(B5Crossing(var, stage_field, idx[sub].astype(np.int64), new))
+        return tuple(out)
+
+    # ---- 本体 ----
+    def detect(
+        self,
+        world: World,
+        agents: AgentState,
+        tick: int,
+        *,
+        field_rows: np.ndarray | None = None,
+        scope: np.ndarray | None = None,
+    ) -> DetectResult:
+        """1 tick 分の変化検出(**書き込みなし**)。
+
+        Args:
+            world: セル状態(``density`` は前 tick の Phase C で更新済み)。
+            agents: 個体状態。
+            tick: 現在 tick。
+            field_rows: ``(n_cells, 4)`` int32 の B4 描画欄。**レンダラが既に作っていれば
+                それを渡す**(``engine.run`` はそうする)= 検出器と描画が同じ 1 本の欄を見る
+                =「起床条件 (i) が鳴らないのに文面が変わる」取りこぼしが構造的に 0 になる。
+                None なら ``b4_block_raw`` が world から作る(単体運転・ベンチ用)。
+            scope: 〔第 6 期 6-3 T3〕内受容の判定を通す体(昇順の int64・``engine.step_scope`` の変化の印)。None(既定)は
+                全員(今の道)。セルの起床は絞らない。
+
+        Returns:
+            ``DetectResult``。
+        """
+        _, changed_cells, changed_hash = self._cell_changes(world, tick, field_rows)
+        if changed_cells.size:
+            self._cell_mask[:] = False
+            self._cell_mask[changed_cells] = True
+            # 逐次ループ宣言3: 個体数ぶんの numba nogil ループ(cell<0 は場外=対象外)
+            k = _CELL_WAKE(agents.registry.cell, self._cell_mask, self._wake_buf)
+            cell_agents = self._wake_buf[:k].copy()
+        else:
+            cell_agents = np.empty(0, dtype=np.int64)
+        crossings = (self._interoception(agents) if scope is None
+                     else self._interoception_scoped(agents, np.asarray(scope, dtype=np.int64)))
+        return DetectResult(
+            tick=int(tick),
+            changed_cells=changed_cells,
+            changed_b4_hash=changed_hash,
+            cell_wake_agents=cell_agents,
+            crossings=crossings,
+        )

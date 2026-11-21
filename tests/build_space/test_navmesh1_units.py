@@ -16,8 +16,8 @@ import pytest
 from shibuya.build.space import mesh as M
 from shibuya.build.space import navmesh1 as N1
 from shibuya.build.space import raster as R
-from shibuya.world import navmesh as NV
-from shibuya.world.navmesh_route import NavPlanner
+from shibuya.world.model import navmesh as NV
+from shibuya.world.model.navmesh_route import NavPlanner
 from tests.build_space import synth as SY
 
 

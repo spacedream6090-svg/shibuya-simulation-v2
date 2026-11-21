@@ -11,21 +11,27 @@ import re
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.chooser import NearestChooser
-from shibuya.engine.poi_target import (
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import ResultCode
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_MOVE=act/ops/move。割る前は全部 resolve)
+from shibuya.act import gate as R
+from shibuya.act.ops import move as R_MOVE
+from shibuya.mind.judge.chooser import NearestChooser
+from shibuya.act.target import (
     MOVE_BAD_TARGET,
     MOVE_SEARCH_RADIUS_CELLS,
     TargetResolver,
     move_resolution_summary,
 )
-from shibuya.engine.run import run_day
-from shibuya.llm import LLMRequest
-from shibuya.llm.contract import parse_target
-from shibuya.llm.mock import MOCK_MOVE_TARGET_WORDS, MockLLM
-from shibuya.world.state import World
+from shibuya.runtime.run import run_day
+from shibuya.foundation.ports.inference import LLMRequest
+from shibuya.foundation.vocab.actions import parse_target
+from shibuya.runtime.inference.mock import MOCK_MOVE_TARGET_WORDS, MockLLM
+from shibuya.world.model.state import World
 
 NOON = 720
 # 8 POI: セル 0 に 0..1、セル 1 に 2..3、セル 2 に 4..5、セル 3 に 6..7
@@ -78,7 +84,7 @@ def _move(w, cells, texts, radius=MOVE_SEARCH_RADIUS_CELLS):
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1, move_search_radius=radius)
     tg = [None if t is None else parse_target(t) for t in texts]
     out = res.resolve_move(_agents(cells), NOON, np.arange(len(cells)),
-                           np.full(len(cells), C.ACT_MOVE), tg, np.ones(len(cells), dtype=bool))
+                           np.full(len(cells), CV.ACT_MOVE), tg, np.ones(len(cells), dtype=bool))
     return out, res
 
 
@@ -157,11 +163,11 @@ def test_commit_uses_the_target_field_but_keeps_explicit_hints_and_wander():
     home = np.array([3, 3, 3, 3])
     work = np.array([2, 2, 2, 2])
     hint = np.zeros(4, dtype=np.int64)
-    hint[1] = C.TARGET_HINT_HOME
+    hint[1] = CV.TARGET_HINT_HOME
     move_dest = np.array([-1, -1, 1, -1])
-    batch = C.intents_from_responses(
+    batch = CW.intents_from_responses(
         ag, w, _space(w, 4), NOON, np.arange(4), np.zeros(4, dtype=np.int64),
-        np.full(4, C.ACT_MOVE), home_cell=home, work_cell=work, target_hint=hint,
+        np.full(4, CV.ACT_MOVE), home_cell=home, work_cell=work, target_hint=hint,
         move_dest=move_dest, targets=[parse_target("飲食店")] * 3 + [parse_target("なし")],
         poi_resolver=res,
     )
@@ -174,7 +180,7 @@ def test_bad_target_and_unreachable_are_counted_separately():
     w = _world()
     ag = _agents([0, 0])
     out = R.ResolveOutcome(tick=NOON)
-    R._apply_move(ag, w, np.array([0, 1]), np.array([MOVE_BAD_TARGET, -1]), NOON, out, None)
+    R_MOVE._apply_move(ag, w, np.array([0, 1]), np.array([MOVE_BAD_TARGET, -1]), NOON, out, None)
     assert ag.registry.last_result[:2].tolist() == [int(ResultCode.BAD_TARGET),
                                                    int(ResultCode.UNREACHABLE)]
     assert out.n_move_bad_target == 1 and out.n_move_unreachable == 1

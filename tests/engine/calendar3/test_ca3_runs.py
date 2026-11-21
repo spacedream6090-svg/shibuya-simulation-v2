@@ -12,22 +12,23 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.calendar2 import book as B2
-from shibuya.engine.calendar3 import arm as A3
-from shibuya.engine.calendar3 import layer as LY
-from shibuya.engine.calendar3 import port as P3
-from shibuya.engine.contact import layer as CL
-from shibuya.engine.contact import port as PC
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import table as TB
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.mind.plan import promise_book as B2
+from shibuya.foundation.arms import calendar3 as A3
+from shibuya.interim_bundles.calendar3 import layer as LY
+from shibuya.mind.plan import calendar3_port as P3
+from shibuya.interim_bundles.contact import layer as CL
+from shibuya.mind.plan import contact_port as PC
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import table as TB
 
 from tests.engine.calendar3._ca3 import (FRAME_LONG, HOLIDAY_SUNDAY, KW, MANAGER, STEP_NS, TPD, UNIT, by_pref, ca3,
                                          choose, roster_fixture)
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "calendar3"
+#: 層のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る)。
+LAYER_PY = Path(LY.__file__)
 
 
 @pytest.fixture
@@ -248,7 +249,7 @@ def test_two_days_sunday_to_monday_and_resume_is_the_straight_run(with_roster, t
 
 
 def test_resuming_with_the_arm_off_stops(with_roster, tmp_path, monkeypatch):
-    from shibuya.engine.calendar import SimCalendar
+    from shibuya.world.facts.calendar import SimCalendar
 
     kw = dict(KW, sim_days=2)
     with ca3():
@@ -278,7 +279,7 @@ def test_stage_b_negative_control_without_the_read_declaration_fails(with_roster
 
 
 def test_event_log_on_off_does_not_change_the_arm_run(with_roster):
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     prev = EV.enabled()
     try:
@@ -316,8 +317,8 @@ def test_system_declarations():
 
 
 def test_cli_flag_and_run_kind(with_roster, monkeypatch):
-    from shibuya import cli
-    from shibuya.engine import run_kind as RK
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)
     kw = dict(n_agents=30, seed=1, world_dir=None, n_cells=9, ticks=30, checkpoint_every=30, vocab_version="v3",
@@ -374,7 +375,7 @@ def _cause_problems(src: str) -> list[str]:
 
 
 def test_ast_person_events_come_only_from_decisions():
-    assert _cause_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _cause_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_planted_causes():
@@ -435,7 +436,7 @@ def _time_problems(src: str) -> list[str]:
 
 
 def test_ast_engine_does_not_decide_times_or_contents():
-    assert _time_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _time_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_engine_rules():
@@ -456,7 +457,7 @@ class X:
 
 
 def test_ast_book_is_written_only_through_its_ports():
-    tree = ast.parse((SRC / "layer.py").read_text(encoding="utf-8"))
+    tree = ast.parse(LAYER_PY.read_text(encoding="utf-8"))
     bad = []
     for node in ast.walk(tree):
         if isinstance(node, (ast.Assign, ast.AugAssign)):
@@ -480,7 +481,7 @@ def test_workers_per_unit_match_the_roster_fixture():
 def with_real_rights(monkeypatch):
     """雇い主の口の表は差し替えない(権利台帳=合成の世界の開閉の過程の台帳から本物の道で作る)。W20 の週の表(世界の資産)と
     グループの一覧だけを合成の値にする。"""
-    from shibuya.engine.calendar3 import roster as R3
+    from shibuya.interim_bundles.calendar3 import roster as R3
     from tests.engine.calendar3._ca3 import synthetic_table
 
     roster_fixture(monkeypatch)
@@ -489,7 +490,7 @@ def with_real_rights(monkeypatch):
     yield
 
 
-from shibuya.engine.calendar3.roster import roster_for_run as _REAL_ROSTER_FOR_RUN  # noqa: E402
+from shibuya.interim_bundles.calendar3.roster import roster_for_run as _REAL_ROSTER_FOR_RUN  # noqa: E402
 
 
 def _roster_view(lay):
@@ -514,7 +515,7 @@ def test_roster_is_built_after_restore_and_resume_matches_without_monkeypatch(wi
 
 def test_roster_is_not_built_at_assembly():
     """組み立ての口は表を作る口だけを渡す(表は最初の刻みの頭=ensure_roster)。"""
-    src = (Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "systems" / "build.py").read_text(
+    src = (Path(__file__).resolve().parents[3] / "src" / "shibuya" / "runtime" / "systems" / "assemble.py").read_text(
         encoding="utf-8")
     assert "roster_fn=lambda: _R3.roster_for_run(" in src and "roster=_R3." not in src
 
@@ -560,7 +561,7 @@ def test_seven_days_with_the_trial_mark_compose_once_on_friday(with_roster):
 def test_seven_days_negative_control_no_charge_decision(with_roster, monkeypatch):
     """〔第 6 期 6-4 C2 検収 L10〕負の対照: 充電の判断を「このまま」に固定すると、7 日で誰も充電せず(電池が増えない)、電源の切れた体と
     電源が無くて送れない C3 の連絡が、本人が充電するランより多い。"""
-    from shibuya.engine.contact import port as CP
+    from shibuya.mind.plan import contact_port as CP
 
     kw = dict(KW, sim_days=7, start_sim_datetime="2026-07-27")
     with ca3():
@@ -590,7 +591,7 @@ def test_trial_run_fills_the_start_check_field(sunday_run):
 
 
 def test_contact_without_calendar3_has_no_sinks_and_no_window_paths(with_roster):
-    from shibuya.engine.systems import conductor as CD
+    from shibuya.runtime.systems import conductor as CD
 
     with ca3(on=False, trial=False):
         r = run_day(**dict(KW, ticks=60, start_sim_datetime=None))

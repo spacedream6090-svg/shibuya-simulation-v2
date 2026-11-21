@@ -22,18 +22,19 @@ import pytest
 
 from tests import golden_env as GE
 
-import shibuya.engine.resolve as RES
-import shibuya.engine.run as RUN
-from shibuya.engine.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
-from shibuya.agents.state import AgentState
-from shibuya.core.hashing import blake3_hex
-from shibuya.core.soa import Registry
-from shibuya.engine import state_hashes as SH
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_ledger_ast as SA
-from shibuya.engine.run import Checkpoint, run_day
-from shibuya.perception.state import PerceptionState
-from shibuya.world.state import World
+import shibuya.act.ops.body_writes as RES
+import shibuya.runtime.run as RUN
+from shibuya.runtime.systems import state_io as SIO  # 1-0: full-hash の呼び出しは state_io を通す(差し替えの的)
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.soa import Registry
+from shibuya.runtime.state import hashes as SH
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import ledger_ast as SA
+from shibuya.runtime.result import Checkpoint
+from shibuya.runtime.run import run_day
+from shibuya.world.model.percept_state import PerceptionState
+from shibuya.world.model.state import World
 
 SRC = Path(__file__).resolve().parents[2] / "src" / "shibuya"
 WORLD_DIR = Path("data/world/v2")
@@ -53,7 +54,8 @@ DEAD5 = ("agents.plan_cursor", "agents.invocation_distance", "agents.wake_pendin
 T7_TARGET_SECONDS = 0.100
 T7_SHARE_CAP = 0.01
 #: T7 で確かめる既定 v3 の final(10e の版上げの段ごとに張り替える)。
-T7_V3_FINAL = "7bfe215641b792ac"  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+T7_V3_FINAL = "c8d68704b7b0760d"  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+# 〔第346〕旧道の final の定数 T7_V3_FINAL_RATE_RULES_LEGACY(7bfe215641b792ac)は使う試験と一緒に消した
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _T7_V3_FINAL_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
 #: A2 (b): 構成で読み手が変わる 6 列(どの構成でも behavior)。
 A2B_SIX = ("age", "sex", "talk_partner", "weight_kg", "sm_last", "mem_last")
@@ -234,8 +236,16 @@ def test_ast_check_passes_on_the_current_source(scanned):
     assert SA.check(scanned) == []
     # 走査は src/shibuya 全体(engine だけでは world/・perception/ の読み手を見落とす)
     assert scanned.files > 90
+    # 〔段 4 の下ごしらえ・親の裁定 L-7〕「engine の外」は元の置き場で見る(前は字面のディレクトリ "engine/"=段 4 で engine の
+    # ファイルがほかの包みへ移ると、engine の中の読み手でも外に見えてしまう)
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.act import intent as ENGINE
+
+    from tests import _places as PL
+
+    engine = set(PL.rels_from(ENGINE))
     for name in ("noise_stage", "open_from", "open_to"):
-        assert any(not s.path.startswith("engine/") for s in scanned.strict[name]), name
+        assert any(s.path not in engine for s in scanned.strict[name]), name
 
 
 def _flip(key: str, behavior: str) -> tuple[SL.LedgerRow, ...]:
@@ -296,7 +306,7 @@ def test_ast_check_fails_on_an_unresolved_dynamic_read(tmp_path):
 
 
 def test_ast_check_fails_on_a_stale_allow(scanned):
-    stale = SL.AstAllow("engine/run.py", "この文字列はどこにも無い", "試験")
+    stale = SL.AstAllow("runtime/run.py", "この文字列はどこにも無い", "試験")
     ledger = tuple(dataclasses.replace(r, ast_allow=r.ast_allow + (stale,)) if r.key == "agents.rel_last" else r
                    for r in SL.LEDGER)
     out = SA.check(scanned, ledger)
@@ -312,15 +322,15 @@ def test_ast_false_positives_band_and_b4_hash_are_explicit(scanned):
     描画の許可は消した(2 個=誤検出 1+試験の合成の規則の道)。"""
     # 〔第 5 期 空間の段 1〕ナビメッシュの資産の階の表の band(world/navmesh.py)の誤検出を 1 つ足した=3 個
     n_allow = {"agents.band": 3, "cells.b4_hash": 1}
-    for key, path in (("agents.band", "world/assets.py"), ("cells.b4_hash", "world/state.py")):
+    for key, path in (("agents.band", "world/model/assets.py"), ("cells.b4_hash", "world/model/state.py")):
         r = SL.row(key)
         assert r.behavior == SL.NO and len(r.ast_allow) == n_allow[key] and r.ast_allow[0].path == path
         hits = [s for s in scanned.loose[r.name] if SA._allowed(s, r.ast_allow)]
         assert hits, key
-    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["world/navmesh.py", "engine/proximity.py"]
+    assert [a.path for a in SL.row("agents.band").ast_allow[1:]] == ["world/model/navmesh.py", "world/model/proximity.py"]
     # b4_hash のプロパティ World.b4_hash の呼び手は 0(属性 .b4_hash の読みはプロパティの中の 1 か所だけ)
     assert [str(s) for s in scanned.loose["b4_hash"]] == [str(s) for s in scanned.loose["b4_hash"]
-                                                         if s.path == "world/state.py"]
+                                                         if s.path == "world/model/state.py"]
 
 
 def test_ast_check_detects_a_new_declared_column(tmp_path, scanned):
@@ -407,7 +417,7 @@ def test_e1_retire_and_the_retired_hash_are_gone():
     """〔改訂(第330・RET)〕10e(E1)の「消した死蔵の 3 列を旧い final の再現のためにハッシュの中で元の位置に並べ直す」口
     (``Registry.retire``・``core.soa.retired_columns_in_hash``)を消した(前の試験は消す前の宣言を組み直した写しと同じ
     ハッシュになることを見ていた=第330 ACT の commit で通った)。消した列はどこにも現れない。"""
-    import shibuya.core.soa as SOA
+    import shibuya.foundation.soa as SOA
 
     assert not hasattr(Registry, "retire") and not hasattr(SOA, "retired_columns_in_hash")
     for a in (AgentState(7), _all_columns_state(9)[0]):
@@ -732,23 +742,32 @@ def test_t5_weight_kg_is_read_only_at_initialization(monkeypatch, tmp_path):
 #: 切替口と一緒に消した(値は 10e の記録 §E1 と §RET に残した)。
 #: 今の既定の final(=behavior-hash)の頭 16 桁(段ごとに張り替える)。
 CUR_SYN = {
-    "v1": "a36995c487c3f214", "v3": "92290af2f272b811", "v2_edge_attention": "863d35e1bfdb55f9",
-    "all_arms": "246c6478620d4cce", "classical": "22d8c5ba98bfaca0",  # 〔2-4 V2〕前 all_arms ab8201f624b4dfa7(近接の既定 distance)
+    # 〔11-03 §3〕棚卸し B の欠陥 4 件の直し(M10 の招待側の戻しを含む)で 4 構成が動いた(前 v1 a36995c487c3f214・v3 92290af2f272b811・
+    # v2_edge_attention 863d35e1bfdb55f9・all_arms 246c6478620d4cce=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・classical は不変・記録 fix4-1103)
+    "v1": "ea16e1af840583d4", "v3": "7c9db9611874691c", "v2_edge_attention": "1b9ce45df4c8dd92",
+    "all_arms": "2406ca74eed3422d", "classical": "22d8c5ba98bfaca0",  # 〔2-4 V2〕前 all_arms ab8201f624b4dfa7(近接の既定 distance)
     # 〔小さな版上げ・meal_w17〕既定の食事時刻を W17 v2 の分布から=エネルギー収支の 2 構成が動いた(前 all_arms 9071edfd618d42d8・
     # classical 2297d5c5947551f0=--meal-default validation で戻る・記録 meal_w17/README.md)
 }
 
 
 @pytest.mark.parametrize("kw", [
-    {}, {"vocab_version": "v3"}, {"vocab_version": "v2", "geometry": "edge"}, ALL_ARMS, CLASSICAL_ARMS,
+    # 〔Q13 commit ①〕前のライブラリの既定(語彙 v1・空腹 v1)で録った行=引数を明示して残す(Q13-4 (a)。予算は _syn が渡す)
+    {"vocab_version": "v1", "hunger_model": "v1"}, {"vocab_version": "v3", "hunger_model": "v1"},
+    {"vocab_version": "v2", "geometry": "edge", "hunger_model": "v1"}, ALL_ARMS, CLASSICAL_ARMS,
 ], ids=["v1", "v3", "v2_edge_attention", "all_arms", "classical"])
-def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw):
+def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw, monkeypatch):
     """T1(10e・E1): 死蔵 5 列を消した後の既定の final は behavior-hash そのもの。
 
     〔改訂(第330・RET)〕前は ``hash_scheme="full"``・``rng_scheme="stateful"`` で 10e の前の final と behavior-hash
     (``PRE10E_SYN``)を再現する形だった(切替口を消した=第330 ACT の commit で 5 構成とも通ったことを記録 §RET に書いた)。
     いまは今の既定の final(``CUR_SYN``)と、K15 の 2 列を消しても final が動かないこと(同じ値)を見る。
+    〔Q13〕空腹 v1 の 3 行は試験の中だけの口で通す(``tests/engine/body/_hunger_v1.py``)。
     """
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    if kw.get("hunger_model") == "v1":
+        hunger_v1(monkeypatch)
     cid = request.node.callspec.id
     new = _syn(kw)(tmp_path / "new")
     assert new.final_hash == new.checkpoints[-1].behavior_hash and new.final_hash[:16] == CUR_SYN[cid]
@@ -758,7 +777,7 @@ def test_t1_deleting_the_dead_columns_changes_nothing(request, tmp_path, kw):
 def test_t5_and_t1_on_real_assets(monkeypatch, tmp_path):
     """実資産(W16+W17・計画実行層・エネルギー)300 体 1 日。〔改訂(第330・RET)〕前は plan_activity(K15)も揺らした
     (K15 で消した)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     def f(tape):
         return cli.run(n_agents=300, seed=1, world_dir=str(WORLD_DIR), tape_path=tape, vocab_version="v3")
@@ -850,7 +869,7 @@ def test_coverage_fails_when_a_new_state_is_not_declared(monkeypatch, tmp_path):
 
     root = tmp_path / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("__pycache__"))
-    fp = root / "engine" / "conversation.py"
+    fp = root / "society" / "conversation.py"
     src = fp.read_text(encoding="utf-8")
     anchor = "        self.n_opened = 0\n"
     assert anchor in src
@@ -917,7 +936,7 @@ def test_t7_hash_cost_within_the_declared_cap(kw):
     揺れる)ので、門を宣言の 3 倍(300 ms)にしていた。指示書 10-06 §6 の「つなぎ」で期限を付けることになり、
     10e で門を割合の形に替えた(3 倍の門は消した)。割合は分母も同じ束の中で揺れるので、揺れに強い。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(n_agents=5_000, seed=1, world_dir=str(WORLD_DIR), **kw)
     if kw == {"vocab_version": "v3"}:
@@ -940,6 +959,11 @@ def test_t7_hash_cost_within_the_declared_cap(kw):
 
         warnings.warn(f"T7: checkpoint の最大 {max(res.checkpoint_seconds):.4f} s が目標 {T7_TARGET_SECONDS} s を超えた"
                       f"(割合 {share:.3%} は門の中)")
+
+
+# 〔第346 旧道の切替口の削除〕試験 test_t7_legacy_switch_reproduces_the_pre_bump_final(3 つの切替口 rate_rules・
+# absent_processes・defect_fixes_1103 をどれも legacy にして版上げの前の final 7bfe215641b792ac / 62,176 を再現)は、
+# 欠陥の直しの切替口と一緒に消した(旧値の再現は安定版のタグ stable-v2-before-switch-removal-346)
 
 
 def test_t7_gate_is_the_share_of_the_whole_wall_clock():
@@ -1026,13 +1050,30 @@ def _scan_one(tmp_path, code: str, names=("rel_last",)):
     ("def f(reg):\n    return reg.arrays.get('rel_last')\n", "read"),
     ("import operator\n\ndef f(reg):\n    return operator.attrgetter('rel_last')(reg)\n", "read"),
     ("def f(reg, a):\n    reg.money[a], reg.rel_last[a] = reg.money[a] - reg.rel_last[a], 0\n", "read"),
-], ids=["getattr_name_table", "getattr_arg", "arrays_get", "attrgetter", "tuple_assign"])
+    # 〔第347〕自己更新の規則の直し(記録 docs/bench/analysis/self-update-347/README.md)。前は列の名前だけを比べて外していた。
+    # 穴 A: 右辺の読みで、左辺は同じ名前の列を別の受け手に書く(店の値段 ``self.price = np.asarray(world.pois.price)`` の形)
+    ("def f(self, world):\n    self.rel_last = np.asarray(world.pois.rel_last)\n", "strict"),
+    ("def f(reg, other, a):\n    other.rel_last[a] = reg.rel_last[a] + 1\n", "strict"),
+    ("def f(self, world):\n    self.rel_last, self.cell = world.pois.rel_last, world.pois.cell\n", "strict"),
+    # 穴 B: 左辺の添字の中の読みで、左辺は別の物を書く(``a[r.fam_thing[ids] == 0] = x`` の形)
+    ("def f(reg, out, a):\n    out[reg.rel_last[a]] = 1\n", "strict"),
+    ("def f(self, reg, a):\n    self.n[reg.rel_last[a]] += 1\n", "strict"),
+    # 左辺が名前だけ(前も後も読み)
+    ("def f(reg, a):\n    x: int = reg.rel_last[a]\n    return x\n", "strict"),
+    ("def f(reg, a):\n    x = y = reg.rel_last[a]\n    return x + y\n", "strict"),
+], ids=["getattr_name_table", "getattr_arg", "arrays_get", "attrgetter", "tuple_assign",
+        "a_pois_same_name_other_receiver", "a_same_column_other_receiver", "a_tuple_pair_other_receiver",
+        "b_index_of_other_target", "b_index_of_augassign_target", "annassign_name_target", "chained_name_targets"])
 def test_p5_ast_blind_spots_are_caught(tmp_path, code, expect):
-    """検収 2-5 の表の 5 つの書き方をそのまま: どれも捕まる(読みとして数える/解決できない読み)。"""
+    """検収 2-5 の表の 5 つの書き方と〔第347〕自己更新の規則の穴 A・B の形: どれも捕まる(読み/解決できない読み)。
+
+    ``strict`` は読みとして数え、手前の式が SoA らしい(``reg``・``world.pois``)ので strict にも入ること。"""
     res, out = _scan_one(tmp_path, code)
-    if expect == "read":
+    if expect in ("read", "strict"):
         assert res.loose["rel_last"], code
         assert any(v.startswith("agents.rel_last:") for v in out), out
+        if expect == "strict":
+            assert res.strict["rel_last"], code
     else:
         assert res.unresolved and any("解決できない動的な読み" in v for v in out), out
 
@@ -1042,7 +1083,12 @@ def test_p5_ast_blind_spots_are_caught(tmp_path, code, expect):
     "def f(reg, a):\n    reg.rel_last[a] += 1\n",
     "def f(reg, a):\n    reg.rel_last[a], reg.money[a] = reg.rel_last[a] + 1, 0\n",
     "def f(reg, a):\n    reg.rel_last[reg.rel_last > 3] = 0\n",
-], ids=["assign", "augassign", "tuple_pair_same_column", "slice_of_same_target"])
+    # 〔第347〕直した規則でも外れる本当の自己更新(同じ受け手の同じ列)
+    "def f(reg, a, b):\n    reg.rel_last[a][b] = reg.rel_last[a][b] + 1\n",
+    "def f(reg, a, b):\n    reg.rel_last[a] += reg.rel_last[b]\n",
+    "def f(reg):\n    reg.rel_last[:] = np.minimum(reg.rel_last, 3)\n",
+], ids=["assign", "augassign", "tuple_pair_same_column", "slice_of_same_target",
+        "nested_index_same_target", "augassign_rhs_same_column", "whole_column_rhs"])
 def test_p5_true_self_updates_are_still_not_reads(tmp_path, code):
     res, out = _scan_one(tmp_path, code)
     assert not res.loose["rel_last"] and out == [], (code, out)
@@ -1051,7 +1097,7 @@ def test_p5_true_self_updates_are_still_not_reads(tmp_path, code):
 @pytest.fixture(scope="module")
 def runtime_owners():
     """小さなラン(合成の全腕・古典、実資産 200 体の v3 既定と全腕+古典)の最後の checkpoint の owners。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     runs = {
         "syn_all": lambda: run_day(n_agents=60, seed=1, n_cells=CELLS, ticks=400, budget=60.0, **ALL_ARMS),
@@ -1109,7 +1155,7 @@ def test_p2_end_of_day_hashes_are_reported_separately():
 
 @real_data
 def test_p2_end_of_day_differs_after_the_ledger_close():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     r = cli.run(n_agents=200, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
     r2 = cli.run(n_agents=200, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
@@ -1126,9 +1172,9 @@ def _call_ref_sites() -> dict[tuple[str, int], str]:
     (到着の受け取り ``llm_io.receive_arrivals``・呼 ``decide.sys_decide``・ランの終わり ``run_end.sys_drain``)。"""
     import inspect
 
-    from shibuya.engine.systems import decide as DEC
-    from shibuya.engine.systems import llm_io as LIO
-    from shibuya.engine.systems import run_end as RE
+    from shibuya.runtime.systems import decide as DEC
+    from shibuya.runtime.systems import llm_io as LIO
+    from shibuya.runtime.systems import run_end as RE
 
     lines: list[tuple[str, int]] = []
     for fn in (LIO.receive_arrivals, DEC.sys_decide, RE.sys_drain):

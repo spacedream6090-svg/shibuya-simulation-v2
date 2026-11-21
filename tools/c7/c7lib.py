@@ -815,8 +815,9 @@ def parse_run_summary(text: str) -> dict[str, Any]:
     out["census_gate"] = (m.group(1) == "PASS") if m else None
     m = re.search(r"憲法5\s+(OK|NG)", text)
     out["constitution_ok"] = (m.group(1) == "OK") if m else None
-    m = re.search(r"band\s+[0-9.]+-[0-9.]+\)\s*(OK|NG)", text)
-    out["waste_band_ok"] = (m.group(1) == "OK") if m else None
+    # 〔11-01 段 2 の 4・検収 M1〕腕 off のランの帯は「非該当(…)」=None(NG に数えない)
+    m = re.search(r"band\s+[0-9.]+-[0-9.]+\)\s*(OK|NG|非該当)", text)
+    out["waste_band_ok"] = (None if m.group(1) == "非該当" else m.group(1) == "OK") if m else None
 
     diag = {k: int(v.replace(",", "")) for k, v in _DIAG_RE.findall(text)}
     m = _DIAG_RATE_RE.search(text)
@@ -867,7 +868,7 @@ def dir_bytes(path: str | Path, patterns: Sequence[str] = ("*",)) -> int:
 
 def budget_limits(ids: Iterable[str] = ("W1", "M8", "S1", "P2", "M1", "L4", "L6")) -> dict[str, Any]:
     """予算宣言表から上限を読む(**Markdown が正典**・複製しない)。"""
-    from shibuya.core.budget import budget_by_id, load_budget_table, parse_limit
+    from shibuya.foundation.budget import budget_by_id, load_budget_table, parse_limit
 
     rows = budget_by_id(load_budget_table())
     out: dict[str, Any] = {}

@@ -21,23 +21,26 @@ from datetime import datetime
 import numpy as np
 import pytest
 
-from shibuya.agents.state import N_WAKE_CONDITIONS, AgentState, ResultCode, WakeCondition
-from shibuya.core.hashing import apply_key_array
-from shibuya.core.types import EventClass
-from shibuya.engine import resolve as R
-from shibuya.engine import run as RUN
-from shibuya.engine.systems import build as BLD  # 1-0: 層の組み立ての名前の差し替えの的
-from shibuya.engine.activity import UNTIL_MAX_MINUTES, ActivityLayer
-from shibuya.engine.arbiter import Arbiter, WakeCandidates
-from shibuya.engine.calendar import SimCalendar
-from shibuya.engine.chooser import draw_index
-from shibuya.engine.energy import EnergyModel, OutOfAreaMeals, load_anchors
-from shibuya.engine.relations import RelationLayer
-from shibuya.engine.run import run_day, run_salt_for
-from shibuya.engine.tape import Tape
-from shibuya.llm import LLMRequest
-from shibuya.llm.mock import MockLLM
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, ResultCode, WakeCondition
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.hashing import apply_key_array
+from shibuya.foundation.types import EventClass
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/body_writes・R_MIND=mind/ops。割る前は全部 resolve)
+from shibuya.act.ops import body_writes as R
+from shibuya.mind import ops as R_MIND
+from shibuya.runtime.systems import assemble as BLD  # 1-0: 層の組み立ての名前の差し替えの的
+from shibuya.act.activity import UNTIL_MAX_MINUTES, ActivityLayer
+from shibuya.runtime.arbiter import Arbiter
+from shibuya.mind.system1.wake import WakeCandidates
+from shibuya.world.facts.calendar import SimCalendar
+from shibuya.foundation.ports.choice import draw_index
+from shibuya.world.body.energy import EnergyModel, OutOfAreaMeals, load_anchors
+from shibuya.mind.relations.layer import RelationLayer
+from shibuya.runtime.run import run_day, run_salt_for
+from shibuya.runtime.inference.tape import Tape
+from shibuya.foundation.ports.inference import LLMRequest
+from shibuya.runtime.inference.mock import MockLLM
+from shibuya.world.model.state import World
 
 N = 100
 CELLS = 16
@@ -101,7 +104,7 @@ def test_refractory_set_at_2350_expires_at_0010_next_day():
     table[cond] = 20                              # 20 分の不応期
     agents = AgentState(2)
     agents.freeze()
-    R.set_refractory(agents, np.array([0]), np.array([cond]), t_set, table)
+    R_MIND.set_refractory(agents, np.array([0]), np.array([cond]), t_set, table)
     assert int(agents.registry.refractory_until[0, cond]) == cal.to_T(1, 10)   # 2 日目 0:10
 
     def selected(T: int) -> bool:
@@ -183,7 +186,7 @@ def test_no_negative_elapsed_time_in_any_tick_column_every_tick(monkeypatch):
     monkeypatch.setattr(BLD, "WorldProcessRunner", runner_factory)
     monkeypatch.setattr(BLD.MemoryLayer, "enable_relations", enable)
 
-    refr_max = int(np.max(R.refractory_ticks()))
+    refr_max = int(np.max(R_MIND.refractory_ticks()))
     until_cap = int(np.ceil(UNTIL_MAX_MINUTES)) + 1
     orig_advance = R.advance_body
     checked = {"ticks": 0}
@@ -246,8 +249,8 @@ def test_tick_columns_can_hold_30_days_of_T():
     assert np.iinfo(rel._co_since.dtype).max >= T30         # noqa: SLF001
     assert np.iinfo(rel._co_day.dtype).max >= 30             # noqa: SLF001
     assert np.iinfo(rel._acq_until.dtype).max >= T30         # noqa: SLF001
-    from shibuya.agents.schedule import synthesize
-    from shibuya.engine.processes.runner import WorldProcessRunner
+    from shibuya.world.facts.mock_schedule import synthesize
+    from shibuya.world.laws.runner import WorldProcessRunner
 
     w = World.synthetic(n_cells=9, seed=1)
     runner = WorldProcessRunner(world=w, agents=agents, seed=1, schedule=synthesize(2, 1, w.n_cells))
@@ -266,8 +269,8 @@ def test_next_boundary_tables_are_read_by_tick_of_day():
 
 
 def test_classical_and_store_choice_read_the_next_plan_by_tick_of_day():
-    from shibuya.engine import classical as CL
-    from shibuya.engine.store_choice import StoreChoice
+    from shibuya.mind.judge import classical as CL
+    from shibuya.mind.judge.store_choice import StoreChoice
 
     doc, md5 = CL.load_activity_prior()
     w = World.synthetic(n_cells=9, seed=1)
@@ -349,7 +352,7 @@ def test_real_calendar_run_needs_a_valid_start(tmp_path):
 
 def test_start_date_moves_the_prompt_clock(tmp_path):
     """開始日を渡すとプロンプトの日付(世界内日時)がその日になる。渡さないランは今の日付のまま。"""
-    from shibuya.perception.renderer import Renderer as PR
+    from shibuya.mind.percept.draw import Renderer as PR
 
     seen = []
     orig = PR.__init__

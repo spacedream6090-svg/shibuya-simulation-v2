@@ -37,7 +37,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-"shibuya.manifest" = ["frozen/*.json"]
+"shibuya.world.ledger" = ["frozen/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -50,47 +50,232 @@ markers = [
 ]
 filterwarnings = ["error::DeprecationWarning:shibuya.*"]
 
-# ---- 層契約(実装計画書 §3): 上→下の import のみ・循環禁止 ----
+# ---- 層契約(段 4 の段 delete の木の決まり。元は tools/pkgmove/contracts.toml・`python tools/pkgmove/cli.py contracts --stage delete` が作る。手で直さない)----
 [tool.importlinter]
 root_package = "shibuya"
 include_external_packages = false
 
 [[tool.importlinter.contracts]]
-name = "layers: census > economy > engine > (perception | llm) > (world | agents) > core > manifest"
+name = "〔段 4 の途中の決まり〕1 層(§1-2 の順。下から上と、`|` の兄弟の間を読まない)"
 type = "layers"
 layers = [
-  "shibuya.census",
-  "shibuya.economy",
-  "shibuya.engine",
-  "shibuya.perception | shibuya.llm",
-  "shibuya.world | shibuya.agents",
-  "shibuya.core",
-  "shibuya.manifest",
+  "shibuya.interfaces",
+  "shibuya.validation.static",
+  "shibuya.experiments.drive",
+  "shibuya.runtime",
+  "shibuya.interim_bundles",
+  "shibuya.world.laws",
+  "shibuya.mind | shibuya.act | shibuya.society",
+  "shibuya.world.body",
+  "shibuya.world.model | shibuya.world.things | shibuya.economy",
+  "shibuya.world.facts | shibuya.world.ledger | shibuya.experiments.port",
+  "shibuya.foundation",
+]
+ignore_imports = [
+  "shibuya.act.ops.detect_writes -> shibuya.mind.system1.change_detect",
+  "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
+  "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
 ]
 
 [[tool.importlinter.contracts]]
-name = "core は何にも依存しない(manifest も import しない)"
-type = "forbidden"
-source_modules = ["shibuya.core"]
-forbidden_modules = ["shibuya.manifest"]
-
-[[tool.importlinter.contracts]]
-name = "llm は world/agents を import しない(mock LLM が成立する)"
-type = "forbidden"
-source_modules = ["shibuya.llm"]
-forbidden_modules = ["shibuya.world", "shibuya.agents", "shibuya.perception", "shibuya.engine", "shibuya.economy", "shibuya.census"]
-
-[[tool.importlinter.contracts]]
-name = "build は実行時に import されない"
+name = "〔段 4 の途中の決まり〕2 foundation は何も読まない"
 type = "forbidden"
 source_modules = [
-  "shibuya.manifest", "shibuya.core", "shibuya.world", "shibuya.agents",
-  "shibuya.perception", "shibuya.llm", "shibuya.engine", "shibuya.economy", "shibuya.census",
+  "shibuya.foundation",
 ]
-forbidden_modules = ["shibuya.build"]
+forbidden_modules = [
+  "shibuya.interfaces",
+  "shibuya.validation.static",
+  "shibuya.experiments.drive",
+  "shibuya.runtime",
+  "shibuya.interim_bundles",
+  "shibuya.world.laws",
+  "shibuya.mind",
+  "shibuya.act",
+  "shibuya.society",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.economy",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.experiments.port",
+  "shibuya.build",
+]
 
 [[tool.importlinter.contracts]]
-name = "economy は engine の transfer 単一API経由のみ(world/agents 直接書き込み禁止)"
+name = "〔段 4 の途中の決まり〕3 mind は foundation(と mind)だけを読む"
 type = "forbidden"
-source_modules = ["shibuya.economy"]
-forbidden_modules = ["shibuya.world", "shibuya.agents", "shibuya.perception", "shibuya.llm"]
+source_modules = [
+  "shibuya.mind",
+]
+forbidden_modules = [
+  "shibuya.interfaces",
+  "shibuya.validation.static",
+  "shibuya.experiments.drive",
+  "shibuya.runtime",
+  "shibuya.interim_bundles",
+  "shibuya.world.laws",
+  "shibuya.act",
+  "shibuya.society",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.economy",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.experiments.port",
+  "shibuya.build",
+]
+ignore_imports = [
+  "shibuya.mind.judge.decision.layer -> shibuya.economy.stage2_bind",
+  "shibuya.mind.judge.decision.layer -> shibuya.society.tools.registry",
+  "shibuya.mind.ops -> shibuya.world.model.agent_table",
+  "shibuya.mind.percept.draw -> shibuya.world.model.agent_table",
+  "shibuya.mind.percept.draw -> shibuya.world.model.percept_scene",
+  "shibuya.mind.percept.draw -> shibuya.world.model.state",
+  "shibuya.mind.relations.layer -> shibuya.world.model.proximity",
+  "shibuya.mind.system1.change_detect -> shibuya.world.model.agent_table",
+  "shibuya.mind.system1.change_detect -> shibuya.world.model.scene_hash",
+  "shibuya.mind.system1.change_detect -> shibuya.world.model.state",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕4 act の書く関数(`act.apply`・`act.ops`)を読めるのは act・world.laws・interim_bundles・runtime・interfaces だけ"
+type = "protected"
+protected_modules = [
+  "shibuya.act.apply",
+  "shibuya.act.ops",
+]
+allowed_importers = [
+  "shibuya.act",
+  "shibuya.world.laws",
+  "shibuya.interim_bundles",
+  "shibuya.runtime",
+  "shibuya.interfaces",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕5 お金と物の書き手(`economy.ops`・`economy.goods`・`economy.ledger`)を読めるのは economy・interfaces だけ"
+type = "protected"
+protected_modules = [
+  "shibuya.economy.ops",
+  "shibuya.economy.goods",
+  "shibuya.economy.ledger",
+]
+allowed_importers = [
+  "shibuya.economy",
+  "shibuya.interfaces",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕6 economy は world.facts と foundation だけを読む"
+type = "forbidden"
+source_modules = [
+  "shibuya.economy",
+]
+forbidden_modules = [
+  "shibuya.interfaces",
+  "shibuya.validation.static",
+  "shibuya.experiments.drive",
+  "shibuya.runtime",
+  "shibuya.interim_bundles",
+  "shibuya.world.laws",
+  "shibuya.mind",
+  "shibuya.act",
+  "shibuya.society",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.world.ledger",
+  "shibuya.experiments.port",
+  "shibuya.build",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕7 society は act・mind・runtime・world.laws・interim_bundles を読まない"
+type = "forbidden"
+source_modules = [
+  "shibuya.society",
+]
+forbidden_modules = [
+  "shibuya.act",
+  "shibuya.mind",
+  "shibuya.runtime",
+  "shibuya.world.laws",
+  "shibuya.interim_bundles",
+]
+ignore_imports = [
+  "shibuya.society.speech.layer -> shibuya.mind.memory.wom",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕8 ランの側は build を読まない"
+type = "forbidden"
+source_modules = [
+  "shibuya.interfaces",
+  "shibuya.validation.static",
+  "shibuya.experiments.drive",
+  "shibuya.runtime",
+  "shibuya.interim_bundles",
+  "shibuya.world.laws",
+  "shibuya.mind",
+  "shibuya.act",
+  "shibuya.society",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.economy",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.experiments.port",
+  "shibuya.foundation",
+]
+forbidden_modules = [
+  "shibuya.build",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕§6-6 の 1 一時の区分を読めるのは runtime と interfaces だけ"
+type = "protected"
+protected_modules = [
+  "shibuya.interim_bundles",
+]
+allowed_importers = [
+  "shibuya.runtime",
+  "shibuya.interfaces",
+]
+
+[[tool.importlinter.contracts]]
+name = "〔段 4 の途中の決まり〕§6-6 の 2 runtime の核は中身を読まない(直の辺だけ)"
+type = "forbidden"
+source_modules = [
+  "shibuya.runtime.clock",
+  "shibuya.runtime.clocks",
+  "shibuya.runtime.state",
+  "shibuya.runtime.inference.tape",
+  "shibuya.runtime.systems.conductor",
+  "shibuya.runtime.systems.spec",
+  "shibuya.runtime.systems.boxes",
+  "shibuya.runtime.systems.day",
+]
+forbidden_modules = [
+  "shibuya.world.laws",
+  "shibuya.world.body",
+  "shibuya.world.model",
+  "shibuya.world.things",
+  "shibuya.world.facts",
+  "shibuya.world.ledger",
+  "shibuya.mind",
+  "shibuya.act",
+  "shibuya.economy",
+  "shibuya.society",
+  "shibuya.interim_bundles",
+  "shibuya.experiments.drive",
+  "shibuya.experiments.port",
+]
+ignore_imports = [
+  "shibuya.runtime.state.restore -> shibuya.world.model.agent_table",
+  "shibuya.runtime.state.restore -> shibuya.world.model.state",
+]
+allow_indirect_imports = true

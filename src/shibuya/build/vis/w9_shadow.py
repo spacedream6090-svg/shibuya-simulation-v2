@@ -42,7 +42,7 @@ from numba import njit, prange
 from ..field.w13_weather import LAT, LON, TZ_OFFSET_MIN, _solar_terms, solar_elevation_deg
 from ..geo import common as C
 from .w8_visibility import EYE_M, RASTER_M, STEP_M, _dem_sample, build_scene
-from shibuya.core.time_consts import MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_HOUR
 
 STAGE = "W9"
 STAGE_VERSION = "1.0.0"

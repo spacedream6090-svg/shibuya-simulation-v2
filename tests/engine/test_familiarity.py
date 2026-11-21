@@ -19,9 +19,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import FAMILIARITY_FIELDS, AgentState
-from shibuya.engine import resolve as R
-from shibuya.engine.familiarity import (
+from shibuya.foundation.vocab.agent_codes import FAMILIARITY_FIELDS
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_SHOP=act/ops/shop。割る前は全部 resolve)
+from shibuya.act import gate as R
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.mind.memory.familiarity import (
     ACTIVATION_ABSENT,
     FAMILIARITY_K,
     FAMILIARITY_MODES,
@@ -32,7 +35,7 @@ from shibuya.engine.familiarity import (
     place_thing,
     thing_kind,
 )
-from shibuya.engine.run import run_day
+from shibuya.runtime.run import run_day
 from tests import golden_env as GE
 
 WORLD_DIR = Path("data/world/v2")
@@ -153,8 +156,8 @@ def test_the_approximation_versus_the_exact_base_level():
 
 # ------------------------------------------------------------------ (e) 控え(描画・resolve)
 def test_the_renderer_notes_signage_only_when_asked_and_seen():
-    from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=2)
     a = AgentState(2)
@@ -192,17 +195,17 @@ def test_resolve_notes_only_the_successful_visits():
         w.pois.stock[7] = 5
         led = SimpleNamespace(money=_PickyMoney(ag, refuse={1}), goods=_FakeGoods(w.pois.stock))
         out = R.ResolveOutcome(tick=NOON, ledger=led, track_visits=True)
-        R._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
+        R_SHOP._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
                         np.array([800, 800, 800]), NOON, out)
         off = R.ResolveOutcome(tick=NOON, ledger=led)
-        R._complete_buy(ag, w, np.array([0]), np.array([7]), np.array([800]), NOON, off)
+        R_SHOP._complete_buy(ag, w, np.array([0]), np.array([7]), np.array([800]), NOON, off)
     assert np.concatenate(out.visit_agents).tolist() == [0, 2]
     assert np.concatenate(out.visit_pois).tolist() == [7, 7]
     assert off.visit_agents == []
 
 
 def test_cli_passes_the_familiarity_flags(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -223,8 +226,8 @@ def test_cli_passes_the_familiarity_flags(monkeypatch):
 # ------------------------------------------------------------------ (f) on でも挙動は変えない
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_on_counts_contacts_and_does_not_change_behaviour_on_the_real_world(monkeypatch):
-    from shibuya.agents import state as S
-    from shibuya.cli import run as cli_run
+    from shibuya.world.model import agent_table as S
+    from shibuya.interfaces.cli.main import run as cli_run
 
     off = cli_run(n_agents=1_000, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     monkeypatch.setattr(
@@ -276,7 +279,7 @@ def test_the_render_and_the_entry_of_the_same_signage_count_once_per_tick():
 
 
 def test_the_entry_gate_draws_the_same_stream_as_the_renderer():
-    from shibuya.perception.attention import gate_stage1
+    from shibuya.mind.percept.attention import gate_stage1
 
     n = 40
     a = AgentState(n, familiarity_columns=True, familiarity_k=4)
@@ -298,8 +301,8 @@ def test_the_entry_gate_draws_the_same_stream_as_the_renderer():
 
 
 def test_the_renderer_publishes_the_same_signage_set_it_draws():
-    from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=2)
     a = AgentState(2)

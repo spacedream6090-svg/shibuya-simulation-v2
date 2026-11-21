@@ -15,10 +15,17 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentState, ResultCode, WakeCondition
-from shibuya.engine import resolve as R
-from shibuya.engine.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
-from shibuya.engine.processes.rail import RailProcess
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode, WakeCondition
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_ACT_CODES=foundation/vocab/act_codes・R_RAIL=act/ops/rail・
+# R_SHOP=act/ops/shop・R_TALK=act/ops/talk。割る前は全部 resolve)
+from shibuya.act import gate as R
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.act.ops import talk as R_TALK
+from shibuya.world.laws.presence import EXIT_WALK_MAX_TICKS, PlanExecutor
+from shibuya.world.laws.rail import RailProcess
 
 from .test_presence_executor import (
     ACT_WORK,
@@ -39,7 +46,7 @@ def walk_layer(weekly, *, n: int, home_cell, direction=None, ticks: int = 1_440,
     layer = PlanExecutor(
         w, a, weekly, day_index=0, home_cell=home_cell,
         direction_node=np.zeros(n, dtype=np.int64) if direction is None else direction,
-        kind=np.zeros(n, dtype=np.int64), agent_id=np.arange(n, dtype=np.int64), rail=rail, assets=pa,
+        rail=rail, assets=pa,
         ticks=ticks, exit_mode="walk_to_platform",
     )
     rail.presence = layer
@@ -77,7 +84,7 @@ def test_depart_walks_to_the_line_platform_instead_of_vanishing():
     assert int(r.poi_ref[0]) == -1 and layer.n_shopping_interrupted == 1   # 買物は解いてから歩く
     assert int(r.activity[1]) == int(Activity.WAITING) and int(r.board_since[1]) == 330   # ホームに居た=待ちへ
     assert layer.n_exit_walk_waiting_at_start == 1
-    assert (np.asarray(r.plan_flags)[[0, 1]] & R.EXIT_WALK_FLAG).all()
+    assert (np.asarray(r.plan_flags)[[0, 1]] & R_ACT_CODES.EXIT_WALK_FLAG).all()
     assert set(layer.walk_started_now.tolist()) == {0, 1}
     assert layer.plan_exit_mask(np.array([0, 1, 2])).tolist() == [True, True, False]
 
@@ -169,10 +176,10 @@ def test_wait_keeps_a_plan_exit_walker_moving():
     w, a = make_world_agents(2)
     with a.writable():
         a.registry.activity[:] = int(Activity.MOVING)
-        a.registry.plan_flags[0] = np.int8(R.EXIT_WALK_FLAG)
+        a.registry.plan_flags[0] = np.int8(R_ACT_CODES.EXIT_WALK_FLAG)
     out = R.ResolveOutcome(tick=5)
     with a.writable():
-        R._apply_wait(a, w, np.array([0, 1]), np.array([-1, -1]), 5, out, None)
+        R_SHOP._apply_wait(a, w, np.array([0, 1]), np.array([-1, -1]), 5, out, None)
     assert int(a.registry.activity[0]) == int(Activity.MOVING)
     assert int(a.registry.activity[1]) == int(Activity.WAITING)
 
@@ -189,7 +196,7 @@ def test_leave_releases_store_queue_and_marks_conversation():
         a.registry.talk_partner[2] = 3
     out = R.ResolveOutcome(tick=9)
     with a.writable():
-        R._apply_leave(a, w, np.array([0, 1, 2]), np.array([-1, -1, -1]), 9, out, None)
+        R_TALK._apply_leave(a, w, np.array([0, 1, 2]), np.array([-1, -1, -1]), 9, out, None)
     r = a.registry
     assert int(r.poi_ref[0]) == -1 and int(r.queue_poi[1]) == -1
     assert (np.asarray(r.activity)[[0, 1, 2]] == int(Activity.IDLE)).all() and int(r.talk_partner[2]) == -1
@@ -203,11 +210,11 @@ def test_leave_releases_store_queue_and_marks_conversation():
 
 
 def test_leave_with_no_activity_expires_next_tick():
-    from shibuya.engine import commit as C
-    from shibuya.engine.activity import ActivityLayer, ActivityPayload
-    from shibuya.llm.contract import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
+    from shibuya.foundation.vocab import act_codes as C
+    from shibuya.act.activity import ActivityLayer, ActivityPayload
+    from shibuya.foundation.vocab.actions import NO_TARGET, UNTIL_DEFAULT_MINUTES, UntilKind
 
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=1)
     a = AgentState(2, activity_columns=True)
@@ -227,7 +234,7 @@ def test_leave_with_no_activity_expires_next_tick():
 # ================================================================= (c) ラン
 @real_data
 def test_run_walk_mode_accounts_for_every_exit_and_the_leave_switch_is_gone():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=1500, seed=1, world_dir=str(WORLD_DIR), vocab_version="v3")
     walk = cli.run(exit_mode="walk_to_platform", **kw)
@@ -244,7 +251,7 @@ def test_run_walk_mode_accounts_for_every_exit_and_the_leave_switch_is_gone():
     assert ex["walk_departed_by_train"] + ex["boarded_waiting_train_at_end"] == ex["walk_boarded"]
     assert walk.conserved
     # 第302 Q119 (b): 計画の退出=運賃なし(運賃は LLM の乗車だけ・計画の退出の乗車は分けて数える)
-    from shibuya.engine.processes.rail import FARE_YEN
+    from shibuya.world.laws.rail import FARE_YEN
 
     pc = dict(walk.process_counters)
     assert pc["rail.boarded_plan_exit"] == ex["walk_boarded"]
@@ -264,9 +271,11 @@ def test_run_walk_mode_accounts_for_every_exit_and_the_leave_switch_is_gone():
 
 
 def test_cli_has_the_9a_flags():
-    from pathlib import Path
+    from tests import _places as PL
 
-    text = Path("src/shibuya/cli.py").read_text(encoding="utf-8")
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     assert '"--leave-effect"' not in text and '"walk_to_platform"' in text  # 〔第 2 部〕--leave-effect は消した
 
 
@@ -308,10 +317,10 @@ def test_plan_exit_riders_do_not_pay_the_fare():
     rail = RailProcess(w, a, pa, master_seed=1, day_index=0, plan_executor=True)
     with a.writable():
         a.registry.money[:] = 1_000
-        a.registry.plan_flags[0] = np.int8(R.EXIT_WALK_FLAG)
+        a.registry.plan_flags[0] = np.int8(R_ACT_CODES.EXIT_WALK_FLAG)
     out = R.ResolveOutcome(tick=5, rail=rail)
     with a.writable():
-        R._board_riders(a, w, [(0, np.array([0, 1]))], 5, out)
+        R_RAIL._board_riders(a, w, [(0, np.array([0, 1]))], 5, out)
     m = np.asarray(a.registry.money)
     assert int(m[0]) == 1_000 and int(m[1]) == 1_000 - int(rail.fare_yen)
     assert out.fare_paid == int(rail.fare_yen)

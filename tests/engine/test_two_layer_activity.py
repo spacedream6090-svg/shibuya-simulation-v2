@@ -18,40 +18,67 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
-from shibuya.agents.state import (
+from shibuya.world.facts.mock_schedule import synthesize
+from shibuya.foundation.vocab.agent_codes import (
     N_WAKE_CONDITIONS,
     WAKE_CONDITION_CLASS,
     Activity,
     ActivityKind,
-    AgentState,
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.types import EventClass
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.activity import (
+from shibuya.world.model.agent_table import (
+    AgentState,
+)
+from shibuya.foundation.types import EventClass
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_APPLY=act/apply・R_BODY=act/ops/body_writes・R_GATE=act/gate・
+# R_MIND=mind/ops・R_MOVE=act/ops/move・R_SHOP=act/ops/shop。割る前は全部 resolve)
+from shibuya.act.ops import init_writes as R
+from shibuya.act import apply as R_APPLY
+from shibuya.act.ops import body_writes as R_BODY
+from shibuya.act import gate as R_GATE
+from shibuya.mind import ops as R_MIND
+from shibuya.act.ops import move as R_MOVE
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.act.activity import (
     ActivityLayer,
     ActivityPayload,
     activity_kind_of,
     displayable_activity,
 )
-from shibuya.engine.arbiter import Arbiter, WakeCandidates
-from shibuya.engine.run import Checkpoint, run_day
-from shibuya.core.hashing import blake3_hex
-from shibuya.llm import LLMResponse
-from shibuya.llm.contract import (
+from shibuya.runtime.arbiter import Arbiter
+from shibuya.mind.system1.wake import WakeCandidates
+from shibuya.runtime.result import Checkpoint
+from shibuya.runtime.run import run_day
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.ports.inference import LLMResponse
+from shibuya.foundation.vocab.actions import (
     NONE_ACTION_CODE,
     UNDEFINED_ACTION,
     UntilKind,
     compat_word,
     format_two_line_v3,
 )
-from shibuya.perception import renderer as PR
-from shibuya.perception import templates as T
-from shibuya.perception.renderer import Renderer
-from shibuya.world.state import World
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.mind.percept.draw import (
+    ACTIVITY_EXPIRY_REASON,
+    DEFAULT_OPTIONS_V3,
+    RESULT_OPTIONS,
+    RESULT_OPTIONS_V3,
+    Renderer,
+)
+from shibuya.foundation.text.percept_words import (
+    ACTIVITY_LINE_MAX_TOKENS,
+    ACTIVITY_WORDS,
+    ACTIVITY_WORDS_V3,
+    activity_line,
+)
+from shibuya.foundation.text import templates as T
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 SALT = b"s" * 16
@@ -141,8 +168,9 @@ def test_activity_off_is_the_current_behaviour():
 
 
 def test_v1_ignores_the_activity_switch():
-    on = run_day(**SMALL)
-    off = run_day(activity="off", **SMALL)
+    # 〔Q13 commit ①〕語彙 v1 を明示(前のライブラリの既定)
+    on = run_day(vocab_version="v1", **SMALL)
+    off = run_day(activity="off", vocab_version="v1", **SMALL)
     assert on.final_hash == off.final_hash and on.llm_calls == off.llm_calls
     assert on.activity is False and "activity_until" not in on.agents.registry.arrays
 
@@ -163,7 +191,7 @@ def test_wander_destinations_are_within_the_radius_and_deterministic():
     d3 = layer.wander_destinations(ids, cells, 101)
     assert not np.array_equal(d1, d3)
     bad = layer.wander_destinations(np.array([0]), np.array([-1]), 100)
-    assert bad.tolist() == [C.WANDER_BAD_TARGET]
+    assert bad.tolist() == [CV.WANDER_BAD_TARGET]
 
 
 def test_wander_bad_target_fails_as_bad_target():
@@ -171,9 +199,9 @@ def test_wander_bad_target_fails_as_bad_target():
     a = AgentState(2)
     R.initialize(a, w, synthesize(2, 1, w.n_cells))
     a.freeze()
-    out = R.ResolveOutcome(tick=5)
+    out = R_GATE.ResolveOutcome(tick=5)
     with a.writable(), w.writable():
-        R._apply_move(a, w, np.array([0, 1]), np.array([C.WANDER_BAD_TARGET, 3]), 5, out, None)
+        R_MOVE._apply_move(a, w, np.array([0, 1]), np.array([CV.WANDER_BAD_TARGET, 3]), 5, out, None)
     assert a.last_result[0] == int(ResultCode.BAD_TARGET)
     assert a.last_result[1] == int(ResultCode.OK)
 
@@ -209,14 +237,14 @@ def test_b4b_activity_line_is_byte_identical_in_a_cell():
 
 
 def test_activity_line_budget_and_filters():
-    assert PR.activity_line([]) == ""
-    long = PR.activity_line([("とても長い活動の文章", 3), ("散歩", 2)])
+    assert activity_line([]) == ""
+    long = activity_line([("とても長い活動の文章", 3), ("散歩", 2)])
     assert T.TEMPLATES["B4b.near"] not in long
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
-    assert estimate_tokens(long) <= PR.ACTIVITY_LINE_MAX_TOKENS
-    assert PR.activity_line([("P-3を待つ", 2)]) == "", "個体依存語は出さない(規約⑧)"
-    assert PR.activity_line([("戦略を練る", 2)]) == "", "省略記法の語を含む文は出さない(⑥)"
+    assert estimate_tokens(long) <= ACTIVITY_LINE_MAX_TOKENS
+    assert activity_line([("P-3を待つ", 2)]) == "", "個体依存語は出さない(規約⑧)"
+    assert activity_line([("戦略を練る", 2)]) == "", "省略記法の語を含む文は出さない(⑥)"
     assert not displayable_activity("なし") and displayable_activity("散歩")
 
 
@@ -291,7 +319,7 @@ def test_arrival_and_failure_settle_the_activity():
         a.last_result[2] = int(ResultCode.CLOSED)
         a.last_result_tick[2] = 10
     layer.after_resolve(
-        a, 10, [0, 1, 2], [C.ACT_MOVE, C.ACT_MOVE, C.ACT_BUY],
+        a, 10, [0, 1, 2], [CV.ACT_MOVE, CV.ACT_MOVE, CV.ACT_BUY],
         [_payload("なし", UntilKind.ARRIVAL, 0), _payload("なし", UntilKind.ARRIVAL, 0),
          _payload("なし", UntilKind.MINUTES, 30)],
     )
@@ -302,8 +330,8 @@ def test_arrival_and_failure_settle_the_activity():
 
 
 def test_activity_kind_mapping():
-    codes = np.array([C.ACT_MOVE, C.ACT_MOVE, C.ACT_BOARD, C.ACT_BUY, C.ACT_EAT, C.ACT_QUEUE,
-                      C.ACT_SLEEP, NONE_ACTION_CODE, C.ACT_TALK, UNDEFINED_ACTION])
+    codes = np.array([CV.ACT_MOVE, CV.ACT_MOVE, CV.ACT_BOARD, CV.ACT_BUY, CV.ACT_EAT, CV.ACT_QUEUE,
+                      CV.ACT_SLEEP, NONE_ACTION_CODE, CV.ACT_TALK, UNDEFINED_ACTION])
     wander = np.array([False, True] + [False] * 8)
     got = activity_kind_of(codes, wander).tolist()
     K = ActivityKind
@@ -317,16 +345,16 @@ def test_resting_bodies_recover_fatigue_every_ten_ticks():
     with a.writable():
         a.fatigue[:] = 5
         a.activity[:] = int(Activity.IDLE)
-    layer.after_resolve(a, 0, [0, 1, 2], [NONE_ACTION_CODE, C.ACT_BUY, C.ACT_MOVE],
+    layer.after_resolve(a, 0, [0, 1, 2], [NONE_ACTION_CODE, CV.ACT_BUY, CV.ACT_MOVE],
                         [_payload(value=60)] * 3)
-    R.advance_body(a, 10)
+    R_BODY.advance_body(a, 10)
     assert a.fatigue.tolist() == [4, 4, 5], "その場・在店は −1・移動の活動は回復しない"
-    R.advance_body(a, 70)
+    R_BODY.advance_body(a, 70)
     assert a.fatigue.tolist() == [4, 4, 5], "満了後は回復しない"
     v1 = AgentState(1)
     with v1.writable():
         v1.fatigue[:] = 5
-    R.advance_body(v1, 10)
+    R_BODY.advance_body(v1, 10)
     assert v1.fatigue.tolist() == [5], "活動層の無い体は従来どおり(30 tick 周期だけ)"
 
 
@@ -348,20 +376,20 @@ def _one_tick(action_code: int, target_cat: str):
         a.registry.money[:] = 100_000
     tick = 700
     space = C.ResourceSpace(w.n_poi, a.n, w.n_cells)
-    batch = C.intents_from_responses(
+    batch = CW.intents_from_responses(
         a, w, space, tick, np.array([0]), np.zeros(1, dtype=np.int64),
         np.array([action_code]), vocab_version="v3",
     )
     plan = C.arbitrate_resources(batch, tick, SALT, space, w.pois.stock, w.pois.capacity)
-    out = R.apply(plan.confirmed, plan.losers, a, w, tick, vocab_version="v3")
+    out = R_APPLY.apply(plan.confirmed, plan.losers, a, w, tick, vocab_version="v3")
     return a, w, batch, out
 
 
 @pytest.mark.parametrize("cat,counter", [("eatery", "n_queue_to_eat"), ("other", "n_queue_to_buy")])
 def test_queue_delegates_to_eat_or_buy(cat, counter):
-    a, w, batch, out = _one_tick(C.ACT_QUEUE, cat)
+    a, w, batch, out = _one_tick(CV.ACT_QUEUE, cat)
     assert getattr(out, counter) == 1
-    assert out.per_action.get(C.ACT_QUEUE) == 1 and a.last_action[0] == C.ACT_QUEUE
+    assert out.per_action.get(CV.ACT_QUEUE) == 1 and a.last_action[0] == CV.ACT_QUEUE
 
 
 def test_undefined_falls_back_to_none_in_v3():
@@ -372,18 +400,18 @@ def test_undefined_falls_back_to_none_in_v3():
     a1 = AgentState(1)
     R.initialize(a1, w1, synthesize(1, 1, w1.n_cells))
     space = C.ResourceSpace(w1.n_poi, 1, w1.n_cells)
-    b1 = C.intents_from_responses(a1, w1, space, 5, np.array([0]), np.zeros(1, dtype=np.int64),
+    b1 = CW.intents_from_responses(a1, w1, space, 5, np.array([0]), np.zeros(1, dtype=np.int64),
                                   np.array([UNDEFINED_ACTION]))
-    assert b1.action_code.tolist() == [C.ACT_WAIT], "v1 は待機のまま"
+    assert b1.action_code.tolist() == [CV.ACT_WAIT], "v1 は待機のまま"
 
 
 def test_queue_without_a_poi_is_bad_target():
     w = World.synthetic(n_cells=16, seed=1)
     a = AgentState(1)
     R.initialize(a, w, synthesize(1, 1, w.n_cells))
-    out = R.ResolveOutcome(tick=5)
+    out = R_GATE.ResolveOutcome(tick=5)
     with a.writable(), w.writable():
-        R._apply_queue(a, w, np.array([0]), np.array([-1]), 5, out, None)
+        R_SHOP._apply_queue(a, w, np.array([0]), np.array([-1]), 5, out, None)
     assert a.last_result[0] == int(ResultCode.BAD_TARGET)
 
 
@@ -393,7 +421,7 @@ def test_expiry_condition_is_outside_the_refractory_table():
     assert WAKE_CONDITION_CLASS[int(WakeCondition.ACTIVITY_EXPIRY)] == EventClass.PLAN_BOUNDARY
     a = AgentState(3)
     a.freeze()
-    R.set_refractory(a, np.array([0, 1]), np.array([int(WakeCondition.ACTIVITY_EXPIRY),
+    R_MIND.set_refractory(a, np.array([0, 1]), np.array([int(WakeCondition.ACTIVITY_EXPIRY),
                                                     int(WakeCondition.CELL_BLOCK)]), 10)
     assert a.refractory_until.shape == (3, N_WAKE_CONDITIONS)
     assert a.refractory_until[1, int(WakeCondition.CELL_BLOCK)] == 40
@@ -410,14 +438,14 @@ def test_expiry_condition_is_outside_the_refractory_table():
 
 # ------------------------------------------------------------------ 描画の v3 表
 def test_v3_option_and_word_tables_are_the_compat_reading():
-    for code, words in PR.RESULT_OPTIONS.items():
+    for code, words in RESULT_OPTIONS.items():
         want = tuple(dict.fromkeys(compat_word(w, "v1", "v3") for w in words))
-        assert PR.RESULT_OPTIONS_V3[code] == want
-    assert PR.DEFAULT_OPTIONS_V3 == tuple(
+        assert RESULT_OPTIONS_V3[code] == want
+    assert DEFAULT_OPTIONS_V3 == tuple(
         dict.fromkeys(compat_word(w, "v1", "v3") for w in T.DEFAULT_OPTIONS)
     )
-    assert PR.ACTIVITY_WORDS_V3 == tuple(compat_word(w, "v1", "v3") for w in PR.ACTIVITY_WORDS)
-    from shibuya.agents import weekly as W
+    assert ACTIVITY_WORDS_V3 == tuple(compat_word(w, "v1", "v3") for w in ACTIVITY_WORDS)
+    from shibuya.world.facts import weekly_reader as W
 
     assert W.ACTIVITY_TO_ACTION_V3 == {
         k: compat_word(v, "v1", "v3") for k, v in W.ACTIVITY_TO_ACTION.items()
@@ -437,7 +465,7 @@ def test_renderer_v3_expiry_reason_and_failure_options():
     r.prepare_tick(700)
     b6 = r.render(0, tick=700, wake_reason=int(WakeCondition.ACTIVITY_EXPIRY)).blocks["B6"]
     txt = b6.decode("utf-8")
-    assert PR.ACTIVITY_EXPIRY_REASON in txt
+    assert ACTIVITY_EXPIRY_REASON in txt
     assert "いま可能: 移動、なし" in txt and "待機" not in txt
     r1 = Renderer(w, a, seed=3)
     r1.prepare_tick(700)
@@ -446,7 +474,7 @@ def test_renderer_v3_expiry_reason_and_failure_options():
 
 # ------------------------------------------------------------------ bridge(役割語・対象ヒント)
 def test_bridge_role_words_fall_back_to_none_and_hints_carry_in_v3():
-    from shibuya.engine.llm_bridge import LLMBridge
+    from shibuya.runtime.inference.bridge import LLMBridge
 
     class Fixed:
         def __init__(self, text):

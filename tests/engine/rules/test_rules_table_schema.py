@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine.rules import table as RT
+from shibuya.world.facts.rules import table as RT
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
@@ -67,7 +67,9 @@ def test_the_values_are_the_r106_values():
     assert tax.params["national_rate"] == 0.078 and tuple(tax.params["local_tax_ratio"]) == (22, 78)
     assert tax.params["combined_rate"] == pytest.approx(0.078 * (1 + 22 / 78))
     wage = rules.get("minimum_wage.tokyo", "2026-10-14")
-    assert wage.kind == "machine" and wage.asof == "2026-10-01" and wage.params["yen_per_hour"] == 1280
+    # 〔11-01 §5・段 2 の 5〕最低賃金は human(床は params.bridge の machine のつなぎ=記録 s2-rules-1101)。前は machine
+    assert wage.kind == "human" and wage.asof == "2026-10-01" and wage.params["yen_per_hour"] == 1280
+    assert wage.params["bridge"]["kind"] == "machine"
     late = rules.get("late_night_alcohol.residential_ban", "2026-07-13")
     assert late.kind == "human"
     assert (late.params["closed_from"], late.params["closed_until"], late.params["area"]) == ("00:00", "06:00", "住居集合地域")
@@ -154,7 +156,7 @@ def test_the_repo_minimum_wage_has_the_version_on_the_world_date():
     """〔第337・親の一次確認で △ を解消〕世界の時点 2026-07-13 は 1,226 円(2025-10-03 の版)。2024-10-01 より前は版が無い。"""
     rt = RT.default_rules()
     w = rt.get("minimum_wage.tokyo", "2026-07-13")
-    assert w.asof == "2025-10-03" and w.params["yen_per_hour"] == 1226 and w.kind == "machine"
+    assert w.asof == "2025-10-03" and w.params["yen_per_hour"] == 1226 and w.kind == "human"  # 〔11-01 §5〕前 machine
     assert rt.get("minimum_wage.tokyo", "2025-10-02").params["yen_per_hour"] == 1163
     with pytest.raises(RT.RuleNotInForce):
         rt.get("minimum_wage.tokyo", "2024-09-30")
@@ -236,7 +238,10 @@ def test_the_table_object_cannot_be_rewired():
 
 
 # ================================================================= 1-4 では読み手を作らない
-TARGET = "shibuya.engine.rules"
+#: 規則の表の包みの名と、包みのディレクトリ(src/shibuya からの道・末尾に /)。〔段 4 の下ごしらえ〕字面で持たず、表のモジュール
+#: の ``__name__``・``__file__`` から作る(段 4 で包みごと移る。前は "shibuya.engine.rules" と "engine/rules/")。
+TARGET = RT.__name__.rpartition(".")[0]
+RULES_PREFIX = Path(RT.__file__).resolve().parent.relative_to(SRC.resolve()).as_posix() + "/"
 
 
 def _imports_target(node: ast.AST, module_of_file: str) -> bool:
@@ -260,7 +265,7 @@ def _readers() -> set[str]:
     out = set()
     for p in SRC.rglob("*.py"):
         rel = p.relative_to(SRC).as_posix()
-        if rel.startswith("engine/rules/"):
+        if rel.startswith(RULES_PREFIX):
             continue
         parts = ["shibuya", *rel.removesuffix(".py").split("/")]
         if parts[-1] == "__init__":
@@ -278,19 +283,29 @@ def test_only_the_manifest_and_the_daily_record_import_the_table():
     〔第 4 期 4-2〕``economy/taxes.py``(税・社会保険・消費税の端数と期限・信用の上限・割増=machine の行の読み手)。
     〔第 6 期 6-2 カレンダー 3〕``engine/calendar3/layer.py``(労働時間の human の行を読むだけ=超えた数を記録=止めない・腕 arm の
     ランだけ=既定の挙動は不変)。"""
-    assert _readers() == {"engine/run.py", "engine/systems/state_io.py", "engine/systems/build.py", "economy/anchors.py",
-                          "economy/taxes.py", "engine/calendar3/layer.py"}
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕run の読み手は RunResult(manifest の欄)を定義する今のファイル(割る前は engine/run.py=前と同じ。
+    # 割った後は runtime/result.py=道具は字面の道を主な割り先 runtime/run.py へ書き換えるので表から引く)
+    assert _readers() == {*PL.split_files("engine/run.py", ("RunResult",)), "runtime/systems/state_io.py", "runtime/systems/assemble.py", "economy/anchors.py",
+                          "economy/taxes.py", "interim_bundles/calendar3/layer.py"}
+
+
+#: 差し込むコードの材料(〔段 4 の下ごしらえ〕今の表の包みの置き場から組み立てる。前は字面で、移す道具が import の文だけを
+#: 書き換え、相対 import の基準のモジュールの名が残って食い違った): 親の包み・包みの名・表のモジュールの名。
+_PARENT, _, _LEAF = TARGET.rpartition(".")
+_TABLE = RT.__name__.rpartition(".")[2]
 
 
 @pytest.mark.parametrize("src,module", [
-    ("from shibuya.engine import rules\n", "shibuya.engine.x"),
-    ("from shibuya.engine.rules import table\n", "shibuya.engine.x"),
-    ("import shibuya.engine.rules.table as T\n", "shibuya.engine.x"),
-    ("from .rules import table\n", "shibuya.engine.x"),
-    ("from ..rules.table import Rules\n", "shibuya.engine.systems.x"),
-    ("from .. import rules\n", "shibuya.engine.systems.x"),
+    (f"from {_PARENT} import {_LEAF}\n", f"{_PARENT}.x"),
+    (f"from {TARGET} import {_TABLE}\n", f"{_PARENT}.x"),
+    (f"import {TARGET}.{_TABLE} as T\n", f"{_PARENT}.x"),
+    (f"from .{_LEAF} import {_TABLE}\n", f"{_PARENT}.x"),
+    (f"from ..{_LEAF}.{_TABLE} import Rules\n", f"{_PARENT}.systems.x"),
+    (f"from .. import {_LEAF}\n", f"{_PARENT}.systems.x"),
 ])
 def test_the_reader_check_sees_every_import_form(src, module):
     """検収 L8 の負の対照: 別名・相対の import も読み手として見つかる。"""
     assert any(_imports_target(n, module) for n in ast.walk(ast.parse(src)))
-    assert not any(_imports_target(n, module) for n in ast.walk(ast.parse("from shibuya.engine import run\n")))
+    assert not any(_imports_target(n, module) for n in ast.walk(ast.parse(f"from {_PARENT} import run\n")))

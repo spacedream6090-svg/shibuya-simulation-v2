@@ -53,7 +53,7 @@ MANIFEST_NOTE_NG = (
 
 def _tape_map(path: Path) -> dict[tuple[int, int, int, str], tuple[str, str]]:
     """テープ → ``鍵 → (応答本文, call_id)``。"""
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     out: dict[tuple[int, int, int, str], tuple[str, str]] = {}
     for row in Tape(path).rows():
@@ -115,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
                 world_dir=c6lib.world_dir_of(args),
                 tape_path=tape_root / f"run{i}",
                 fleet=client,
+                extra={"vocab_version": "v1"},  # 〔第347・Q13〕前と同じラン=語彙 v1 を明示(cli.run の既定は v3 になった)
             )
         finally:
             if client is not None:
@@ -122,6 +123,7 @@ def main(argv: list[str] | None = None) -> int:
         runs.append(
             {
                 "route": route,
+                "vocab_version": str(res.vocab_version),
                 "final_hash": res.final_hash,
                 "llm_calls": int(res.llm_calls),
                 "bridge_counters": {k: float(v) for k, v in res.bridge_counters.items()},

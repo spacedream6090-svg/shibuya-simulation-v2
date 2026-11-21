@@ -20,11 +20,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import Replay
-from shibuya.llm.fleet import FleetClient, FleetConfig
-from shibuya.manifest.schema import Mode
-from shibuya.world.state import World
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import Replay
+from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
+from shibuya.foundation.manifest.schema import Mode
+from shibuya.world.model.state import World
 
 from tests.llm.test_fleet import BAD, GOOD, FakeVLLM
 
@@ -75,6 +75,7 @@ NO_SLEEP_ARM = dict(sleep_suppression=False)
 
 
 def run_mock(**kw):
+    kw.setdefault("vocab_version", "v1")  # 〔Q13 commit ①〕偽 vLLM と台本は語彙 v1 の 2 行形(前のライブラリの既定を明示)
     return run_day(
         n_agents=N_AGENTS, seed=1, world=make_world(), ticks=TICKS,
         renderer="stub", processes=False, population=False, world_dir=None,
@@ -86,6 +87,7 @@ def run_fleet(client: FleetClient, ticks: int = TICKS, **kw):
     """``fleet_wait_s`` を入れる理由: このテストのエンジンは 1 tick を 1 ms 未満で回すので、
     0 のままだと応答が全部ラン終端に届いてしまい「次 tick に届く」性質が観測できない
     (本番は 1 tick ≈ 37 秒の壁時計=予算行 W1)。"""
+    kw.setdefault("vocab_version", "v1")  # 〔Q13 commit ①〕偽 vLLM は語彙 v1 の 2 行形(前のライブラリの既定を明示)
     return run_day(
         n_agents=N_AGENTS, seed=1, world=make_world(), ticks=ticks, fleet=client,
         fleet_wait_s=kw.pop("fleet_wait_s", 10.0),
@@ -195,30 +197,93 @@ def test_timeout_defers_then_reinjects_and_is_finally_answered(fleet_servers):
     # 最初の 6 tick だけ遅延させ、その後は正常に返す(別スレッドで解除)
     import threading
 
+    import time as _clock
+
+    healed: dict = {}  # 表示だけに使う(偽サーバーを直した時刻と、その時までに偽サーバーへ届いた要求の数)
+
     def _heal() -> None:
         import time as _t
 
         _t.sleep(3.0)
         for s in fleet_servers:
             s.total_delay_s = 0.0
+        healed["at_s"] = round(_clock.monotonic() - t0, 2)
+        healed["server_requests"] = [s.n_requests for s in fleet_servers]
 
     t = threading.Thread(target=_heal, daemon=True)
+
+    # 表示だけに使う見張り(ランが 8 秒・30 秒を超えて続いた回だけ、その時の艦隊の口の接続の置き場の状態を控える。
+    # 手元の健全な回は約 5 秒で終わるので、何も読まない)。httpx の private な属性を読むので、読めなければ誤りの名だけを控える
+    watch_stop = threading.Event()
+    pool_seen: list = []
+
+    def _conn_state(info: str) -> str:
+        """httpcore の接続の表示から、状態の名だけを取る(張っていない接続は ``CONNECTING`` などの 1 語)。"""
+        parts = [p.strip() for p in info.split(",")]
+        return parts[2] if len(parts) >= 3 else info
+
+    def _watch() -> None:
+        for at_s in (8.0, 30.0):
+            if watch_stop.wait(max(0.0, at_s - (_clock.monotonic() - t0))):
+                return
+            row: dict = {"at_s": round(_clock.monotonic() - t0, 2)}
+            try:
+                pools = [r.client._transport._pool for r in client._replicas]
+                row["pools"] = [repr(p) for p in pools]
+                states = []
+                for p in pools:
+                    n: dict = {}
+                    for x in p.connections:
+                        k = _conn_state(x.info())
+                        n[k] = n.get(k, 0) + 1
+                    states.append(dict(sorted(n.items())))
+                row["conn_states"] = states
+                row["in_flight"] = list(client.in_flight)
+                row["outstanding"] = client.outstanding
+                row["server_requests"] = [s.n_requests for s in fleet_servers]
+            except Exception as exc:  # noqa: BLE001 - 表示のための読み(失敗しても合否に関わらない)
+                row["error"] = f"{type(exc).__name__}: {exc}"
+            pool_seen.append(row)
+
+    w = threading.Thread(target=_watch, daemon=True)
+
+    t0 = _clock.monotonic()
     t.start()
-    res = run_fleet(client, ticks=90, fleet_wait_s=1.0)
+    w.start()
+    try:
+        res = run_fleet(client, ticks=90, fleet_wait_s=1.0)
+    finally:
+        run_wall_s = _clock.monotonic() - t0
+        healed_before_run_end = not t.is_alive()
+        watch_stop.set()  # ランが例外で抜けても、見張りを止める
+    w.join(timeout=2.0)  # 見張りが控えている途中なら、表示を作る前に待つ
     t.join(timeout=10.0)
 
     c = res.bridge_counters
-    assert c["fleet_deferred_timeout"] > 0  # 繰り延べが起きた
-    assert c["fleet_resent"] > 0  # 戻った呼が実際に再送された
-    assert c["fleet_ok"] > 0  # 回復後は普通に答えが返る
+    # 〔第347〕失敗したときに原因を追うための表示(確かめる内容は変えない)。この試験は本物の時計に頼り、CI で 2 回
+    # ``fleet_ok == 0`` で落ちた。手元では、時間切れを縮めると同じ形になり、艦隊の口の接続の置き場(httpcore)が詰まっていた
+    # (記録 docs/bench/analysis/fleet-flake-347/)。CI の失敗が同じ仕組みかは、まだ確かめていない。艦隊の数・ランの壁時計・
+    # ランが終わる前に偽サーバーが直ったか・偽サーバーへ届いた要求の数(直した時までと、ランの終わりまで)・ランが長引いた
+    # ときの接続の置き場の状態を出す。pytest は dict の表示を途中で切るので、文字列にして渡す(2 回目に落ちたとき、dict の
+    # ままだったので数が読めなかった)
+    diag_d = {k: c[k] for k in sorted(c) if k.startswith("fleet_")}
+    diag_d.update(run_wall_s=round(run_wall_s, 2), healed_before_run_end=healed_before_run_end,
+                  unanswered_at_end=res.fleet_unanswered_at_end, healed_at_s=healed.get("at_s"),
+                  server_requests_at_heal=healed.get("server_requests"),
+                  server_requests_at_end=[s.n_requests for s in fleet_servers])
+    diag = "\n".join([f"{k}={v!r}" for k, v in diag_d.items()] + [f"pool_seen={row!r}" for row in pool_seen])
+    assert c["fleet_deferred_timeout"] > 0, diag  # 繰り延べが起きた
+    assert c["fleet_resent"] > 0, diag  # 戻った呼が実際に再送された
+    assert c["fleet_ok"] > 0, diag  # 回復後は普通に答えが返る
     assert_no_call_is_dropped(res)  # 繰り延べ = 再投入 + 持ち越し(消えない)
     assert res.conserved
 
 
 def test_deferred_calls_are_not_suppressed_by_the_refractory(fleet_servers):
     """不応期免除が効いていること: 繰り延べ件数がそのまま再投入件数になる。"""
-    from shibuya.agents.state import AgentState, WakeCondition
-    from shibuya.engine import resolve as R
+    from shibuya.world.model.agent_table import AgentState
+    from shibuya.foundation.vocab.agent_codes import WakeCondition
+    from shibuya.mind import ops as R
 
     cond = int(WakeCondition.INTEROCEPTION)
     agents = AgentState(8)  # 構築直後は非凍結(run.py が freeze する規律)
@@ -258,7 +323,7 @@ def test_fleet_and_mock_runs_use_the_same_prompts(fleet_servers):
 
     艦隊経路は描画を素通しするだけ=知覚側は 1 バイトも変わらない、の機械検査。
     """
-    from shibuya.core.hashing import sha256_cbor
+    from shibuya.foundation.hashing import sha256_cbor
 
     client = make_client(fleet_servers)
     run_fleet(client)
@@ -310,7 +375,7 @@ def test_run_reports_dictionary_mapped_rate(fleet_servers):
 
 def test_cli_flags_put_temperature_and_max_tokens_on_the_wire(fleet_servers):
     """``--temperature 0.7 --max-tokens 96`` が payload と run manifest 欄に載る。"""
-    from shibuya.engine.run import add_fleet_args, fleet_from_args
+    from shibuya.interfaces.cli.run_args import add_fleet_args, fleet_from_args
     import argparse
 
     ap = argparse.ArgumentParser()
@@ -338,8 +403,8 @@ def test_add_fleet_args_defaults_follow_the_canon():
     """既定は温度 0.7(知覚契約書 §2.5/運用設計書 §1.3)・max_tokens 96(expedient)。"""
     import argparse
 
-    from shibuya.engine.run import add_fleet_args
-    from shibuya.llm.fleet import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
+    from shibuya.interfaces.cli.run_args import add_fleet_args
+    from shibuya.foundation.ports.inference import DEFAULT_T1_MAX_TOKENS, DEFAULT_TEMPERATURE
 
     ap = argparse.ArgumentParser()
     add_fleet_args(ap)
@@ -388,7 +453,9 @@ def test_fleet_conversation_opens_a_session_like_the_mock_path(fleet_servers):
     assert c["conv_invites"] > 0, c  # 招待機構へ入った=(c) は原因ではない
     assert (
         c["conv_accepted"] + c["conv_declined"] + c["conv_pending_expired"]
-        + c["conv_pending_open"] == c["conv_invites"]
+        + c["conv_pending_open"]
+        + c.get("conv_pending_unreachable", 0)  # 〔11-03 M16〕届かない返事の不成立(腕 on のランだけ出る)
+        == c["conv_invites"]
     ), c
     assert res.conserved
 
@@ -398,7 +465,7 @@ def test_mock_path_opens_conversations_in_the_same_world():
 
     class ScriptedLLM:
         def complete(self, request):
-            from shibuya.llm import LLMResponse
+            from shibuya.foundation.ports.inference import LLMResponse
 
             return LLMResponse(
                 text=TALK_PAIR % (int(request.agent_id) ^ 1), source="scripted"
@@ -423,7 +490,7 @@ def test_conversations_need_awake_partners_so_night_only_runs_barely_open_any():
 
     class ScriptedLLM:
         def complete(self, request):
-            from shibuya.llm import LLMResponse
+            from shibuya.foundation.ports.inference import LLMResponse
 
             return LLMResponse(text=TALK, source="scripted")
 
@@ -431,14 +498,20 @@ def test_conversations_need_awake_partners_so_night_only_runs_barely_open_any():
         r = run_day(
             n_agents=CONV_AGENTS, seed=1, world=_conv_world(), ticks=ticks,
             llm=ScriptedLLM(), renderer="stub", processes=False, population=False,
-            world_dir=None, **kw
+            world_dir=None, vocab_version="v1", **kw  # 〔Q13 commit ①〕台本は語彙 v1 の 2 行形(前の既定を明示)
         )
         opened = r.conversation_counters["sessions_opened"]
         return (opened / max(1, r.llm_calls), opened, r.llm_calls)
 
     # ① D-56 **前**の挙動(帰無腕)= 真夜中でも呼は立つが、相手が寝ているので成立率が低い。
     night, n_open, n_calls = rate(60, sleep_suppression=False)
-    day, d_open, d_calls = rate(CONV_TICKS, sleep_suppression=False)
+    # 〔11-03 §3 M10 の続き〕昼の側は 1 日を通す(前は CONV_TICKS=600)。旧道は「対象の決まらない会話」を選んで失敗した体
+    # (この台本の「対象: P-1」が決まらない体=resolve は活動を変えない)も招待側の戻しで IDLE にしていたので、寝ている体を
+    # 起こしていた(この試験の 600 刻みで寝ていて戻されなかった体 126=計器 no_target。成立 1 件)。直した道では寝た体は寝たまま=
+    # 600 刻みでは成立 0・1 日で 6(記録 fix4-1103 §4)。旧道(SHIBUYA_DEFECT_FIXES_1103=legacy)は 600 刻みで前のとおり通る
+    from shibuya.foundation.time_consts import STEPS_PER_DAY
+
+    day, d_open, d_calls = rate(STEPS_PER_DAY, sleep_suppression=False)
     assert n_calls > 0 and d_calls > 0
     assert d_open > n_open
     assert day > 5.0 * night, (night, day, n_open, d_open)
@@ -548,7 +621,7 @@ def test_fleet_from_args_passes_queue_capacity_through():
     """CLI の ``--fleet-queue-capacity`` が FleetConfig.queue_capacity に届く。0/未指定は既定(×4)。"""
     import argparse
 
-    from shibuya.engine.run import fleet_from_args
+    from shibuya.interfaces.cli.run_args import fleet_from_args
 
     base = dict(llm="fleet", endpoints="http://127.0.0.1:1", model="m", mode="smoke", run_id="",
                 seed=1, temperature=0.7, max_tokens=96)
@@ -573,7 +646,7 @@ def test_fleet_bridge_is_built_with_the_run_vocab_version(fleet_servers, monkeyp
     """第214 欠陥修正: ``run_day(vocab_version="v2", fleet=…)`` は**艦隊側の parser にも v2 を渡す**。
     渡し忘れると mock 経路(``LLMBridge``)だけ v2 で解析し、実 LLM の応答は v1 で解析される
     =「食事」が未定義行動に落ち、腕 AB7c(vocab_v1 vs vocab_v2)が偽の差になる。"""
-    import shibuya.engine.systems.build as run_mod  # 1-0: FleetBridge を作るのは組み立て(engine.systems.build)
+    import shibuya.runtime.systems.assemble as run_mod  # 1-0: FleetBridge を作るのは組み立て(engine.systems.build)
 
     seen: list[object] = []
     real = run_mod.FleetBridge

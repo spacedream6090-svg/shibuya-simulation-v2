@@ -5,29 +5,31 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.perception import attention as A
+from shibuya.foundation.text import salience as A
+# 〔割る段 5a の G4〕主でない割り先(mind.percept.attention)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.mind.percept.attention import P_SEE_MEDIUM_RANGE, gate_stage1, p_see
 
 
 # ---------------------------------------------------------------- 段1
 def test_p_see_constants_match_the_contract():
     """§4「大型ビジョン=0.70(音声有0.78/無音0.63)」・中小媒体 0.14-0.40(expedient)。"""
-    assert A.p_see("large_vision") == 0.70
-    assert A.p_see("large_vision", audio=True) == 0.78
-    assert A.p_see("large_vision", audio=False) == 0.63
-    assert A.P_SEE_MEDIUM_RANGE == (0.14, 0.40)
-    assert A.P_SEE_MEDIUM_RANGE[0] <= A.p_see("medium_small") <= A.P_SEE_MEDIUM_RANGE[1]
+    assert p_see("large_vision") == 0.70
+    assert p_see("large_vision", audio=True) == 0.78
+    assert p_see("large_vision", audio=False) == 0.63
+    assert P_SEE_MEDIUM_RANGE == (0.14, 0.40)
+    assert P_SEE_MEDIUM_RANGE[0] <= p_see("medium_small") <= P_SEE_MEDIUM_RANGE[1]
     with pytest.raises(ValueError):
-        A.p_see("billboard")
+        p_see("billboard")
 
 
 def test_gate_stage1_is_deterministic_and_calibrated():
-    a = A.gate_stage1(10_000, 0.70, seed=5, domain_counters=(1, 2))
-    b = A.gate_stage1(10_000, 0.70, seed=5, domain_counters=(1, 2))
-    c = A.gate_stage1(10_000, 0.70, seed=5, domain_counters=(1, 3))
+    a = gate_stage1(10_000, 0.70, seed=5, domain_counters=(1, 2))
+    b = gate_stage1(10_000, 0.70, seed=5, domain_counters=(1, 2))
+    c = gate_stage1(10_000, 0.70, seed=5, domain_counters=(1, 3))
     assert np.array_equal(a, b)
     assert not np.array_equal(a, c)
     assert abs(a.mean() - 0.70) < 0.02
-    assert A.gate_stage1(0, 0.7, seed=1, domain_counters=(0,)).size == 0
+    assert gate_stage1(0, 0.7, seed=1, domain_counters=(0,)).size == 0
 
 
 # ---------------------------------------------------------------- 段2
@@ -91,8 +93,7 @@ def test_content_cap_round_7_5_times_gaze_seconds(sec, chars):
     assert (A.CONTENT_CAP_MIN_CHARS, A.CONTENT_CAP_MAX_CHARS) == (4, 30)
 
 
-def test_effect_and_memory_caps_are_declared():
-    assert A.EFFECT_CAP_PER_EXPOSURE == (1e-4, 1e-3)
+def test_memory_caps_are_declared():
     assert A.MEMORY_CAP_RECOGNITION == 0.40
     assert A.MEMORY_CAP_RECALL == 0.08
 

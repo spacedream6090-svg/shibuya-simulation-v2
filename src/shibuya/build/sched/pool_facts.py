@@ -30,7 +30,7 @@ from typing import Final, Sequence
 
 import numpy as np
 
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 __all__ = [
     "LAYERS",

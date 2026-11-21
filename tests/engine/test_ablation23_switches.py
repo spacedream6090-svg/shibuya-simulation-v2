@@ -27,14 +27,17 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.schedule import synthesize
-from shibuya.agents.state import REFRACTORY_MINUTES, AgentState, WakeCondition
-from shibuya.engine import resolve as R
-from shibuya.engine.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
-from shibuya.engine.processes.salient import D50_BY_KIND, SalientProcess, ablation_name
-from shibuya.engine.run import run_day
-from shibuya.perception import p_notice as PN
-from shibuya.world.state import World
+from shibuya.world.facts.mock_schedule import synthesize
+from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=mind/ops・R_INIT=act/ops/init_writes。割る前は全部 resolve)
+from shibuya.mind import ops as R
+from shibuya.act.ops import init_writes as R_INIT
+from shibuya.runtime.arbiter import REFRACTORY_TICKS as ARBITER_MIRROR
+from shibuya.world.laws.salient import D50_BY_KIND, SalientProcess, ablation_name
+from shibuya.runtime.run import run_day
+from shibuya.world.model import notice_reach as PN
+from shibuya.world.model.state import World
 
 PROX = int(WakeCondition.PROXIMITY_SWAP)
 
@@ -44,7 +47,7 @@ def spread_scene(scale: float, ablation="A4", *, n: int = 120, ticks: int = 240)
     """1 セルに個体を **0-79 m の直線上に並べた**場面(距離が効く唯一の合成場面)。"""
     world = World.synthetic(n_cells=25, seed=1)
     agents = AgentState(n)
-    R.initialize(agents, world, synthesize(n, 1, world.n_cells))
+    R_INIT.initialize(agents, world, synthesize(n, 1, world.n_cells))
     with agents.writable():
         agents.registry.cell[:] = 12
         base = np.asarray(world.assets.node_xy)[int(agents.registry.node[0])]
@@ -55,6 +58,7 @@ def spread_scene(scale: float, ablation="A4", *, n: int = 120, ticks: int = 240)
     sp = SalientProcess(
         world, agents, master_seed=1, rate_per_10k_per_day=5_000.0,
         ablation=ablation, d50_scale=scale,
+        rate_rules="legacy",  # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す(次の版上げで書き直す)
     )
     for t in range(ticks):
         sp.step(t)
@@ -232,16 +236,26 @@ def test_manifest_carries_the_first_wave_arms():
     assert (base["p_notice_d50_scale"], base["refractory_scale"], base["signage"]) == (1.0, {}, True)
 
 
-def test_d50_scale_reaches_the_salient_process_through_run_day():
+def test_d50_scale_reaches_the_salient_process_through_run_day(monkeypatch):
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔第347〕切替口 --rate-rules legacy と
+    # run_day(salient_rate_per_10k=…) の代わりに、試験の中だけで実行器に部品の口(率の規則の旧道・倒れる率)を挿す
+    legacy_world_rules(monkeypatch, absent=False, salient_rate=4_000.0)
     res = run_day(
         n_agents=300, seed=3, ticks=30, checkpoint_every=30, n_cells=25,
-        processes=True, conversations=False, salient_rate_per_10k=4_000.0,
+        processes=True, conversations=False,
         p_notice_d50_scale=0.5, p_notice_ablation="A1",
     )
     assert res.runner.salient.d50_scale == 0.5
     assert res.runner.salient.params.d50_m == 20.0
     assert res.process_counters["salient.d50_scale"] == 0.5
     assert res.run_manifest_fields()["p_notice_ablation"] == "A1"
+    # 〔第347・検収 L1〕助けが効いている(旧道の倒れる率 4,000 で倒れる行が立ち、気づく候補が出る)ことを試験の中で確かめる。
+    # 助けが無いと倒れる 0 件・旧道の印 1(取り直した値: 300 体・30 刻みで倒れる 1 件・気づく候補 12)
+    assert res.runner.salient.rate_rules == "legacy"
+    assert res.process_counters["salient.collapse"] > 0 and res.process_counters["salient.rate_rule_collapse_removed"] == 0
+    assert res.process_counters["salient.candidates"] > 0
 
 
 def test_run_day_checks_the_arm_even_without_processes():
@@ -259,7 +273,7 @@ def test_run_day_checks_the_arm_even_without_processes():
 
 
 def test_cli_run_passes_both_arms_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=64, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -272,7 +286,7 @@ def test_cli_run_passes_both_arms_through_kwargs():
 
 
 def test_cli_parse_refractory_scale():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     assert cli.parse_refractory_scale([]) == {}
     assert cli.parse_refractory_scale(["PROXIMITY_SWAP=0.5", "cell-block=2"]) == {
@@ -301,7 +315,7 @@ def test_cli_parse_refractory_scale():
     ],
 )
 def test_cli_main_flags(monkeypatch, argv, d50, scale):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -323,7 +337,7 @@ def test_cli_main_flags(monkeypatch, argv, d50, scale):
 )
 def test_cli_main_rejects_bad_arms(argv):
     """使い方の誤りは traceback ではなく usage(exit 2)で返す。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit) as got:
         cli.main(["--agents", "8", "--world", "__no_such_dir__", "--cells", "9", *argv])

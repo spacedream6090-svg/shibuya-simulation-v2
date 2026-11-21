@@ -17,10 +17,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, ResultCode, WakeCondition
-from shibuya.engine import memory as M
-from shibuya.engine import relations as RL
-from shibuya.engine.conversation import ConversationManager
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import ResultCode, WakeCondition
+from shibuya.mind.memory import memory as M
+# 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+from shibuya.mind.relations import layer as RL
+from shibuya.world.facts import initial_ties as RT
+from shibuya.foundation.vocab import relations as RV
+from shibuya.society.conversation import ConversationManager
 
 SRC = Path("src/shibuya")
 OK = int(ResultCode.OK)
@@ -224,7 +228,7 @@ def test_conversation_origin_counts_and_default_counters_unchanged():
     base = ConversationManager(master_seed=1)
     assert not any(k.startswith("origin") for k in base.counters())
     m = ConversationManager(master_seed=1)
-    m.track_origins(RL.REL_ORIGINS)
+    m.track_origins(RV.REL_ORIGINS)
     assert m.register_pending(1, 2, 0, 5, same_cell=True, origin=1)
     m.note_origin(1, "invites")
     s = m.resolve_pending(2, 1, accepted=True)
@@ -241,7 +245,7 @@ def test_conversation_origin_counts_and_default_counters_unchanged():
 
 # ================================================================= (g) classical の「最初の未知の人」
 def test_classical_near_strangers_and_rest_pick_is_hashed():
-    from shibuya.engine.classical import _near_strangers
+    from shibuya.mind.judge.classical import _near_strangers
 
     prompt = "x\n[B5 近接] 近くの人物: P-3(知人)(距離 2m)、P-8(未知)(距離 5m)、P-9(未知)\ny"
     assert _near_strangers(prompt, 0) == [8, 9]
@@ -262,11 +266,11 @@ def test_default_tau_is_the_rederived_value_and_a_single_talk_lives_hours():
     """第300 訂正(8b′): n=共在の日数で再逆算した τ=−2.346(旧=在職期間ハッシュ v1)。第2波 §2A 項 2: 在職期間の
     ハッシュを直した v2(既定)で同じ手順で再逆算した τ=−2.322。会話 1 回の辺(n=1)はどちらでも約 7 時間生きる
     (v1 7.3 時間・v2 6.9 時間)。"""
-    assert RL.REL_TAU_V1 == pytest.approx(-2.346) and RL.REL_TAU_V2 == pytest.approx(-2.322)
-    assert RL.REL_TAU == RL.REL_TAU_V2 and RL.DEFAULT_REL_TENURE_HASH == "v2"
-    assert RL.REL_TAU_BY_TENURE_HASH == {"v2": RL.REL_TAU_V2, "v1": RL.REL_TAU_V1}
-    assert RL.REL_TENURE_WEEKS == 13.0
-    for tau in (RL.REL_TAU_V1, RL.REL_TAU_V2):
+    assert RV.REL_TAU_V1 == pytest.approx(-2.346) and RV.REL_TAU_V2 == pytest.approx(-2.322)
+    assert RV.REL_TAU == RV.REL_TAU_V2 and RV.DEFAULT_REL_TENURE_HASH == "v2"
+    assert RV.REL_TAU_BY_TENURE_HASH == {"v2": RV.REL_TAU_V2, "v1": RV.REL_TAU_V1}
+    assert RV.REL_TENURE_WEEKS == 13.0
+    for tau in (RV.REL_TAU_V1, RV.REL_TAU_V2):
         a = table()
         lay, rel = layer(a, tau=tau)
         talk(lay, a, 100, 0, 1)
@@ -276,7 +280,7 @@ def test_default_tau_is_the_rederived_value_and_a_single_talk_lives_hours():
 
 
 def test_copresence_days_counts_weekdays_with_any_shared_slot():
-    from shibuya.agents.weekly import WeeklySchedule
+    from shibuya.world.facts.weekly_reader import WeeklySchedule
 
     # 体 0,1 が曜日 0 と 2 に同じセル(曜日 2 は 15 分だけ)・体 2 は別のセル
     rows = {0: [(0, 540, 600, 5), (2, 540, 600, 5)], 1: [(0, 560, 700, 5), (2, 590, 610, 5)], 2: [(0, 540, 600, 6)]}
@@ -302,7 +306,7 @@ def test_copresence_days_counts_weekdays_with_any_shared_slot():
     w = WeeklySchedule(None, np.arange(n, dtype=np.int64), off, np.asarray(st, dtype=np.int16),
                        np.asarray(en, dtype=np.int16), np.zeros(k, dtype=np.int8), np.ones(k, dtype=np.int8),
                        np.asarray(cl, dtype=np.int32), np.zeros(k, dtype=np.int16))
-    days = RL.copresence_days(RL.slot_cells(w, np.arange(n)))
+    days = RT.copresence_days(RT.slot_cells(w, np.arange(n)))
     assert days[0, 1] == days[1, 0] == 2 and days[0, 2] == 0 and days[0, 0] == 0
 
 
@@ -316,7 +320,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_run_8b_on_is_deterministic_and_reports_origins_and_l4_share():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on",
               ticks=720)
@@ -326,7 +330,7 @@ def test_run_8b_on_is_deterministic_and_reports_origins_and_l4_share():
     m = r1.run_manifest_fields()
     assert 0.0 <= m["l4_conversation_share"] <= 1.0 and m["l4_conversation_line"] == 0.15
     rs = m["relations"]
-    assert set(rs["origins"]) == set(RL.REL_ORIGINS) and rs["acquaintance_wake"] and rs["invite_weights"]
+    assert set(rs["origins"]) == set(RV.REL_ORIGINS) and rs["acquaintance_wake"] and rs["invite_weights"]
     assert m["calls_by_condition"]["ACQUAINTANCE"] == rs["counts"].get("acq_woken", 0)
     assert "conversation_origins" in m["decision_layers"]
     off = cli.run(**{**kw, "relations": "off"})
@@ -336,14 +340,18 @@ def test_run_8b_on_is_deterministic_and_reports_origins_and_l4_share():
 
 
 def test_cli_has_the_8b_flags():
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     for flag in ('"--rel-tenure-weeks"', '"--rel-invite"', '"--rel-acq-wake"', '"--rel-copresent"'):
         assert flag in text
 
 
 def test_8b_per_tick_paths_are_array_ops():
     """P4: 毎 tick の検出・同席・抽選に体数比例の for/while を書かない(宣言した小さな反復だけ)。"""
-    tree = ast.parse((SRC / "engine/relations.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/relations/layer.py").read_text(encoding="utf-8"))
     names = {"choose_talk_partners", "copresent_step", "acquaintance_candidates", "stamp_acquaintance",
              "_layer_weights", "_rank_live", "lifetime_days"}
     allowed_iters = ("REL_INVITE_LAYERS", ".items()", "zip(a.tolist(), origin.tolist())", "(('inner'",

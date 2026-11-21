@@ -1,28 +1,16 @@
 # STATUS(索引)
 
-- **現在地(2026-11-01・第340)**: 構築工程 C0〜C8 は一巡(39 万体 × 1 日の実 LLM ラン c7-day-4 を 3 seed・holdout 開封=0/4 NOT PASS・2026-09)。第 0〜7 陣の実装 #87〜#127 が本体 `build/spatial-d102-prep` に着地(版上げ 4 回・小さな版上げ 3 回・全体試験 6,207 passed)。正は [回答 11-01](docs/design/v2-answers-2026-11-01.md)(A1=知見の 5 区分・錨の量を式に入れない・判断の置き場 112 件・判断モデル第 1 世代は公開重み・検証は全規模)と [指示書 11-01](docs/design/prompt-2026-11-01.md)。**実装(src/)は 2026-11-01 から限定して再開**(段 0〜3・5。段 4=2-7 背圧は D4 の後・E1 はユーザーの合図)。**実 LLM の手段は 09-22 から無し** → ユーザーの RTX 5070(12 GB)に Qwen3-8B の 4 ビット版を載せて試走 E1 と判断モデルの比較に使う(検証は 35 万体をクラウドで=E 系列の組み直し)。
-- **今の段・次の 1 手(セッションが切れてもここから再開)**: 〔第340・11-01〕添付 6 本の保存(済 fc1b44b)→ 文書の改訂(CLAUDE.md §4・用語集 2-14・決定台帳・索引・README=済 fc1b44b)→ **並行の作業木 5 本**(`stage/n5070-1101`=試走と安全の検査/`stage/dmeval-1101`=消費の場面と比較の列/`stage/leak-1101`=漏洩の検査の器/`stage/ledger-1101`=錨の台帳の 2 列/`stage/eseries-1101`=E 系列の組み直し)と研究 5 本(R-124〜R-128)→ 検収と取り込み → **11/5 までに PR #8 を main へ**(文書だけ)→ 段 2(台帳と循環・小さな src)→ WSL の導入(最後・再起動)→ 完了の条件 1〜7 → 段 3(段 1 の比較の後)。
-- **版上げの履歴とタグ(戻し方つき・10-13b/§0-6・§0-7)**:
-
-| 回 | 何 | 取り込み | 安定版のタグ(直前の commit) | 戻し方 |
-|---|---|---|---|---|
-| 1 回目 | 10e 暦は実日・開始日 2026-07-13・天気・behavior-hash・テープ版 4(#87・#88・第329〜330) | 第330 | タグなし(§0-7 の前) | IMPLEMENTED #88 の commit を checkout |
-| 2 回目 | 2-4 近接 distance・在席の印・経済 stage2・資産の活性化(#101・第334) | d35a9b6 | タグなし(§0-7 の前) | 直前の commit を checkout |
-| 小 | 賃金を職業ごとの実データから(#115) | c87d5de | `stable-v2-before-wage-occupation`(cb38b0a) | `git checkout stable-v2-before-wage-occupation`(旧道 `--wage w17` は 672a7f9 で削除済み) |
-| 小 | 第 18-1 表の置き換え=既定の食事時刻と初期の空腹(#117) | 2809c4a | `stable-v2-before-meal-default-w17`(276361e) | `git checkout stable-v2-before-meal-default-w17`(旧道 `--meal-default validation` は削除済み) |
-| 3 回目 | 4-1 段 10 差し替え W16 → W21c=母集団 345,858 体(#118) | 2313e1b | `stable-v2-before-pop-w21`(8b1fb84) | checkout+`activate_pop43.py revert`(退避 `data/world/v2_pre_4-3`)。旧値だけなら `--world data/world/v2_pre_4-3` |
-| 小 | 4-2 規則の表 19+1 行・給与の天引き・消費税の預かり金(#120) | e2b1f6f | `stable-v2-before-rules-42`(6f07eff) | checkout か `SHIBUYA_RULES_42=off`(次の版上げで消す) |
-| 小 | 4-2b 規則の表の空欄 3 件(#122) | a04b46d | `stable-v2-before-rules-42b`(01649bb) | checkout か `SHIBUYA_RULES_42B=off`(次の版上げで消す) |
-| 4 回目 | 第 5 期 段 1b 密度の推定=`--space nav1`+近傍が既定(#126) | b02c257 | `stable-v2-before-space-1`(6e46dbb) | `git checkout stable-v2-before-space-1`(既定が legacy に戻る・資産は残してよい)か `--space legacy`(次の版上げで消す) |
-| 実証の線 | 39 万体 × 1 日の実 LLM(C7 受入) | 8f78065 | `v2-c7-day-4-accepted` | — |
-
-- 進捗の目安: v2 初版(C0〜C8)≈ 70% / 第一目標「世界そのものがプロダクト」≈ 3 割(第126 の見積り・据え置き)。
-- **判断待ち・実装待ち・研究の題**: [PENDING.md](PENDING.md)(第339 に 3 区分へ組み直し。旧の形は [pending-archive-2026-10-25.md](docs/log/pending-archive-2026-10-25.md)・[pending-archive-2026-09-28.md](docs/log/pending-archive-2026-09-28.md))
-- 完了実装: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#127)・運用の道具: `tools/realworld_fetch/`(日次の現実データ・検証専用)・`tools/night5070/`(5070 の夜間ラン=#127・第340 で試走と安全の検査を追加中)・`tools/instruments/dm_eval/`(判断モデルの評価の器)
-- 正典: 決定台帳 [v2-redesign.md](docs/design/v2-redesign.md)・方法論 [v2-methodology.md](docs/design/v2-methodology.md)・用語集 [v2-glossary.md](docs/design/v2-glossary.md)・決定の ID の索引 [decision-id-index.md](docs/design/decision-id-index.md)
-- 壁打ちの決定の原文: [回答 11-01](docs/design/v2-answers-2026-11-01.md)(最新・A1・すべて仮決定)+[指示書 11-01](docs/design/prompt-2026-11-01.md)・[指示書 11-01 5070](docs/design/prompt-2026-11-01-5070.md)・根拠 3 本は [docs/reference/](docs/reference/)・[回答 10-25](docs/design/v2-answers-2026-10-25.md)(決定/仮決定/研究の題の 3 区分)・[回答 10-13b](docs/design/v2-answers-2026-10-13b.md)(自律運転の規則)・[指示書 10-12](docs/design/v2-wallbounce-decisions-2026-10-12.md)。エンジンが決めている 55 件の 3 群=[一覧](docs/bench/analysis/wallbounce-1006/agentless-outcomes-inventory.md)
-- リサーチ: 索引 [INDEX.md](docs/research/INDEX.md)・残務 [research-backlog.md](docs/research/research-backlog.md)・分野地図 [v2-discipline-map.md](docs/research/v2-discipline-map.md)。参照用の凍結(ChatGPT の要約 2 本・10-25)は [docs/reference/](docs/reference/)
-- 受入報告: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
-- 開発ログ: [docs/log/devlog.md](docs/log/devlog.md)(第1〜330 は [devlog-compressed.md](docs/log/devlog-compressed.md) へ圧縮済み)
-- ブランチ/PR: main は PR #7 まで(f9a3c97・2026-09-30)。作業ブランチ `build/spatial-d102-prep`(PR #8 OPEN・11/5 までに 1 回で取り込む=文書だけ・src/ の新しい変更は含めない)。
-- 最終更新: 2026-11-01(第340 回答 11-01 の反映=実装の限定の再開・作業木 5 本と研究 5 本の並行)
+- **今(2026-11-16・第347)**: 整理の段([11-16](docs/design/prompt-2026-11-16-reply8.md)=返事その 8)。段 4 の残り 4 段が入り、割らないファイルの移動は済んだ(#152・どの段も byte-check 19 構成 37 欄すべて同じ)。削除の段 その 1(#151)・走査の規則の直しと心の読みの一覧の試験(#153)・仕様書と設計書への 2-45〜2-69 の書き込みと仕様書の 10 問(#150)・研究 6 本と改版の文の案(#149)・数える・確かめると dm_eval の列(#148)・道具 3 本と CI の上限 120 分(#147)も着地。既定の final は `c8d68704` のまま。
+- **次の 1 手(セッションが切れてもここから再開)**: 止めた切替口 3 本と Q7 は 5 段とも入った(#154・頭 `986773e`)。版上げ A48 も入った(#155・頭 `5bcd4ff`)。割る段 5a の道具の拡張 G0 も入った(#156・頭 `adbe8bb`・安定版のタグ `stable-v2-before-split5a-G1`)。5a の群 1 も入った(#157・頭 `bf0ccbb`・安定版のタグ `stable-v2-before-split5a-G2`)。5a の群 2 も入った(#159・頭 `6af6cf1`・安定版のタグ `stable-v2-before-split5a-G3`)。5a の群 3〜5 も入り、割る段 5a の 17 本が済んだ(#160・#161・頭 `b801a53`・安定版のタグ `stable-v2-before-split5b-G0`)。段 5b の G0 も入った(#162・頭 `4af887b`・安定版のタグ `stable-v2-before-split5b-G1`・src は変えていない)。5b の群 1(`engine/commit`・`engine/presence`・`engine/calendar_shadow`)も入った(#163・頭 `ce59591`・安定版のタグ `stable-v2-before-split5b-G2`)。5b の群 2(`engine/run`・入口の移し)も入った(#164・頭 `b0afefd`・安定版のタグ `stable-v2-before-split5b-G3`)。5b の群 3(`cli`・転送)も入り、段 5b の 5 本が済んだ(#165・頭 `a6469a2`・安定版のタグ `stable-v2-before-split6-A`)。段 6 の S6-A も入った(#166・頭 `102bfe5`・安定版のタグ `stable-v2-before-split6-G0`)。S6-G0 の前半(道具の拡張・割る前の試験の直し)も入った(#167・頭 `c8bfcde`)。S6-G0 の後半(表と順・試験の別名の分け)も入った(#168・頭 `e543f3b`)。写す前の下ごしらえ(src の別名の分け・道具の宣言)も入った(#169・頭 `4a5bd30`・安定版のタグ `stable-v2-before-split6-G1`)。段 6 の本体(道具で `resolve` を 18 の割り先へ)も入った(#170・頭 `c79ae25`)。延ばしていた `mora_count` の行も入った(#171・頭 `3c8e126`・安定版のタグ `stable-v2-before-split6-M`)。段 7 の G0 の試験も入った(#173・`93a37cf`)。段 7 の G0 の道具と G-R1 も入った(#174・`dc496d7`・`04031d1`・安定版のタグ `stable-v2-before-split7-R1`)。G-R2 も入った(#175・頭 `9274355`・安定版のタグ `stable-v2-before-split7-R2`)。段 7 の G-M と G-S も入った(#176・#177・頭 `54d8c68`・安定版のタグ `stable-v2-before-split7-S`)。**割る段の 25 本が全部済んだ**(指示書 §8 の 5)。次の 1 手は判断待ち=最終の表の段 8 の残りと、古い名の文の掃除へ進むか(報告 §11 の 35)。艦隊の口の接続の置き場が詰まる件(報告 §11 の 24)も判断待ち。それまでは、台帳と報告の整えだけ。段 6・7 の計画と親の裁定の控えは、リポの `scratch/r8_plans_347/`(gitignore 下)。版上げ Q13 も入った(#158・頭 `9626f65`・安定版のタグ `stable-v2-before-library-defaults-q13`)。M10 の ① は返事待ち(細部 5 点)。改版は返事その 9 の後。判断待ちは PENDING §1-1 の〔第347〕の行。機械は第347 の間は止まっていない(木の写しと範囲の試験を束ねない運用を続ける)。
+- **判断待ち・実装待ち・研究の題**: [PENDING.md](PENDING.md)
+- **完了実装**: [IMPLEMENTED.md](IMPLEMENTED.md)(#1〜#177)
+- **版上げの履歴とタグ・戻し方**: [docs/ops/version-history.md](docs/ops/version-history.md)
+- **今のコードと、あるべき姿**: [リポの案内](docs/reference/repo-guide/README.md)・[仕様書 v0](docs/design/spec/README.md)・[差の一覧](docs/design/spec/gaps.md)・[食い違い](docs/design/spec/conflicts.md)
+- **決定の原文**: 索引 [decision-id-index.md](docs/design/decision-id-index.md)・最新 [返事その 8](docs/design/prompt-2026-11-16-reply8.md)・v3 の設計書 [v3-core-design](docs/design/v3-core-design-2026-11-03.md)・理由の記録 [壁打ちの記録](docs/reference/wallbounce-record-2026-11-02_05.md)
+- **正典**: 決定台帳 [v2-redesign.md](docs/design/v2-redesign.md)・方法論 [v2-methodology.md](docs/design/v2-methodology.md)・用語集 [v2-glossary.md](docs/design/v2-glossary.md)
+- **リサーチ**: 索引 [INDEX.md](docs/research/INDEX.md)・残務 [research-backlog.md](docs/research/research-backlog.md)・発注文の定型 [research-order-template.md](docs/research/research-order-template.md)
+- **受入報告**: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
+- **開発ログ**: [devlog.md](docs/log/devlog.md)・[devlog-compressed.md](docs/log/devlog-compressed.md)
+- **道具**: `tools/realworld_fetch/`(日次の現実データ・検証専用)・`tools/night5070/`(5070 の夜間ラン)・`tools/instruments/dm_eval/`(判断モデルの評価の器)・`tools/bytecheck/`(決定論の確かめ・版上げと整理の段で回す)
+- **ブランチ**: main は PR #8(bad7577)まで。作業ブランチは `build/spatial-d102-prep`。
+- **最終更新**: 2026-11-16(第347)

@@ -132,7 +132,7 @@ def test_agent_axes_follow_rows_and_guard_the_row_rule(aa):
 
 
 def test_recorder_restores_resolve_apply(aa):
-    from shibuya.engine import resolve
+    from shibuya.act import apply as resolve
 
     orig = resolve.apply
     rec = aa.AgentCellRecorder().attach()

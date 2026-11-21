@@ -15,8 +15,8 @@ import datetime as dt
 import pytest
 
 from shibuya.build.vis import w9_shadow as W9
-from shibuya.engine.bridging.ledger import load as load_ledger
-from shibuya.engine.processes import environment as ENV
+from shibuya.foundation.decl.bridging import load as load_ledger
+from shibuya.world.laws import environment as ENV
 
 from tests.engine.multiday._md import STAGE, tool
 
@@ -47,7 +47,11 @@ def test_bridging_rows_after_2_3():
 @pytest.mark.requires_data("world_stage_2-3:w9_shadow_2026-07-19.npy", "world_v2")
 def test_stage_asset_has_the_window_and_the_fallback_is_used_only_outside(monkeypatch):
     # 〔段 5-1b〕既定は nav1=段の世界(build_hash あり・nav1_* なし)は止まる → 前の移動(legacy)で回す(この試験は天気の窓を見る)
-    monkeypatch.setenv("SHIBUYA_SPACE", "legacy")
+    # 〔第347 止めた切替口の削除〕前は環境変数 SHIBUYA_SPACE=legacy(切替口)=試験の中だけの口(道具の run_collect は同じ
+    # プロセスで cli.run を呼ぶ=印が届く)
+    from tests.engine.space._legacy import legacy_space
+
+    legacy_space(monkeypatch)
     for d in WINDOW:
         assert (STAGE / f"w9_shadow_{d}.npy").exists(), d
     assert not (STAGE / "w9_shadow_2026-07-20.npy").exists()

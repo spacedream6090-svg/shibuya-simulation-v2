@@ -19,12 +19,12 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.hashing import blake3_hex
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+from shibuya.foundation.hashing import blake3_hex
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 from tests import golden_env as GE
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -66,6 +66,12 @@ BD35_KEYS = ("body",)
 CA31_KEYS = ("calendar_shadow",)
 #: 〔第 5 期 空間の段 1〕移動の切替口と計器(末尾)。
 SP1_KEYS = ("space",)
+#: 〔11-01 段 2 の 3・4〕率の形の規則を外した節(末尾)。
+RR11_KEYS = ("rate_rules",)
+#: 〔11-02r §1 #7〕「無い」と宣言した過程 5 件を止めた節(末尾)。
+AP12_KEYS = ("absent_processes",)
+#: 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの節(末尾)。
+DF13_KEYS = ("defect_fixes_1103",)
 PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite", "blake3", "os", "os_release",
                  "os_version", "machine", "cpu", "numpy_simd", "deps", "deps_sha256", "deps_count"}
 #: 設定の節の道筋の一覧の sha256(環境に依らない golden=検収 N3 の 3)。節を変えたら理由を記録に書いて更新する。
@@ -144,7 +150,13 @@ PLATFORM_KEYS = {"python", "python_implementation", "numpy", "numba", "llvmlite"
 #: ``30242fe6…1f1d5ec7``=この 10 本を外すと前の値に戻る・記録 docs/bench/analysis/spatial-2026-10/sp1/README.md)。
 #: 〔第 6 期 6-4 C2〕``contact_c1`` の設定の子 ``c2``(習慣・充電・交換・ビデオの設定=腕 c1 のランだけ出る節)を足した
 #: (前 ``30242fe6…1f1d5ec7`` → ``94d2cc0c…7e481ffa``=この 1 本を外すと前の値に戻る・記録 docs/bench/analysis/wallbounce-1012/ct_c2/README.md)。
-CONFIG_PATHS_SHA256 = "94d2cc0c8a3e0ebb52622d32f5449353aa9263c2ef39cef917c6d5f47e481ffa"
+#: 〔11-01 段 2 の 3・4〕attendance_rate を消し rate_rules.mode・removed・rules・schema と waste_sink.band_na(検収 M1=腕 off の
+#: 店の帯の非該当の理由)を足した(前 94d2cc0c…・記録 s2-rates-1101)
+#: 〔11-02r §1 #7〕absent_processes.mode・processes・schema・stopped を足した(前 fc5174c7…3308fca73=この 4 本を外すと前の値に
+#: 戻る・記録 s2e-1102)
+#: 〔11-03 §3〕defect_fixes_1103.fixed・fixes・mode・schema を足した(前 0e6dfaaa…81f9ec69=この 4 本を外すと前の値に戻る・
+#: 記録 fix4-1103)
+CONFIG_PATHS_SHA256 = "2531b96fb30889c8a1f10bba35df951bd9b8897b3d8733c66001cba446316cb5"
 world_assets = pytest.mark.requires_data("world_v2:w2_cells.parquet")
 
 
@@ -276,8 +288,8 @@ def test_env_id_is_the_same_in_the_three_places(tmp_path):
 _T1_CHILD = r"""
 import json, sys
 from pathlib import Path
-from shibuya import cli
-from shibuya.engine.run import run_day
+from shibuya.interfaces.cli import main as cli
+from shibuya.runtime.run import run_day
 out = Path(sys.argv[1])
 r = run_day(n_agents=20, n_cells=9, ticks=1440, sim_days=2, stop_at_tick=1440, seed=1, renderer="stub",
             tape_path=str(out / "tape"), state_out=str(out / "st"))
@@ -310,7 +322,8 @@ def test_t1_two_processes_write_the_same_env_id_and_final_to_the_files(tmp_path)
     # 列追加のみ(末尾に 3 つ+第 2 段の 2 つ+10e の欄+1-1 T0 の欄+1-4 の欄+1-9 の欄+1-2 の欄+1-5 の欄+1-8 J0 の欄+1-7 の欄
     # +1-8b の欄+2-2 の欄+3-3 の欄+3-1 の欄)
     tail = (NEW_KEYS + STAGE2_KEYS + E10_KEYS + T0_KEYS + R14_KEYS + C19_KEYS + P12_KEYS + R15_KEYS + J08_KEYS
-            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS + CA31_KEYS + SP1_KEYS)
+            + C07_KEYS + S8B_KEYS + PX22_KEYS + X33_KEYS + TM32_KEYS + BD35_KEYS + CA31_KEYS + SP1_KEYS + RR11_KEYS + AP12_KEYS
+            + DF13_KEYS)
     assert list(c1["manifest"])[-len(tail):] == list(tail)
 
 
@@ -388,7 +401,10 @@ def test_removing_a_bit_relevant_field_makes_the_golden_check_loud(monkeypatch):
     import platform as _pf
 
     base = RS.environment_fields()["platform_id"]
-    monkeypatch.setattr(_pf, "processor", lambda: "")
+    # 〔第346〕CI の像 ubuntu-26.04 では processor() がもともと空なので、空に差し替えても値が変わらない。
+    # 今の値と必ず違う値に差し替える(手元の Windows では空・CI では別の名)。
+    alt = "" if _pf.processor() else "bytecheck-test-cpu"
+    monkeypatch.setattr(_pf, "processor", lambda: alt)
     try:
         assert RS.environment_fields(refresh=True)["platform_id"] != base
         with pytest.warns(GE.GoldenUnregisteredWarning):
@@ -429,20 +445,20 @@ def test_golden_tables_are_keyed_by_platform_and_values_unchanged():
     # 993276d5…/72cb9cd5…・40409ebe…/72,930)。関係 on の v1 は今の値の行
     assert not {k for k in g if k.endswith(("_stateful", "_pre10e"))}
     g21 = TPE.W17_GOLDEN_BY_ENV[GE.PLATFORM_10F]["02114fb577f3"]
-    assert (g21["v3_default_final"], g21["v3_default_llm_calls"]) == ("7bfe215641b792ac", 62_176)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
-    assert (g21["null_arm_final"], g21["null_arm_llm_calls"]) == ("872136c8ef8115f3", 99_453)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    assert (g21["v3_default_final"], g21["v3_default_llm_calls"]) == ("c8d68704b7b0760d", 60_939)  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0 / 61_066=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac / 62_176=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717 / 63_572=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887 / 61_261・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    assert (g21["null_arm_final"], g21["null_arm_llm_calls"]) == ("2875768fc19e02e8", 95_645)  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 2767525651ddb7ce / 101_035=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 872136c8ef8115f3 / 99_453=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 dcebb7c1d04b9d27 / 97_250=--space legacy で戻る・段 1 の nav1(cell)は fc31115bb6dc9e09 / 87_274・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 90582d704a6d2dcb=SHIBUYA_RULES_42=off で戻る・記録 rules42)
     assert set(g21) == set(g)  # 同じ欄(W16 の世界の行と同じ試験が回る)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕関係 on の 2 行は差し替えの世界の値(前 v1 ee4df5ad2dccfa94 / 67_233・v2 bf212900153818d2 /
     # 66_844=記録 pop43)。W17 の表は W16 の世界の行(3113e9ba7abb)を残し、差し替えの世界の行(02114fb577f3)を足した
     # 〔第 2 部〕("v1","behavior") の行(285505540ec73d0d / 66_455)は切替口 --rel-tenure-hash と一緒に消した
     assert ("v1", "behavior") not in TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]
     assert set(TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F]) == {("v2", "behavior")}
-    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("140f365398ad4172", 64_500)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 94becde2c4fdb0d2 / 66_374=--space legacy で戻る・段 1 の nav1(cell)は 7cfa8bad2676996e / 63_877・記録 spatial-2026-10/sp1b)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    assert TRT.REL_ON_5000_GOLDEN_BY_ENV[GE.PLATFORM_10F][("v2", "behavior")] == ("477e22fcaed2590a", 63_519)  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 8db3f95a61228c92 / 63_710=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 140f365398ad4172 / 64_500=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 94becde2c4fdb0d2 / 66_374=--space legacy で戻る・段 1 の nav1(cell)は 7cfa8bad2676996e / 63_877・記録 spatial-2026-10/sp1b)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 
 
 # ================================================================= manifest の節(K22 (a)・検収 N1・N3)
 def _payload(res, run_id):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     return json.loads(json.dumps(cli.checkpoints_payload(res, run_id=run_id), default=str))
 
@@ -494,7 +510,7 @@ def test_mixed_dict_leaves_are_all_listed_synthetic():
 
 @world_assets
 def test_mixed_dict_leaves_are_all_listed_world():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     W = str(WORLD)
     for kw in (dict(vocab_version="v3", memory="on", relations="on", store_memory="on", familiarity="on",
@@ -508,7 +524,7 @@ def test_mixed_dict_leaves_are_all_listed_world():
 @world_assets
 def test_seed_exchangeability_passes_for_v3_seeds_and_fails_on_a_config_change():
     """既定 v3 の seed 1 と 2 は交換可能(観測の欄の差は数えるだけ)。設定の欄を変えると落ちる。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, world_dir=str(WORLD), vocab_version="v3", activity=True, ticks=240)
     d1 = _payload(cli.run(seed=1, **kw), "s1")
@@ -516,10 +532,11 @@ def test_seed_exchangeability_passes_for_v3_seeds_and_fails_on_a_config_change()
     r = sx.compare([d1, d2], ["s1", "s2"])
     assert r["mode"] == "sections" and r["exchangeable"] is True, r["diff_unexplained"]
     assert r["diff_observed_count"] > 0 and r["unlisted"] == [] and r["environment_warning"] is False
-    d3 = _payload(cli.run(seed=2, attendance_rate=0.8, **kw), "s3")
+    # 〔11-01 段 2 の 4〕設定の欄の変え方は出勤率(消した)から看板の注視の確率へ
+    d3 = _payload(cli.run(seed=2, signage_p_see=0.5, **kw), "s3")
     r3 = sx.compare([d1, d3], ["s1", "s3"])
     assert r3["exchangeable"] is False
-    assert "manifest.attendance_rate" in {u["key"] for u in r3["diff_unexplained"]}
+    assert "manifest.signage_p_see" in {u["key"] for u in r3["diff_unexplained"]}
     old = [{**d, "manifest": {k: v for k, v in d["manifest"].items() if k not in NEW_KEYS}} for d in (d1, d2)]
     rl = sx.compare(old, ["s1", "s2"])
     assert rl["mode"] == "legacy" and rl["exchangeable"] is False
@@ -532,7 +549,7 @@ def test_relations_on_5000_seeds_are_exchangeable_and_config_leaves_do_not_move(
 
     交換可能で、設定の節の葉は全部一致する(10f の第 1 段の表では relations.init の 9 欄で落ちた)。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=5000, world_dir=str(WORLD), vocab_version="v3", memory="on", relations="on")
     d1 = _payload(cli.run(seed=1, **kw), "s1")
@@ -564,7 +581,7 @@ def test_seed_exchangeability_sections_mode_on_synthetic_runs():
     ro = sx.compare([d1, d2o], ["s1", "s2"])
     assert ro["exchangeable"] is True and "manifest.llm_calls_total" in ro["diff_observed"]
     # 10e(E4): 乱数の既定が counter になったので、違う値は stateful
-    for key, val in (("rng_scheme", "stateful"), ("memory_n", 7), ("l4_scale", 3.0), ("attendance_rate", 0.5)):
+    for key, val in (("rng_scheme", "stateful"), ("memory_n", 7), ("l4_scale", 3.0), ("exit_mode", "walk_to_platform")):  # 〔11-01〕出勤率の欄は消した
         d2c = json.loads(json.dumps(d2))
         d2c["manifest"][key] = val
         rc = sx.compare([d1, d2c], ["s1", "s2"])
@@ -598,7 +615,12 @@ def test_o75_split_flow_dir8_and_coherence_are_diag():
     beh = {p for _k, p in SL.behavior_items()}
     full = {p for _k, p in SL.full_items()}
     assert "runner.crowd.flow_dir8" not in beh and "runner.crowd.flow_dir8" in full
+    from shibuya.world.laws import crowd as CROWD
+
+    # 〔段 4 の下ごしらえ〕外すのは群れの過程と状態台帳のファイル(前はファイルの名 crowd.py・state_ledger.py=段 4 で台帳は
+    # 名が変わる。どちらも src に 1 本だけなので、モジュールのファイルで外すのと同じ)
+    own = {Path(m.__file__).resolve() for m in (CROWD, SL)}
     hits = [p for p in (ROOT / "src" / "shibuya").rglob("*.py")
-            if p.name not in ("crowd.py", "state_ledger.py")
+            if p.resolve() not in own
             and ("flow_dir8" in p.read_text(encoding="utf-8") or ".coherence" in p.read_text(encoding="utf-8"))]
     assert hits == []

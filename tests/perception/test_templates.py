@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.perception import templates as T
-from shibuya.perception.channels import estimate_tokens
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.channels import estimate_tokens
 
 #: **凍結値**。この値が変わる変更 = 改版(delta+感度試験が要る・知覚契約書 §1 条5)。
 #: v1.1(5 段目 5a・D-118 K2・第291): B5 の空腹の語の項 ``HUNGER_ITEM_TEMPLATE`` と ``HUNGER_WORDS`` を足した。
@@ -115,13 +115,13 @@ def test_noise_vocab_matches_the_build_side_definition():
 
 def test_action_vocab_matches_llm_contract():
     """``llm.contract.ACTION_VOCAB_12`` との二重定義が一致している(同層で import 不可)。"""
-    contract = pytest.importorskip("shibuya.llm.contract")
+    contract = pytest.importorskip("shibuya.foundation.vocab.actions")
     assert tuple(contract.ACTION_VOCAB_12) == T.ACTION_WORDS_12
 
 
 def test_wake_reason_text_covers_all_wake_conditions():
     """§6 不応期表の 11 行(``agents.state.WakeCondition``)と 1 対 1。"""
-    from shibuya.agents.state import N_WAKE_CONDITIONS
+    from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS
 
     assert len(T.WAKE_REASON_TEXT) == N_WAKE_CONDITIONS == 11
     assert all(s.endswith("。") for s in T.WAKE_REASON_TEXT)
@@ -144,7 +144,7 @@ def test_default_options_always_contain_the_never_failing_action():
 # ---------------------------------------------------------------- D-113 ④ 役割語の提示(第269)
 def test_role_words_match_llm_contract():
     """``llm.contract.ROLE_ACTION_WORDS`` との二重定義が一致している(同層で import 不可)。"""
-    from shibuya.llm import contract
+    from shibuya.foundation.vocab import actions as contract
 
     assert tuple(contract.ROLE_ACTION_WORDS) == T.ROLE_WORDS_12
     assert len(T.ROLE_WORDS_12) == 12
@@ -258,7 +258,7 @@ def test_v3_b0_differs_only_in_the_target_knowledge_and_the_output_spec():
 
 
 def test_v3_vocab_twins_match_llm_contract():
-    from shibuya.llm import contract
+    from shibuya.foundation.vocab import actions as contract
 
     assert T.VOCAB_VERSIONS == contract.VOCAB_VERSIONS
     assert T.ACTION_WORDS_V3 == contract.ACTION_VOCAB_V3
@@ -282,9 +282,10 @@ def test_renderer_v3_changes_only_the_b0_block():
     v3 の語彙へ読み替えた(``renderer.ACTIVITY_WORDS_V3``/``RESULT_OPTIONS_V3``)。"""
     import numpy as np
 
-    from shibuya.agents.state import AgentKind, AgentState
-    from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.foundation.vocab.agent_codes import AgentKind
+    from shibuya.world.model.agent_table import AgentState
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.world.model.state import World
 
     def render(ver: str):
         w = World.synthetic(n_cells=9, seed=2)

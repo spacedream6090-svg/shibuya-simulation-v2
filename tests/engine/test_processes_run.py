@@ -20,9 +20,9 @@ from shibuya.economy import checks as CK
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.ledger_api import LedgerBundle
-from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.foundation.ports.ledger import LedgerBundle
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 W2_REPORT_SECONDS = 60.0
@@ -163,7 +163,7 @@ C4B_PROCESS_IDS = (
 def _bundle_c4b(world: World, n_agents: int) -> LedgerBundle:
     """C4 後半の束: 店舗へ参入資本を入れて域外仕入を払えるようにする(expedient・報告対象)。"""
     from shibuya.economy import census as CS
-    from shibuya.world.assets import hash_free_cat_code
+    from shibuya.world.model.assets import hash_free_cat_code
 
     led = Ledger(n_agents, world.n_poi)
     cats = np.array([hash_free_cat_code(c) for c in world.assets.poi_cat], dtype=np.int64)
@@ -178,7 +178,7 @@ def _bundle_c4b(world: World, n_agents: int) -> LedgerBundle:
 
 def test_all_declared_process_ids_have_an_implementation():
     """台帳 ⇄ 実装の双方向: 第1陣+前倒しの過程 id は全て実行器が名乗る。"""
-    from shibuya.world.processes import first_batch as FB
+    from shibuya.world.ledger import first_batch as FB
 
     res = run_day(n_agents=100, seed=1, ticks=10, n_cells=16)
     runner = res.runner  # type: ignore[attr-defined]
@@ -204,7 +204,7 @@ def test_new_processes_are_ablatable_by_id():
 
 
 def test_p_notice_ablation_can_be_selected():
-    from shibuya.perception.p_notice import Ablation
+    from shibuya.world.model.notice_reach import Ablation
 
     res = run_day(n_agents=80, seed=1, ticks=10, n_cells=9, p_notice_ablation="A1")
     assert res.runner.salient.ablation == Ablation.A1_DISTANCE  # type: ignore[attr-defined]
@@ -227,6 +227,7 @@ def test_c4_second_half_on_the_real_world(capsys):
     res = run_day(
         n_agents=5_000, seed=1, world=world, ticks=1_440, checkpoint_every=360,
         world_dir=WORLD_DIR, ledger=bundle,
+        l4_scale=1.0,  # 〔Q13・第347〕L4 の硬い上限を見る=呼数の按分(前のライブラリの既定)を明示
     )
     runner = res.runner  # type: ignore[attr-defined]
     with capsys.disabled():
@@ -240,7 +241,7 @@ def test_c4_second_half_on_the_real_world(capsys):
         )
 
     # L4(呼数の硬い上限)
-    from shibuya.engine.arbiter import call_budget_per_tick
+    from shibuya.runtime.arbiter import call_budget_per_tick
 
     assert res.llm_calls <= int(call_budget_per_tick(5_000) * 1_440)
 
@@ -264,11 +265,15 @@ def test_c4_second_half_on_the_real_world(capsys):
     assert runner.riders_conserved()
 
     # 新過程の ActualLog 行(**件数が 0 でない**ことまで見る)
-    for pid in ("shelf_stock_restock", "delivery_inbound", "waste_collection",
-                "delivery_last_mile", "bus_taxi_operation", "road_works_occupancy",
+    # 〔11-01 段 2 の 3・4〕宅配は無い・売れ残りの廃棄とポイ捨ては無い(収集する物が無い)=行が立たない過程は 2 つ
+    # 〔11-02r §1 #7〕道路工事は無い(既定 stopped)=行が立たない過程は 3 つ
+    for pid in ("shelf_stock_restock", "delivery_inbound",
+                "bus_taxi_operation",
                 "press_official_release", "large_event"):
         assert pid in runner.log.process_ids, pid
         assert runner.log.compliance_rate([pid]).n_total > 0, pid
+    for pid in ("waste_collection", "delivery_last_mile", "road_works_occupancy"):
+        assert pid not in runner.log.process_ids, pid
     # ホテル客室在庫だけは **N≈1 の事象**(この fixture で 5,000 体×1 日のチェックインは
     # 0〜1 件)なので「行が 1 本以上」を要求しない。D-62(就寝は計画の実行)で LLM が
     # 「就寝」を選ぶ回数が 2,076 → 1,779 に減り、この 1 件が 0 件になった。過程そのものは
@@ -281,11 +286,13 @@ def test_c4_second_half_on_the_real_world(capsys):
     assert res.actual_log_rows > 0
 
     # 前倒し 9 本が「動いた」ことの正の証拠
-    assert res.deliveries > 0 and res.parcels > 0 and res.bus_arrivals > 0
-    assert runner.road_works.n_started > 0
+    # 〔11-01 段 2 の 3・4〕宅配は無い(parcels 0)・催しの人の注入は無い(n_in 0・会場は立つ)=外した規則の負の対照
+    assert res.deliveries > 0 and res.parcels == 0 and res.bus_arrivals > 0
+    # 〔11-02r §1 #7〕道路工事・電気と水は無い(既定 stopped)=止めた過程の負の対照(工事の辺の抽選は残る)
+    assert runner.road_works.n_started == 0 and runner.road_works.planned_edges.size > 0
     assert runner.press.n_releases == 3
-    assert runner.large_event.n_in > 0
-    assert runner.infra.counters()["power_kwh_day"] > 0
+    assert runner.large_event.n_in == 0 and runner.large_event.venue_cells.size == 3
+    assert runner.infra.counters()["power_kwh_day"] == 0
     assert runner.hotel.active
 
     # W2(報告値)と門前条件

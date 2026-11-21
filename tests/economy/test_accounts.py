@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.agents.state import AgentKind
+from shibuya.foundation.vocab.agent_codes import AgentKind
 from shibuya.economy.accounts import (
     ACCOUNT_NAMES,
     ACCOUNTS,
@@ -25,7 +25,7 @@ from shibuya.economy.accounts import (
     is_allowed,
 )
 from shibuya.economy.anchors import WalletKind
-from shibuya.engine import ledger_api as api
+from shibuya.foundation.ports import ledger as api
 
 
 def test_six_sectors_match_the_design():

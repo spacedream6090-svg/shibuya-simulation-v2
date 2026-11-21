@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.world.processes.records import Executor
-from shibuya.world.processes.relations import (
+from shibuya.world.ledger.records import Executor
+from shibuya.world.ledger.relations import (
     CountsAs,
     Realizes,
     Records,

@@ -23,11 +23,13 @@ from shibuya.economy import ops as OPS
 from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import commit as C
-from shibuya.engine import economy_stage2 as ES2
-from shibuya.engine.events import log as EV
-from shibuya.engine.events.links import MoneyEventLink
-from shibuya.engine.ledger_api import TransferStatus
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+from shibuya.economy import stage2_bind as ES2
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.journal.links import MoneyEventLink
+from shibuya.foundation.ports.ledger import TransferStatus
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 KINDS = np.array([0, 1, 3, 7])
@@ -106,7 +108,7 @@ def _batch(ids, with_calls: bool) -> C.IntentBatch:
         import dataclasses
 
         b = dataclasses.replace(b, call_id=np.array([f"1:{i}:2" for i in ids], dtype=object),
-                                s2_flags=np.full(n, C.S2_MONEY_ACT, dtype=np.int8))
+                                s2_flags=np.full(n, CV.S2_MONEY_ACT, dtype=np.int8))
     return b
 
 
@@ -115,9 +117,9 @@ def test_intent_batch_carries_the_calls_and_fills_the_rest():
     assert plain.call_id is None and plain.s2_flags is None  # どこも持たない=今のまま
     mixed = C.IntentBatch.concat([_batch([5, 6], True), _batch([7], False)])
     assert list(mixed.call_id) == ["1:5:2", "1:6:2", None]
-    assert list(mixed.s2_flags) == [C.S2_MONEY_ACT, C.S2_MONEY_ACT, 0]
+    assert list(mixed.s2_flags) == [CV.S2_MONEY_ACT, CV.S2_MONEY_ACT, 0]
     t = mixed.take([2, 0])
-    assert list(t.call_id) == [None, "1:5:2"] and list(t.s2_flags) == [0, C.S2_MONEY_ACT]
+    assert list(t.call_id) == [None, "1:5:2"] and list(t.s2_flags) == [0, CV.S2_MONEY_ACT]
     one = C.IntentBatch.concat([_batch([5], True), _batch([5, 6], False)]).one_per_agent()
     assert len(one) == 2 and one.call_id is not None
     with pytest.raises(ValueError):
@@ -171,8 +173,8 @@ def test_a_chosen_withdrawal_skips_the_rule_and_takes_the_call_as_cause():
 
 # ================================================================= 判断の口の層の印
 def test_decision_layer_hints_are_taken_once():
-    from shibuya.engine.decision import layer as DL
-    from shibuya.engine.decision.port import Choice
+    from shibuya.mind.judge.decision import layer as DL
+    from shibuya.foundation.ports.decision import Choice
 
     lay = DL.DecisionLayer.__new__(DL.DecisionLayer)
     lay.meter = DL._empty_meter()
@@ -181,8 +183,8 @@ def test_decision_layer_hints_are_taken_once():
     lay._note_stage2(6, Choice(candidate_id="vocab:購入", number=1, kind="購入", payment="カード"))
     lay._note_stage2(7, Choice(candidate_id="vocab:食事", number=1, kind="食事", payment="現金"))
     lay._note_stage2(8, Choice(candidate_id="vocab:移動", number=1, kind="移動", payment="カード"))  # 購入・食事でない
-    assert lay.take_stage2_hint(5) == (C.S2_WITHDRAW,) and lay.take_stage2_hint(5) == ()
-    assert lay.take_stage2_hint(6) == (C.S2_PAY_ACCOUNT,) and lay.take_stage2_hint(7) == (C.S2_PAY_CASH,)
+    assert lay.take_stage2_hint(5) == (CV.S2_WITHDRAW,) and lay.take_stage2_hint(5) == ()
+    assert lay.take_stage2_hint(6) == (CV.S2_PAY_ACCOUNT,) and lay.take_stage2_hint(7) == (CV.S2_PAY_CASH,)
     assert lay.take_stage2_hint(8) == ()
     st = lay.meter["stage2"]
     assert st["withdraw_chosen"] == 1 and st["payment_answered"] == 2
@@ -191,14 +193,12 @@ def test_decision_layer_hints_are_taken_once():
 # ================================================================= 合成の世界の 1 日
 def test_port_answers_reach_the_actions_in_a_run(monkeypatch):
     from tests.economy.stage2 import test_stage2_runs as TR
-    from shibuya.engine.decision import layer as DL
-    from shibuya.engine.decision import ports as PT
-    from shibuya.world.state import World
+    from shibuya.mind.judge.decision import layer as DL
+    from shibuya.mind.judge.decision import ports as PT
+    from shibuya.world.model.state import World
 
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
-    ES2.set_arm("on")
     ES2.set_parts(ES2.PARTS)
     ES2.set_atm_table(TR._atm_everywhere(World.synthetic(n_cells=64, seed=2).n_cells))
     base, base_led = TR._run(sim_days=1)  # 腕 legacy: 呼の id だけが運ばれる(口の答えは無い)

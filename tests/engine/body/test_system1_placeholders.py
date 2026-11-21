@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.engine.body import system1 as S1
-from shibuya.perception import facts as F
-from shibuya.world.state import World
+from shibuya.world.body import reactions as S1
+from shibuya.foundation.ports import percept as F
+from shibuya.world.model.state import World
 
 #: HEAD の ``percept_manifest()``(欄 26・空の欄 9=1-2 の凍結と同じ)。
 HEAD_EMPTY = ["eye_dir", "mind_dir", "belongings", "tool_state", "watched_by", "heard_speech", "nearby_change",
@@ -49,8 +49,8 @@ def test_loud_sound_is_a_nearby_change_kind_and_the_percept_shape_is_unchanged()
 
 def test_percepts_of_a_run_keep_the_fields_empty(monkeypatch):
     """合成の世界のランで描いた知覚の事実(系 decide が ``TickScratch.percepts`` に書く)の器の欄は None のまま。"""
-    from shibuya.engine.run import run_day
-    from shibuya.engine.systems import conductor as CD
+    from shibuya.runtime.run import run_day
+    from shibuya.runtime.systems import conductor as CD
 
     seen: list = []
     orig = CD.run_system

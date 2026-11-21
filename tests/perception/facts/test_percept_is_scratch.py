@@ -18,12 +18,12 @@ from types import MappingProxyType
 
 import pytest
 
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.systems import boxes as BX
-from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import guard as G
-from shibuya.engine.systems.table import SPECS, SYSTEMS
-from shibuya.perception import facts as F
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.systems import boxes as BX
+from shibuya.runtime.systems import conductor as CD
+from shibuya.foundation import write_guard as G
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
+from shibuya.foundation.ports import percept as F
 
 
 # ---------------------------------------------------------------- (a)
@@ -75,7 +75,7 @@ KW = dict(n_agents=80, seed=3, ticks=480, n_cells=9, processes=False, vocab_vers
 
 
 def _run_with_watch(monkeypatch, **kw):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     seen: dict = {"steps": [], "heads": 0, "box": None, "ctx": {}}
     orig = CD.run_system
@@ -156,8 +156,8 @@ def test_stub_renderer_writes_an_empty_mapping(monkeypatch):
 
 def test_percepts_are_not_in_the_final_or_the_state_files(monkeypatch, tmp_path):
     """Percept の有無は状態に入らない: 描いた Percept を捨てても(scratch に書かない形)final は同じ。"""
-    from shibuya.engine.run import run_day
-    from shibuya.engine.systems import decide as DC
+    from shibuya.runtime.run import run_day
+    from shibuya.runtime.systems import decide as DC
 
     kw = {**KW, "checkpoint_every": 120}
     base = run_day(**kw)
@@ -171,7 +171,7 @@ def test_percepts_are_not_in_the_final_or_the_state_files(monkeypatch, tmp_path)
 
 # ---------------------------------------------------------------- (d)
 def test_runs_under_the_stage_b_and_sentinel_checks(monkeypatch):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     monkeypatch.setenv("SHIBUYA_SYSTEMS_CHECK", "1")  # 段 B(全部の刻み)+番兵の scratch(T4)
     res = run_day(**KW)
@@ -181,10 +181,23 @@ def test_runs_under_the_stage_b_and_sentinel_checks(monkeypatch):
 
 # ---------------------------------------------------------------- (e) 検収 M1: 艦隊のテープの再生
 #: 検収役の形(偽 vLLM 2 台・受理枠 8・遅れ 0.02 秒・合成 120 体・40 刻み・語彙 v3・予算 30・4 刻みごとの checkpoint)。
-#: 描画は本物(``renderer`` を渡さない=Percept を作る道)。
+#: 描画は本物(``renderer`` を渡さない=Percept を作る道)。〔Q13 commit ①〕古い src(``BASE_COMMIT``)と今の src で同じランを
+#: 再生して比べるので、ライブラリの既定に頼らず空腹のモデルを明示する(前のライブラリの既定 v1)。
 FLEET_KW = dict(n_agents=120, seed=1, ticks=40, processes=False, population=False, world_dir=None,
-                checkpoint_every=4, sleep_suppression=False, vocab_version="v3", budget=30.0)
+                checkpoint_every=4, sleep_suppression=False, vocab_version="v3", budget=30.0, hunger_model="v1")
 FLEET_CELLS = 16
+
+
+@pytest.fixture(autouse=True)
+def _hunger_v1_for_this_file():
+    """〔Q13〕``FLEET_KW`` の空腹 v1 は試験の中だけの口=このファイルの試験の間だけ印を立てる(試験の ``monkeypatch`` とは別の
+    器=``_replay`` が ``monkeypatch.undo()`` しても残る)。子のプロセスにはコードの頭に ``CHILD_PRELUDE`` を足す。"""
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    mp = pytest.MonkeyPatch()
+    hunger_v1(mp)
+    yield
+    mp.undo()
 #: 1-2 の前の src(この枝の土台)。再生の full-hash を比べる相手。〔rebase〕1-4・1-6・1-9 を取り込んだ本体 ``a3a8104``
 #: (1-2 の枝を作った時の土台は ``136fdbb``=記録 p12/README.md §15)。
 BASE_COMMIT = "a3a8104"
@@ -192,8 +205,8 @@ BASE_COMMIT = "a3a8104"
 _REPLAY_CHILD = r"""
 import json, sys
 import shibuya
-from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import World
 
 class BoomLLM:
     def complete(self, request):
@@ -207,12 +220,66 @@ print(json.dumps({"src": shibuya.__file__, "full": [c.full_hash for c in res.che
                   "misses": int(res.tape_miss_count), "calls": int(res.llm_calls)}))
 """
 
+#: 〔段 4〕古い src(``BASE_COMMIT``)で回す子のコードは、**ファイルを移す前の commit の、このファイルの** ``_REPLAY_CHILD``
+#: (安定版のタグ stable-v2-before-move4-foundation の commit)。上の ``_REPLAY_CHILD`` は、移す道具が import の文を新しい置き場の
+#: 名に書き換える(今の src で回すため)ので、古い src では import できない。取り出した子のコードと上の子のコードは、import の文の
+#: ほかは同じ・import の文は同じ名を同じ元の置き場から読むことを確かめてから使う(:func:`_child_problems`)。
+CHILD_COMMIT = "aabfa0d081fa2f409bd852072f7581a8287ec31a"
+
+
+def _child_before_the_move(root):  # noqa: ANN001, ANN202
+    """移す前の commit の、このファイルの ``_REPLAY_CHILD`` の値(git が無い・commit が無い・見つからなければ None)。"""
+    import ast
+    import subprocess
+    from pathlib import Path
+
+    rel = Path(__file__).resolve().relative_to(root.resolve()).as_posix()
+    r = subprocess.run(["git", "-C", str(root), "show", f"{CHILD_COMMIT}:{rel}"], capture_output=True)
+    if r.returncode != 0:
+        return None
+    for node in ast.parse(r.stdout).body:
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "_REPLAY_CHILD"):
+            return ast.literal_eval(node.value)
+    return None
+
+
+def _child_problems(before: str, now: str, tmp) -> list[str]:  # noqa: ANN001
+    """移す前の子のコードと今の子のコードの違い(import の文のほかの字面・import の文の置く名と順・読むモジュールの元の置き場)。
+
+    字面と置く名は ``tests/_head_copy_pin.py`` の比べ方(``shibuya`` を読む import の文を印の行に替えた全体の sha256・束ごとの
+    文の置く名)。読むモジュールは、今の名の元の置き場(``tests/_places.py``)が移す前の名と同じこと。"""
+    import ast
+
+    from tests import _head_copy_pin as HC
+    from tests import _places as PL
+
+    a, b = tmp / "child_before_the_move.py", tmp / "child_now.py"
+    a.write_text(before, encoding="utf-8")
+    b.write_text(now, encoding="utf-8")
+    out = []
+    if HC.text_sha256(a, lf=True) != HC.text_sha256(b, lf=True):
+        out.append("import の文のほかの字面が違う")
+    if HC.statement_names(a, lf=True) != HC.statement_names(b, lf=True):
+        out.append("import の文の置く名か順が違う")
+
+    def mods(code: str) -> list[list[str]]:
+        rows = []
+        for n in HC.shibuya_imports(ast.parse(code)):
+            rows.append([n.module] if isinstance(n, ast.ImportFrom) else [x.name for x in n.names])
+        return rows
+
+    mb, mn = mods(before), mods(now)
+    if len(mb) != len(mn) or any([PL.origin_module(m) for m in y] != x for x, y in zip(mb, mn)):
+        out.append(f"読むモジュールの元の置き場が違う: {mb} と {mn}")
+    return out
+
 
 @pytest.fixture
 def recorded_tape(tmp_path):
     """偽 vLLM で録ったテープ(作業木の src)。"""
-    from shibuya.engine.run import run_day
-    from shibuya.world.state import World
+    from shibuya.runtime.run import run_day
+    from shibuya.world.model.state import World
     from tests.engine.test_tape_deferred import make_client
     from tests.llm.test_fleet import FakeVLLM
 
@@ -232,10 +299,10 @@ def recorded_tape(tmp_path):
 
 def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
     """作業木の src で再生し、刻みごとの到着待ち(``replay_inbox``)を見る。"""
-    from shibuya.engine.run import run_day
-    from shibuya.engine.state_hashes import to_state
-    from shibuya.perception import renderer as R
-    from shibuya.world.state import World
+    from shibuya.runtime.run import run_day
+    from shibuya.runtime.state.hashes import to_state
+    from shibuya.mind.percept import draw as R
+    from shibuya.world.model.state import World
     from tests.engine.test_tape_wiring import BoomLLM
 
     seen = {"inbox_items": 0, "percepts": 0, "bad": []}
@@ -266,12 +333,12 @@ def _replay(monkeypatch, tape, *, drop_percepts: bool = False):
 
 
 def test_replay_inbox_never_holds_a_percept(recorded_tape, monkeypatch, tmp_path):
-    from shibuya.engine.llm_bridge import BridgeResult
-    from shibuya.engine.run import run_day
-    from shibuya.engine import resume as RS
-    from shibuya.engine.state_hashes import to_state
-    from shibuya.llm.fleet import FleetBridgeResult
-    from shibuya.world.state import World
+    from shibuya.runtime.inference.bridge import BridgeResult
+    from shibuya.runtime.run import run_day
+    from shibuya.runtime.state import resume as RS
+    from shibuya.runtime.state.hashes import to_state
+    from shibuya.runtime.inference.fleet import FleetBridgeResult
+    from shibuya.world.model.state import World
 
     assert "percept" not in {f.name for f in dataclasses.fields(BridgeResult)}
     assert "percept" not in {f.name for f in dataclasses.fields(FleetBridgeResult)}
@@ -334,6 +401,10 @@ def test_replay_full_hash_matches_the_head_copy(recorded_tape, tmp_path):
                         "docs/design/v2-budget-declaration.md"], capture_output=True)
     if r.returncode != 0:
         pytest.skip(f"commit {BASE_COMMIT} が無い")
+    before = _child_before_the_move(root)
+    if before is None:
+        pytest.skip(f"commit {CHILD_COMMIT} が無い")
+    assert _child_problems(before, _REPLAY_CHILD, tmp_path) == []
     head = tmp_path / "head_src"
     with tarfile.open(fileobj=io.BytesIO(r.stdout)) as tf:
         tf.extractall(head, filter="data")
@@ -342,15 +413,19 @@ def test_replay_full_hash_matches_the_head_copy(recorded_tape, tmp_path):
     tape, rec = recorded_tape
     kw = json.dumps({**FLEET_KW, "_cells": FLEET_CELLS})
 
-    def child(src: Path) -> dict:
+    def child(src: Path, code: str) -> dict:
         env = dict(os.environ, PYTHONPATH=str(src), PYTHONIOENCODING="utf-8", PYTHONHASHSEED="0")
-        c = subprocess.run([sys.executable, "-c", _REPLAY_CHILD, str(tape), kw], cwd=str(root), env=env,
+        c = subprocess.run([sys.executable, "-c", code, str(tape), kw], cwd=str(root), env=env,
                            capture_output=True, text=True, encoding="utf-8", timeout=600)
         assert c.returncode == 0, c.stderr[-3000:]
         return json.loads(c.stdout.strip().splitlines()[-1])
 
-    h = child(head / "src")
-    w = child(root / "src")
+    # 〔段 4〕古い src は移す前の子のコードで、今の src は今の子のコード(移す道具が書き換えた import の文)で回す
+    h = child(head / "src", before)
+    # 〔Q13〕今の src の子は空腹 v1 を試験の中だけの口で通す(印を立てる 2 行を頭に足す=子のコードの字面の比べは上のまま)
+    from tests.engine.body._hunger_v1 import CHILD_PRELUDE
+
+    w = child(root / "src", CHILD_PRELUDE + _REPLAY_CHILD)
     assert "head_src" in h["src"] and "head_src" not in w["src"]
     assert h["misses"] == w["misses"] == 0 and h["calls"] == w["calls"] == rec.llm_calls
     assert len(h["full"]) == FLEET_KW["ticks"] // FLEET_KW["checkpoint_every"]

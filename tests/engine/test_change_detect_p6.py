@@ -15,17 +15,21 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya.agents.state import AgentState, WakeCondition
-from shibuya.core.types import EventClass
-from shibuya.engine import change_detect as CD
-from shibuya.world.state import World
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import WakeCondition
+from shibuya.foundation.types import EventClass
+from shibuya.mind.system1 import change_detect as CD
+# 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES, INTERO_VARS
+from shibuya.world.model.scene_hash import b4_block_hashes, b4_block_raw
+from shibuya.world.model.state import World
 
 
 def _consistent_stages(agents: AgentState) -> None:
-    for value_field, stage_field in CD.INTERO_VARS:
+    for value_field, stage_field in INTERO_VARS:
         v = agents.registry.field(value_field)
         stage = np.zeros(agents.n, dtype=np.int8)
-        for e in CD.INTERO_UP_EDGES:
+        for e in INTERO_UP_EDGES:
             stage += (v >= e).astype(np.int8)
         agents.registry.field(stage_field)[:] = stage
 
@@ -52,7 +56,7 @@ def test_b4_hash_matches_full_recompute():
         w.cells.density[:] = rng.integers(0, 500, size=w.n_cells)
         res = det.detect(w, a, tick)
         hashes[res.changed_cells] = res.changed_b4_hash
-        full = CD.b4_block_hashes(CD.b4_block_raw(w, tick))
+        full = b4_block_hashes(b4_block_raw(w, tick))
         assert np.array_equal(hashes, full), tick
 
 

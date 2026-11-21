@@ -439,32 +439,56 @@ def test_persona_does_not_reference_llm_ports():
                     "import importlib\nm = importlib.import_module('shibuya.llm.fleet')\n",
                     "m = __import__('shibuya.llm')\n", "def ask_llm():\n    pass\n"):
         assert _llm_refs(src + "\n" + planted), planted
+    # 〔割る段 5a の G0 の検収 低-5〕字面の "llm" の検出器は、割る段で llm の中身が別の名の置き場(推論の口・推論の実行)へ出ると
+    # その読みを見ない。元の置き場が llm/ のモジュール(実行時の試験と同じ範囲)を読む import も禁じる
+    from shibuya.act.intake import parser as LLM  # llm の範囲の手がかり(元の置き場が llm/ に残るモジュール)
+
+    from tests import _places as PL
+
+    llm = PL.names_from(LLM)
+    mods = {m for n in ast.walk(ast.parse(src)) for m in PL.imported(n)}
+    assert not [m for m in mods if llm.hits(m)], sorted(m for m in mods if llm.hits(m))
+    pkg, _, leaf = LLM.__name__.rpartition(".")
+    planted2 = f"from {pkg} import {leaf}\n"  # 負の対照: 範囲のモジュールを今の名で植える
+    assert [m for n in ast.walk(ast.parse(planted2)) for m in PL.imported(n) if llm.hits(m)], planted2
 
 
 def test_persona_build_does_not_import_or_call_llm(tmp_path):
     """組み立て(import と ``build_tables``)で ``shibuya.llm`` が読み込まれない・名の照合(``naming_check``=engine を遅れて
     import する)では読み込まれても呼ばれない(実行時の監視=別のプロセス)。"""
+    import os
     import pickle
     import subprocess
+
+    from shibuya.act.intake import parser as LLM  # 〔割る段 5a の G0・親の裁定 Q13〕llm の範囲の手がかりは、元の置き場が llm/ に残るモジュール(割る段で包み llm が無くなる)
+
+    from tests import _places as PL
 
     f = _facts()
     pk = tmp_path / "facts.pkl"
     pk.write_bytes(pickle.dumps(({k: np.array(v) for k, v in f.cols.items()},
                                  {k: np.array(v) for k, v in f.members.items()},
                                  {k: np.array(v) for k, v in f.places.items()})))
+    # 〔段 4 の下ごしらえ〕llm の範囲は元の置き場で決める(前は名の頭 shibuya.llm と道の shibuya/llm の字面=段 4 で llm の
+    # モジュールが別の包みへ移ると黙って範囲から外れる)。移す前の木では前の字面と同じモジュールとファイル
+    llm = PL.names_from(LLM)
+    llm_mods = sorted(llm.heads | llm.leaves)
+    llm_files = sorted(os.path.normcase(os.path.realpath(p)) for p in PL.files_from(LLM))
+    assert LLM.__name__ in llm_mods and len(llm_files) == len(llm_mods)
     code = (
-        "import sys, pickle\n"
+        "import os, sys, pickle\n"
+        "LLM_MODS = set(%r)\n" % llm_mods +
+        "LLM_FILES = set(%r)\n" % llm_files +
         "from shibuya.build.pop import w21_persona as P\n"
         "c, m, pl = pickle.loads(open(%r, 'rb').read())\n" % str(pk) +
         "tab = P.build_tables(P.PersonaFacts(c, m, pl))['long']\n"
-        "print('after_build', any(m == 'shibuya.llm' or m.startswith('shibuya.llm.') for m in sys.modules))\n"
+        "print('after_build', any(m in LLM_MODS for m in sys.modules))\n"
         "calls = []\n"
         "def prof(frame, event, arg):\n"
-        "    if event == 'call' and ('shibuya' + chr(92) + 'llm' in frame.f_code.co_filename\n"
-        "                            or 'shibuya/llm' in frame.f_code.co_filename):\n"
+        "    if event == 'call' and os.path.normcase(os.path.realpath(frame.f_code.co_filename)) in LLM_FILES:\n"
         "        calls.append(frame.f_code.co_name)\n"
-        "import shibuya.engine.experiment.checks\n"  # 遅れて読まれる import を先に済ませる(import の実行は数えない)
-        "print('llm_loaded_by_engine', 'shibuya.llm' in sys.modules)\n"
+        "import shibuya.experiments.port.checks\n"  # 遅れて読まれる import を先に済ませる(import の実行は数えない)
+        "print('llm_loaded_by_engine', 'shibuya.foundation.ports.inference' in sys.modules)\n"
         "sys.setprofile(prof)\n"
         "r = P.naming_check(tab, ['例の書店'])\n"
         "sys.setprofile(None)\n"
@@ -473,8 +497,11 @@ def test_persona_build_does_not_import_or_call_llm(tmp_path):
                          env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"})
     assert out.returncode == 0, out.stderr[-2000:]
     assert "after_build False" in out.stdout and "naming_found True llm_calls 0" in out.stdout, out.stdout
-    # 宣言: 名の照合の口は engine を import する=engine のパッケージ経由で shibuya.llm が読み込まれる(呼ばれない=上)
-    assert "llm_loaded_by_engine True" in out.stdout
+    # 宣言: 名の照合の口は engine を import する。移す前は engine のパッケージ経由で shibuya.llm も読み込まれる(呼ばれない=上)。
+    # 〔段 4 の下ごしらえ・親の裁定〕段 4 で包みの頭の再輸出を除くと、engine を読んでも llm の頭は読まれなくなる(結びつきが消える
+    # =良い向き)。読み込まれるかどうかは移す段の途中で変わるので、どちらでも通す。確かめたいこと=組み立ての後に読み込まれていない
+    # (after_build False)と、照合で llm の口が呼ばれない(llm_calls 0)は上で変えずに見る
+    assert "llm_loaded_by_engine True" in out.stdout or "llm_loaded_by_engine False" in out.stdout, out.stdout
 
 
 def test_override_port_reads_new_text_and_keeps_original():
@@ -559,7 +586,7 @@ def test_prefix_mismatches_and_read_only_facts():
 
 def test_walk_minutes_share_one_function():
     from shibuya.build.sched import w20_w21_port as WP
-    from shibuya.engine.geometry import SPEED_REFERENCE_MS
+    from shibuya.world.model.geometry import SPEED_REFERENCE_MS
 
     assert A.WALK_SPEED_REFERENCE_MS == SPEED_REFERENCE_MS
     t = P.build_tables(_facts())["long"]["text"]
@@ -577,7 +604,7 @@ def test_cp5_3_naming_check_finds_planted_names():
 
 
 def test_compose_blocks_with_the_engine_compose_and_6_1_lengths():
-    from shibuya.engine.decision.port import Candidate, compose
+    from shibuya.foundation.ports.decision import Candidate, compose
 
     tabs = P.build_tables(_facts())
     blocks = {"B0": "[B0 共通] 前置き", "B1": "[B1 種別] 住民", "B6": "[B6 起床] 9時の目覚まし"}
@@ -623,8 +650,8 @@ def test_relation_category_from_the_persons_view():
 
 # ================================================================================ 段 10 の材料
 def test_store_staff_rows_round_robin_head_first_and_engine_grant():
-    from shibuya.engine.rights.ledger import Right, Rights
-    from shibuya.engine.rights.initial import staff_of_poi
+    from shibuya.world.facts.rights.ledger import Right, Rights
+    from shibuya.world.facts.rights.initial import staff_of_poi
 
     p = {"person_id": np.arange(6), "org_index": np.array([0, 0, 0, 1, -1, 0]),
          "is_org_head": np.array([False, True, False, True, False, False]),
@@ -835,8 +862,8 @@ def test_real_structure_and_instruments(built):
 
 @REAL
 def test_real_store_staff_rows_pass_engine_grant(built):
-    from shibuya.engine.rights.ledger import Right, Rights
-    from shibuya.engine.rights.initial import staff_of_poi
+    from shibuya.world.facts.rights.ledger import Right, Rights
+    from shibuya.world.facts.rights.initial import staff_of_poi
 
     out, _man = built
     r = pq.read_table(out / "w21c_rights_store_staff.parquet").to_pydict()

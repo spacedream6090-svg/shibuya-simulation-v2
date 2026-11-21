@@ -17,6 +17,7 @@
 ### G-2 面2の合否形式=実行不能度(History Matching)
 - **推奨**: 各holdoutアンカー i について `I_i = |mean_ens(y_i) − z_i| / sqrt(Var_ens(y_i) + Var_obs(z_i) + Var_disc(i))` を計算し、**I_i ≤ 3 を合格(Pukelsheim 3σ≒95%・mechanism)**、全アンカーの最大値 I_M=max_i I_i を面2の見出し値にする。Var_ens=アンサンブル分散(seed群)、Var_obs=観測誤差(台帳の出典から・不明ならexpedient宣言)、Var_disc=モデル不一致項(初回0=expedient・ablationで学習)。
 - 帯(band)型アンカー(上界・下界)は片側実行不能度に読み替える。強/弱アンカーは Var_disc に重みを置かず**強=個別に合格必須・弱=I_M計算に含めるが単独では落とさない(POMの「弱いパターンを束ねる」)**。
+  - 〔11-16 で直した(古い写しの伝播)=合否に使う I_M は強い行だけで取る。弱い行は束ねた点数(重みつきの平均など)と外れた行の一覧で別に見る。全部の行の 2 番目・3 番目に大きい値(I_2M・I_3M)は参考として並べる(食い違い C-05 の決着=壁打ちの記録 2-49)。正の写しは [仕様書 v0](spec/07-validation.md) VL-14。上の「全アンカーの最大値 I_M を面2の見出し値」と「弱=I_M計算に含める」は旧文として残す〕
 - k*の事前宣言=(アンカー集合・I≤3・Var各項の出所・アンサンブル本数)をリポ内の凍結ファイル(SHA)に置く(ADEMP-PreRegの5見出しに写す・外部OSF登録は任意)。
 - 指標B(JSD帰無参照)・OASIS型NRMSE・EconAgent型「符号一致」は**面1/面2の補助指標**として並置(符号一致は弱アンカーの最小ゲート形式)。
 - 代替案(不採用理由): 固定の許容誤差±X%(観測誤差もアンサンブル幅も無視する・アンカーごとに恣意的)。
@@ -33,7 +34,7 @@
 | 5 Implementation verification | pytest二段CI+U8テストT1-T9+実データ規模退化検査 | 全緑 |
 | 6 Model output verification | 計器盤 面1 | 報告のみ |
 | 7 Model analysis | ablation第1陣/第2陣・感度試験 | 事前登録したablationの完了 |
-| 8 Model output corroboration | 計器盤 面2 | k*(I_M≤3)の判定 |
+| 8 Model output corroboration | 計器盤 面2 | k*(I_M≤3)の判定〔11-16 で直した=強い行の I_M ≤ 3。弱い行は束ねた点数と外れた行の一覧(記録 2-49・仕様書 v0 VL-14)。左は旧文〕 |
 - 各工程の出口で「どのTRACE要素が更新されたか」を devlog に1行書く(TRACEのモデリング・ノート思想)。
 - **verification ≠ validation(第203 追加・出典 D-75 (b)=Larooij & Törnberg 2025, Artificial Intelligence Review 59(1) 15「内部整合性は verification であって validation ではない」・提言(ii) の逐語「pre-registered experimental benchmarks, rather than face-validity alone」)**: **T2-c(テープ再生・checkpoint 自己整合)のハッシュ一致は verification(内部整合)であって validation ではない**。受入表の各行は **主観 / 客観(外部データ)/ 内部整合** のどれかを明示する(TRACE 5=内部整合・TRACE 6/8=客観・face validity=主観)。受入報告の見出しに「PASS n/m」だけを書かず、**種別ごとの内訳**を併記する。
 - **現行 C7 受入表 16 行の仮分類(第203・提案=親が確定。行名は `docs/bench/c7/accept_c7-day-4/c7_accept.md` のもの)**:
@@ -61,6 +62,7 @@
 
 ### G-4 実験の型: EnsembleSpec と SweepSpec
 - **推奨**: run manifest(U8)に実験型を2つ追加する。**EnsembleSpec**=同一パラメタでseedのみ変える(不確実性の測定・面2の判定単位)。**SweepSpec**=パラメタ/expedientを変える(感度・ablation・直積または明示組)。k*の判定はEnsembleSpecに対してのみ定義。
+  - 〔11-09 で直した(古い写しの伝播)〕EnsembleSpec の「同一パラメタで seed のみ変える」は `10-12/§1-2` で置き換わった。分布は初期状態・モデル・偶然の 3 つを揺らして作り、揺らしの源ごとに幅を分けて報告する(初期状態だけ・乱数だけでは狭すぎる)。正の写しは [仕様書 v0](spec/08-experiments.md) EX-15。上の文は旧文として残す。〔11-16 で直した=揺らすものに外からの入力(天気・運行の乱れ・催し)を足して 4 つ(CLAUDE.md §3 の DT 定義・壁打ちの記録 2-56・仕様書 v0 EX-28)〕
 - ラン定義の最小要素(BehaviorSpaceに準拠): 掃引変数×repetitions×reporters(面1/面2の指標のみ)×stop条件×setup/go。
 - expedient: 2型に分けること自体(Covasim MultiSimのreseed既定の教訓から)。
 

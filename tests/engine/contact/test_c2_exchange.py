@@ -10,13 +10,13 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from shibuya.engine.contact import port as P
-from shibuya.engine.contact.book import FRIEND
-from shibuya.engine.contact.layer import (
+from shibuya.mind.plan import contact_port as P
+from shibuya.interim_bundles.contact.book import FRIEND
+from shibuya.interim_bundles.contact.layer import (
     W_EXCH_ASK, W_EXCH_NO, W_EXCH_OK, W_GINVITE, W_GJOIN, W_GLEAVE, W_GMAKE, W_GREFUSE, W_LOOKUP, audit_causes,
 )
-from shibuya.engine.tools import contacts as CT
-from shibuya.engine.tools.places import PhoneTable
+from shibuya.foundation.vocab import contact_flags as CT
+from shibuya.society.tools.places import PhoneTable
 
 from tests.engine.contact._c1 import STEP_NS, by_kind, choose
 from tests.engine.contact._c2 import Harness2, loud

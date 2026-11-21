@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya import cli
+from shibuya.interfaces.cli import main as cli
 from shibuya.economy.anchors import WASTE_BAND_RATIO, WASTE_TONNES_PER_DAY
 from shibuya.economy.goods import GoodsLedger, SkuRegistry
 
@@ -41,9 +41,23 @@ def test_static_store_waste_is_floor_of_stock_times_rate_times_mass():
                                                    WASTE_TONNES_PER_DAY * (1 + WASTE_BAND_RATIO)))
 
 
-def test_run_summary_uses_the_store_band_and_lists_three_sources():
+def _rules(mode: str, monkeypatch) -> None:
+    """〔第347 止めた切替口の削除〕前は切替口(``--rate-rules`` の腕)を ``mode`` にした。legacy は試験の中だけで実行器と計画
+    実行層に部品の口(率の規則の旧道)を挿す(``tests/engine/_legacy_world.py``)。off は既定のまま。"""
+    if mode == "legacy":
+        from tests.engine._legacy_world import legacy_world_rules
+
+        legacy_world_rules(monkeypatch, absent=False)
+
+
+@pytest.mark.parametrize("mode", ["off", "legacy"])
+def test_run_summary_uses_the_store_band_and_lists_three_sources(mode, monkeypatch):
+    """〔11-01 段 2 の 4・検収 M1〕腕 off(既定)では店の帯は外した売れ残りの廃棄率の期待=判定は非該当(None)・値は残す。"""
     import sys
 
+    from shibuya.world.laws import switch_rate as RR
+
+    _rules(mode, monkeypatch)
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools" / "c7"))
     import c7lib
 
@@ -57,11 +71,17 @@ def test_run_summary_uses_the_store_band_and_lists_three_sources():
     total = b["store_expired_stock"] + b["household_consumption"] + b["street_litter"] + b["other_goods"]
     assert total == pytest.approx(ws["total_t"], abs=1e-5)
     assert res.waste_tonnes_per_day == pytest.approx(ws["total_t"], abs=1e-5)
-    assert res.waste_band_ok == ws["band_ok"] == (lo <= b["store_expired_stock"] <= hi)
+    if mode == "legacy":
+        assert res.waste_band_ok == ws["band_ok"] == (lo <= b["store_expired_stock"] <= hi)
+        assert "band_na" not in ws
+    else:
+        assert res.waste_band_ok is None and ws["band_ok"] is None and ws["band_na"] == RR.WASTE_BAND_NA
+        assert b["store_expired_stock"] == 0.0
     assert "区" in ws["ward_total_comparison"] and "保留" in ws["ward_total_comparison"]  # noqa: RUF001
     assert res.run_manifest_fields()["waste_sink"] == ws
     text = res.summary()
     assert "店の帯 (band" in text and "区の総排出量との比較は保留" in text
+    assert (RR.WASTE_BAND_NA in text) is (mode == "off") and ("店の帯 (band" in text)
     assert "自己整合性の検査" in text and "現実との照合ではない" in text          # 第305 Q138
     assert "自己整合性の検査" in ws["band_check"]
     got = c7lib.parse_run_summary(text)  # 受入表の読み口は変えない
@@ -72,8 +92,8 @@ def test_run_summary_uses_the_store_band_and_lists_three_sources():
 @pytest.mark.requires_data("world_v2:w2_cells.parquet")
 def test_real_world_store_band_is_0_911_t_per_day_for_any_agent_count():
     """実世界(2,337 POI・初期在庫 64): 0.911 t/日 ±30% = 0.64〜1.18(体数に依らない)。"""
-    from shibuya.world.assets import hash_free_cat_code
-    from shibuya.world.state import World
+    from shibuya.world.model.assets import hash_free_cat_code
+    from shibuya.world.model.state import World
 
     w = World.load_or_synthetic(WORLD_DIR, n_cells=139, seed=1)
     cats = np.array([hash_free_cat_code(c) for c in w.assets.poi_cat], dtype=np.int64)
@@ -82,14 +102,20 @@ def test_real_world_store_band_is_0_911_t_per_day_for_any_agent_count():
     assert got[5_000] == got[390_067] == pytest.approx(910_750.0)
 
 
-def test_monthly_census_uses_the_store_band_and_the_store_collected_mass():
-    """第305 Q137: 月次センサスの帯も店だけの帯(判定=店の回収量 t/日)・帯の意味を明記(報告だけ)。"""
+@pytest.mark.parametrize("mode", ["off", "legacy"])
+def test_monthly_census_uses_the_store_band_and_the_store_collected_mass(mode, monkeypatch):
+    """第305 Q137: 月次センサスの帯も店だけの帯(判定=店の回収量 t/日)・帯の意味を明記(報告だけ)。
+
+    〔11-01 段 2 の 4・検収 M1〕呼び手が腕 off を渡す(``waste_band_applies=False``)と判定は非該当(None)・値は残す。"""
     from shibuya.economy import census as CS
 
+    _rules(mode, monkeypatch)
     res = cli.run(n_agents=200, seed=3, world_dir=None, n_cells=16, ticks=720, checkpoint_every=360)
     goods = res.ledger.goods
     e, lo, hi = goods.store_waste_band()
-    mer = CS.monthly_mer(res.ledger.money, goods, month=0, days=1)
+    # 呼び手が渡す腕(前は切替口の腕 RR.is_legacy()=ランの実行器の腕と同じ)=ランの実行器の腕
+    mer = CS.monthly_mer(res.ledger.money, goods, month=0, days=1, waste_band_applies=res.runner.rate_rules == "legacy")
+    assert ("waste_band_na" in mer) is (mode == "off")
     assert mer["waste_band"] == (lo, hi)
     assert mer["waste_store_tonnes_per_day"] == pytest.approx(res.waste_sink["breakdown_t"]["store_expired_stock"], abs=1e-6)
     assert mer["waste_band_ok"] is res.waste_band_ok

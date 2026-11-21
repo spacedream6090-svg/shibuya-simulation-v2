@@ -10,13 +10,15 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine.decision.port import DecisionContext
-from shibuya.engine.duties import arm as AD
-from shibuya.engine.duties import port as PD
-from shibuya.engine.duties.knowledge import UNKNOWN, ShopRules, rules_line
-from shibuya.engine.rights import ledger as L
+from shibuya.foundation.ports.decision import DecisionContext
+from shibuya.foundation.arms import duties as AD
+from shibuya.interim_bundles.duties import layer as LY
+from shibuya.mind.plan import duties_port as PD
+from shibuya.interim_bundles.duties.knowledge import UNKNOWN, ShopRules, rules_line
+from shibuya.world.facts.rights import ledger as L
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "duties"
+#: 層のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る)。
+LAYER_PY = Path(LY.__file__)
 
 
 def _rules(rule_row: tuple[int, int] = (540, 1260)) -> ShopRules:
@@ -54,7 +56,8 @@ def test_mock_port_is_uniform_deterministic_and_closed():
     cands = [PD.cand(PD.K_SHOP, "店を開ける", id=PD.ID_UNLOCK), PD.cand(PD.K_WAIT, "まだ", id="wait")]
     picks = []
     for k in range(1, 401):
-        ctx = DecisionContext(agent_id=3, step=k, t_ns=0, wake_class=-1, condition=-1, cell=0,
+        # 〔v3-0a 案 A〕鍵は世界の時刻から(t_ns=刻みの頭の時刻=エンジンが渡す形。前は t_ns=0 で刻みの番号だけを変えていた)
+        ctx = DecisionContext(agent_id=3, step=k, t_ns=k * 60 * 10**9, wake_class=-1, condition=-1, cell=0,
                               call_id=PD.call_id_of(k, 3, PD.serial_of(PD.P_SHOP, 1)))
         a = port.choose(ctx, cands)
         b = port.choose(ctx, cands)
@@ -67,7 +70,7 @@ def test_mock_port_is_uniform_deterministic_and_closed():
 
 
 def test_call_ids_do_not_collide_with_other_ports():
-    from shibuya.engine.calendar3 import port as P3
+    from shibuya.mind.plan import calendar3_port as P3
 
     s = PD.serial_of(PD.P_WASTE, PD.MAX_DECISIONS_PER_STEP - 1)
     assert PD.SERIAL_BASE > P3.SERIAL_BASE + 16 * P3.MAX_DECISIONS_PER_STEP
@@ -80,7 +83,7 @@ def test_call_ids_do_not_collide_with_other_ports():
 
 def test_first_per_store_takes_the_first_eligible_row():
     """〔検収 M1〕雇用の行(店の順)のうち候補になれる行の、店ごとの最初の行(1 店 1 刻み 1 人)。"""
-    from shibuya.engine.duties.layer import first_per_store
+    from shibuya.interim_bundles.duties.layer import first_per_store
 
     stores = np.array([0, 0, 0, 2, 2, 5])
     agents = np.array([10, 11, 12, 20, 21, 50])
@@ -149,7 +152,7 @@ def _cause_problems(src: str) -> list[str]:
 
 
 def test_ast_person_events_come_only_from_decisions():
-    assert _cause_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _cause_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_planted_causes():
@@ -188,7 +191,7 @@ def _time_problems(src: str) -> list[str]:
 
 
 def test_ast_offer_conditions_have_no_time_literals():
-    assert _time_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _time_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_time_literals():

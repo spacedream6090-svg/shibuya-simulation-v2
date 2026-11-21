@@ -17,17 +17,29 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, ResultCode
-from shibuya.core.time_consts import NS_PER_STEP
-from shibuya.engine import memory as M
-from shibuya.engine import memory_store as MS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.events import body as B
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import CALLS_SCHEMA, Tape
-from shibuya.engine.tools import record as TR
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import ResultCode
+from shibuya.foundation.time_consts import NS_PER_STEP
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import memory_store as MS
+from shibuya.runtime.state import ledger as SL
+from shibuya.mind.memory import body_events as B
+# 〔割る段 5a の G2〕2 つ目の割り先 foundation.vocab.events へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.vocab.events import (
+    KIND_ACT_WORD,
+    WHAT_NOTICE,
+    WHAT_SIGNAGE,
+    WHAT_TALK_END,
+    WHAT_TALK_OPEN,
+    kind_of_what,
+)
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import CALLS_SCHEMA, Tape
+from shibuya.foundation.vocab import events as TR
+# 〔割る段 5a の G2〕SIGNBOARD_CAUSE は foundation.journal.log へ行く(ほかの SIGNBOARD_* は events)=名で読む
+from shibuya.foundation.journal.log import SIGNBOARD_CAUSE
 
 from tests.engine.multiday._md import KW, Capture, arms
 
@@ -71,8 +83,8 @@ def test_arm_on_writes_the_body_events(runs):
     assert any(e.how_much == 0 for e in acts) and any(e.how_much and e.how_much > 0 for e in acts)  # 成功と失敗
     assert {e.how_much for e in acts} <= {int(c) for c in ResultCode}
     assert all(e.how_much is None for e in ev if e.what not in B.ACT_FAMILY_WORDS)
-    opened = sum(1 for e in ev if e.what == B.WHAT_TALK_OPEN)
-    ended = sum(1 for e in ev if e.what == B.WHAT_TALK_END)
+    opened = sum(1 for e in ev if e.what == WHAT_TALK_OPEN)
+    ended = sum(1 for e in ev if e.what == WHAT_TALK_END)
     assert 0 < ended <= opened  # 閉じたセッションの参加者ごとに 1 行(日の終わりに開いたままのセッションは閉じない)
 
 
@@ -85,16 +97,16 @@ def test_causes_are_the_call_or_a_body_process(runs):
         if isinstance(c, EV.LlmCall):
             m = CALL_RE.match(c.call_id)
             assert m and int(m.group(2)) == e.who and int(m.group(1)) * NS_PER_STEP <= e.t_ns, (c.call_id, e)
-            assert e.what in B.ACT_FAMILY_WORDS | {B.WHAT_TALK_OPEN}
+            assert e.what in B.ACT_FAMILY_WORDS | {WHAT_TALK_OPEN}
             kinds["llm"] += 1
             continue
         assert isinstance(c, EV.Process) and c.name in ("resolve", "conversation", "perception"), (e.what, c)
         kinds[c.name] += 1
-        if e.what == B.WHAT_TALK_END:
+        if e.what == WHAT_TALK_END:
             assert c.name == "conversation" and e.via == "対面"
-        if e.what in (B.WHAT_SIGNAGE, B.WHAT_NOTICE):
+        if e.what in (WHAT_SIGNAGE, WHAT_NOTICE):
             assert c.name == "perception"
-        if e.what == B.WHAT_SIGNAGE:
+        if e.what == WHAT_SIGNAGE:
             assert e.origin == TR.SIGNBOARD_ORIGIN and e.where[0] == "poi" and e.received_ns == e.read_ns == e.t_ns
     assert kinds["llm"] > 0 and kinds["resolve"] > 0 and kinds["conversation"] > 0 and kinds["perception"] > 0
 
@@ -186,7 +198,7 @@ def test_remember_takes_only_ids_in_the_log():
 
 def test_rebuild_keeps_the_log_pointer_from_the_saved_seq():
     """再開: 作り直しは行 M0L(記録の seq)から目印と出どころを戻す(記録の行は再開のランに無くても目印は残る)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     agents = AgentState(2, memory_columns=True, memory_n=4)
     layer = M.MemoryLayer(2, 4)
@@ -217,8 +229,8 @@ def test_notice_and_signage_are_perception_events():
     ms.attach_events(B.BodyEventLink(log))
     layer.after_tick(agents, 20, salient_events=[SimpleNamespace(cell=6, noticed=[0, 1])], signage=[(2, 7)])
     ev = list(log.events())
-    notice = [e for e in ev if e.what == B.WHAT_NOTICE]
-    sign = [e for e in ev if e.what == B.WHAT_SIGNAGE]
+    notice = [e for e in ev if e.what == WHAT_NOTICE]
+    sign = [e for e in ev if e.what == WHAT_SIGNAGE]
     assert sorted(e.who for e in notice) == [0, 1] and all(e.where == ("cell", 6) for e in notice)
     assert [(e.who, e.where) for e in sign] == [(2, ("poi", 7))]
     assert all(isinstance(e.cause, EV.Process) and e.cause.name == "perception" for e in notice + sign)
@@ -231,7 +243,7 @@ def test_signboard_rows_of_the_1_7_arm_are_reused():
     t = 30 * NS_PER_STEP
     log.begin_step(t)
     first = log.append(EV.Event(t_ns=t, who=2, what=TR.SIGNBOARD_WHAT, where=("poi", 7), received_ns=t, read_ns=t,
-                                origin=TR.SIGNBOARD_ORIGIN, cause=TR.SIGNBOARD_CAUSE))
+                                origin=TR.SIGNBOARD_ORIGIN, cause=SIGNBOARD_CAUSE))
     link = B.BodyEventLink(log, signboard_reads=True)
     n0 = len(log)
     ts, seqs = _w(link, 2, 11, obj=7, src=B.SRC_SIGNAGE)
@@ -254,16 +266,16 @@ def test_conversation_end_rows_per_participant():
 def test_word_tables_agree_with_the_memory_and_the_vocab():
     want = {"buy": "購入", "eat": "食事", "queue": "並ぶ", "move": "移動", "board": "乗車", "sleep": "就寝",
             "talk": "会話", "report": "通報", "help": "手伝い"}
-    assert {M.KIND_NAMES[k]: w for k, w in B.KIND_ACT_WORD.items()} == want
-    assert set(B.KIND_ACT_WORD.values()) <= set(V.ACT_WORDS)
+    assert {M.KIND_NAMES[k]: w for k, w in KIND_ACT_WORD.items()} == want
+    assert set(KIND_ACT_WORD.values()) <= set(V.ACT_WORDS)
     assert (M._SRC_ACT, M._SRC_ARRIVE, M._SRC_TALK_OPEN, M._SRC_TURN, M._SRC_NOTICE, M._SRC_SIGNAGE) == (
         B.SRC_ACT, B.SRC_ARRIVE, B.SRC_TALK_OPEN, B.SRC_TURN, B.SRC_NOTICE, B.SRC_SIGNAGE)
-    for k, w in B.KIND_ACT_WORD.items():
-        assert B.kind_of_what(V.code_of(V.word(V.FAMILY_ACT, w))) == k
-    assert B.kind_of_what(V.code_of(B.WHAT_TALK_OPEN)) == M.EVENT_KINDS["talk"]
-    assert B.kind_of_what(V.code_of(B.WHAT_NOTICE)) == M.EVENT_KINDS["notice"]
-    assert B.kind_of_what(V.code_of(B.WHAT_SIGNAGE)) == M.EVENT_KINDS["signage"]
-    assert B.kind_of_what(V.code_of("過程:rail")) == 0
+    for k, w in KIND_ACT_WORD.items():
+        assert kind_of_what(V.code_of(V.word(V.FAMILY_ACT, w))) == k
+    assert kind_of_what(V.code_of(WHAT_TALK_OPEN)) == M.EVENT_KINDS["talk"]
+    assert kind_of_what(V.code_of(WHAT_NOTICE)) == M.EVENT_KINDS["notice"]
+    assert kind_of_what(V.code_of(WHAT_SIGNAGE)) == M.EVENT_KINDS["signage"]
+    assert kind_of_what(V.code_of("過程:rail")) == 0
     # 〔第 6 期 6-4 C1〕体の過程の名の後ろに網の名 contact を足した
     # 〔第 6 期 6-2 カレンダー 2〕その後ろに予定の道具の名 calendar2 と約束の族を足した
     # 〔第 6 期 6-2 カレンダー 3〕その後ろに勤務の予定の道具の名 calendar3 と勤務の族を足した
@@ -272,7 +284,7 @@ def test_word_tables_agree_with_the_memory_and_the_vocab():
     assert V.CAUSE_PROCESS_NAMES[-2:-1] == V.CALENDAR2_PROCESSES == ("calendar2",)
     assert V.CAUSE_PROCESS_NAMES[-1:] == V.CALENDAR3_PROCESSES == ("calendar3",)
     # 〔第 6 期 6-6 ② 第 1 部〕その後ろに仕事の族を足した(道具の名は足していない=原因の名の並びは前のまま)
-    assert B.WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-5] == "知覚" and V.FAMILIES[-4] == "連絡"
+    assert WHAT_SIGNAGE == TR.SIGNBOARD_WHAT and V.FAMILIES[-5] == "知覚" and V.FAMILIES[-4] == "連絡"
     assert V.FAMILIES[-3] == "約束" and V.FAMILIES[-2] == "勤務" and V.FAMILIES[-1] == "仕事"
 
 

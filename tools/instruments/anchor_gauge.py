@@ -76,12 +76,12 @@ from read_guard import (  # noqa: E402
     GAUGE_EXTRA_DENY_TOKENS, JOURNAL_PREFIX, JOURNAL_SUFFIX, NotAllowedError, ReadGuard, deny_hit, files_listing,
     roles_table,
 )
-from shibuya.core.time_consts import (  # noqa: E402
+from shibuya.foundation.time_consts import (  # noqa: E402
     HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR, SECONDS_PER_HOUR, SECONDS_PER_MINUTE, STEP_SECONDS,
 )
 # 〔第 3 期 3-1・検収 低 7〕W20cal の組んだ資産の置き場と名はエンジンの読み口の定数を 1 か所で読む
-from shibuya.engine.calendar_shadow import FILE_NAME as _CSH_FILE_NAME  # noqa: E402
-from shibuya.engine.calendar_shadow import STAGE_DIR as _CSH_STAGE_DIR  # noqa: E402
+from shibuya.world.facts.w20_calendar_reader import FILE_NAME as _CSH_FILE_NAME  # noqa: E402
+from shibuya.world.facts.w20_calendar_reader import STAGE_DIR as _CSH_STAGE_DIR  # noqa: E402
 
 SCHEMA = "shibuya.tools.instruments/anchor_gauge/1"
 JOURNAL_SCHEMA = "shibuya.tools.instruments/anchor_journal/1"
@@ -279,8 +279,9 @@ def git_head(repo: Path = REPO) -> dict[str, Any]:
 # ====================================================================== 記録の段(エンジン不変)
 def _plan_from_executor(pe: Any, pop: Any, n_ticks: int) -> dict[str, np.ndarray]:
     """``PlanExecutor`` の参照 → 計画上のセル(刻み × 体)・計画の到着・W17 の勤務の行の始まり。読むだけ。"""
-    from shibuya.agents.weekly import ACTIVITY_WORDS, PLACE_WORDS
-    from shibuya.engine.presence import EventType, _day_rows
+    from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, PLACE_WORDS
+    from shibuya.world.laws.presence import EventType
+    from shibuya.world.laws.presence_plan import _day_rows
 
     work_pk, school_pk, home_pk = (PLACE_WORDS.index(w) for w in ("職場", "学校", "自宅"))
     act_work = ACTIVITY_WORDS.index("勤務")
@@ -371,9 +372,9 @@ def record(arm: str, *, out_path: Path, n_agents: int = 5_000, seed: int = 1, wo
            use_recorder: bool = True) -> dict[str, Any]:
     """1 腕のラン → 体の journal(``anchor_journal_*.npz``)。``use_recorder=False`` は包まずに回す(不変の確かめ)。"""
     import attr_arms as A
-    from shibuya import cli
-    from shibuya.engine import presence as P
-    from shibuya.engine import run as RUN
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.world.laws import presence as P
+    from shibuya.runtime import run as RUN
 
     import shibuya
 

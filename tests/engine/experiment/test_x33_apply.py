@@ -17,13 +17,17 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.events import log as EV
-from shibuya.engine.experiment import apply as AP
-from shibuya.engine.processes.opening import build_open_matrix
+from shibuya.foundation.journal import log as EV
+from shibuya.experiments.port import apply as AP
+from shibuya.foundation.ports import experiment_gate as GT
+from shibuya.world.laws.environment import WeatherWarning
+from shibuya.world.laws.opening import build_open_matrix
 
 from tests.engine.experiment._x33 import NS_DAY, NS_HOUR, STEP_S, at, form, handle, rows, synthetic_world
 
-pytestmark = pytest.mark.filterwarnings("ignore::shibuya.engine.processes.environment.WeatherWarning")
+# 〔段 4 の下ごしらえ〕警告の型の置き場は型から作る(前は字面の "ignore::shibuya.engine.processes.environment.WeatherWarning"
+# =凍結の名と同じ字面なので移す道具が触らず、置き場が動くと pytest が型を import できない)
+pytestmark = pytest.mark.filterwarnings(f"ignore::{WeatherWarning.__module__}.{WeatherWarning.__qualname__}")
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
 T0 = NS_DAY + 12 * NS_HOUR  # 1 日目の正午
 
@@ -200,7 +204,10 @@ def test_inherited_run_puts_the_tables_again_without_new_rows():
 
 
 # ================================================================= 口は 1 つ(CP12)
-GATE = "shibuya.engine.experiment.gate"
+#: 口のモジュールの名(〔段 4 の下ごしらえ〕字面で持たず、モジュールの ``__name__`` から作る。段 4 で口は別の包みへ動く)と、
+#: その包みの名・包みの中の名(``from <包み> import <名> as G`` の形を見つける)。
+GATE = GT.__name__
+GATE_PKG, _, GATE_LEAF = GATE.rpartition(".")
 TABLE_WRITERS = {"set_plan_rows", "restore_plan_rows", "set_replay_date", "set_holiday"}  # 〔検収 L5〕暦の書き口も
 
 
@@ -209,8 +216,8 @@ def _gate_names(tree: ast.AST) -> tuple[set[str], set[str]]:
     mods, funcs = set(), set()
     for n in ast.walk(tree):
         if isinstance(n, ast.ImportFrom):
-            if n.module == "shibuya.engine.experiment":
-                mods |= {a.asname or a.name for a in n.names if a.name == "gate"}
+            if n.module == GATE_PKG:
+                mods |= {a.asname or a.name for a in n.names if a.name == GATE_LEAF}
             elif n.module == GATE:
                 funcs |= {a.asname or a.name for a in n.names if a.name == "admit"}
         elif isinstance(n, ast.Import):
@@ -241,16 +248,22 @@ def test_admit_and_the_table_writers_are_called_only_from_apply():
         got = _calls(ast.parse(p.read_text(encoding="utf-8")))
         if got:
             hits[rel] = got
-    assert set(hits) == {"engine/experiment/apply.py"}, hits
+    assert set(hits) == {"experiments/port/apply.py"}, hits
 
 
 def test_the_entry_check_catches_a_planted_call():
     """負の対照: 口の外で admit(別名・直の import)・表の書き口を呼ぶ形は見つかる。別の物の admit は数えない。"""
-    planted = ast.parse("from shibuya.engine.experiment import gate as G\nG.admit(log, 'c', what='実験:改変', who='x')\n"
+    # 差し込むコードの import の文は、今の口の置き場から組み立てる(〔段 4 の下ごしらえ〕前は字面で、移す道具が一部だけを
+    # 書き換えて食い違った)
+    planted = ast.parse(f"from {GATE_PKG} import {GATE_LEAF} as G\nG.admit(log, 'c', what='実験:改変', who='x')\n"
                         "runner.opening.set_plan_rows([0], m)\nenv.set_replay_date(1, '2026-07-14')\n"
-                        "from shibuya.engine.experiment.gate import admit as a2\na2(log, 'c', what='x', who='y')\n"
+                        f"from {GATE} import admit as a2\na2(log, 'c', what='x', who='y')\n"
                         "self.budget.admit(3)\n")
     assert _calls(planted) == [2, 3, 4, 6]
+    # 口でない置き場から読んだ同じ名(別の包みの gate・admit)は数えない
+    other = ast.parse(f"from {GATE_PKG}_other import {GATE_LEAF} as G\nG.admit(log, 'c', what='x', who='y')\n"
+                      f"from {GATE}_other import admit as a3\na3(log, 'c', what='x', who='y')\n")
+    assert _calls(other) == []
 
 
 def test_the_cause_still_cannot_be_made_outside_the_gate():
@@ -260,7 +273,7 @@ def test_the_cause_still_cannot_be_made_outside_the_gate():
 
 
 def test_vocabulary_has_the_two_words():
-    from shibuya.engine.events import vocab as V
+    from shibuya.foundation.vocab import events as V
 
     assert V.code_of(AP.WHAT_DECISION) == 60 and V.code_of(AP.WHAT_NOTICE) == 61  # 2-1 の金の 2 語(58・59)の後ろ
     # 〔第 2 期 2-3〕その後ろに体の出来事の 3 語を足して版を events-vocab/2-3 にした(60・61 は動かない)
@@ -269,7 +282,7 @@ def test_vocabulary_has_the_two_words():
 
 def test_module_tables_are_read_only():
     """〔検収 L6〕口の表(決定の実装・理由の語)と分岐の表は読み取り専用。"""
-    from shibuya.engine.experiment import branch as BR
+    from shibuya.experiments.drive import branch as BR
 
     for table in (AP._IMPL, AP.REASONS, BR.DERIVED_BY_DECISION, BR.RESUME_DERIVED):
         with pytest.raises(TypeError):
@@ -278,5 +291,5 @@ def test_module_tables_are_read_only():
 
 def test_the_calendar_is_written_through_its_one_mouth():
     """〔検収 L5〕祝日の表を書くのは暦の口 ``SimCalendar.set_holiday`` だけ(apply は辞書を直に書かない)。"""
-    src = (SRC / "engine" / "experiment" / "apply.py").read_text(encoding="utf-8")
+    src = (SRC / "experiments" / "port" / "apply.py").read_text(encoding="utf-8")
     assert "set_holiday(" in src and "days[" not in src and ".pop(d" not in src

@@ -17,10 +17,10 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import time_consts as TC
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine.bridging import ledger as BR
-from shibuya.engine.run import run_day
+from shibuya.foundation import time_consts as TC
+from shibuya.foundation.manifest import sections as MS
+from shibuya.foundation.decl import bridging as BR
+from shibuya.runtime.run import run_day
 
 FROZEN = Path(__file__).with_name("manifest_keys_frozen.json")
 TM9 = ("calls_by_model", "clock_kind", "step_seconds", "bridges_count")
@@ -53,7 +53,10 @@ def test_manifest_keys_match_the_frozen_list(two_days):
                                    "batching",  # 〔第 3 期 3-2〕計算のまとめの窓
                                    "body",  # 〔3-5〕本人の体の層
                                    "calendar_shadow",  # 〔3-1〕暦 1a の影
-                                   "space"]  # 〔第 5 期 空間の段 1〕移動の切替口と計器(末尾)
+                                   "space",  # 〔第 5 期 空間の段 1〕移動の切替口と計器
+                                   "rate_rules",  # 〔11-01 段 2 の 3・4〕率の形の規則を外した節
+                                   "absent_processes",  # 〔11-02r §1 #7〕「無い」の過程 5 件を止めた節
+                                   "defect_fixes_1103"]  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しの節(末尾)
 
 
 def test_manifest_tm9_values(two_days):
@@ -110,8 +113,8 @@ def test_resume_mid_day_counts_only_this_run(tmp_path, two_days):
 
 def test_tm9_fields_do_not_feed_the_final_hash(monkeypatch):
     """欄の値(時計の種類)を変えても final と呼数は同じ(TM9 の欄は記録だけ)。"""
-    from shibuya.engine import run as RUN
-    from shibuya.engine.systems import state_io as SIO
+    from shibuya.runtime import result as RUN
+    from shibuya.runtime.systems import state_io as SIO
 
     base = _run(sim_days=1, ticks=300, checkpoint_every=100)
     monkeypatch.setattr(RUN, "CLOCK_KIND", "other")

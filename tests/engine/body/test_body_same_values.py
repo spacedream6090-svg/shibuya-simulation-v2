@@ -13,11 +13,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.engine import resolve as R
-from shibuya.engine.body import BodyModel
-from shibuya.engine.body import rules as BR
-from shibuya.engine.processes import environment as ENV
-from shibuya.engine.processes import salient as SAL
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_SHOP=act/ops/shop。割る前は全部 resolve)
+from shibuya.act import apply as R
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.world.body.model import BodyModel
+from shibuya.world.body import rules as BR
+from shibuya.world.laws import environment as ENV
+from shibuya.world.laws import salient as SAL
 
 from tests.engine.body.body_fixtures import (
     StubModel,
@@ -86,7 +88,7 @@ def test_felt_temperature_equals_head(stage):
 
 
 def test_collapse_draw_equals_head_on_the_same_stream():
-    from shibuya.core.rng import run_tick_key, stream
+    from shibuya.foundation.rng import run_tick_key, stream
 
     rng = np.random.default_rng(4)
     cell = rng.integers(-1, 30, 5_000).astype(np.int32)
@@ -117,17 +119,16 @@ def test_initial_values_equal_head():
 
 
 def test_moved_names_point_to_the_same_values():
-    """前の場所の名(``resolve``・``environment``・``salient``)は体の層の値を写して出す(読み手の import は変えない)。"""
-    assert (R.BODY_TICK_PERIOD, R.SLEEP_FATIGUE_RELIEF, R.ACTIVITY_REST_PERIOD_TICKS, R.ACTIVITY_REST_FATIGUE_RELIEF) \
-        == (30, 2, 10, 1) == (BR.BODY_TICK_PERIOD, BR.SLEEP_FATIGUE_RELIEF, BR.ACTIVITY_REST_PERIOD_TICKS,
-                              BR.ACTIVITY_REST_FATIGUE_RELIEF)
-    assert (R.REST_FATIGUE_RELIEF, R.BUY_HUNGER_RELIEF) == (3, 4)  # 行為の効果は resolve に残した
+    """前の場所の名(``environment``・``salient``)は体の層の値を写して出す(読み手の import は変えない)。〔割る段 6 の S6-G0・
+    親の裁定 Q7〕resolve の再輸出 4 名(``BODY_TICK_PERIOD`` ほか)は割る段で消える(10-13b §0-6=再輸出の口は残さない)ので、
+    resolve の側の 2 つの確かめ(値が同じ・``__all__`` に在る)を外した。値は体の層 ``world.body.rules`` で確かめる。"""
+    assert (BR.BODY_TICK_PERIOD, BR.SLEEP_FATIGUE_RELIEF, BR.ACTIVITY_REST_PERIOD_TICKS,
+            BR.ACTIVITY_REST_FATIGUE_RELIEF) == (30, 2, 10, 1)
+    assert (R.REST_FATIGUE_RELIEF, R_SHOP.BUY_HUNGER_RELIEF) == (3, 4)  # 行為の効果は resolve に残した
     assert ENV.HEAT_STAGE_TO_THERMAL == (2, 4, 6, 8, 10) == BR.HEAT_STAGE_TO_THERMAL
     assert ENV.SHADE_FACTOR == 0.86 == BR.SHADE_FACTOR and ENV.FALLBACK_THERMAL == 5 == BR.FALLBACK_THERMAL
     assert SAL.COLLAPSE_PER_10K_PER_DAY == 3.0 == BR.COLLAPSE_PER_10K_PER_DAY
-    for mod, names in ((R, ("BODY_TICK_PERIOD", "SLEEP_FATIGUE_RELIEF", "ACTIVITY_REST_PERIOD_TICKS",
-                            "ACTIVITY_REST_FATIGUE_RELIEF")),
-                       (ENV, ("HEAT_STAGE_TO_THERMAL", "SHADE_FACTOR", "FALLBACK_THERMAL")),
+    for mod, names in ((ENV, ("HEAT_STAGE_TO_THERMAL", "SHADE_FACTOR", "FALLBACK_THERMAL")),
                        (SAL, ("COLLAPSE_PER_10K_PER_DAY",))):
         assert set(names) <= set(mod.__all__), mod.__name__
 

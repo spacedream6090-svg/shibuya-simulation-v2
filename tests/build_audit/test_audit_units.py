@@ -110,7 +110,7 @@ def test_compute_index_commission_and_undercount():
 
 
 def test_compute_index_on_frozen_catalog_is_bounded():
-    from shibuya.manifest.world_catalog import load_world_catalog
+    from shibuya.world.ledger.world_catalog import load_world_catalog
 
     cat = load_world_catalog()
     out = W18.compute_index(list(cat.rows), {}, {}, {})
@@ -126,7 +126,7 @@ def test_compute_index_on_frozen_catalog_is_bounded():
 
 
 def test_alias_and_quantity_maps_point_at_real_classes():
-    from shibuya.manifest.world_catalog import load_world_catalog
+    from shibuya.world.ledger.world_catalog import load_world_catalog
 
     known = {row["クラス"] for row in load_world_catalog().rows}
     for src, dst in W18.CLASS_ALIASES.items():

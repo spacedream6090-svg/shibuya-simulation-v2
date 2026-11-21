@@ -15,9 +15,9 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine.events import log as EV
-from shibuya.engine.run import run_day
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.journal import log as EV
+from shibuya.runtime.run import run_day
 
 ROOT = Path(__file__).resolve().parents[3]
 KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppression=False, vocab_version="v3",
@@ -100,7 +100,7 @@ def _wave2():
 @pytest.mark.slow
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_nineteen_configs_on_and_off_give_the_same_final():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     cfgs = _wave2().configs()
     assert len(cfgs) == 19

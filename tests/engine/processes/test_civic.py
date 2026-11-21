@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.state import Activity, AgentKind, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.processes.civic import (
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind, ResultCode
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail。割る前は全部 resolve)
+from shibuya.act import apply as R
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.world.laws.civic import (
     DISPATCH_MEDIAN_MIN,
     EVENT_WINDOW,
     HOTEL_CHECKIN_MINUTE,
@@ -19,7 +23,7 @@ from shibuya.engine.processes.civic import (
     PressProcess,
     PublicServiceDispatchProcess,
 )
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 
 from .conftest import make_agents, make_world
 
@@ -27,7 +31,7 @@ from .conftest import make_agents, make_world
 # ================================================================= 出動
 def test_dispatch_delay_is_lognormal_around_the_median():
     world = make_world(16)
-    d = PublicServiceDispatchProcess(world, master_seed=3)
+    d = PublicServiceDispatchProcess(world, master_seed=3, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の出動を見る
     for k in range(400):
         d.request(0, k % 16, (0.0, 0.0))
     mean = d.delay_minutes_total / d.n_dispatched
@@ -37,7 +41,7 @@ def test_dispatch_delay_is_lognormal_around_the_median():
 
 def test_dispatch_arrival_resolves_the_incident():
     world = make_world(9)
-    d = PublicServiceDispatchProcess(world, master_seed=1)
+    d = PublicServiceDispatchProcess(world, master_seed=1, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の出動を見る
     arrive = d.request(10, 2, (5.0, 6.0))
     assert arrive > 10
     assert d.arrivals(arrive - 1) == []
@@ -117,7 +121,7 @@ def test_hotel_bed_lets_a_visitor_sleep_away_from_home():
     ids = np.concatenate([guests, other])
     intents = C.IntentBatch(
         agent_id=ids,
-        action_code=np.full(ids.size, C.ACT_SLEEP, dtype=np.int8),
+        action_code=np.full(ids.size, CV.ACT_SLEEP, dtype=np.int8),
         target_id=np.full(ids.size, -1, dtype=np.int32),
         resource_id=np.full(ids.size, -1, dtype=np.int32),
         t_notice_ns=np.zeros(ids.size, dtype=np.int64),
@@ -146,7 +150,7 @@ def test_hotel_checkout_frees_the_rooms():
 def test_infra_load_grows_with_occupancy_and_reports_a_peak():
     world = make_world(9)
     agents, _ = make_agents(world, 30)
-    infra = InfraLoadProcess(world, agents)
+    infra = InfraLoadProcess(world, agents, absent_processes="legacy")  # 〔11-02r §1 #7〕旧道の集計を見る
     for t in range(180):
         infra.step(t)
     c = infra.counters()
@@ -158,9 +162,9 @@ def test_infra_load_grows_with_occupancy_and_reports_a_peak():
 def test_large_event_pulls_visitors_in_and_sends_them_back():
     world = make_world(16)
     agents, _ = make_agents(world, 40)
-    ev = LargeEventProcess(world, agents, master_seed=2, visitor_delta=5)
+    ev = LargeEventProcess(world, agents, master_seed=2, visitor_delta=5, rate_rules="legacy")  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     outside = np.arange(8, dtype=np.int64)
-    R.place_at_external(agents, outside, np.zeros(outside.size, dtype=np.int64))
+    R_RAIL.place_at_external(agents, outside, np.zeros(outside.size, dtype=np.int64))
     lo, hi = EVENT_WINDOW
     ev.step(lo)
     assert ev.n_in == 5

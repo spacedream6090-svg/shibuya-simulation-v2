@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.agents.state import ResultCode
-from shibuya.llm.contract import (
+from shibuya.foundation.vocab.agent_codes import ResultCode
+from shibuya.foundation.vocab.actions import (
     ACTION_CODES,
     ACTION_SPECS,
     ACTION_SPECS_V2,
@@ -35,8 +35,8 @@ from shibuya.llm.contract import (
     engine_action_codes,
     spec_of,
 )
-from shibuya.llm.parser import find_action_word, parse_two_line
-from shibuya.llm.undefined import (
+from shibuya.act.intake.parser import find_action_word, parse_two_line
+from shibuya.act.intake.undefined import (
     SYNONYM_TABLE_VERSION,
     SYNONYMS,
     SYNONYMS_V3,

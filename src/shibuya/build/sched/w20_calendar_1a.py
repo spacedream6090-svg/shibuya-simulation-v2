@@ -121,8 +121,8 @@ from typing import Any, Final, Iterator, Mapping, Sequence
 import numpy as np
 import pyarrow as pa
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
-from shibuya.core.time_consts import MINUTES_PER_DAY
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
+from shibuya.foundation.time_consts import MINUTES_PER_DAY
 
 from ..geo import common as C
 from ..pop.w16_population import (

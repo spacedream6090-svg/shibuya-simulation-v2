@@ -15,18 +15,18 @@ import fnmatch
 import numpy as np
 import pytest
 
-from shibuya.core import write_permit as WP
+from shibuya.foundation import write_permit as WP
 from shibuya.economy import census as CS
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.ledger_api import LedgerBundle
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import overrides as OV
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS, SYSTEMS
-from shibuya.world.state import World
+from shibuya.runtime.state import ledger as SL
+from shibuya.foundation.ports.ledger import LedgerBundle
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import conductor as CD
+from shibuya.validation.static import system_overrides as OV
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
+from shibuya.world.model.state import World
 
 PAT = "A:ledger.*"
 TICKS = frozenset(range(0, 720, 5)) | frozenset({719})
@@ -91,7 +91,7 @@ def test_undeclared_money_meter_write_shows_in_stage_b():
 
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_phase_c_without_the_events_declaration_fails_at_the_first_fare():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with OV.drop_path("phase_c", "E:events.*"):
         with pytest.raises(PermissionError, match="系 phase_c は出来事の記録"):

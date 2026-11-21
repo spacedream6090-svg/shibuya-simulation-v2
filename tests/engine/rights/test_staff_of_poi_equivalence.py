@@ -12,14 +12,17 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
-from shibuya.agents.schedule import synthesize
-from shibuya.engine import resolve as R
-from shibuya.engine.processes.opening import OpeningProcess
-from shibuya.engine.rights import initial as RI
-from shibuya.engine.rights import ledger as L
-from shibuya.world.assets import ProcessAssets
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.facts.mock_schedule import synthesize
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/init_writes・R_RAIL=act/ops/rail。割る前は全部 resolve)
+from shibuya.act.ops import init_writes as R
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.world.laws.opening import OpeningProcess
+from shibuya.world.facts.rights import initial as RI
+from shibuya.world.facts.rights import ledger as L
+from shibuya.world.model.assets import ProcessAssets
+from shibuya.world.model.state import World
 
 
 # ---- HEAD 6b82be2 src/shibuya/engine/processes/opening.py の OpeningProcess._assign_staff の写し(自由関数にした) ----
@@ -105,7 +108,7 @@ def test_open_close_asks_the_ledger_and_stays_the_same():
     proc = OpeningProcess(world, agents, fake_plan_assets([(0, 0, 600, 1_320)]), day_index=0)
     staff = int(proc.staff_of_poi[0])
     assert staff >= 0 and proc.rights.holds((L.AGENT, staff), L.EMPLOY, (L.STORE, 0), 0)
-    R.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
+    R_RAIL.rail_arrive(agents, world, np.array([staff]), np.array([int(world.pois.cell[0])]))
     proc.step(600)
     assert proc.n_role_actions >= 1 and int(agents.last_result[staff]) == 0
     assert bool(world.open_mask(600)[0]) is True
@@ -116,8 +119,8 @@ def test_same_assignment_on_the_real_population():
     """実データ(5,000 体の抽出・seed 1)の種別と POI の数。SoA は母集団の種別を写した形(組み立てと同じ)。"""
     import pyarrow.parquet as pq
 
-    from shibuya.agents.population import load_population
-    from shibuya.engine.systems.build import _org_of_agent
+    from shibuya.world.facts.population_reader import load_population
+    from shibuya.runtime.systems.assemble import _org_of_agent
 
     world_dir = Path("data/world/v2")
     pop = load_population(world_dir, 5_000, 1)

@@ -14,8 +14,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.run import run_day
-from shibuya.world.state import (
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import (
     DEFAULT_EATERY_MODE,
     EATERY_MODES,
     PLACE_FOOD_EXCLUDED_NIGHTLIFE_SUBCATS,

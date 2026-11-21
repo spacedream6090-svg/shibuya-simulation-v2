@@ -17,16 +17,17 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, IntentKind, ResultCode
-from shibuya.engine import memory as M
-from shibuya.engine import store_memory as SM
-from shibuya.engine.chooser import ClassicalChooser, NearestChooser
-from shibuya.engine.poi_target import TargetResolver
-from shibuya.engine.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_tick
-from shibuya.perception import templates as T
-from shibuya.perception.channels import estimate_tokens
-from shibuya.perception.renderer import memory_item_text
-from shibuya.world.state import World
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import store_memory as SM
+from shibuya.mind.judge.chooser import ClassicalChooser, NearestChooser
+from shibuya.act.target import TargetResolver
+from shibuya.mind.judge.store_choice import CHOICE_REASONS, StoreChoice, walk_m_per_tick
+from shibuya.foundation.text import templates as T
+from shibuya.foundation.text.channels import estimate_tokens
+from shibuya.mind.percept.draw import memory_item_text
+from shibuya.world.model.state import World
 
 SRC = Path("src/shibuya")
 OK = int(ResultCode.OK)
@@ -125,7 +126,7 @@ def resolver(chooser, sc):
 
 
 def test_resolver_uses_recall_first_only_with_classical_and_unnamed_targets():
-    from shibuya.engine import commit as Cm
+    from shibuya.foundation.vocab import act_codes as Cm
 
     w, a, lay, sc = setup()
     _fit, _o, _s, eat = masks(w)
@@ -215,7 +216,7 @@ def test_store_item_templates_and_cap():
                             place_ids=["c0", "c1"], result_text={})
     assert estimate_tokens(long) <= T.MEMORY_STORE_ITEM_MAX_TOKENS == 15
     assert T.TEMPLATE_VERSION in ("v1.3", "v1.4")  # v1.4=8a(店の項は同じ)
-    from shibuya.perception import renderer as Rn
+    from shibuya.mind.percept import draw as Rn
 
     assert Rn._STORE_ITEM_KIND == M.STORE_ITEM_KIND and Rn._STORE_SELF_BIT == SELF
 
@@ -230,7 +231,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_run_default_is_unchanged_and_store_choice_is_reported():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", policy="classical",
               chooser="classical", memory="on")
@@ -248,19 +249,23 @@ def test_run_default_is_unchanged_and_store_choice_is_reported():
 
 
 def test_arm_switches_are_checked():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     for bad in (dict(store_wom="maybe"), dict(store_signage="x"), dict(store_recall_scope="some")):
         with pytest.raises(ValueError):
             run_day(n_agents=10, ticks=2, memory="on", store_memory="on", **bad)
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     for flag in ('"--store-wom"', '"--store-signage"', '"--store-recall-scope"'):
         assert flag in text
 
 
 def test_recall_first_is_array_ops():
     """P4: 想起優先と到達可能性は 1 体の ≤ 32 行の配列演算(for/while を書かない)。"""
-    tree = ast.parse((SRC / "engine/store_choice.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/judge/store_choice.py").read_text(encoding="utf-8"))
     names = {"recall", "reachable", "ticks_to_next_plan", "on_visit"}
     bad = [f"{n.name}:{s.lineno}" for n in ast.walk(tree)
            if isinstance(n, ast.FunctionDef) and n.name in names

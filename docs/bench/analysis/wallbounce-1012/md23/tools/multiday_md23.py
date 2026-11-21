@@ -71,16 +71,19 @@ def _paths() -> None:
 def set_arms(config: str) -> dict[str, str]:
     """腕を選ぶ(組み立てが読む切替口)。このプロセスの中だけ。"""
     _paths()
-    from shibuya.engine import economy_stage2 as ES2
-    from shibuya.engine import memory_store as MS
-    from shibuya.engine import proximity as PX
+    from shibuya.mind.memory import memory_store as MS
+    from shibuya.world.model import proximity as PX
 
     arms = CONFIGS[config]
+    # 〔第346 旧道の切替口の削除〕近接の切替口(set_arm)は消した=ランは常に distance(組 b・d の近接は既定と同じ)
+    if arms.get("proximity", PX.DEFAULT_MODE) != PX.DEFAULT_MODE:
+        raise ValueError(f"近接の切替口 cell は消した(組 {config}・安定版のタグ stable-v2-before-switch-removal-346 で回す)")
+    # 〔第347 止めた切替口の削除〕経済の段階 2 の切替口 off は消した=ランは常に on(組 c・d の段階 2 は既定と同じ)
+    if arms.get("economy_stage2", "on") != "on":
+        raise ValueError(f"経済の段階 2 の切替口 off は消した(組 {config}・安定版のタグ stable-v2-before-switch-removal-347 で回す)")
     # 〔第337〕書かれていない腕は各 module の既定の定数に戻す(2-4 より前の値 cell/off を直書きしていたため、
     # 試験の finally の set_arms("default") が本体の既定(distance/on)を上書きし、同じプロセスの後の golden が順番で落ちた)。
     MS.set_arm(arms.get("memory_store", MS.ARM_MEM))
-    PX.set_arm(arms.get("proximity", PX.DEFAULT_MODE))
-    ES2.set_arm(arms.get("economy_stage2", ES2.DEFAULT_ARM))
     return dict(arms)
 
 
@@ -94,8 +97,9 @@ def _q(x: np.ndarray) -> dict[str, float]:
 # ====================================================================== 日の終わりの読み(状態は書かない)
 def relation_view(agents: Any, tick: int, minutes_per_tick: float) -> dict[str, Any] | None:
     """関係辺の表(``rel_*``)の日の終わりの量。関係 off のランは ``None``。"""
-    from shibuya.engine.memory import activation_rows
-    from shibuya.engine.relations import REL_D, REL_K, REL_KINDS, REL_TAU, tau_from_edges
+    from shibuya.mind.memory.memory import activation_rows
+    from shibuya.foundation.vocab.relations import REL_D, REL_K, REL_KINDS, REL_TAU
+    from shibuya.world.facts.initial_ties import tau_from_edges
 
     r = agents.registry
     if "rel_partner" not in r:
@@ -155,7 +159,7 @@ class DayProbe:
         self._mod: Any = None
 
     def attach(self) -> "DayProbe":
-        from shibuya.engine.systems import state_io as SIO
+        from shibuya.runtime.systems import state_io as SIO
 
         self._mod, self._orig = SIO, SIO.day_record
         probe = self
@@ -239,8 +243,8 @@ def run_collect(config: str, *, days: int, agents: int, seed: int, world: str | 
     """1 本回して日ごとの量の JSON を返す(同じプロセスで腕を選ぶ)。"""
     _paths()
     arms = set_arms(config)
-    from shibuya import cli
-    from shibuya.engine import run as RUN
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime import run as RUN
 
     kw: dict[str, Any] = dict(BASE, n_agents=agents, seed=seed, sim_days=days, world_dir=world)
     kw.update(dict(extra or {}))
@@ -249,7 +253,7 @@ def run_collect(config: str, *, days: int, agents: int, seed: int, world: str | 
         state_dir = Path(scratch) / f"state_md23_{config}"
         state_dir.mkdir(parents=True, exist_ok=True)
         kw["state_out"] = str(state_dir)
-    from shibuya.engine import calendar as CAL
+    from shibuya.world.facts import calendar as CAL
 
     waived: list[str] = []
     orig_cs = CAL.SimCalendar.check_start
@@ -289,7 +293,7 @@ def run_collect(config: str, *, days: int, agents: int, seed: int, world: str | 
         CAL.SimCalendar.check_start = orig_cs  # type: ignore[method-assign]
     wall = time.perf_counter() - t0
     man = res.run_manifest_fields()
-    from shibuya.core.time_consts import STEPS_PER_DAY
+    from shibuya.foundation.time_consts import STEPS_PER_DAY
 
     tpd = int(STEPS_PER_DAY)
     g = gauge_days(rec, cap.get("pop"), days, tpd) if rec is not None else None
@@ -353,9 +357,9 @@ def cmd_resume(args: argparse.Namespace) -> int:
     """2 日の通しと、1 日目の終わり(日の境目)で保存 → 2 日目を再開の final・checkpoint を比べる(同じプロセスで腕を選ぶ)。"""
     _paths()
     arms = set_arms(args.config)
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
-    from shibuya.core.time_consts import STEPS_PER_DAY
+    from shibuya.foundation.time_consts import STEPS_PER_DAY
 
     tpd = int(STEPS_PER_DAY)
     kw: dict[str, Any] = dict(BASE, n_agents=args.agents, seed=args.seed, sim_days=2, world_dir=args.world)

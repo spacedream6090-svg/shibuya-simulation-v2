@@ -50,7 +50,7 @@ import numpy as np
 import pyarrow as pa
 
 from . import common as C
-from shibuya.core.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W7"
 #: 1.1.0(第330 B6): PH(祝日)の規則を列 ``holiday_content`` に拾い直した。

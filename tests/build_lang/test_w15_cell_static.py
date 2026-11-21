@@ -74,7 +74,7 @@ def test_prompt_carries_the_length_regex(world_dir: Path):
     row = ps[0].to_json()
     assert row["regex"] == W15.PROMPT_REGEX
     # 88 字 = 44 tok ≤ TOKEN_CAP 45(= 枠超えが物理的に起きない)
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
     assert estimate_tokens("あ" * W15.REGEX_MAX_CHARS) <= W15.TOKEN_CAP
 
@@ -266,7 +266,7 @@ def test_run_is_reproducible(world_dir: Path):
 @pytest.mark.requires_data("world_v2:w8_t1_cell.parquet")
 def test_real_data_prompt_count_and_sha(capsys):
     """実資産で 520 セル(仕様の「≈600」は推定・C1 実測 520)。"""
-    from shibuya.perception.channels import estimate_tokens
+    from shibuya.foundation.text.channels import estimate_tokens
 
     prompts = W15.build_prompts(DATA_DIR)
     assert len(prompts) == W15.EXPECTED_CELL_ROWS

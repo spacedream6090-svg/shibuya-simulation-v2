@@ -23,8 +23,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import (
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import (
     CALLS_FILENAME,
     CALLS_SCHEMA,
     CALLS_SCHEMA_V1_NAMES,
@@ -36,9 +36,10 @@ from shibuya.engine.tape import (
     TapeRow,
     TapeWriter,
 )
-from shibuya.llm.fleet import FleetClient, FleetConfig, Outcome
-from shibuya.manifest.schema import Mode
-from shibuya.world.state import World
+from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
+from shibuya.foundation.ports.inference import Outcome
+from shibuya.foundation.manifest.schema import Mode
+from shibuya.world.model.state import World
 from tests import golden_env as GE
 
 from tests.engine.test_tape_wiring import BoomLLM
@@ -157,7 +158,7 @@ def test_t2_fleet_record_equals_replay_on_the_default_final(fleet_servers, tmp_p
     検収役の設定(偽 vLLM 2 台・合成世界 120 体・語彙 v3・checkpoint 4 tick ごと)。キュー満杯は 40 tick、タイムアウトは
     12 tick(終わりに未回答が残る)。陽性対照: 再生の到着待ち(O96)を behavior-hash に戻すと食い違う(検収で見つけた欠陥)。
     """
-    from shibuya.engine import state_ledger as SL
+    from shibuya.runtime.state import ledger as SL
 
     if case == "queue_full":
         for srv in fleet_servers:

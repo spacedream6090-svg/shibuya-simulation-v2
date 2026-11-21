@@ -18,14 +18,15 @@ import json
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.decision import layer as DL
-from shibuya.engine.decision import port as P
-from shibuya.engine.decision import ports as PS
-from shibuya.engine.llm_bridge import LLMBridge
-from shibuya.engine.run import run_day
-from shibuya.llm import LLMRequest, parse_two_line
-from shibuya.llm.contract import cross_action_words
-from shibuya.llm.mock import MockLLM
+from shibuya.mind.judge.decision import layer as DL
+from shibuya.foundation.ports import decision as P
+from shibuya.mind.judge.decision import ports as PS
+from shibuya.runtime.inference.bridge import LLMBridge
+from shibuya.runtime.run import run_day
+from shibuya.foundation.ports.inference import LLMRequest
+from shibuya.act.intake.parser import parse_two_line  # 〔段 4 の下ごしらえ〕読み口は定義したモジュール(llm の頭の再輸出に頼らない=頭と parser の循環を避ける)
+from shibuya.foundation.vocab.actions import cross_action_words
+from shibuya.runtime.inference.mock import MockLLM
 
 from tests.engine.decision._j0 import SMALL, FakeBridge, ctx_of, decision_arm, vocab_candidates
 
@@ -180,7 +181,7 @@ def test_legacy_arm_builds_no_layer_and_keeps_the_bridge_call(monkeypatch):
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_5000_agents_one_day_same_decision_sequence(monkeypatch, tmp_path):
     """5,000 体 mock の 1 日(世界資産・語彙 v3=byte-check の w6_v3_default と同じ構成): 判断の番号列が一致。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seqs = []
     for arm in ("legacy", "port"):

@@ -1,0 +1,263 @@
+"""engine.bridging.ledger_paths — 今の道 → つなぎの台帳に書いてある道の対応(移す段 4 の下ごしらえ・親の決定 1=案 (b))。
+
+つなぎの台帳(``docs/design/bridging-ledger.json``)の ``declared_in`` は、コードの宣言の置き場を ``src/shibuya/…`` の
+道筋で持つ。コードの区分を移す段 4 では台帳を書き換えない(台帳の中身の sha が manifest の ``bridges_version`` に入る=
+書き換えると既定の結果が動く)。代わりに、移したファイルの今の道から台帳に書いてある道を引く表を本モジュールの 1 か所に
+置き、宣言の同定の文字列(``engine.bridging.scan.declared_in_of``)は台帳の道で作る。
+
+- 表 :data:`LEDGER_PATHS` は「今の道(リポの根からの道筋)→ 台帳の道」。**手で書かない**: 移す道具
+  (``tools/pkgmove/``)が段ごとに書き足す(許可の一覧の (d))。段 4 の前は空=今の結果も試験も変わらない。
+- 戻し方(次の版上げ=``bridges_version`` が動いてよい段): 道具で台帳の道を今の道に書き換え、表を空にする。
+- 〔割る段 6 の S6-A・親の裁定 Q1 の (ii)〕前向きだけの表 :data:`LEDGER_PATHS_SPLIT`(割る段で 2 つ目以降の割り先になった
+  ファイルの今の道 → 台帳の道・N 対 1)。:func:`ledger_path` だけが引き、:func:`current_path`(逆向き)は引かない。
+- 本モジュールは何も import しない(読み手は宣言の走査と試験だけ=ランの中では読まない)。
+
+逐次ループ宣言: なし。
+"""
+
+from __future__ import annotations
+
+from types import MappingProxyType
+from typing import Final, Mapping
+
+__all__ = ["LEDGER_PATHS", "LEDGER_PATHS_SPLIT", "ledger_path", "current_path"]
+
+#: 今の道 → 台帳に書いてある道(リポの根からの道筋・``/`` 区切り)。移す道具が書き足す(鍵の昇順・1 行 1 組)。
+LEDGER_PATHS: Final[Mapping[str, str]] = MappingProxyType({
+    "src/shibuya/act/activity.py": "src/shibuya/engine/activity.py",
+    "src/shibuya/act/apply.py": "src/shibuya/engine/resolve.py",
+    "src/shibuya/act/commit.py": "src/shibuya/engine/commit.py",
+    "src/shibuya/act/intake/parser.py": "src/shibuya/llm/parser.py",
+    "src/shibuya/act/intake/undefined.py": "src/shibuya/llm/undefined.py",
+    "src/shibuya/act/intent.py": "src/shibuya/engine/intent.py",
+    "src/shibuya/act/target.py": "src/shibuya/engine/poi_target.py",
+    "src/shibuya/economy/rules_bind.py": "src/shibuya/engine/economy_rules.py",
+    "src/shibuya/economy/stage2_bind.py": "src/shibuya/engine/economy_stage2.py",
+    "src/shibuya/economy/wage_formula.py": "src/shibuya/core/wage_formula.py",
+    "src/shibuya/experiments/drive/branch.py": "src/shibuya/engine/experiment/branch.py",
+    "src/shibuya/experiments/drive/switch.py": "src/shibuya/engine/experiment/switch.py",
+    "src/shibuya/experiments/port/apply.py": "src/shibuya/engine/experiment/apply.py",
+    "src/shibuya/experiments/port/checks.py": "src/shibuya/engine/experiment/checks.py",
+    "src/shibuya/experiments/port/ensemble.py": "src/shibuya/engine/experiment/ensemble.py",
+    "src/shibuya/experiments/port/form.py": "src/shibuya/engine/experiment/form.py",
+    "src/shibuya/experiments/port/layer.py": "src/shibuya/engine/experiment/layer.py",
+    "src/shibuya/experiments/port/run_kind.py": "src/shibuya/engine/run_kind.py",
+    "src/shibuya/experiments/port/warmup.py": "src/shibuya/engine/experiment/warmup.py",
+    "src/shibuya/foundation/arms/calendar2.py": "src/shibuya/engine/calendar2/arm.py",
+    "src/shibuya/foundation/arms/calendar3.py": "src/shibuya/engine/calendar3/arm.py",
+    "src/shibuya/foundation/arms/contact.py": "src/shibuya/engine/contact/arm.py",
+    "src/shibuya/foundation/arms/duties.py": "src/shibuya/engine/duties/arm.py",
+    "src/shibuya/foundation/arms/removed.py": "src/shibuya/engine/removed_switches.py",
+    "src/shibuya/foundation/budget.py": "src/shibuya/core/budget.py",
+    "src/shibuya/foundation/decl/bridging.py": "src/shibuya/engine/bridging/ledger.py",
+    "src/shibuya/foundation/decl/ledger_paths.py": "src/shibuya/engine/bridging/ledger_paths.py",
+    "src/shibuya/foundation/growth.py": "src/shibuya/core/growth.py",
+    "src/shibuya/foundation/hashing.py": "src/shibuya/core/hashing.py",
+    "src/shibuya/foundation/journal/links.py": "src/shibuya/engine/events/links.py",
+    "src/shibuya/foundation/journal/log.py": "src/shibuya/engine/events/log.py",
+    "src/shibuya/foundation/manifest/canonical.py": "src/shibuya/manifest/canonical.py",
+    "src/shibuya/foundation/manifest/schema.py": "src/shibuya/manifest/schema.py",
+    "src/shibuya/foundation/manifest/sections.py": "src/shibuya/engine/manifest_sections.py",
+    "src/shibuya/foundation/paths.py": "src/shibuya/core/paths.py",
+    "src/shibuya/foundation/ports/decision.py": "src/shibuya/engine/decision/port.py",
+    "src/shibuya/foundation/ports/experiment_gate.py": "src/shibuya/engine/experiment/gate.py",
+    "src/shibuya/foundation/ports/inference.py": "src/shibuya/llm/__init__.py",
+    "src/shibuya/foundation/ports/ledger.py": "src/shibuya/engine/ledger_api.py",
+    "src/shibuya/foundation/ports/percept.py": "src/shibuya/perception/facts.py",
+    "src/shibuya/foundation/ports/percept_contact.py": "src/shibuya/perception/contact_view.py",
+    "src/shibuya/foundation/queues/batching.py": "src/shibuya/engine/batching.py",
+    "src/shibuya/foundation/queues/scheduler.py": "src/shibuya/engine/scheduler.py",
+    "src/shibuya/foundation/rng.py": "src/shibuya/core/rng.py",
+    "src/shibuya/foundation/serialize.py": "src/shibuya/core/serialize.py",
+    "src/shibuya/foundation/soa.py": "src/shibuya/core/soa.py",
+    "src/shibuya/foundation/text/channels.py": "src/shibuya/perception/channels.py",
+    "src/shibuya/foundation/text/hashes.py": "src/shibuya/perception/hashes.py",
+    "src/shibuya/foundation/text/normalize.py": "src/shibuya/perception/normalize.py",
+    "src/shibuya/foundation/text/salience.py": "src/shibuya/perception/attention.py",
+    "src/shibuya/foundation/text/templates.py": "src/shibuya/perception/templates.py",
+    "src/shibuya/foundation/time_consts.py": "src/shibuya/core/time_consts.py",
+    "src/shibuya/foundation/types.py": "src/shibuya/core/types.py",
+    "src/shibuya/foundation/vocab/actions.py": "src/shibuya/llm/contract.py",
+    "src/shibuya/foundation/vocab/contact_flags.py": "src/shibuya/engine/tools/contacts.py",
+    "src/shibuya/foundation/vocab/events.py": "src/shibuya/engine/events/vocab.py",
+    "src/shibuya/foundation/write_guard.py": "src/shibuya/engine/systems/guard.py",
+    "src/shibuya/foundation/write_permit.py": "src/shibuya/core/write_permit.py",
+    "src/shibuya/interfaces/cli/main.py": "src/shibuya/cli.py",
+    "src/shibuya/interim_bundles/calendar2/layer.py": "src/shibuya/engine/calendar2/layer.py",
+    "src/shibuya/interim_bundles/calendar3/knowledge.py": "src/shibuya/engine/calendar3/knowledge.py",
+    "src/shibuya/interim_bundles/calendar3/layer.py": "src/shibuya/engine/calendar3/layer.py",
+    "src/shibuya/interim_bundles/calendar3/roster.py": "src/shibuya/engine/calendar3/roster.py",
+    "src/shibuya/interim_bundles/calendar_self.py": "src/shibuya/engine/calendar_self.py",
+    "src/shibuya/interim_bundles/contact/book.py": "src/shibuya/engine/contact/book.py",
+    "src/shibuya/interim_bundles/contact/layer.py": "src/shibuya/engine/contact/layer.py",
+    "src/shibuya/interim_bundles/duties/knowledge.py": "src/shibuya/engine/duties/knowledge.py",
+    "src/shibuya/interim_bundles/duties/layer.py": "src/shibuya/engine/duties/layer.py",
+    "src/shibuya/mind/judge/chooser.py": "src/shibuya/engine/chooser.py",
+    "src/shibuya/mind/judge/classical.py": "src/shibuya/engine/classical.py",
+    "src/shibuya/mind/judge/decision/layer.py": "src/shibuya/engine/decision/layer.py",
+    "src/shibuya/mind/judge/decision/persona.py": "src/shibuya/engine/decision/persona.py",
+    "src/shibuya/mind/judge/decision/ports.py": "src/shibuya/engine/decision/ports.py",
+    "src/shibuya/mind/judge/decision/sources.py": "src/shibuya/engine/decision/sources.py",
+    "src/shibuya/mind/judge/store_choice.py": "src/shibuya/engine/store_choice.py",
+    "src/shibuya/mind/memory/body_events.py": "src/shibuya/engine/events/body.py",
+    "src/shibuya/mind/memory/familiarity.py": "src/shibuya/engine/familiarity.py",
+    "src/shibuya/mind/memory/memory.py": "src/shibuya/engine/memory.py",
+    "src/shibuya/mind/memory/memory_embed.py": "src/shibuya/engine/memory_embed.py",
+    "src/shibuya/mind/memory/memory_impression.py": "src/shibuya/engine/memory_impression.py",
+    "src/shibuya/mind/memory/memory_m1.py": "src/shibuya/engine/memory_m1.py",
+    "src/shibuya/mind/memory/memory_shops.py": "src/shibuya/engine/memory_shops.py",
+    "src/shibuya/mind/memory/memory_store.py": "src/shibuya/engine/memory_store.py",
+    "src/shibuya/mind/memory/memory_trace.py": "src/shibuya/engine/memory_trace.py",
+    "src/shibuya/mind/memory/store_memory.py": "src/shibuya/engine/store_memory.py",
+    "src/shibuya/mind/memory/wom.py": "src/shibuya/engine/wom.py",
+    "src/shibuya/mind/plan/calendar2_port.py": "src/shibuya/engine/calendar2/port.py",
+    "src/shibuya/mind/plan/calendar3_port.py": "src/shibuya/engine/calendar3/port.py",
+    "src/shibuya/mind/plan/contact_attention.py": "src/shibuya/engine/contact/attention.py",
+    "src/shibuya/mind/plan/contact_habit.py": "src/shibuya/engine/contact/habit.py",
+    "src/shibuya/mind/plan/contact_port.py": "src/shibuya/engine/contact/port.py",
+    "src/shibuya/mind/plan/duties_port.py": "src/shibuya/engine/duties/port.py",
+    "src/shibuya/mind/plan/head_recall.py": "src/shibuya/engine/calendar2/recall.py",
+    "src/shibuya/mind/plan/promise_book.py": "src/shibuya/engine/calendar2/book.py",
+    "src/shibuya/mind/relations/layer.py": "src/shibuya/engine/relations.py",
+    "src/shibuya/mind/relations/people.py": "src/shibuya/engine/relations_people.py",
+    "src/shibuya/mind/system1/change_detect.py": "src/shibuya/engine/change_detect.py",
+    "src/shibuya/runtime/arbiter.py": "src/shibuya/engine/arbiter.py",
+    "src/shibuya/runtime/clock.py": "src/shibuya/engine/clock.py",
+    "src/shibuya/runtime/clocks/owner_guard.py": "src/shibuya/engine/owner_guard.py",
+    "src/shibuya/runtime/clocks/regional.py": "src/shibuya/engine/regional_clock.py",
+    "src/shibuya/runtime/clocks/speech.py": "src/shibuya/engine/speech_clock.py",
+    "src/shibuya/runtime/clocks/step_scope.py": "src/shibuya/engine/step_scope.py",
+    "src/shibuya/runtime/inference/bridge.py": "src/shibuya/engine/llm_bridge.py",
+    "src/shibuya/runtime/inference/fleet.py": "src/shibuya/llm/fleet.py",
+    "src/shibuya/runtime/inference/mock.py": "src/shibuya/llm/mock.py",
+    "src/shibuya/runtime/inference/tape.py": "src/shibuya/engine/tape.py",
+    "src/shibuya/runtime/run.py": "src/shibuya/engine/run.py",
+    "src/shibuya/runtime/state/class_ids.py": "src/shibuya/engine/class_ids.py",
+    "src/shibuya/runtime/state/codec.py": "src/shibuya/engine/state_codec.py",
+    "src/shibuya/runtime/state/growth_decl.py": "src/shibuya/engine/growth_decl.py",
+    "src/shibuya/runtime/state/hashes.py": "src/shibuya/engine/state_hashes.py",
+    "src/shibuya/runtime/state/ledger.py": "src/shibuya/engine/state_ledger.py",
+    "src/shibuya/runtime/state/ledger_ast.py": "src/shibuya/engine/state_ledger_ast.py",
+    "src/shibuya/runtime/state/resume.py": "src/shibuya/engine/resume.py",
+    "src/shibuya/runtime/switch_defects.py": "src/shibuya/engine/defect_fixes_1103.py",
+    "src/shibuya/runtime/systems/act.py": "src/shibuya/engine/systems/act.py",
+    "src/shibuya/runtime/systems/allow.py": "src/shibuya/engine/systems/allow.py",
+    "src/shibuya/runtime/systems/assemble.py": "src/shibuya/engine/systems/build.py",
+    "src/shibuya/runtime/systems/body.py": "src/shibuya/engine/systems/body.py",
+    "src/shibuya/runtime/systems/boxes.py": "src/shibuya/engine/systems/boxes.py",
+    "src/shibuya/runtime/systems/conductor.py": "src/shibuya/engine/systems/conductor.py",
+    "src/shibuya/runtime/systems/day.py": "src/shibuya/engine/systems/day.py",
+    "src/shibuya/runtime/systems/decide.py": "src/shibuya/engine/systems/decide.py",
+    "src/shibuya/runtime/systems/judge.py": "src/shibuya/engine/systems/judge.py",
+    "src/shibuya/runtime/systems/llm_io.py": "src/shibuya/engine/systems/llm_io.py",
+    "src/shibuya/runtime/systems/observe.py": "src/shibuya/engine/systems/observe.py",
+    "src/shibuya/runtime/systems/perceive.py": "src/shibuya/engine/systems/perceive.py",
+    "src/shibuya/runtime/systems/probe.py": "src/shibuya/engine/systems/probe.py",
+    "src/shibuya/runtime/systems/remember.py": "src/shibuya/engine/systems/remember.py",
+    "src/shibuya/runtime/systems/report.py": "src/shibuya/engine/systems/report.py",
+    "src/shibuya/runtime/systems/run_end.py": "src/shibuya/engine/systems/run_end.py",
+    "src/shibuya/runtime/systems/spec.py": "src/shibuya/engine/systems/spec.py",
+    "src/shibuya/runtime/systems/state_io.py": "src/shibuya/engine/systems/state_io.py",
+    "src/shibuya/runtime/systems/table.py": "src/shibuya/engine/systems/table.py",
+    "src/shibuya/runtime/systems/talk.py": "src/shibuya/engine/systems/talk.py",
+    "src/shibuya/runtime/systems/world.py": "src/shibuya/engine/systems/world.py",
+    "src/shibuya/society/calendar_shadow.py": "src/shibuya/engine/calendar_shadow.py",
+    "src/shibuya/society/contact/calls.py": "src/shibuya/engine/contact/calls.py",
+    "src/shibuya/society/contact/chat_state.py": "src/shibuya/engine/contact/chat_state.py",
+    "src/shibuya/society/contact/deliver.py": "src/shibuya/engine/contact/deliver.py",
+    "src/shibuya/society/contact/tools.py": "src/shibuya/engine/contact/tools.py",
+    "src/shibuya/society/conversation.py": "src/shibuya/engine/conversation.py",
+    "src/shibuya/society/norm_meter.py": "src/shibuya/engine/norm_meter.py",
+    "src/shibuya/society/speech/layer.py": "src/shibuya/engine/speech/layer.py",
+    "src/shibuya/society/speech/port.py": "src/shibuya/engine/speech/port.py",
+    "src/shibuya/society/tools/groups.py": "src/shibuya/engine/tools/groups.py",
+    "src/shibuya/society/tools/places.py": "src/shibuya/engine/tools/places.py",
+    "src/shibuya/society/tools/record.py": "src/shibuya/engine/tools/record.py",
+    "src/shibuya/society/tools/registry.py": "src/shibuya/engine/tools/registry.py",
+    "src/shibuya/validation/static/bridging_scan.py": "src/shibuya/engine/bridging/scan.py",
+    "src/shibuya/validation/static/circularity.py": "src/shibuya/world/processes/circularity.py",
+    "src/shibuya/validation/static/deletion_candidates.py": "src/shibuya/world/processes/deletion_candidates.py",
+    "src/shibuya/validation/static/rng_audit.py": "src/shibuya/engine/rng_audit.py",
+    "src/shibuya/validation/static/system_overrides.py": "src/shibuya/engine/systems/overrides.py",
+    "src/shibuya/validation/static/system_static_check.py": "src/shibuya/engine/systems/static_check.py",
+    "src/shibuya/world/body/energy.py": "src/shibuya/engine/energy.py",
+    "src/shibuya/world/body/model.py": "src/shibuya/engine/body/model.py",
+    "src/shibuya/world/body/reactions.py": "src/shibuya/engine/body/system1.py",
+    "src/shibuya/world/body/rules.py": "src/shibuya/engine/body/rules.py",
+    "src/shibuya/world/body/schedule.py": "src/shibuya/engine/body/schedule.py",
+    "src/shibuya/world/facts/calendar.py": "src/shibuya/engine/calendar.py",
+    "src/shibuya/world/facts/mock_schedule.py": "src/shibuya/agents/schedule.py",
+    "src/shibuya/world/facts/population_reader.py": "src/shibuya/agents/population.py",
+    "src/shibuya/world/facts/rights/initial.py": "src/shibuya/engine/rights/initial.py",
+    "src/shibuya/world/facts/rights/ledger.py": "src/shibuya/engine/rights/ledger.py",
+    "src/shibuya/world/facts/rights/record.py": "src/shibuya/engine/rights/record.py",
+    "src/shibuya/world/facts/rules/table.py": "src/shibuya/engine/rules/table.py",
+    "src/shibuya/world/facts/weekly_reader.py": "src/shibuya/agents/weekly.py",
+    "src/shibuya/world/laws/civic.py": "src/shibuya/engine/processes/civic.py",
+    "src/shibuya/world/laws/crowd.py": "src/shibuya/engine/processes/crowd.py",
+    "src/shibuya/world/laws/environment.py": "src/shibuya/engine/processes/environment.py",
+    "src/shibuya/world/laws/goods_flow.py": "src/shibuya/engine/processes/goods_flow.py",
+    "src/shibuya/world/laws/logistics.py": "src/shibuya/engine/processes/logistics.py",
+    "src/shibuya/world/laws/opening.py": "src/shibuya/engine/processes/opening.py",
+    "src/shibuya/world/laws/presence.py": "src/shibuya/engine/presence.py",
+    "src/shibuya/world/laws/rail.py": "src/shibuya/engine/processes/rail.py",
+    "src/shibuya/world/laws/rail_events.py": "src/shibuya/engine/processes/rail_events.py",
+    "src/shibuya/world/laws/runner.py": "src/shibuya/engine/processes/runner.py",
+    "src/shibuya/world/laws/salient.py": "src/shibuya/engine/processes/salient.py",
+    "src/shibuya/world/laws/switch_absent.py": "src/shibuya/engine/absent_processes.py",
+    "src/shibuya/world/laws/switch_rate.py": "src/shibuya/engine/rate_rules.py",
+    "src/shibuya/world/laws/switch_seat.py": "src/shibuya/engine/seat_release.py",
+    "src/shibuya/world/laws/traffic.py": "src/shibuya/engine/processes/traffic.py",
+    "src/shibuya/world/ledger/absent.py": "src/shibuya/world/processes/absent.py",
+    "src/shibuya/world/ledger/actual_log.py": "src/shibuya/world/processes/actual_log.py",
+    "src/shibuya/world/ledger/constitution.py": "src/shibuya/world/processes/constitution.py",
+    "src/shibuya/world/ledger/first_batch.py": "src/shibuya/world/processes/first_batch.py",
+    "src/shibuya/world/ledger/inputs.py": "src/shibuya/world/processes/inputs.py",
+    "src/shibuya/world/ledger/records.py": "src/shibuya/world/processes/records.py",
+    "src/shibuya/world/ledger/registry.py": "src/shibuya/world/processes/registry.py",
+    "src/shibuya/world/ledger/relations.py": "src/shibuya/world/processes/relations.py",
+    "src/shibuya/world/ledger/world_catalog.py": "src/shibuya/manifest/world_catalog.py",
+    "src/shibuya/world/model/agent_table.py": "src/shibuya/agents/state.py",
+    "src/shibuya/world/model/assets.py": "src/shibuya/world/assets.py",
+    "src/shibuya/world/model/geometry.py": "src/shibuya/engine/geometry.py",
+    "src/shibuya/world/model/graph.py": "src/shibuya/world/graph.py",
+    "src/shibuya/world/model/navmesh.py": "src/shibuya/world/navmesh.py",
+    "src/shibuya/world/model/navmesh_route.py": "src/shibuya/world/navmesh_route.py",
+    "src/shibuya/world/model/notice_reach.py": "src/shibuya/perception/p_notice.py",
+    "src/shibuya/world/model/percept_scene.py": "src/shibuya/perception/renderer.py",
+    "src/shibuya/world/model/percept_state.py": "src/shibuya/perception/state.py",
+    "src/shibuya/world/model/proximity.py": "src/shibuya/engine/proximity.py",
+    "src/shibuya/world/model/solar.py": "src/shibuya/engine/solar.py",
+    "src/shibuya/world/model/space/nav1.py": "src/shibuya/engine/space/nav1.py",
+    "src/shibuya/world/model/spatial_index.py": "src/shibuya/engine/spatial_index.py",
+    "src/shibuya/world/model/state.py": "src/shibuya/world/state.py",
+    "src/shibuya/world/things/device.py": "src/shibuya/engine/contact/device.py",
+})
+
+
+#: 〔割る段 6 の S6-A・親の裁定 Q1 の (ii)〕割る段で 2 つ目以降の割り先になったファイルの今の道 → 台帳に書いてある道(前向き
+#: だけ・N 対 1=値は ``LEDGER_PATHS`` の値と重なってよい)。手で書かない: 割る道具が書き足す(鍵の昇順・1 行 1 組)。
+#: :func:`ledger_path` だけが引き、:func:`current_path`(逆向き=主な割り先の 1 対 1)は引かない。空の間は今の結果と同じ。
+LEDGER_PATHS_SPLIT: Final[Mapping[str, str]] = MappingProxyType({
+    "src/shibuya/act/ops/plan_writes.py": "src/shibuya/engine/resolve.py",
+    "src/shibuya/foundation/text/mora.py": "src/shibuya/engine/speech/port.py",
+    "src/shibuya/mind/ops.py": "src/shibuya/engine/resolve.py",
+})
+
+
+def ledger_path(path: str) -> str:
+    """今の道 → 台帳に書いてある道。``LEDGER_PATHS`` に在ればその値、無ければ ``LEDGER_PATHS_SPLIT`` に在ればその値、
+    どちらにも無ければそのまま。"""
+    if path in LEDGER_PATHS:
+        return LEDGER_PATHS[path]
+    return LEDGER_PATHS_SPLIT.get(path, path)
+
+
+def current_path(path: str) -> str:
+    """台帳に書いてある道 → 今の道(表に無ければそのまま)。表の値が重なれば ``ValueError``。"""
+    inv: dict[str, str] = {}
+    for now, old in LEDGER_PATHS.items():
+        if old in inv:
+            raise ValueError(f"台帳の道が 2 つの今の道から引かれる: {old}")
+        inv[old] = now
+    return inv.get(path, path)

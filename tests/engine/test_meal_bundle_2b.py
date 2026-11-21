@@ -13,14 +13,15 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentKind, AgentState
-from shibuya.agents.weekly import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
-from shibuya.engine import energy as E
-from shibuya.engine import resolve as R
-from shibuya.engine.change_detect import ChangeDetector
-from shibuya.perception import templates as T
-from shibuya.perception.renderer import HUNGER_WORDS_MODES, Renderer, check_hunger_words
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.facts.weekly_reader import ACTIVITY_WORDS, N_DAYS, PLACE_WORDS, WeeklySchedule
+from shibuya.world.body import energy as E
+from shibuya.act.ops import body_writes as R
+from shibuya.mind.system1.change_detect import ChangeDetector
+from shibuya.foundation.text import templates as T
+from shibuya.mind.percept.draw import HUNGER_WORDS_MODES, Renderer, check_hunger_words
+from shibuya.world.model.state import World
 
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕錨は構築側の 1 本だけ。項 1・項 2 の試験は既定の時刻が全員 1 つの値の分布
 # (``_single_distribution``=凍結の表の中央値)で前の版と同じ形を確かめる(前は旧値の腕 validation=第 18-1 表の時刻 1 つ・
@@ -463,9 +464,9 @@ WORLD = "data/world/v2"
 
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
-    from shibuya import cli
-    from shibuya.agents.weekly import load_weekly
-    from shibuya.engine.run import _resolve_population
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.world.facts.weekly_reader import load_weekly
+    from shibuya.runtime.run import _resolve_population
 
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3")
     base = cli.run(**kw)
@@ -517,9 +518,13 @@ def test_run_wiring_defaults_are_old_and_switches_reach_the_run():
 
 
 def test_cli_has_the_three_switches_with_old_defaults():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
-    src = (__import__("pathlib").Path("src/shibuya") / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     for flag, dest in (("--meal-sleep-defer", "meal_sleep_defer"), ("--home-meal", "home_meal"),
                        ("--hunger-words", "hunger_words")):
         assert f'"{flag}"' in src and f"{dest}=str(args.{dest})" in src
@@ -550,7 +555,7 @@ def test_breakfast_window_edge_is_fixed(wake, want):
     assert oom.n_skipped_past_window == (1 if not want else 0)
 
 
-def test_template_fingerprint_follows_the_drawn_hunger_stage():
+def test_template_fingerprint_follows_the_drawn_hunger_stage(monkeypatch):
     """all の腕は描画に使った段の下限 0 で文面の指紋を計算する。既定(hungry)と v1 のランは凍結値のまま。"""
     frozen = T.template_sha256()
     assert T.template_sha256(hunger_draw_min_stage=None) == frozen
@@ -559,12 +564,15 @@ def test_template_fingerprint_follows_the_drawn_hunger_stage():
     assert all_sha != frozen
 
     def manifest_sha(words: str, model_: str) -> str:
-        from shibuya.engine.run import run_day
+        from shibuya.runtime.run import run_day
 
         res = run_day(n_agents=20, seed=1, ticks=3, hunger_model=model_, hunger_words=words)
         return res.run_manifest_fields()["template_sha256"]
 
     assert manifest_sha("hungry", "energy") == frozen
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    hunger_v1(monkeypatch)  # 〔Q13〕空腹 v1 は試験の中だけの口
     assert manifest_sha("all", "v1") == frozen  # v1 のランは語を描かない
     assert manifest_sha("all", "energy") == all_sha
     # 描画の報告行も同じ指紋

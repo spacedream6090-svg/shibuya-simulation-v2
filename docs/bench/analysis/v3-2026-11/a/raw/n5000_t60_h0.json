@@ -1,0 +1,393 @@
+{
+ "label": "n5000_t60_h0",
+ "argv": [
+  "--llm",
+  "mock",
+  "--agents",
+  "5000",
+  "--ticks",
+  "60",
+  "--seed",
+  "1"
+ ],
+ "tick_seconds": 60,
+ "agents": 5000,
+ "ticks": 60,
+ "seed": 1,
+ "profiled": false,
+ "wall_s": 2.729,
+ "ms_per_tick": 45.478,
+ "engine_wall_s": 2.267,
+ "peak_mb": 527.5,
+ "llm_calls": 69,
+ "final16": "2208588c55486eae",
+ "system_total_s": {
+  "activity_intent": 0.004,
+  "apply_responses": 0.0825,
+  "arbiter": 0.0066,
+  "body": 0.0101,
+  "checkpoint": 0.0079,
+  "close_final": 0.0089,
+  "conversation": 0.0012,
+  "decide": 0.0373,
+  "detect": 0.0171,
+  "drain": 0.0,
+  "energy_after": 0.0032,
+  "llm_receive": 0.0004,
+  "memory": 0.0003,
+  "observe": 0.0074,
+  "perceive_prepare": 0.0388,
+  "phase_a": 0.0038,
+  "phase_b": 0.0017,
+  "phase_c": 0.0936,
+  "plan_boundary": 0.0025,
+  "presence": 0.0017,
+  "report": 0.0027,
+  "wake_assemble": 0.0012,
+  "wake_filter": 0.0008,
+  "wake_sources": 0.0008,
+  "world": 0.0275
+ },
+ "system_tick_s": {
+  "activity_intent": 0.004,
+  "apply_responses": 0.0825,
+  "arbiter": 0.0066,
+  "body": 0.0101,
+  "checkpoint": 0.0079,
+  "close_final": 0.0,
+  "conversation": 0.0012,
+  "decide": 0.0373,
+  "detect": 0.0171,
+  "drain": 0.0,
+  "energy_after": 0.0032,
+  "llm_receive": 0.0004,
+  "memory": 0.0003,
+  "observe": 0.0074,
+  "perceive_prepare": 0.0388,
+  "phase_a": 0.0038,
+  "phase_b": 0.0017,
+  "phase_c": 0.0936,
+  "plan_boundary": 0.0025,
+  "presence": 0.0017,
+  "report": 0.0,
+  "wake_assemble": 0.0012,
+  "wake_filter": 0.0008,
+  "wake_sources": 0.0008,
+  "world": 0.0275
+ },
+ "system_run_level_s": {
+  "close_final": 0.0089,
+  "drain": 0.0,
+  "report": 0.0027
+ },
+ "system_calls": {
+  "activity_intent": 60,
+  "apply_responses": 60,
+  "arbiter": 60,
+  "body": 60,
+  "checkpoint": 60,
+  "close_final": 1,
+  "conversation": 60,
+  "decide": 60,
+  "detect": 60,
+  "drain": 1,
+  "energy_after": 60,
+  "llm_receive": 60,
+  "memory": 60,
+  "observe": 60,
+  "perceive_prepare": 60,
+  "phase_a": 60,
+  "phase_b": 60,
+  "phase_c": 60,
+  "plan_boundary": 60,
+  "presence": 60,
+  "report": 1,
+  "wake_assemble": 60,
+  "wake_filter": 60,
+  "wake_sources": 60,
+  "world": 60
+ },
+ "phase_seconds": {
+  "presence": 0.0031,
+  "detect": 0.0165,
+  "arbiter": 0.0063,
+  "llm": 0.0367,
+  "fleet_wait": 0.0,
+  "phase_a": 0.0854,
+  "phase_b": 0.0014,
+  "phase_c": 0.0928,
+  "movement": 0.0124,
+  "movement_cpu": 0.0312,
+  "checkpoint": 0.0076,
+  "group_norms": 0.0076,
+  "group_norms_tick_ms_max": 0.2065
+ },
+ "process_seconds": {
+  "environment": 0.0016,
+  "rail": 0.0051,
+  "opening": 0.0121,
+  "crowd": 0.0055,
+  "traffic": 0.0001,
+  "delivery_inbound": 0.0005,
+  "shelf": 0.0005,
+  "waste": 0.0001,
+  "street_cleaning": 0.0002,
+  "last_mile": 0.0,
+  "bus_taxi": 0.0001,
+  "road_works": 0.0002,
+  "hotel": 0.0001,
+  "infra": 0.0004,
+  "press": 0.0001,
+  "large_event": 0.0001,
+  "dispatch": 0.0,
+  "salient": 0.0004
+ },
+ "diag_totals": {
+  "deferred": 0,
+  "promoted": 0,
+  "degraded": 0,
+  "suppressed": 38,
+  "merged": 6,
+  "candidates": 6376,
+  "calls": 69,
+  "pending_wakes": 0,
+  "pending_apply": 69,
+  "intents": 128,
+  "conflicts": 0,
+  "unresolved": 0,
+  "moved": 59,
+  "arrived": 9,
+  "purchases": 6,
+  "conversations": 2,
+  "reflections": 1,
+  "undefined_actions": 0,
+  "parse_errors": 0,
+  "tape_misses": 0,
+  "conversations_opened": 0,
+  "sleep_suppressed": 973,
+  "outside_suppressed": 5290
+ },
+ "by_hour_system_s": {
+  "activity_intent": [
+   0.004
+  ],
+  "apply_responses": [
+   0.08254
+  ],
+  "arbiter": [
+   0.00662
+  ],
+  "body": [
+   0.01014
+  ],
+  "checkpoint": [
+   0.00794
+  ],
+  "close_final": [
+   0.0
+  ],
+  "conversation": [
+   0.00118
+  ],
+  "decide": [
+   0.03731
+  ],
+  "detect": [
+   0.01713
+  ],
+  "drain": [
+   0.0
+  ],
+  "energy_after": [
+   0.00319
+  ],
+  "llm_receive": [
+   0.00043
+  ],
+  "memory": [
+   0.00031
+  ],
+  "observe": [
+   0.00742
+  ],
+  "perceive_prepare": [
+   0.03882
+  ],
+  "phase_a": [
+   0.00384
+  ],
+  "phase_b": [
+   0.0017
+  ],
+  "phase_c": [
+   0.09356
+  ],
+  "plan_boundary": [
+   0.00252
+  ],
+  "presence": [
+   0.00169
+  ],
+  "report": [
+   0.0
+  ],
+  "wake_assemble": [
+   0.00123
+  ],
+  "wake_filter": [
+   0.00079
+  ],
+  "wake_sources": [
+   0.00079
+  ],
+  "world": [
+   0.02754
+  ]
+ },
+ "by_hour_diag": {
+  "deferred": [
+   0
+  ],
+  "promoted": [
+   0
+  ],
+  "degraded": [
+   0
+  ],
+  "suppressed": [
+   38
+  ],
+  "merged": [
+   6
+  ],
+  "candidates": [
+   6376
+  ],
+  "calls": [
+   69
+  ],
+  "pending_wakes": [
+   0
+  ],
+  "pending_apply": [
+   69
+  ],
+  "intents": [
+   128
+  ],
+  "conflicts": [
+   0
+  ],
+  "unresolved": [
+   0
+  ],
+  "moved": [
+   59
+  ],
+  "arrived": [
+   9
+  ],
+  "purchases": [
+   6
+  ],
+  "conversations": [
+   2
+  ],
+  "reflections": [
+   1
+  ],
+  "undefined_actions": [
+   0
+  ],
+  "parse_errors": [
+   0
+  ],
+  "tape_misses": [
+   0
+  ],
+  "conversations_opened": [
+   0
+  ],
+  "sleep_suppressed": [
+   973
+  ],
+  "outside_suppressed": [
+   5290
+  ]
+ },
+ "presence_counters": {
+  "home_out": 4421.0,
+  "blocks": 6413.0,
+  "all_day_outside": 136.0,
+  "absent": 0.0,
+  "arrivals": 45.0,
+  "departures": 0.0,
+  "arrive_skipped": 0.0,
+  "arrive_skipped_in_area": 0.0,
+  "arrive_skipped_pulled_in": 0.0,
+  "returned_to_block": 0.0,
+  "plan_stranded_eod": 2.0,
+  "depart_skipped": 0.0,
+  "exit_deferred": 0.0,
+  "exit_forced": 0.0,
+  "shopping_interrupted": 0.0,
+  "queue_balked": 0.0,
+  "gate_arrivals": 624.0,
+  "spread_moved": 0.0,
+  "spread_overflow": 0.0,
+  "pulled_in": 0.0,
+  "pushed_out": 0.0,
+  "departed_by_llm": 3.0,
+  "depart_dropped": 0.0,
+  "rearmed": 0.0,
+  "placed_at_start": 231.0,
+  "home_out_slept_inside": 1.0,
+  "wake_in_area_03": NaN,
+  "wake_in_area_09": NaN,
+  "wake_in_area_12": NaN,
+  "in_area_03": NaN,
+  "in_area_09": NaN,
+  "in_area_12": NaN,
+  "plan_match_in": 1.0,
+  "plan_match_out": 1.0,
+  "day_night_ratio_09_03": 0.0
+ },
+ "presence_exit": {
+  "exit_mode": "immediate",
+  "departures": 0,
+  "deferred": 0,
+  "forced_after_defer": 0,
+  "shopping_interrupted": 0,
+  "queue_balked": 0,
+  "exit_cell_in_area_by_hour": "[252.0, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]",
+  "platform_cell_in_area_by_hour": "[0.0, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]",
+  "exit_cell_density_stage_max_by_hour": "[0.0, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]",
+  "immediate": 0
+ },
+ "calls_by_hour": [
+  69,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+ ]
+}

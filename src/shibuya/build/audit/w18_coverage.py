@@ -31,7 +31,7 @@ import math
 import re
 from typing import Any
 
-from shibuya.manifest.world_catalog import (
+from shibuya.world.ledger.world_catalog import (
     FROZEN_N_CLASSES,
     FROZEN_SHA16,
     load_world_catalog,

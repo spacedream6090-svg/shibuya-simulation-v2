@@ -13,12 +13,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState
-from shibuya.core import write_permit as WP
-from shibuya.engine import resolve as R
-from shibuya.engine import state_ledger_ast as A
-from shibuya.engine.systems import allow as AL
-from shibuya.world.state import World
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation import write_permit as WP
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=foundation/write_guard・R_MIND=mind/ops。割る前は全部 resolve)
+from shibuya.foundation import write_guard as R
+from shibuya.mind import ops as R_MIND
+from shibuya.runtime.state import ledger_ast as A
+from shibuya.runtime.systems import allow as AL
+from shibuya.world.model.state import World
 
 SRC = Path("src/shibuya")
 
@@ -85,7 +87,7 @@ def test_scope_nests_and_restores():
 
 
 def test_perception_state_thaws_only_permitted_columns():
-    from shibuya.perception.state import PerceptionState
+    from shibuya.world.model.percept_state import PerceptionState
 
     ps = PerceptionState(4)
     ps.freeze()
@@ -114,19 +116,40 @@ def test_set_refractory_ufunc_at_is_blocked_outside_the_permit():
     before = a.registry.refractory_until.copy()
     with WP.scope(frozenset({"agents.cell"})):
         with pytest.raises(ValueError):
-            R.set_refractory(a, np.array([0]), np.array([1]), 10)
+            R_MIND.set_refractory(a, np.array([0]), np.array([1]), 10)
     assert np.array_equal(a.registry.refractory_until, before)  # 書く前に止まった
     with WP.scope(frozenset({"agents.refractory_until"})):
-        R.set_refractory(a, np.array([0]), np.array([1]), 10)  # 正の対照
+        R_MIND.set_refractory(a, np.array([0]), np.array([1]), 10)  # 正の対照
     assert int(a.registry.refractory_until[0, 1]) > 10
+
+
+def _ufunc_at_ignores_readonly() -> bool:
+    """numpy の ``ufunc.at`` が読み取り専用の旗を素通りする版か。
+
+    〔第347〕numpy 2.5.5 から、読み取り専用の配列への ``ufunc.at`` は numpy 自身が ValueError で止める
+    (CI が 2.5.5 を入れて、穴の実在を記録する試験 4 本が落ちた)。穴のある版と塞がった版の両方で通るように、
+    試験はこの見分けで枝を分ける。静的な検査(D⑦)と配列単位の守りは、穴のある版のために残す。
+    """
+    probe = np.zeros(1, dtype=np.int32)
+    probe.flags.writeable = False
+    try:
+        np.add.at(probe, [0], 1)
+    except ValueError:
+        return False
+    return True
 
 
 def test_numpy_ufunc_at_still_ignores_the_flag():
     """穴の実在(この振る舞いが変われば配列単位の検査は要らなくなる)。"""
     x = np.zeros(3, dtype=np.int32)
     x.flags.writeable = False
-    np.add.at(x, [0], 1)
-    assert x[0] == 1
+    if _ufunc_at_ignores_readonly():
+        np.add.at(x, [0], 1)
+        assert x[0] == 1
+    else:  # 〔第347〕numpy 2.5.5 から: numpy 自身が止める(穴は塞がった)
+        with pytest.raises(ValueError):
+            np.add.at(x, [0], 1)
+        assert x[0] == 0
 
 
 # ================================================================= D ⑦: ufunc.at の直前の検査が書く配列を引数に持つ
@@ -139,9 +162,11 @@ def _at_sites(tree: ast.AST):
 
 
 def test_every_state_ufunc_at_in_resolve_checks_the_written_array():
-    path = SRC / "engine" / "resolve.py"
-    tree = ast.parse(path.read_text(encoding="utf-8"))
-    funcs = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
+    """〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイルの全部(``allow.RESOLVE_FILES``・割る前は 1 本)で見る。"""
+    funcs = []
+    for rel in AL.RESOLVE_FILES:
+        funcs += [n for n in ast.parse((SRC / rel).read_text(encoding="utf-8")).body if isinstance(n, ast.FunctionDef)]
+    assert funcs
     checked = 0
     for fn in funcs:
         req = [n for n in ast.walk(fn) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
@@ -160,13 +185,13 @@ def test_every_state_ufunc_at_in_resolve_checks_the_written_array():
 # ================================================================= D ⑤: 旗の直書きは決まった場所だけ
 #: 旗を立て得る直書き(値が定数 False でない ``flags.writeable =``・``setflags(write=...)``)を許す (ファイル, 関数)。
 FLAG_WRITERS = {
-    ("agents/state.py", "thaw"), ("agents/state.py", "freeze"),
-    ("world/state.py", "thaw"), ("world/state.py", "freeze"),
-    ("perception/state.py", "_set_writeable"),
+    ("world/model/agent_table.py", "thaw"), ("world/model/agent_table.py", "freeze"),
+    ("world/model/state.py", "thaw"), ("world/model/state.py", "freeze"),
+    ("world/model/percept_state.py", "_set_writeable"),
     ("economy/goods.py", "*"), ("economy/ledger.py", "*"),
-    ("engine/resolve.py", "_restore_array_into"),
+    ("runtime/state/restore.py", "_restore_array_into"),
     # 〔第 3 期 3-5 検収 L7〕体の層の予約の列(BodySchedule)が自分の配列(SoA ではない)を書く口の中だけ書けるようにする
-    ("engine/body/schedule.py", "_enter_port_and_call"),
+    ("world/body/schedule.py", "_enter_port_and_call"),
 }
 
 
@@ -204,12 +229,14 @@ def test_direct_flag_writes_live_only_in_known_places():
 
 # ================================================================= D ⑥: SoA の配列・ビュー・別名を層の属性に持たせない
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "core/soa.py"}
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイルは書き手の一覧から足す(割る前は前と同じ 1 本)。
+_EXEMPT_D6 = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py",
+              "foundation/soa.py"} | set(AL.RESOLVE_FILES)
 #: 許す属性(場所・代入の左辺・理由)。どれも凍結の後に作る読むだけの**写し**(int32 → int64 の dtype の変換=別の配列)。
 D6_ALLOW = {
-    ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
-    ("engine/store_choice.py", "self.poi_cell"): "同上",
-    ("engine/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
+    ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
+    ("mind/judge/store_choice.py", "self.poi_cell"): "同上",
+    ("mind/judge/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
 }
 
 
@@ -260,7 +287,12 @@ def test_d6_detector_catches_a_planted_alias(tmp_path):
 
 # ================================================================= D ④: 系は解除口を呼ばない(test_two_phase の延長)
 def test_systems_package_never_thaws():
-    for fp in (SRC / "engine" / "systems").rglob("*.py"):
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の走査。元の置き場が系の包みのファイルを対応表で引く
+    files = PL.files_from(AL)
+    assert len(files) > 20
+    for fp in files:
         for node in ast.walk(ast.parse(fp.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
                 assert node.func.attr not in ("writable", "thaw", "_set_writeable", "setflags"), (fp, node.lineno)
@@ -286,7 +318,7 @@ def test_alias_table_covers_ledger_money_writes():
         assert fn in callers, fn
         assert "agents.money" in AL.writes_for_ops({fn})
     assert not any("_apply_cash" in why for _w, why in AL.ALIAS_WRITES.values())
-    assert set(AL.ALIAS_WRITES["apply_detection"][0]) == {
+    assert set(AL.ALIAS_WRITES["write_intero_stages"][0]) == {
         "agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"}
 
 

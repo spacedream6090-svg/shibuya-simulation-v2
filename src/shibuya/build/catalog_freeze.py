@@ -43,7 +43,7 @@ __all__ = [
 ]
 
 CATALOG_MD_RELPATH = "docs/design/v2-world-catalog.md"
-CATALOG_JSON_RELPATH = "src/shibuya/manifest/frozen/world_catalog_v0_2.json"
+CATALOG_JSON_RELPATH = "src/shibuya/world/ledger/frozen/world_catalog_v0_2.json"
 
 SHA_RULE = "sha256(utf-8 of table from header row to first blank line)[:16]"
 

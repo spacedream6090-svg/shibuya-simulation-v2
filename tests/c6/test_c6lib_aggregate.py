@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from shibuya.llm.contract import ROLE_ACTION_WORDS, format_two_line
+from shibuya.foundation.vocab.actions import ROLE_ACTION_WORDS, format_two_line
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 BAD = "うーん、なんとも言えませんね。"
@@ -37,7 +37,7 @@ def test_score_texts_counts_format_errors_and_actions(c6lib):
 
 def test_undefined_rate_excludes_words_the_stage0_dictionary_rescues(c6lib):
     """段0 辞書(``map_synonym``)で救えた語は未定義に数えず、写像先の契約語として数える。"""
-    from shibuya.llm.undefined import map_synonym
+    from shibuya.act.intake.undefined import map_synonym
 
     assert map_synonym("探索")[0] == "移動"  # 前提(サブ Q の段0 辞書拡張)
     s = c6lib.score_texts([GOOD, RESCUED, UNKNOWN])
@@ -54,7 +54,7 @@ def test_format_error_rate_is_reported_both_effective_and_strict(c6lib):
 
     C6 追加別名(``LABEL_ALIASES_C6``)だけで書けた応答は **実効=合格・厳密=エラー**になる。
     """
-    from shibuya.llm.parser import LABEL_ALIASES_C6, parse_two_line
+    from shibuya.act.intake.parser import LABEL_ALIASES_C6, parse_two_line
 
     c6_only = [
         t
@@ -269,7 +269,7 @@ def test_format_role_marks_a_small_sample_as_insufficient(c6lib):
 def test_format_role_table_separates_effective_and_strict_verdicts(c6lib):
     """実効は合格・厳密は不合格、という組み合わせが表に出る(D-28 の読み分け)。"""
     import format_role_rates as fr
-    from shibuya.llm.parser import LABEL_ALIASES_C6, parse_two_line
+    from shibuya.act.intake.parser import LABEL_ALIASES_C6, parse_two_line
 
     c6_only = next(
         t

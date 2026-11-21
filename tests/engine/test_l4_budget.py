@@ -19,17 +19,19 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core.types import EventClass
-from shibuya.engine.arbiter import (
+from shibuya.foundation.types import EventClass
+from shibuya.runtime.arbiter import (
     DEGRADE_COST_FACTOR,
     POOL_CAP_TICKS,
     Arbiter,
-    WakeCandidates,
     arbitrate,
     call_budget_per_tick,
 )
-from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.mind.system1.wake import (
+    WakeCandidates,
+)
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w12_timetables.parquet")
@@ -90,7 +92,8 @@ def _cap(n_agents: int, ticks: int) -> int:
 
 
 def test_synthetic_run_stays_within_the_l4_cap():
-    res = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=720, n_cells=139)
+    # 〔Q13 commit ①〕L4 の按分(倍率 1.0)を明示(前のライブラリの既定=上限が効くランの性質を見る)
+    res = run_day(n_agents=5_000, seed=1, ticks=1_440, checkpoint_every=720, n_cells=139, l4_scale=1.0)
     assert res.llm_calls <= _cap(5_000, 1_440)
     assert res.llm_calls / 5_000 <= 10.0
     # 録画テープの成長宣言(L4 の平均 10 呼/体/日で O(N))を超えない
@@ -105,7 +108,7 @@ def test_real_world_run_stays_within_the_l4_cap(capsys):
     world = World.load(WORLD_DIR)
     res = run_day(
         n_agents=5_000, seed=1, world=world, ticks=1_440, checkpoint_every=720,
-        world_dir=WORLD_DIR,
+        world_dir=WORLD_DIR, l4_scale=1.0,  # 〔Q13 commit ①〕L4 の按分を明示(前のライブラリの既定)
     )
     cap = _cap(5_000, 1_440)
     with capsys.disabled():

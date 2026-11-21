@@ -26,7 +26,7 @@ SUMMARY = """[run] n=400000 cells=520 seed=1 ticks=1440 world=data/world/v2
   診断 parse_error_rate: 0.0310 / undefined_action_count: 4 / tape_miss_count: 0 / conversation_sessions: 25
 """
 
-TIME_V = """\tCommand being timed: "python -m shibuya.engine.run"
+TIME_V = """\tCommand being timed: "python -m shibuya.interfaces.cli.run_args"
 \tElapsed (wall clock) time (h:mm:ss or m:ss): 17:00:00
 \tMaximum resident set size (kbytes): 18874368
 """

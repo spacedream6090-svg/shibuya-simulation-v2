@@ -19,11 +19,10 @@ from collections import Counter
 import numpy as np
 import pytest
 
-from shibuya.engine import commit as C
-from shibuya.engine import run as RUN
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import Tape
-from shibuya.llm.fleet import FleetBridge  # 1-0: run.py は FleetBridge を import しない(組み立ては engine.systems.build)
+from shibuya.act.intake import from_words as C
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import Tape
+from shibuya.runtime.inference.fleet import FleetBridge  # 1-0: run.py は FleetBridge を import しない(組み立ては engine.systems.build)
 
 from tests.engine.test_fleet_wiring import (
     CONV_AGENTS,
@@ -64,7 +63,7 @@ def applied(monkeypatch):
 
 
 def _fleet_run(servers, tmp_path, delay: int, **kw):
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     client = make_client(servers)
     return run_day(
@@ -120,7 +119,7 @@ def test_replay_of_a_plus2_tape_stops(tmp_path):
     タグ)。前は +2 で録って +2 で再生できた。"""
     import json
 
-    from shibuya.engine.tape import RUN_META_FILENAME
+    from shibuya.runtime.inference.tape import RUN_META_FILENAME
     from tests.engine.test_tape_wiring import BoomLLM
 
     servers = [FakeVLLM(), FakeVLLM()]
@@ -148,8 +147,8 @@ def test_replay_of_a_plus2_tape_stops(tmp_path):
 @pytest.mark.parametrize("delay", [1])  # 〔第 2 部〕2(旧)は消した
 def test_utterances_are_recorded_at_the_receiving_tick(fleet_servers, monkeypatch, delay):
     """会話ターンの発話は受け取った tick(発射 +1)で記録される=+1 でも +2 でも tick は動かない。"""
-    from shibuya.agents.state import WakeCondition
-    from shibuya.engine.conversation import ConversationManager
+    from shibuya.foundation.vocab.agent_codes import WakeCondition
+    from shibuya.society.conversation import ConversationManager
 
     for s in fleet_servers:
         s.pair_talk = True

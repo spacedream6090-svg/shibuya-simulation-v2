@@ -15,9 +15,10 @@ import pytest
 
 from tests import golden_env as GE
 
-from shibuya.agents.state import Activity, AgentKind, AgentState
-from shibuya.engine import classical as CL
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import Activity, AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.mind.judge import classical as CL
+from shibuya.world.model.state import World
 
 DOC, MD5 = CL.load_activity_prior()
 SRC = Path("src/shibuya")
@@ -38,7 +39,7 @@ CLASSICAL_1500_GOLDEN_ACQ_BY_ENV = {
     # 〔小さな版上げ・meal_w17〕前 87f051103976be282b5ef5af477bfa015498a014982cef0038cbc8fac799cb84 / 24_793(--meal-default validation で戻る)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に)で動いた(前 2089192377b9d318bee1842578a8e6e8e1f275e49a581cb01c79600371fd97e3
     # / 24_877=記録 pop43)
-    GE.PLATFORM_10F: ("9219b4a3810a1388fa9045239705846d83ff4998c3e9784c8332d2431c31ff01", 25_632),  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 62254dd79a3a272fe339472ccc884d5892c64d1fb3707bb29f0c90591d90238b / 25_302=--space legacy で戻る・段 1 の nav1(cell)は a223aa3f3221a582b54e2d1c8ee93d3fe78f8a4aa94b58a2038b02f57e84c788 / 24_865・記録 spatial-2026-10/sp1b)  # 前の行の注は下  # 〔2-4 V1〕前 78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41 / 25_082  # 〔2-4 V3〕前 faeacf8cff1f1faec7e0649e6cb569d90b3aba20219cea8e97947c0b4e73db4b / 24_813  # 〔2-4 V4〕前 92179becdd6a2ec90daede8d37d45c2fb7147dc9cf62dd5f0d7245f5c787738a  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 427e733df2f4230f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    GE.PLATFORM_10F: ("c56b731cc9b70f4a1ceb31171e2019f8045f60359506e6e035b2b698e9253cc4", 23_917),  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 9219b4a3810a1388fa9045239705846d83ff4998c3e9784c8332d2431c31ff01 / 25_632=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 62254dd79a3a272fe339472ccc884d5892c64d1fb3707bb29f0c90591d90238b / 25_302=--space legacy で戻る・段 1 の nav1(cell)は a223aa3f3221a582b54e2d1c8ee93d3fe78f8a4aa94b58a2038b02f57e84c788 / 24_865・記録 spatial-2026-10/sp1b)  # 前の行の注は下  # 〔2-4 V1〕前 78399f8cedec1c62518b86d600200537f67b532a8500e337feebc17469e48b41 / 25_082  # 〔2-4 V3〕前 faeacf8cff1f1faec7e0649e6cb569d90b3aba20219cea8e97947c0b4e73db4b / 24_813  # 〔2-4 V4〕前 92179becdd6a2ec90daede8d37d45c2fb7147dc9cf62dd5f0d7245f5c787738a  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 427e733df2f4230f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 }
 #: 〔第330・RET〕10e より前の値 ``CLASSICAL_1500_GOLDEN_ACQ_PRE10E``(4f78f3c0…ec00a / 25,808=切替口 hash full・rng stateful・
 #: 旧資産・暦で再現した=ACT の commit で通った)は切替口と一緒に消した。
@@ -106,7 +107,7 @@ def test_near_first_reproduces_the_old_rule():
 def test_busy_or_asleep_or_out_of_reach_acquaintances_are_skipped():
     """検収後: 会話中・就寝中の知人(resolve._UNADDRESSABLE)と、会話の届かない知人(別のセル・edge 幾何なら 2 m 超)
     は候補から外す。会話中の知人(A が大きい)と空いている知人が居れば、空いている方を選ぶ。"""
-    from shibuya.engine.run import classical_acq_addressable
+    from shibuya.runtime.run import classical_acq_addressable
 
     pol = _bound()
     a = pol.agents
@@ -141,12 +142,16 @@ def test_busy_or_asleep_or_out_of_reach_acquaintances_are_skipped():
 # ================================================================= (c) ラン
 @pytest.mark.requires_data("world_v2")
 def test_run_golden_and_arms():
-    from shibuya import cli
-    from shibuya.engine.run import run_day
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, vocab_version="v3", policy="classical", classical_social="all")
-    src = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     assert '"--classical-social"' in src and "classical_social=str(args.classical_social)" in src
     kw = dict(n_agents=1500, seed=1, world_dir=WORLD, vocab_version="v3", policy="classical", chooser="classical")
     r = cli.run(**kw)

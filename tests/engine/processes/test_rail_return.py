@@ -12,18 +12,22 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.schedule import synthesize
-from shibuya.agents.weekly import (
+from shibuya.world.facts.mock_schedule import synthesize
+from shibuya.world.facts.weekly_reader import (
     N_DAYS,
     PLACE_KIND_OUTSIDE,
     PLACE_WORDS,
     WeeklySchedule,
     apply_to_mock_schedule,
 )
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.processes.civic import EVENT_WINDOW, LargeEventProcess
-from shibuya.engine.processes.rail import RailProcess
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/rail・R_APPLY=act/apply。割る前は全部 resolve)
+from shibuya.act.ops import rail as R
+from shibuya.act import apply as R_APPLY
+from shibuya.world.laws.civic import EVENT_WINDOW, LargeEventProcess
+from shibuya.world.laws.rail import RailProcess
 
 from .conftest import fake_timetable_assets, make_agents, make_world
 
@@ -93,7 +97,7 @@ def _board(world, agents, rail, ids, tick: int) -> None:
     """ホームへ置いて乗車させる(``resolve`` の口を通す)。"""
     a = np.asarray(ids, dtype=np.int64)
     R.rail_arrive(agents, world, a, np.zeros(a.size, dtype=np.int64))
-    R.apply(_intents(a, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, tick, rail=rail)
+    R_APPLY.apply(_intents(a, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, tick, rail=rail)
 
 
 def _domestic(rail, k: int = 1) -> np.ndarray:
@@ -291,7 +295,8 @@ def test_two_identical_runs_agree_bit_for_bit():
 # ============================================== (vii) 大規模イベントの迂回を塞ぐ(D-61 追補)
 def _event(world, agents, rail, *, visitors: int = 5):
     return LargeEventProcess(
-        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=visitors
+        world, agents, rail=rail, master_seed=1, day_index=0, visitor_delta=visitors,
+        rate_rules="legacy",  # 〔11-01 段 2 の 4〕旧道(切替口)の規則を見る試験
     )
 
 

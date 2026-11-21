@@ -1,7 +1,7 @@
 """第 1 期 1-9(CP2 の段階 1): 帳簿の 9 口を基本操作 ``transfer`` に載せ替えても、同じ残高・同じ台帳の行(結果不変 ◎)。
 
 口の約束 1-9 の受入の試験 ``test_cp2_nine_ops_equivalence.py``。比べる相手は載せ替えの前(HEAD ``136fdbb``)の
-``economy/ledger.py``・``economy/goods.py`` の写し(``head_copies.py``・blob の名で同じことを確かめる)。
+``economy/ledger.py``・``economy/goods.py`` の写し(``head_copies.py``・字面・文の順・意味の固定で同じことを確かめる)。
 
 帳簿の 9 口(10b-prep §3-2 の E1〜E9): 金の口 E1 ``purchase_many``・E2 ``transfer_many``(と 1 件の ``transfer``)・
 E3 ``endow_households``・E4 ``endow_stores``(+ ``depreciate``)は ``ops.transfer`` を呼ぶ。物の口 E5 ``restock_many`` の
@@ -13,7 +13,9 @@ E3 ``endow_households``・E4 ``endow_stores``(+ ``depreciate``)は ``ops.transfe
    計数・state_hash・物の在庫と納品ログ)が同じ。
 2. 出来事の記録を挿して原因を渡しても、金と物の状態は同じ(記録は状態を変えない)。
 3. (slow・data)5,000 体 mock の 1 日(既定 v3)を HEAD の台帳と今の台帳で回し、final・呼数・残高・生ログ・物の台帳が同じ。
-   輪の係数を両方 6.5(溢れない)と両方 3.0(HEAD の既定=溢れる)の 2 通り。
+   輪の係数を両方 6.5(溢れない)と両方 3.0(HEAD の既定=溢れる)の 2 通り。段階 2 の外の台帳で回す(〔第347〕切替口 off の
+   代わりに試験の中だけの束 ``tests/economy/_stage2_outside.py``)。その束の差し替えが、台帳の型を読む両方の側(作る側と札を
+   決める側)に届くことは data なしの試験 1 本で確かめる(〔割る段 5b の G3〕)。
 
 〔独立検収 M1・宣言つきの直し〕汎用の口(``transfer``・``transfer_many``)に科目「減価償却」を渡すと、HEAD は現金の脚で
 動かしていた(別の口なら現金が移る・同じ口なら差し引き 0 で取引の件数だけ増える=減価償却は「現金を動かさない」に反する
@@ -30,9 +32,9 @@ import pytest
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine.events.links import MoneyEventLink
-from shibuya.engine.events.log import EventLog, Process
-from shibuya.engine.ledger_api import EntityRef
+from shibuya.foundation.journal.links import MoneyEventLink
+from shibuya.foundation.journal.log import EventLog, Process
+from shibuya.foundation.ports.ledger import EntityRef
 from tests.economy.cp2 import head_copies as CP
 
 H, S, E, B, G, W = (int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.EMPLOYER), int(Sector.BANK),
@@ -40,8 +42,12 @@ H, S, E, B, G, W = (int(Sector.HOUSEHOLD), int(Sector.STORE), int(Sector.EMPLOYE
 
 
 def test_the_copies_are_the_head_blobs():
-    for name, sha in CP.BLOBS.items():
-        assert CP.blob_sha(CP.HERE / name) == sha, name
+    """写しが HEAD 136fdbb のバイトのまま(``tests/_head_copy_pin.py`` の字面・文の順・意味=段 4 で移す道具が import の文の
+    モジュールの道を書き換えても同じ。元の全体の blob の名は ``head_copies.PINS`` の注)。"""
+    assert sorted(CP.PINS) == ["head_goods_136fdbb.py", "head_ledger_136fdbb.py"]
+    mods = {"head_ledger_136fdbb.py": CP.head_ledger_module(), "head_goods_136fdbb.py": CP.head_goods_module()}
+    for name in CP.PINS:
+        assert CP.pin_problems(name, mods[name]) == [], name
 
 
 # ---------------------------------------------------------------- 1. 乱数の呼び出しの列
@@ -217,20 +223,21 @@ def test_overflowing_ring_is_identical_and_counted():
 
 # ---------------------------------------------------------------- 3. 5,000 体 mock の 1 日(slow・data)
 def _mock_day(monkeypatch, *, head: bool, rate: float):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from shibuya.economy import ledger as LED
 
-    from shibuya.engine import economy_stage2 as ES2
+    from tests.economy import _stage2_outside as SO
 
     HL, HG, HW = CP.shims()
-    # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=1-9 の台帳と HEAD の写しの同値は段階 2 の外=切替口 off で見る
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
+    # 〔第 2 期 2-4 V4〕経済の段階 2 が既定 on になった=1-9 の台帳と HEAD の写しの同値は段階 2 の外で見る。〔第347 止めた切替口の
+    # 削除〕切替口 off の代わりに、試験の中だけの束(段階 2 の口を持たない台帳・切替口 off と同じ形=雇用主の口 1・輪の係数は台帳の
+    # 既定)で回す(手順 0 で off と 38 欄とも同じことを確かめた=記録 docs/bench/analysis/switch-removal-347/README.md)
     monkeypatch.setattr(LED, "TRANSFERS_PER_AGENT_PER_DAY", rate)
     monkeypatch.setattr(CP.head_ledger_module(), "TRANSFERS_PER_AGENT_PER_DAY", rate)
     if head:
-        monkeypatch.setattr(cli, "Ledger", HL)
-        monkeypatch.setattr(cli, "_HouseholdWalletLedger", HW)
-        monkeypatch.setattr(cli, "GoodsLedger", HG)
+        SO.use_outside_bundle(monkeypatch, ledger_cls=HL, wallet_cls=HW, goods_cls=HG)
+    else:
+        SO.use_outside_bundle(monkeypatch)
     res = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", vocab_version="v3")
     monkeypatch.undo()
     led = res.ledger
@@ -243,7 +250,9 @@ def _mock_day(monkeypatch, *, head: bool, rate: float):
 def test_5k_mock_day_matches_head(monkeypatch, rate):
     res_h, led_h = _mock_day(monkeypatch, head=True, rate=rate)
     res_n, led_n = _mock_day(monkeypatch, head=False, rate=rate)
-    assert type(led_h.money).__module__ != type(led_n.money).__module__  # 本当に HEAD の台帳で回した
+    head_ledger = CP.head_ledger_module().Ledger
+    assert isinstance(led_h.money, head_ledger) and not isinstance(led_h.money, Ledger)  # 本当に HEAD の台帳で回した
+    assert isinstance(led_n.money, Ledger) and led_n.money.stage2 is None  # 今の台帳・段階 2 の外
     assert res_h.final_hash == res_n.final_hash
     assert res_h.llm_calls == res_n.llm_calls
     assert CP.diff(CP.money_state(led_h.money), CP.money_state(led_n.money)) == []
@@ -254,6 +263,32 @@ def test_5k_mock_day_matches_head(monkeypatch, rate):
         assert m.n_raw_dropped == 0 and m.meter.overflow == 0  # K17: 溢れ 0 件
     else:
         assert m.meter.overflow == m.n_raw_dropped > 0  # 旧い係数では溢れる(数えて続ける・値は HEAD と同じ)
+
+
+def test_the_outside_bundle_swaps_the_ledger_types_on_both_sides(monkeypatch):
+    """〔割る段 5b の G3・親の裁定〕``use_outside_bundle`` は台帳の型を、作る側(``build_ledger_bundle``=割った後は
+    ``interfaces.cli.wire_economy``)と表示の札を決める側(``main()`` の ``isinstance``=割った後は ``interfaces.cli.main``)の
+    両方で差し替える。この助けを使うほかの試験は ``cli.main`` を呼ばない=札の側の差し替えが外れても落ちないので、ここで確かめる:
+    両方の ``Ledger``・``_HouseholdWalletLedger`` が同じ物で元の型と別の物・``GoodsLedger`` は型を渡したときだけ作る側がその型・
+    抜けると元に戻る。割る前は 2 つの別名が同じ ``shibuya.cli``(別名の割り先は ``tools/pkgmove/split.py`` の
+    ``SPLIT_ALIAS_DESTS`` の宣言)。"""
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.interfaces.cli import wire_economy as cli_wire
+
+    from tests.economy import _stage2_outside as SO
+
+    ledger0, wallet0, goods0 = cli_wire.Ledger, cli_wire._HouseholdWalletLedger, cli_wire.GoodsLedger
+    HL, HG, HW = CP.shims()
+    for kw in ({}, {"ledger_cls": HL, "wallet_cls": HW, "goods_cls": HG}):
+        with monkeypatch.context() as mp:
+            SO.use_outside_bundle(mp, **kw)
+            assert cli.Ledger is cli_wire.Ledger and cli.Ledger is not ledger0
+            assert cli._HouseholdWalletLedger is cli_wire._HouseholdWalletLedger
+            assert cli._HouseholdWalletLedger is not wallet0
+            assert cli_wire.GoodsLedger is kw.get("goods_cls", goods0)
+        assert (cli.Ledger, cli_wire.Ledger) == (ledger0, ledger0)
+        assert (cli._HouseholdWalletLedger, cli_wire._HouseholdWalletLedger) == (wallet0, wallet0)
+        assert cli_wire.GoodsLedger is goods0
 
 
 # ---------------------------------------------------------------- 4. 検収 M1: 汎用の口の減価償却(宣言つきの直し)

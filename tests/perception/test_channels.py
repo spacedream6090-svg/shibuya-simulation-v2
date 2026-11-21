@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.perception import channels as C
-from shibuya.perception.templates import BLOCK_TOKEN_BUDGET
+from shibuya.foundation.text import channels as C
+from shibuya.foundation.text.templates import BLOCK_TOKEN_BUDGET
 
 
 def test_channel_table_matches_contract_section_3_2():
@@ -49,9 +49,12 @@ def test_intentional_distortion_note_is_present():
 
 def test_estimate_tokens_matches_the_llm_side_convention():
     """``llm.estimate_tokens``(文字数÷2・最低1)との二重定義が一致している。"""
-    llm = pytest.importorskip("shibuya.llm")
+    # 〔割る段 5a の G0〕前は importorskip("shibuya.llm")=割る段で llm の包みが無くなると黙って飛ぶ。名を直に読む(移す道具が
+    # import の文を名の割り先へ向ける)
+    from shibuya.foundation.ports.inference import estimate_tokens
+
     for s in ("", "a", "あ" * 7, "[B4 密度] 歩行者密度は段階Cです。", "x" * 1000):
-        assert C.estimate_tokens(s) == llm.estimate_tokens(s), s
+        assert C.estimate_tokens(s) == estimate_tokens(s), s
 
 
 def test_truncation_never_splits_a_line():

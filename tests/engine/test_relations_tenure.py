@@ -21,8 +21,10 @@ import pytest
 from tests import _data_ids as D
 from tests import golden_env as GE
 
-from shibuya.agents.weekly import WeeklySchedule
-from shibuya.engine import relations as RL
+from shibuya.world.facts.weekly_reader import WeeklySchedule
+# 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+from shibuya.world.facts import initial_ties as RT
+from shibuya.foundation.vocab import relations as RV
 
 SRC = Path("src/shibuya")
 WORLD = "data/world/v2"
@@ -53,19 +55,19 @@ def test_v1_is_the_old_formula_and_v2_is_symmetric():
     rng = np.random.default_rng(0)
     u = rng.integers(0, 400_000, 5_000)
     v = rng.integers(0, 400_000, 5_000)
-    old = (RL._pair_mix(np.minimum(u, v), np.maximum(u, v)) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
-    assert np.array_equal(RL._tenure_unit(u, v, "v1"), old)                          # 旧の式そのもの
+    old = (RT._pair_mix(np.minimum(u, v), np.maximum(u, v)) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
+    assert np.array_equal(RT._tenure_unit(u, v, "v1"), old)                          # 旧の式そのもの
     lt = u < v
-    tie = (RL._pair_mix(u, v) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
-    assert np.array_equal(RL._tenure_unit(u, v, "v1")[lt], tie[lt])                 # 欠陥: 同点の順と同じ値
+    tie = (RT._pair_mix(u, v) >> np.uint64(11)).astype(np.float64) / float(1 << 53)
+    assert np.array_equal(RT._tenure_unit(u, v, "v1")[lt], tie[lt])                 # 欠陥: 同点の順と同じ値
     for ver in ("v1", "v2"):
-        assert np.array_equal(RL._tenure_weeks(u, v, 13.0, ver), RL._tenure_weeks(v, u, 13.0, ver))  # 向きなし
-        t = RL._tenure_weeks(u, v, 13.0, ver)
+        assert np.array_equal(RT._tenure_weeks(u, v, 13.0, ver), RT._tenure_weeks(v, u, 13.0, ver))  # 向きなし
+        t = RT._tenure_weeks(u, v, 13.0, ver)
         assert float(t.min()) >= 1.0 and float(t.max()) < 13.0
-    assert not np.array_equal(RL._tenure_unit(u, v, "v2"), RL._tenure_unit(u, v, "v1"))
-    assert RL._tenure_weeks(u[:3], v[:3], 13.0).tolist() == RL._tenure_weeks(u[:3], v[:3], 13.0, "v2").tolist()
+    assert not np.array_equal(RT._tenure_unit(u, v, "v2"), RT._tenure_unit(u, v, "v1"))
+    assert RT._tenure_weeks(u[:3], v[:3], 13.0).tolist() == RT._tenure_weeks(u[:3], v[:3], 13.0, "v2").tolist()
     with pytest.raises(ValueError):
-        RL._tenure_unit(u, v, "v3")
+        RT._tenure_unit(u, v, "v3")
 
 
 # ================================================================= (b) 合成の大組織(全員同点)
@@ -77,8 +79,8 @@ def test_all_tied_organisation_bias_is_gone_with_v2():
     p = SimpleNamespace(n=g, household_id=np.full(g, -1), org_id=np.full(g, 3), school_cell=np.full(g, -1))
     got = {}
     for ver in ("v1", "v2"):
-        init = RL.initial_edges(p, w, g, tau=None, tenure_hash=ver)
-        assert init.u.size == g * RL.REL_K and init.audit["tenure_hash"] == ver
+        init = RT.initial_edges(p, w, g, tau=None, tenure_hash=ver)
+        assert init.u.size == g * RV.REL_K and init.audit["tenure_hash"] == ver
         T = -init.first.astype(np.float64) / 10080.0
         lt = init.u < init.v  # 合成は元 id=行番号
         got[ver] = (float((T[lt] < 2).mean()), float((T[~lt] < 2).mean()), init)
@@ -94,18 +96,18 @@ def test_tenure_u_is_rank_independent_of_the_tie_hash():
     rng = np.random.default_rng(1)
     u = rng.integers(0, 400_000, 300_000)
     v = rng.integers(0, 400_000, 300_000)
-    tie = RL._pair_mix(u, v).astype(np.float64)
+    tie = RT._pair_mix(u, v).astype(np.float64)
     lt = u < v
-    assert _spearman(RL._tenure_unit(u, v, "v1")[lt], tie[lt]) == pytest.approx(1.0)
-    assert abs(_spearman(RL._tenure_unit(u, v, "v2"), tie)) < 0.01
-    assert abs(_spearman(RL._tenure_unit(u, v, "v2")[lt], tie[lt])) < 0.01
+    assert _spearman(RT._tenure_unit(u, v, "v1")[lt], tie[lt]) == pytest.approx(1.0)
+    assert abs(_spearman(RT._tenure_unit(u, v, "v2"), tie)) < 0.01
+    assert abs(_spearman(RT._tenure_unit(u, v, "v2")[lt], tie[lt])) < 0.01
     # 連番の組(大組織の元 id)でも一様
     a = np.repeat(np.arange(600), 600)
     b = np.tile(np.arange(600), 600)
     ok = a != b
-    unit = RL._tenure_unit(a[ok], b[ok], "v2")
+    unit = RT._tenure_unit(a[ok], b[ok], "v2")
     assert float((unit < 1 / 12).mean()) == pytest.approx(UNIFORM, abs=0.005)
-    assert abs(_spearman(unit, RL._pair_mix(a[ok], b[ok]).astype(np.float64))) < 0.01
+    assert abs(_spearman(unit, RT._pair_mix(a[ok], b[ok]).astype(np.float64))) < 0.01
 
 
 # ================================================================= (d) 全母集団
@@ -115,18 +117,18 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
     8.3% ± 1 ポイント・U と同点の順のハッシュの順位相関 < 0.01・u→v と v→u で同じ・τ の再逆算(8b′ と同じ手順=
     ラン開始時の 15 番目の辺の A の中央値を小数 3 桁で切り下げ)が :data:`REL_TAU_V2`(〔段 10〕差し替えの世界では −∞=下の注)。
     v1 は同じ網で偏る(旧の事実)。"""
-    from shibuya.agents.population import load_population
-    from shibuya.agents.weekly import load_weekly
+    from shibuya.world.facts.population_reader import load_population
+    from shibuya.world.facts.weekly_reader import load_weekly
 
     pop = load_population(WORLD, n=None, seed=1)
     w = load_weekly(WORLD).restrict_to(pop.source_agent_id)
     m = int(pop.n)
-    init = RL.initial_edges(pop, w, m, tau=None)                      # 既定 v2
+    init = RT.initial_edges(pop, w, m, tau=None)                      # 既定 v2
     assert init.audit["tenure_hash"] == "v2"
     src = np.asarray(pop.source_agent_id, dtype=np.int64)
     su, sv = src[init.u], src[init.v]
     T = -init.first.astype(np.float64) / 10080.0
-    T1 = RL._tenure_weeks(su, sv, RL.REL_TENURE_WEEKS, "v1")          # 同じ網で旧の在職期間
+    T1 = RT._tenure_weeks(su, sv, RV.REL_TENURE_WEEKS, "v1")          # 同じ網で旧の在職期間
     for k in (1, 2, 3):
         for msk in (su < sv, su > sv):
             s = (init.kind == k) & msk
@@ -135,10 +137,10 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
     for k in (2, 3):                                                   # 旧: 元 id_u < 元 id_v の職場/学校が偏る
         s = (init.kind == k) & (su < sv)
         assert float((T1[s] < 2).mean()) > 0.2
-    assert abs(_spearman(RL._tenure_unit(su, sv, "v2"), RL._pair_mix(su, sv).astype(np.float64))) < 0.01
-    assert np.array_equal(RL._tenure_weeks(su, sv, 13.0), RL._tenure_weeks(sv, su, 13.0))
-    A0 = RL._activation(init.n, init.first, 0, 1.0, RL.REL_D)
-    t = RL.tau_from_edges(init.u, A0, m)
+    assert abs(_spearman(RT._tenure_unit(su, sv, "v2"), RT._pair_mix(su, sv).astype(np.float64))) < 0.01
+    assert np.array_equal(RT._tenure_weeks(su, sv, 13.0), RT._tenure_weeks(sv, su, 13.0))
+    A0 = RV._activation(init.n, init.first, 0, 1.0, RV.REL_D)
+    t = RT.tau_from_edges(init.u, A0, m)
     # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界(W16 を W21 に=345,858 体)では 15 本の辺を持つ体が半分に届かない
     # (40.66%=残す W16 の体の辺の中央 0 本・W21 の体 14 本)=8b′ の手順の中央値は −∞(再逆算できない)。既定の τ_rel
     # REL_TAU_V2(−2.322)は W16 の世界(390,067 体・15 本の体 54.52%)の再逆算の値のまま=親の判断を待つ問い(記録 pop43 §16)。
@@ -151,18 +153,22 @@ def test_full_population_initial_net_is_uniform_in_every_kind_and_direction():
 def test_run_switch_is_removed_and_the_default_tau_is_v2():
     """〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --rel-tenure-hash(v1=旧)は消した=渡すと止まる(関係の部品の
     在職期間のハッシュの版の引数は単体試験の口として残す=上の (a)〜(d))。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(TypeError):
         run_day(n_agents=10, ticks=2, memory="on", relations="on", rel_tenure_hash="v1")
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     assert '"--rel-tenure-hash"' not in text and "rel_tenure_hash" not in text
     D.skip_unless("world_v2")  # 前の assert は data なしでも回す
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on", ticks=30)
     s = cli.run(**kw).run_manifest_fields()["relations"]
-    assert s["tau"] == RL.REL_TAU_V2 and s["init"]["tenure_hash"] == "v2"
+    assert s["tau"] == RV.REL_TAU_V2 and s["init"]["tenure_hash"] == "v2"
     s = cli.run(rel_tau=-2.0, **kw).run_manifest_fields()["relations"]
     assert s["tau"] == -2.0                                            # 明示の τ が優先
 
@@ -186,7 +192,7 @@ REL_ON_5000_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で既定の行が動いた
     # (B6build の値 25b5ce1304f6db68 / 74,056)。full の 2 行は退避先の資産と day_index・legacy で再現する。
     # 〔小さな版上げ・meal_w17〕v2 前 768b2262e3b0999e / 67_794(validation で戻る)
-    ("v2", "behavior"): ("140f365398ad4172", 64_500),  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 94becde2c4fdb0d2 / 66_374=--space legacy で戻る・段 1 の nav1(cell)は 7cfa8bad2676996e / 63_877・記録 spatial-2026-10/sp1b)  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+    ("v2", "behavior"): ("477e22fcaed2590a", 63_519),  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 8db3f95a61228c92 / 63_710=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 140f365398ad4172 / 64_500=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 94becde2c4fdb0d2 / 66_374=--space legacy で戻る・段 1 の nav1(cell)は 7cfa8bad2676996e / 63_877・記録 spatial-2026-10/sp1b)  # 10e(E4) の値(E1 は e27e45f3e9b62749・E2 は fe19250259a7058d)  # 〔2-4 V1〕前 73a78288ab5e1498 / 69_111  # 〔2-4 V2〕前 c506dec249bb4328 / 69_114  # 〔2-4 V3〕前 874ea26628f6be2e / 68_213  # 〔2-4 V4〕前 4a0db59663ef0d7b / 67_780  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 d0623491c47e5e2f=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 }}
 #: 今の環境の行(無ければ ``None``=A/A だけ)。
 REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)
@@ -194,7 +200,7 @@ REL_ON_5000_GOLDEN = GE.row(REL_ON_5000_GOLDEN_BY_ENV)
 
 @pytest.mark.requires_data("world_v2")
 def test_relations_on_arm_golden_old_and_new():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=5000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", relations="on")
     if REL_ON_5000_GOLDEN is None:  # 10f: golden の行の無い環境は A/A だけ(既定の v2)

@@ -44,8 +44,8 @@ from typing import Any, Callable, Final, Mapping
 
 import numpy as np
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
-from shibuya.core import wage_formula as _WG
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
+from shibuya.economy import wage_formula as _WG
 
 __all__ = [
     "AttrKey",

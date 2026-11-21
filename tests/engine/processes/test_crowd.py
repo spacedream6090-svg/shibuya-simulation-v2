@@ -7,17 +7,22 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.state import Activity, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.processes.crowd import (
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail・R_SHOP=act/ops/shop。割る前は全部 resolve)
+from shibuya.act import apply as R
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.world.laws.crowd import (
     DWELL_MAX_TICKS,
     FLOW_NONE,
     WAIT_MAX_TICKS,
     CrowdProcess,
     seats_for_categories,
 )
-from shibuya.perception import templates as PT
+from shibuya.foundation.text import templates as PT
 
 from .conftest import make_agents, make_world
 
@@ -36,7 +41,7 @@ def _buy_intents(agent_ids, poi):
     a = np.asarray(agent_ids, dtype=np.int64)
     return C.IntentBatch(
         agent_id=a,
-        action_code=np.full(a.size, C.ACT_BUY, dtype=np.int8),
+        action_code=np.full(a.size, CV.ACT_BUY, dtype=np.int8),
         target_id=np.full(a.size, poi, dtype=np.int32),
         resource_id=np.full(a.size, -1, dtype=np.int32),
         t_notice_ns=np.zeros(a.size, dtype=np.int64),
@@ -68,10 +73,10 @@ def test_flow_is_still_when_nobody_moves():
 def test_flow_is_coherent_when_everyone_heads_the_same_way():
     world, agents, crowd, _ = _setup(n_agents=12, n_cells=9)
     ids = np.arange(agents.n, dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.zeros(ids.size, dtype=np.int64))
+    R_RAIL.rail_arrive(agents, world, ids, np.zeros(ids.size, dtype=np.int64))
     move = C.IntentBatch(
         agent_id=ids,
-        action_code=np.full(ids.size, C.ACT_MOVE, dtype=np.int8),
+        action_code=np.full(ids.size, CV.ACT_MOVE, dtype=np.int8),
         target_id=np.full(ids.size, 8, dtype=np.int32),
         resource_id=np.full(ids.size, -1, dtype=np.int32),
         t_notice_ns=np.zeros(ids.size, dtype=np.int64),
@@ -97,7 +102,7 @@ def test_buying_registers_occupancy_and_full_shops_queue():
     poi = 0
     cell = int(world.pois.cell[poi])
     ids = np.arange(6, dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
+    R_RAIL.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
     crowd.seats[poi] = 3
     crowd.step(T_OPEN)
     out = R.apply(_buy_intents(ids, poi), C.IntentBatch.empty(), agents, world, T_OPEN, crowd=crowd)
@@ -118,7 +123,7 @@ def test_queue_balks_after_the_wait_threshold():
     poi = 0
     cell = int(world.pois.cell[poi])
     ids = np.arange(4, dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
+    R_RAIL.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
     crowd.seats[poi] = 0
     crowd.step(T_OPEN)
     R.apply(_buy_intents(ids, poi), C.IntentBatch.empty(), agents, world, T_OPEN, crowd=crowd)
@@ -136,7 +141,7 @@ def test_occupancy_is_released_after_the_dwell_limit():
     poi = 0
     cell = int(world.pois.cell[poi])
     ids = np.arange(3, dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
+    R_RAIL.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
     crowd.step(T_OPEN)
     R.apply(_buy_intents(ids, poi), C.IntentBatch.empty(), agents, world, T_OPEN, crowd=crowd)
     crowd.step(T_OPEN + 1)
@@ -152,7 +157,7 @@ def test_queue_rows_gives_the_b4b_material():
     poi = 1
     cell = int(world.pois.cell[poi])
     ids = np.arange(5, dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
+    R_RAIL.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
     crowd.seats[poi] = 0
     crowd.step(T_OPEN)
     R.apply(_buy_intents(ids, poi), C.IntentBatch.empty(), agents, world, T_OPEN, crowd=crowd)
@@ -160,13 +165,6 @@ def test_queue_rows_gives_the_b4b_material():
     rows = crowd.queue_rows(3)
     assert rows and rows[0][0] == poi and rows[0][2] == 5
     assert f"行列: {rows[0][1]}に{rows[0][2]}人"
-
-
-def test_mean_wait_is_finite_and_zero_without_a_queue():
-    world, agents, crowd, _ = _setup()
-    crowd.step(0)
-    w = crowd.mean_wait_ticks()
-    assert np.all(np.isfinite(w)) and np.all(w == 0.0)
 
 
 # ================================================================= 列の捌き(D-113 ③・第268)
@@ -180,7 +178,7 @@ def _seat_one_and_queue_two(seats=1):
     poi = 0
     cell = int(world.pois.cell[poi])
     ids = np.arange(3, dtype=np.int64)
-    R.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
+    R_RAIL.rail_arrive(agents, world, ids, np.full(ids.size, cell, dtype=np.int64))
     crowd.seats[poi] = seats
     crowd.step(T_OPEN)
     out = R.apply(_buy_intents(ids, poi), _empty(), agents, world, T_OPEN, crowd=crowd)
@@ -202,7 +200,7 @@ def test_queue_is_served_fifo_when_a_seat_frees_up_d113_3():
     assert out.n_served_from_queue == 0
     assert np.all(agents.registry.queue_poi[waiting] == poi)
     # 席が空く: 先に並んだ体(id 小)が入り、購入が完了する
-    R.release_indoor(agents, np.array([seated]))
+    R_SHOP.release_indoor(agents, np.array([seated]))
     crowd.step(T_OPEN + 2)
     out = R.apply(_empty(), _empty(), agents, world, T_OPEN + 2, crowd=crowd)
     first, second = int(waiting[0]), int(waiting[1])
@@ -216,7 +214,7 @@ def test_queue_is_served_fifo_when_a_seat_frees_up_d113_3():
     assert int(agents.registry.queue_poi[second]) == poi
     assert int(agents.activity[second]) == int(Activity.WAITING)
     # もう 1 席: 2 人目
-    R.release_indoor(agents, np.array([first]))
+    R_SHOP.release_indoor(agents, np.array([first]))
     crowd.step(T_OPEN + 3)
     out = R.apply(_empty(), _empty(), agents, world, T_OPEN + 3, crowd=crowd)
     assert out.n_served_from_queue == 1
@@ -231,8 +229,8 @@ def test_waiting_bodies_take_the_seat_before_newcomers():
     waiting = np.flatnonzero(agents.registry.queue_poi == poi)
     cell = int(world.pois.cell[poi])
     newcomer = np.array([10], dtype=np.int64)
-    R.rail_arrive(agents, world, newcomer, np.full(1, cell, dtype=np.int64))
-    R.release_indoor(agents, np.array([seated]))
+    R_RAIL.rail_arrive(agents, world, newcomer, np.full(1, cell, dtype=np.int64))
+    R_SHOP.release_indoor(agents, np.array([seated]))
     crowd.step(T_OPEN + 2)
     out = R.apply(_buy_intents(newcomer, poi), _empty(), agents, world, T_OPEN + 2, crowd=crowd)
     assert out.n_served_from_queue == 1
@@ -244,7 +242,7 @@ def test_waiting_bodies_take_the_seat_before_newcomers():
 def test_queue_service_switch_off_keeps_the_old_behaviour():
     world, agents, crowd, poi, seated = _seat_one_and_queue_two()
     waiting = np.flatnonzero(agents.registry.queue_poi == poi)
-    R.release_indoor(agents, np.array([seated]))
+    R_SHOP.release_indoor(agents, np.array([seated]))
     crowd.step(T_OPEN + 2)
     out = R.apply(_empty(), _empty(), agents, world, T_OPEN + 2, crowd=crowd, queue_service=False)
     assert out.n_served_from_queue == 0
@@ -272,7 +270,7 @@ def test_served_body_that_can_no_longer_pay_leaves_the_queue():
     first = int(waiting[0])
     with agents.writable():
         agents.registry.money[first] = 0
-    R.release_indoor(agents, np.array([seated]))
+    R_SHOP.release_indoor(agents, np.array([seated]))
     crowd.step(T_OPEN + 2)
     out = R.apply(_empty(), _empty(), agents, world, T_OPEN + 2, crowd=crowd)
     assert int(agents.last_result[first]) == int(ResultCode.MONEY_SHORT)

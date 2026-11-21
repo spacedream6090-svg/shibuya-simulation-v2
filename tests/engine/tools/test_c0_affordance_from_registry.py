@@ -11,20 +11,26 @@
 
 from __future__ import annotations
 
+import sys
 from types import MappingProxyType, SimpleNamespace
 
 import numpy as np
 import pytest
 
-from shibuya.engine.decision import layer as DL
-from shibuya.engine.decision.sources import build_candidates
-from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE
-from shibuya.engine.run import run_day
-from shibuya.engine.tools import record as REC
-from shibuya.engine.tools import registry as TR
-from shibuya.engine.tools.registry import KnownBy, Tool, ToolRegistry
-from shibuya.llm.contract import cross_action_words, safe_action_word
+from shibuya.mind.judge.decision import layer as DL
+from shibuya.mind.judge.decision.sources import build_candidates
+from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE
+from shibuya.runtime.run import run_day
+from shibuya.society.tools import record as REC
+from shibuya.society.tools import registry as TR
+# 〔割る段 5a の G2〕2 つ目の割り先 foundation.vocab.events へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.foundation.vocab.events import SIGNBOARD
+from shibuya.society.tools.registry import KnownBy, Tool, ToolRegistry
+from shibuya.foundation.vocab.actions import cross_action_words, safe_action_word
 from tests.engine.decision._j0 import SMALL, ctx_of, decision_arm
+
+#: 〔割る段 5a の G2〕TOOL_ACTION_WORDS を差し替える相手=それを読む affordance_words の定義の置き場(割ると主な割り先)
+_TR_MOD = sys.modules[TR.affordance_words.__module__]
 
 V3 = cross_action_words("v3")
 
@@ -68,7 +74,7 @@ def test_one_word_in_the_table_adds_a_candidate(monkeypatch):
     layer = _layer(TR.default_registry())
     base = _cands(layer, ctx)
     assert {c.kind: c.source for c in base}["通報"] == "vocab"
-    monkeypatch.setattr(TR, "TOOL_ACTION_WORDS", MappingProxyType({TR.SIGNBOARD: ("通報",)}))
+    monkeypatch.setattr(_TR_MOD, "TOOL_ACTION_WORDS", MappingProxyType({SIGNBOARD: ("通報",)}))
     assert "通報" in layer.affordance_words(ctx, V3)
     after = _cands(layer, ctx)
     src = {c.kind: c.source for c in after}
@@ -76,7 +82,7 @@ def test_one_word_in_the_table_adds_a_candidate(monkeypatch):
     n_aff = lambda cs: sum(1 for c in cs if c.source == "affordance")  # noqa: E731
     assert n_aff(after) == n_aff(base) + 1 and len(after) == len(base)
     # 語彙に無い語は候補にならない(語彙の外の語を表に入れても足されない)
-    monkeypatch.setattr(TR, "TOOL_ACTION_WORDS", MappingProxyType({TR.SIGNBOARD: ("看板を読む",)}))
+    monkeypatch.setattr(_TR_MOD, "TOOL_ACTION_WORDS", MappingProxyType({SIGNBOARD: ("看板を読む",)}))
     assert _cands(layer, ctx) == base
 
 
@@ -85,7 +91,7 @@ def _reg(*tools: Tool) -> ToolRegistry:
 
 
 def test_unknown_agents_get_nothing(monkeypatch):
-    monkeypatch.setattr(TR, "TOOL_ACTION_WORDS", MappingProxyType({"道具 A": ("通報",)}))
+    monkeypatch.setattr(_TR_MOD, "TOOL_ACTION_WORDS", MappingProxyType({"道具 A": ("通報",)}))
     reg = _reg(Tool(name="道具 A", owner="本人", content_writer="本人", known_by=KnownBy.of([3])))
     layer = _layer(reg)
     p = SimpleNamespace(seen_people=(), intent=None, memories=None, belongings=None)
@@ -95,7 +101,7 @@ def test_unknown_agents_get_nothing(monkeypatch):
 
 
 def test_unmet_requirements_hide_the_tool(monkeypatch):
-    monkeypatch.setattr(TR, "TOOL_ACTION_WORDS", MappingProxyType({"道具 B": ("通報",)}))
+    monkeypatch.setattr(_TR_MOD, "TOOL_ACTION_WORDS", MappingProxyType({"道具 B": ("通報",)}))
     reg = _reg(Tool(name="道具 B", owner="本人", content_writer="本人", requires=("持ち物:携帯電話", "回線:電話の網")))
     layer = _layer(reg)
     none = SimpleNamespace(seen_people=(), intent=None, memories=None, belongings=None)
@@ -109,13 +115,13 @@ def test_unmet_requirements_hide_the_tool(monkeypatch):
 
 def test_registered_only_tools_are_not_offered(monkeypatch):
     """登録だけの段(``stage`` が 6-4)の道具は、表に語があっても出ない(電話・乗換案内・地図ほか)。"""
-    monkeypatch.setattr(TR, "TOOL_ACTION_WORDS", MappingProxyType({n: ("通報",) for n in TR.TOOL_NAMES
-                                                                  if n not in (TR.SIGNBOARD, TR.NOTICE)}))
+    monkeypatch.setattr(_TR_MOD, "TOOL_ACTION_WORDS", MappingProxyType({n: ("通報",) for n in TR.TOOL_NAMES
+                                                                  if n not in (SIGNBOARD, TR.NOTICE)}))
     reg = TR.default_registry()
     full = SimpleNamespace(seen_people=(), intent=None, memories=None,
                            belongings=tuple(r for t in reg for r in t.requires))
     assert "通報" not in _layer(reg).affordance_words(ctx_of(agent_id=0, cell=-1, percept=full), V3)
-    assert [t.name for t in reg.usable(0, full.belongings)] == [TR.SIGNBOARD, TR.NOTICE]
+    assert [t.name for t in reg.usable(0, full.belongings)] == [SIGNBOARD, TR.NOTICE]
 
 
 # ================================================================= 組み立てとラン(腕 port)

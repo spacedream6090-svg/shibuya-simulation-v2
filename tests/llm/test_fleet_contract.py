@@ -18,63 +18,106 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from shibuya.core.budget import budget_by_id, load_budget_table
-from shibuya.llm.fleet import (
+from shibuya.foundation.budget import budget_by_id, load_budget_table
+from shibuya.runtime.inference.fleet import (
     DEFAULT_E2E_TIMEOUT_S,
     DEFAULT_TTFT_TIMEOUT_S,
-    LANE_THINK_TOKENS,
     LANE_TIER,
-    Deferred,
     FleetBridge,
     FleetClient,
     FleetConfig,
+    l4_calls_per_day,
+    l6_in_flight_per_gpu,
+    plan_batch,
+)
+from shibuya.foundation.ports.inference import (
+    LANE_THINK_TOKENS,
+    Deferred,
     LLMCall,
     Outcome,
     cache_salt_for,
-    l4_calls_per_day,
-    l6_in_flight_per_gpu,
     max_tokens_for,
-    plan_batch,
     route_primary,
     seed_for,
     split_system_user,
 )
-from shibuya.manifest.schema import Mode
+from shibuya.foundation.manifest.schema import Mode
+from tests import _places
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 BAD = "うーん、なんとも言えませんね。"
 
-FLEET_PY = Path(__file__).resolve().parents[2] / "src" / "shibuya" / "llm" / "fleet.py"
-FORBIDDEN_PREFIXES = (
-    "shibuya.engine",
-    "shibuya.perception",
-    "shibuya.world",
-    "shibuya.agents",
-    "shibuya.economy",
-    "shibuya.census",
-    "shibuya.build",
-)
+FLEET_PY = Path(__file__).resolve().parents[2] / "src" / "shibuya" / "runtime" / "inference" / "fleet.py"
+
+
+def _forbidden() -> tuple[_places.Names, tuple[str, ...]]:
+    """読んではいけない層: 元の置き場が engine・perception・world・agents・economy・build にあったモジュールの今の名と、
+    census の包みの名。
+
+    〔段 4 の下ごしらえ・親の裁定 L-7〕前は包みの名の字面 7 つ。包みは、そこにあった(ある)モジュールを 1 つずつ import して
+    元の置き場から今の名を引く(移す前の木では前の字面と同じ範囲)。census は頭 1 本だけの包みで段 4 の delete の段で消える
+    (残るモジュールが無い)ので字面のまま(移す道具は包みの名を書き換えない)。
+    """
+    import shibuya.build as BUILD
+    from shibuya.world.facts import population_reader as AGENTS  # 〔割る段 5a の G0・親の裁定 Q13〕元の置き場が agents/ に残るモジュール
+    from shibuya.economy import ledger as ECONOMY
+    # 〔割る段 6 の S6-G0・親の裁定 Q10〕範囲の手がかりは、元の置き場が engine の、割らずに移したモジュール(割る段 6 で resolve を割ると包み engine が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.act import intent as ENGINE
+    # 〔割る段 7 の G0・親の裁定 Q12〕範囲の手がかりは、元の置き場が perception の、割らずに移したモジュール(割る段 7 で renderer を割ると包み perception が無くなる。付け替えの前と後で範囲は同じ)
+    from shibuya.foundation.text import templates as PERCEPTION
+    from shibuya.world.model import state as WORLD
+
+    return _places.names_from(ENGINE, PERCEPTION, WORLD, AGENTS, ECONOMY, BUILD), ("shibuya.census",)
 
 
 # ------------------------------------------------------------------ 層契約
 
 
 def test_fleet_module_imports_no_forbidden_layer():
-    """``llm`` は engine/perception/world/agents を import しない(AST での二重化)。"""
-    tree = ast.parse(FLEET_PY.read_text(encoding="utf-8"))
+    """``llm`` は engine/perception/world/agents を import しない(AST での二重化)。
+
+    〔割る段 5a の G3・8 本目〕元の ``llm/fleet.py`` は、型と口(17 名)が ``foundation/ports/inference.py`` へ、残りが
+    ``runtime/inference/fleet.py`` へ割れた=両方の割り先を見る(型の割り先は ``LLMCall`` の定義の置き場から引く)。"""
+    import inspect
+
+    files = sorted({FLEET_PY.resolve(), Path(inspect.getsourcefile(LLMCall)).resolve()})
+    assert len(files) == 2, files  # 〔検収の低 5〕型が fleet へ戻ると集合が黙って 1 本になる=気づけるように数を固定する
     seen: list[str] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            seen.extend(a.name for a in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.module:
-            seen.append(node.module)
-    bad = [m for m in seen if m.startswith(FORBIDDEN_PREFIXES)]
+    for f in files:
+        for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            seen.extend(_places.imported(node))
+    names, literal = _forbidden()
+    assert names.heads and names.leaves
+    bad = [m for m in seen if names.hits(m) or m.startswith(literal)]
+    assert bad == [], f"層契約違反の import: {bad}"
+
+
+def test_split_llm_parts_import_no_forbidden_layer():
+    """〔割る段 5a の G3・検収の低 1〕古い決まり「``llm`` は engine/perception/world/agents を import しない」は、``llm/`` が
+    無くなって import-linter の契約から消えた(宣言どおり)。割り先のうち fleet と口の型は上の試験が見る。ここでは残りの
+    割り先(mock・undefined)を、同じ範囲(``_forbidden``)で AST から見る(関数の中の import も見る)=古い決まりが守っていた
+    向きを、古い包みが無くなる段(段 6〜8)まで試験で守る。"""
+    import inspect
+
+    import shibuya.act.intake.undefined as UNDEFINED
+    import shibuya.runtime.inference.mock as MOCK
+
+    files = sorted({Path(inspect.getsourcefile(m)).resolve() for m in (MOCK, UNDEFINED)})
+    assert len(files) == 2, files
+    seen: list[str] = []
+    for f in files:
+        for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            seen.extend(_places.imported(node))
+    assert seen, "import を 1 つも読めていない(空回り)"
+    names, literal = _forbidden()
+    assert names.heads and names.leaves
+    bad = [m for m in seen if names.hits(m) or m.startswith(literal)]
     assert bad == [], f"層契約違反の import: {bad}"
 
 
 def test_lane_think_tokens_matches_engine_canon():
     """``LANE_THINK_TOKENS`` は層契約のための複製=engine 側の正典と同値を機械で固定する。"""
-    from shibuya.engine.llm_bridge import LANE_SECONDS, LANE_THINK_TOKENS as CANON
+    from shibuya.runtime.inference.bridge import LANE_SECONDS, LANE_THINK_TOKENS as CANON
 
     assert dict(LANE_THINK_TOKENS) == dict(CANON)
     assert set(LANE_TIER) == set(LANE_SECONDS)  # レーンの集合も同じ
@@ -87,9 +130,9 @@ def test_bridge_result_fields_mirror_engine_bridge_result():
     """``FleetBridgeResult`` は ``engine.llm_bridge.BridgeResult`` の欄を包含する。"""
     from dataclasses import fields
 
-    from shibuya.engine.llm_bridge import BridgeResult
+    from shibuya.runtime.inference.bridge import BridgeResult
 
-    from shibuya.llm.fleet import FleetBridgeResult
+    from shibuya.runtime.inference.fleet import FleetBridgeResult
 
     engine_fields = {f.name for f in fields(BridgeResult)}
     fleet_fields = {f.name for f in fields(FleetBridgeResult)}

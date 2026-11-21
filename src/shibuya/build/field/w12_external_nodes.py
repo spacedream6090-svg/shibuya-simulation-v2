@@ -62,7 +62,7 @@ import numpy as np
 from . import common as C
 from . import w12_rail_events as RE
 from . import w12_real_timetables as RT
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W12"
 #: 1.1.0(第330 B3): 等間隔ダイヤの丸めを「小数で積み切り捨て」に直した(時刻表の行が変わる)。

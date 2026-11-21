@@ -15,10 +15,10 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.events import log as EV
-from shibuya.engine.events.log import EventLog, LlmCall
-from shibuya.engine.speech import port as P
-from shibuya.engine.speech.port import WHAT as W_SPEECH
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.journal.log import EventLog, LlmCall
+from shibuya.society.speech import port as P
+from shibuya.society.speech.port import WHAT as W_SPEECH
 from tests.engine.speech._s8b import run_small
 
 NS = 60 * 10**9

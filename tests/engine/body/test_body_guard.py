@@ -17,13 +17,19 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.body import BodyModel
-from shibuya.engine.systems import allow as AL
+from shibuya.world.body.model import BodyModel
+from shibuya.world.body import model as _BM
+from shibuya.world.body import schedule as _BS
+from shibuya.runtime.systems import allow as AL
 
 from tests.engine.ast_writers import UNKNOWN, scan_writes
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya"
-MODEL, SCHED = "engine/body/model.py", "engine/body/schedule.py"
+#: 体の層のファイルと、その包みのディレクトリ(〔段 4 の下ごしらえ・親の裁定 L-7〕字面で持たず、モジュールの ``__file__``
+#: から作る。前は "engine/body/model.py"・"engine/body/schedule.py"・ディレクトリの "engine/body/"=段 4 で包みごと移る)。
+MODEL, SCHED = (Path(m.__file__).resolve().relative_to(SRC.resolve()).as_posix() for m in (_BM, _BS))
+BODY_DIR = MODEL.rpartition("/")[0] + "/"
+assert SCHED.startswith(BODY_DIR)
 #: 体の層の中身の欄(持ち主の 2 つ+予約の列の欄)。
 COLS = frozenset({"_reservations", "_body_meter", "intero", "intero_seq", "intero_at", "intero_snap", "intero_primed", "felt",
                   "felt_seq", "felt_at", "felt_col", "felt_table", "felt_next", "felt_serial"})
@@ -39,7 +45,7 @@ SCHED_PORTS = frozenset({"reset", "intero_due", "intero_plan", "intero_snapshot"
 PORT_CALLERS = frozenset({f"{MODEL}:BodyModel.{m}" for m in ("__init__", "initial", "_reserve_intero", "_step_felt")})
 #: 同じ名の欄を持つ別の持ち主(体の層の対象の外): 予約の列の道具そのもの。持ち主の欄の名 ``_reservations``・``_body_meter``
 #: はほかの持ち主と重ならない名にした(10f の外の状態の軸 1 の AST の検査の名の衝突を避ける)。
-OTHER_OWNERS = frozenset({"engine/scheduler.py"})
+OTHER_OWNERS = frozenset({"foundation/queues/scheduler.py"})
 MUTATORS = frozenset({"setdefault", "append", "pop", "popitem", "clear", "update", "extend", "insert", "remove"})
 
 
@@ -52,7 +58,7 @@ def _writes(rel: str, text: str) -> list[str]:
         return []
     bad = []
     for w in scan_writes(text, lambda n: n in COLS):
-        if w.name == UNKNOWN and not rel.startswith("engine/body/"):
+        if w.name == UNKNOWN and not rel.startswith(BODY_DIR):
             continue
         if f"{rel}:{w.func}" not in ALLOWED:
             bad.append(f"{rel}:{w.line} [{w.func}] {w.kind} {w.name} ({w.form})")
@@ -99,7 +105,7 @@ def _scan_ports(files: dict[str, str]) -> tuple[list[str], list[str], list[str]]
                 sched_bad.append(f"{rel}:{line} [{func}] {recv}.{port}")
             if port in ("step", "initial") and "body" in recv.lower():
                 body_calls.append(f"{rel}:{func}:{port}")
-            if port in MUTATORS and recv.split(".")[-1] in COLS and not rel.startswith("engine/body/"):
+            if port in MUTATORS and recv.split(".")[-1] in COLS and not rel.startswith(BODY_DIR):
                 writes.append(f"{rel}:{line} [{func}] method {recv}.{port}")
     return sched_bad, body_calls, writes
 
@@ -108,20 +114,47 @@ def _src_files() -> dict[str, str]:
     return {_rel(p): p.read_text(encoding="utf-8") for p in sorted(SRC.rglob("*.py"))}
 
 
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイル(``allow.RESOLVE_FILES``)と、そのモジュールの名。前は字面の
+#: ``engine/resolve.py`` と受け手の名 ``R``・``resolve``(割ると書き手の割り先へ分かれる・別名も変わりうる)。
+RESOLVE_WRITERS = frozenset(AL.RESOLVE_FILES)
+RESOLVE_MODULES = frozenset(SRC.name + "." + rel[:-3].replace("/", ".") for rel in AL.RESOLVE_FILES)
+
+
+def _as_resolve(site: str) -> str:
+    """``道:関数:口`` の道が resolve の書き手のどれかなら ``resolve`` に(割る前は 1 本=前と同じ区別)。"""
+    rel, _, rest = site.partition(":")
+    return ("resolve" if rel in RESOLVE_WRITERS else rel) + ":" + rest
+
+
+#: 前の版が受け手と見た名(字面)。
+_PREV_RECEIVERS = frozenset({"R", "resolve"})
+
+
+def _resolve_aliases(text: str) -> set[str]:
+    """ファイルの import(頂上と関数の中)が resolve の書き手のモジュールに結ぶ名。"""
+    out: set[str] = set()
+    for n in ast.walk(ast.parse(text)):
+        if isinstance(n, ast.ImportFrom) and n.module and n.level == 0:
+            out |= {a.asname or a.name for a in n.names if f"{n.module}.{a.name}" in RESOLVE_MODULES}
+        elif isinstance(n, ast.Import):
+            out |= {a.asname for a in n.names if a.name in RESOLVE_MODULES and a.asname}
+    return out
+
+
 def test_only_the_ports_write_the_body_layer():
     sched_bad, body_calls, writes = _scan_ports(_src_files())
     assert writes == [], writes
     assert sched_bad == [], sched_bad
-    assert sorted(set(body_calls)) == sorted({
-        "engine/resolve.py:advance_body:step", "engine/resolve.py:initialize:initial",
-        "engine/resolve.py:initialize_energy:initial", "engine/processes/environment.py:EnvironmentProcess.step:step",
+    assert sorted({_as_resolve(s) for s in body_calls}) == sorted({
+        "resolve:advance_body:step", "resolve:initialize:initial",
+        "resolve:initialize_energy:initial", "world/laws/environment.py:EnvironmentProcess.step:step",
     }), body_calls
 
 
 def test_negative_planted_writes_and_calls_are_found():
     """負の対照: 体の層の外から中身を書く・予約の列の書く口を呼ぶ・step を呼ぶ行を植えると見つかる。"""
     planted = {
-        "engine/presence.py": (
+        "world/laws/presence.py": (
             "def f(body, layers):\n"
             "    body._body_meter['steps'] = 0\n"
             "    layers.body._reservations.intero_plan(0, [], [])\n"
@@ -134,7 +167,7 @@ def test_negative_planted_writes_and_calls_are_found():
     assert any("presence.py:2" in w for w in writes) and any("model.py:3" in w for w in writes)
     assert any("method body._reservations.intero_snap.clear" in w for w in writes)
     assert any("intero_plan" in s for s in sched_bad)
-    assert "engine/presence.py:f:step" in body_calls
+    assert "world/laws/presence.py:f:step" in body_calls
 
 
 def test_the_owner_refuses_rebinding_and_deleting():
@@ -163,11 +196,11 @@ HEAD_WRITERS = {
     "_energy_meal": ["agents.energy_balance", "agents.hunger", "agents.since_meal_kcal"],
     "_energy_snack": ["agents.energy_balance", "agents.hunger", "agents.since_meal_kcal"],
     "advance_body": ["agents.energy_balance", "agents.fatigue", "agents.hunger", "agents.since_meal_kcal"],
-    "apply_detection": ["agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"],
     "energy_home_meal": ["agents.hunger_stage"],
     "initialize": ["agents.fatigue", "agents.hunger", "agents.thermal"],
     "initialize_energy": ["agents.energy_balance", "agents.hunger", "agents.hunger_stage", "agents.since_meal_kcal"],
     "set_thermal": ["agents.thermal"],
+    "write_intero_stages": ["agents.fatigue_stage", "agents.hunger_stage", "agents.thermal_stage"],
 }
 BODY_COLS = frozenset(c for v in HEAD_WRITERS.values() for c in v) | {"agents.fatigue_stage", "agents.thermal_stage"}
 
@@ -180,24 +213,27 @@ def test_no_new_writer_of_the_body_columns():
 
 #: HEAD の口の呼び手(src の中・``R.<口>(...)``)。
 HEAD_CALLERS = sorted([
-    ("engine/processes/environment.py", "set_thermal"), ("engine/processes/environment.py", "set_thermal"),
-    ("engine/systems/body.py", "advance_body"), ("engine/systems/build.py", "initialize"),
-    ("engine/systems/build.py", "initialize_energy"),
+    ("world/laws/environment.py", "set_thermal"), ("world/laws/environment.py", "set_thermal"),
+    ("runtime/systems/body.py", "advance_body"), ("runtime/systems/assemble.py", "initialize"),
+    ("runtime/systems/assemble.py", "initialize_energy"),
 ])
 
 
 def test_callers_of_the_body_write_ports_are_not_more_than_head():
     got = []
     for rel, text in _src_files().items():
+        # 〔S6-G0 の検収 低-1〕受け手は、書き手のモジュールに結ぶ import の名と、前の字面の名 ``R``・``resolve`` の両方(前の形が
+        # 拾った呼び手=引数で受けたモジュール・相対の import を含む ⊆ 今の形が拾う呼び手)。4 つの口の名で絞るので拾いすぎない
+        aliases = _resolve_aliases(text) | _PREV_RECEIVERS
         for _func, port, recv, _line in _calls(text):
-            if port in ("advance_body", "set_thermal", "initialize", "initialize_energy") and recv in ("R", "resolve"):
+            if port in ("advance_body", "set_thermal", "initialize", "initialize_energy") and recv in aliases:
                 got.append((rel, port))
     assert sorted(got) == HEAD_CALLERS  # 呼び手は減るか同じ(3-5 は同じ数)
 
 
 def test_the_body_layer_holds_copies_not_soa_views():
     """写し(引き直しの検出)は SoA の配列のビューを持たない(D ⑥ と同じ約束)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     a = AgentState(6)
     bm = BodyModel(6, arm="reserve")
@@ -223,7 +259,7 @@ def test_sweep_allocates_no_per_agent_arrays_and_reserve_does():
 
 def test_the_schedule_refuses_writes_outside_its_ports():
     """〔3-5 検収 L7〕予約の列の欄は書く口の外で付け替え・消去・配列の書きを断る(負の対照=書く口の中は書ける)。"""
-    from shibuya.agents.state import AgentState
+    from shibuya.world.model.agent_table import AgentState
 
     bm = BodyModel(5, arm="reserve")
     plan = bm._reservations  # noqa: SLF001 - 試験だけ読む

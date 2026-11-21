@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import json
 
-from shibuya import cli
-from shibuya.llm import UndefinedActionRegistry
-from shibuya.llm.undefined import SYNONYM_TABLE_VERSION
+from shibuya.interfaces.cli import main as cli
+from shibuya.act.intake.undefined import UndefinedActionRegistry
+from shibuya.act.intake.undefined import SYNONYM_TABLE_VERSION
 
 #: 第277: CLI の既定の版は v3=辞書の版の検査(v1 の ``SYNONYM_TABLE_VERSION``)は版 v1 を明示して守る。
 _BASE = ["--agents", "100", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9",

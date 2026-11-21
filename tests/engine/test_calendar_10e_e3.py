@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from datetime import date, datetime
 from pathlib import Path
 
@@ -20,9 +21,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine import calendar as CAL
-from shibuya.engine.calendar import SimCalendar, load_holidays
-from shibuya.engine.processes import opening as OP
+from shibuya.world.facts import calendar as CAL
+from shibuya.world.facts.calendar import SimCalendar, load_holidays
+from shibuya.world.laws import opening as OP
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"
@@ -36,9 +37,12 @@ def test_e3_defaults_come_from_one_constant():
     # 〔改訂(第330・RET)〕切り替えの定数と切替口を消した(ACT では定数 1 つで既定がそろって切り替わることを見た)
     assert CAL.DEFAULT_WORLD_START == datetime(2026, 7, 13) and CAL.DEFAULT_WORLD_START.weekday() == 0
     assert (CAL.WEEKDAY_MODE, CAL.WEATHER_SCHEME) == ("real", "calendar")
+    # 〔割る段 5a の G1〕消した切替口の名は暦の置き場で見る(SimCalendar の定義の置き場=割ると主な割り先。2 つ目の割り先
+    # foundation.types へ行くのは ticks_per_day だけ)。別名の素の使い方は道具が割り先を決められない
+    cal = sys.modules[SimCalendar.__module__]
     for gone in ("CALENDAR_UNIFIED", "WEEKDAY_MODES", "WEATHER_SCHEMES", "DEFAULT_WEEKDAY_MODE", "DEFAULT_WEATHER_SCHEME",
                  "check_weekday_mode", "check_weather_scheme"):
-        assert not hasattr(CAL, gone), gone
+        assert not hasattr(cal, gone), gone
     assert "weekday_mode" not in {f.name for f in __import__("dataclasses").fields(SimCalendar)}
     assert not hasattr(SimCalendar, "legacy")
     d = SimCalendar.default(3)
@@ -50,7 +54,8 @@ def test_e3_run_day_and_cli_defaults_are_unchanged():
     import argparse
     import inspect
 
-    from shibuya.engine.run import add_calendar_args, calendar_kwargs_from_args, run_day
+    from shibuya.interfaces.cli.run_args import add_calendar_args, calendar_kwargs_from_args
+    from shibuya.runtime.run import run_day
 
     sig = inspect.signature(run_day)
     assert "weather_scheme" not in sig.parameters and "calendar_weekday" not in sig.parameters
@@ -101,7 +106,7 @@ def test_e3_ph_row_uses_the_ph_spans_or_the_sunday_row():
 def test_act_w7_reader_takes_the_holiday_content_column_as_ph(tmp_path):
     # 〔改訂(第330・ACT)〕親の決定 (1): W7 の PH は構築側の列 ``holiday_content``(W7 1.1.0)から読む
     # (旧: 週の 8 つ目の要素=実行役の提案の形・資産に無かった)。``[]``=祝日は休み・空文字=規則なし=日曜の行。
-    from shibuya.world.assets import load_process_assets, synthetic_assets
+    from shibuya.world.model.assets import load_process_assets, synthetic_assets
 
     wa = synthetic_assets(n_cells=4, seed=1)
     ids = [f"p{j}" for j in range(wa.n_poi)]
@@ -128,7 +133,7 @@ def test_act_w7_reader_takes_the_holiday_content_column_as_ph(tmp_path):
 def test_act_holiday_opening_hours_come_from_holiday_content_or_the_sunday_row():
     # 〔第330・ACT〕世界資産の W7: 祝日に PH の規則を持つ店(40・うち休み 1)の営業時間は列 holiday_content の区間、
     # 持たない店は日曜の行(週表 content の 7 つ目)。期待値は parquet の列から直に作る
-    from shibuya.world.assets import load_assets, load_process_assets
+    from shibuya.world.model.assets import load_assets, load_process_assets
 
     wa = load_assets(WORLD_DIR)
     pa_ = load_process_assets(WORLD_DIR, wa)
@@ -166,8 +171,8 @@ def test_act_holiday_opening_hours_come_from_holiday_content_or_the_sunday_row()
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")  # 〔第333 検収 L5〕W17 の行(計画実行層)も読む
 def test_e3_two_days_advance_on_the_calendar_and_the_weekday_rows_come_from_it(monkeypatch):
     """〔改訂(第330・RET)〕前は legacy(day_index)の 2 日のランと曜日の行を比べた(legacy を消した)。今は暦の値だけを見る。"""
-    from shibuya import cli
-    from shibuya.engine.presence import PlanExecutor
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.world.laws.presence import PlanExecutor
 
     seen: dict[str, list] = {"opening": [], "presence": []}
     _o, _p = OP.OpeningProcess.relay_day, PlanExecutor.relay_day

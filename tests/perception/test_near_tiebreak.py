@@ -13,16 +13,19 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
-from shibuya.perception.renderer import (
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.mind.percept.draw import (
     DEFAULT_NEAR_TIEBREAK,
-    NEAR_TIEBREAKS,
     Renderer,
+)
+from shibuya.world.model.percept_scene import (
+    NEAR_TIEBREAKS,
     check_near_tiebreak,
     near_tie_keys,
     near_tie_salt64,
 )
-from shibuya.world.state import World
+from shibuya.world.model.state import World
 
 from tests import golden_env as GE
 
@@ -130,7 +133,7 @@ def test_keys_are_deterministic_per_observer_and_salt():
 
 
 def test_default_salt_is_the_run_salt_of_the_seed():
-    from shibuya.engine.run import run_salt_for
+    from shibuya.runtime.run import run_salt_for
 
     r, _a = tied_crowd(seed=11)
     assert r._near_salt64 == near_tie_salt64(run_salt_for(11))
@@ -139,13 +142,17 @@ def test_default_salt_is_the_run_salt_of_the_seed():
 
 
 def test_cli_has_no_near_tiebreak_flag():
-    from shibuya import cli
-    from shibuya.engine import run as RUN
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime import run as RUN
+
+    from tests import _places as PL
 
     # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口 --near-tiebreak(id=旧挙動)は消した=CLI・run_day に無い
     # (知覚の部品 Renderer の引数は単体試験の基準の口として残す=この表の上の試験)
-    src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-tiebreak"' not in src and '"--near-tiebreak"' not in open(RUN.__file__, encoding="utf-8").read()
+    # 〔割る段 5b の G0〕cli と run の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py と engine/run.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
+    assert '"--near-tiebreak"' not in src and '"--near-tiebreak"' not in PL.split_source("engine/run.py")
     with pytest.raises(TypeError):
         RUN.run_day(n_agents=10, ticks=2, near_tiebreak="id")
     with pytest.raises(SystemExit):
@@ -167,7 +174,9 @@ CLASSICAL_1500_GOLDEN_BY_ENV = {GE.PLATFORM_10F: {
     # 〔小さな版上げ・meal_w17〕前 hash 4b3db260…e153f / 25_335・hash_order_id c2a7d482…1cfe2 / 25_284・classical_tie_id 0a1ce7b6…c58de / 25_307
     # (--meal-default validation で戻る)
     # 〔第337 4-2 規則の表と天引き(小さな版上げ・既定 on)〕レジの消費税が店の預かり金に残る分で final が動いた(前 fbe9456439ec195d72bfe2b0a68d5d6e1ea4ebd53236cf9f544dc0e50c6c27a1 / 26_053=SHIBUYA_RULES_42=off で戻る・呼数は同じ)
-    "hash": ("7d4e9f985a7bf70e936f7996e0b0e176d0658ef258a3b221b7e78e0e7d50a177", 26_536),  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 f2309ff29b8f1678c2a93778d3eb5d8076c504975f4502eb5ac4888c389e624e / 26_053=--space legacy で戻る・段 1 の nav1(cell)は 231f86e33736d0e7b3ce882361ccbafb234f8667ee80a7b73019944dabf4005e / 25_871・記録 spatial-2026-10/sp1b)  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890  # 〔2-4 V2〕前 26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578 / 25_638  # 〔2-4 V3〕前 e313dfaace60e42505a25a5b9f6a530e0e291dcd426260dea26f2f1a86c0da86 / 25_363  # 〔2-4 V4〕前 e4185ac9f6901403328403d6591c8cd43857a24de2938b3f2158e82a50e9ee3d
+    # 〔第340・11-01 段 2 の 4・率の形の規則を外す小さな版上げ(#132)〕前 hash 7d4e9f985a7bf70e936f7996e0b0e176d0658ef258a3b221b7e78e0e7d50a177 / 26_536
+    # (環境変数 SHIBUYA_RATE_RULES=legacy か安定版のタグ stable-v2-before-rate-rules で戻る)
+    "hash": ("12a1b54973f9b8e393a5d1b17c3e50ade2c096c4cd8b686ac6466424aef7945f", 24_686),  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 fa919b1afc932eefb61f7ffd2ecd65d970930a789141cc6d5acfcf14dfc48f1b / 24_734=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 f2309ff29b8f1678c2a93778d3eb5d8076c504975f4502eb5ac4888c389e624e / 26_053=--space legacy で戻る・段 1 の nav1(cell)は 231f86e33736d0e7b3ce882361ccbafb234f8667ee80a7b73019944dabf4005e / 25_871・記録 spatial-2026-10/sp1b)  # 〔2-4 V1〕前 87492778f4582d8fa067757d32b1953516997c92494089ab124840aaaa765bdb / 25_890  # 〔2-4 V2〕前 26b748695ffbf7f928f57352d9169fea630f12ca86efc13af383693411e0c578 / 25_638  # 〔2-4 V3〕前 e313dfaace60e42505a25a5b9f6a530e0e291dcd426260dea26f2f1a86c0da86 / 25_363  # 〔2-4 V4〕前 e4185ac9f6901403328403d6591c8cd43857a24de2938b3f2158e82a50e9ee3d
     # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕ランの口の切替口(--near-order id・--near-tiebreak id)を消したので hash_order_id
     # (c234caf7f39dea5e / 26,061)と classical_tie_id(c609c5d2b7e99205 / 26,120)の 2 行は消した(再現は安定版のタグ)
 }}
@@ -179,7 +188,7 @@ CLASSICAL_1500_GOLDEN = GE.row(CLASSICAL_1500_GOLDEN_BY_ENV)
 def test_classical_checkpoint_with_the_default_hash_order():
     from pathlib import Path
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     world = Path("data/world/v2")
     # 〔改訂(第330・RET)〕前は 3 本とも 10e より前の値を切替口(hash full・rng stateful・旧資産・暦)で再現した=今の値に
@@ -201,7 +210,8 @@ def _dist(items):
 
 
 def test_near_order_modes_and_default():
-    from shibuya.perception.renderer import DEFAULT_NEAR_ORDER, NEAR_ORDERS, check_near_order
+    from shibuya.mind.percept.draw import DEFAULT_NEAR_ORDER
+    from shibuya.world.model.percept_scene import NEAR_ORDERS, check_near_order
 
     assert NEAR_ORDERS == ("distance", "id") and DEFAULT_NEAR_ORDER == "distance"
     assert check_near_order("id") == "id"
@@ -262,11 +272,15 @@ def test_id_order_reproduces_the_previous_order():
 
 
 def test_cli_has_no_near_order_flag():
-    from shibuya import cli
-    from shibuya.engine import run as RUN
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime import run as RUN
+
+    from tests import _places as PL
 
     # 〔第 2 部〕ランの口の切替口 --near-order(id=旧挙動)は消した=CLI・run_day に無い(Renderer の引数は単体試験の口)
-    src = open(cli.__file__, encoding="utf-8").read()
-    assert '"--near-order"' not in src and '"--near-order"' not in open(RUN.__file__, encoding="utf-8").read()
+    # 〔割る段 5b の G0〕cli と run の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py と engine/run.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
+    assert '"--near-order"' not in src and '"--near-order"' not in PL.split_source("engine/run.py")
     with pytest.raises(TypeError):
         RUN.run_day(n_agents=10, ticks=2, near_order="id")

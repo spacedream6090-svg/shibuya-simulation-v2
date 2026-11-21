@@ -9,14 +9,14 @@ from typing import Any, Iterator
 
 import numpy as np
 
-from shibuya.agents.state import AgentState
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine.calendar2 import arm as A
-from shibuya.engine.calendar2 import port as P
-from shibuya.engine.calendar2.layer import Calendar2Layer
-from shibuya.engine.contact import arm as AC
-from shibuya.engine.events.log import EventLog
-from shibuya.world.state import World
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.arms import calendar2 as A
+from shibuya.mind.plan import calendar2_port as P
+from shibuya.interim_bundles.calendar2.layer import Calendar2Layer
+from shibuya.foundation.arms import contact as AC
+from shibuya.foundation.journal.log import EventLog
+from shibuya.world.model.state import World
 
 STEP_NS = STEP_SECONDS * NS_PER_SECOND
 TPD = int(STEPS_PER_DAY)
@@ -40,8 +40,8 @@ def ca2(*, on: bool = True, contact: bool = False) -> Iterator[None]:
 
 def groups_fixture(monkeypatch: Any) -> None:
     """合成の世界(母集団が無い=グループの一覧が無い)に、体 2 人ずつの家族と 10 人ずつの職場を入れる(宛先を作る)。"""
-    from shibuya.engine.tools import record as TR
-    from shibuya.engine.tools.groups import GroupList
+    from shibuya.society.tools import record as TR
+    from shibuya.society.tools.groups import GroupList
 
     real = TR.build_fixture
 

@@ -12,17 +12,18 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.calendar2 import arm as A
-from shibuya.engine.calendar2 import layer as LY
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import table as TB
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.foundation.arms import calendar2 as A
+from shibuya.interim_bundles.calendar2 import layer as LY
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import table as TB
 
 from tests.engine.calendar2._ca2 import KW, STEP_NS, TPD, ca2, groups_fixture
 
-SRC = Path(__file__).resolve().parents[3] / "src" / "shibuya" / "engine" / "calendar2"
+#: 層のファイル(〔段 4 の下ごしらえ〕置き場をディレクトリの字面で持たず、モジュールの ``__file__`` から作る)。
+LAYER_PY = Path(LY.__file__)
 
 
 @pytest.fixture
@@ -153,8 +154,8 @@ def test_system_declarations():
 
 
 def test_cli_flag_and_run_kind(monkeypatch):
-    from shibuya import cli
-    from shibuya.engine import run_kind as RK
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)
     kw = dict(n_agents=30, seed=1, world_dir=None, n_cells=9, ticks=30, checkpoint_every=30, vocab_version="v3")
@@ -230,7 +231,7 @@ def _cause_problems(src: str) -> list[str]:
 
 
 def test_ast_person_events_come_only_from_decisions():
-    assert _cause_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _cause_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_planted_rules():
@@ -288,7 +289,7 @@ def _time_problems(src: str) -> list[str]:
 
 
 def test_ast_engine_does_not_decide_times():
-    assert _time_problems((SRC / "layer.py").read_text(encoding="utf-8")) == []
+    assert _time_problems(LAYER_PY.read_text(encoding="utf-8")) == []
 
 
 def test_ast_negative_control_catches_a_backward_reminder():
@@ -309,7 +310,7 @@ class X:
 
 def test_ast_book_is_written_only_through_its_ports():
     """層は本人の予定の器の行を口(write・edit・observe・drop)だけで書く(行の欄への直の代入が無い)。"""
-    tree = ast.parse((SRC / "layer.py").read_text(encoding="utf-8"))
+    tree = ast.parse(LAYER_PY.read_text(encoding="utf-8"))
     bad = []
     for node in ast.walk(tree):
         if isinstance(node, (ast.Assign, ast.AugAssign)):
@@ -323,7 +324,7 @@ def test_ast_book_is_written_only_through_its_ports():
 
 # ================================================================= 〔検収 M3〕記録の有無で腕のランの behavior-hash と final が同じ
 def test_event_log_on_off_does_not_change_the_arm_run(with_groups):
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     prev = EV.enabled()
     try:

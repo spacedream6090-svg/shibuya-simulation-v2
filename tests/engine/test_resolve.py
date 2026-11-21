@@ -7,11 +7,22 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, AgentState, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.change_detect import ChangeDetector
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.act.intake import from_words as CW
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_BODY=act/ops/body_writes・R_DETECT=act/ops/detect_writes・
+# R_INIT=act/ops/init_writes・R_MIND=mind/ops。割る前は全部 resolve)
+from shibuya.act import apply as R
+from shibuya.act.ops import body_writes as R_BODY
+from shibuya.act.ops import detect_writes as R_DETECT
+from shibuya.act.ops import init_writes as R_INIT
+from shibuya.mind import ops as R_MIND
+from shibuya.mind.system1.change_detect import ChangeDetector
+from shibuya.world.body import rules as BR  # 〔割る段 6 の S6-G0・親の裁定 Q7〕体の刻みの周期は体の層から読む
+from shibuya.world.model.state import World
 
 OPEN_TICK = 700  # 既定営業時間(10:00-22:00)の内側
 CLOSED_TICK = 100
@@ -52,20 +63,20 @@ def _apply(agents, world, intents, tick=0, losers=None, schedule=None):
 # ---------------------------------------------------------------- 移動・エンジン継続
 def test_move_sets_target_and_engine_step_advances():
     w, a = _setup()
-    out = _apply(a, w, _intents(0, C.ACT_MOVE, target=8))
+    out = _apply(a, w, _intents(0, CV.ACT_MOVE, target=8))
     assert int(a.activity[0]) == int(Activity.MOVING)
     assert int(a.target_node[0]) == 8
     assert int(a.last_result[0]) == int(ResultCode.OK)
-    assert out.per_action[C.ACT_MOVE] == 1
+    assert out.per_action[CV.ACT_MOVE] == 1
     # 1 tick = 1 ノード
     before = int(a.node[0])
-    _apply(a, w, _intents(0, C.ENGINE_STEP, target=8), tick=1)
+    _apply(a, w, _intents(0, CV.ENGINE_STEP, target=8), tick=1)
     assert int(a.node[0]) != before
 
 
 def test_move_to_the_current_cell_is_immediate():
     w, a = _setup()
-    _apply(a, w, _intents(3, C.ACT_MOVE, target=3))
+    _apply(a, w, _intents(3, CV.ACT_MOVE, target=3))
     assert int(a.activity[3]) == int(Activity.IDLE)
     assert int(a.target_node[3]) == -1
     assert int(a.last_result[3]) == int(ResultCode.OK)
@@ -73,16 +84,16 @@ def test_move_to_the_current_cell_is_immediate():
 
 def test_move_to_an_invalid_cell_fails_unreachable():
     w, a = _setup()
-    _apply(a, w, _intents(1, C.ACT_MOVE, target=999))
+    _apply(a, w, _intents(1, CV.ACT_MOVE, target=999))
     assert int(a.last_result[1]) == int(ResultCode.UNREACHABLE)
     # 〔第330・RET〕K15 で fail_streak を消した(前: 1)
 
 
 def test_engine_step_arrival_returns_to_idle_and_updates_cell():
     w, a = _setup(n_agents=1, n_cells=4)
-    _apply(a, w, _intents(0, C.ACT_MOVE, target=3))
+    _apply(a, w, _intents(0, CV.ACT_MOVE, target=3))
     for tick in range(1, 12):
-        _apply(a, w, _intents(0, C.ENGINE_STEP, target=int(a.target_node[0])), tick=tick)
+        _apply(a, w, _intents(0, CV.ENGINE_STEP, target=int(a.target_node[0])), tick=tick)
         if int(a.activity[0]) == int(Activity.IDLE):
             break
     assert int(a.cell[0]) == 3 and int(a.target_node[0]) == -1
@@ -95,7 +106,7 @@ def test_buy_moves_money_to_revenue_and_decrements_stock():
     price = int(w.pois.price[poi])
     stock0, money0 = int(w.pois.stock[poi]), int(a.money[0])
     total0 = int(a.money.astype(np.int64).sum()) + int(w.pois.revenue.sum())
-    out = _apply(a, w, _intents(0, C.ACT_BUY, target=poi), tick=OPEN_TICK)
+    out = _apply(a, w, _intents(0, CV.ACT_BUY, target=poi), tick=OPEN_TICK)
     assert int(w.pois.stock[poi]) == stock0 - 1
     assert int(a.money[0]) == money0 - price
     assert int(w.pois.revenue[poi]) == price
@@ -109,7 +120,7 @@ def test_buy_moves_money_to_revenue_and_decrements_stock():
 def test_buy_outside_opening_hours_fails_closed():
     w, a = _setup()
     poi = int(np.flatnonzero(w.pois.cell == 0)[0])
-    _apply(a, w, _intents(0, C.ACT_BUY, target=poi), tick=CLOSED_TICK)
+    _apply(a, w, _intents(0, CV.ACT_BUY, target=poi), tick=CLOSED_TICK)
     assert int(a.last_result[0]) == int(ResultCode.CLOSED)
     assert int(w.pois.revenue.sum()) == 0
 
@@ -119,7 +130,7 @@ def test_buy_without_stock_fails_and_stock_never_goes_negative():
     poi = int(np.flatnonzero(w.pois.cell == 0)[0])
     with w.writable():
         w.pois.stock[poi] = 0
-    _apply(a, w, _intents(0, C.ACT_BUY, target=poi), tick=OPEN_TICK)
+    _apply(a, w, _intents(0, CV.ACT_BUY, target=poi), tick=OPEN_TICK)
     assert int(a.last_result[0]) == int(ResultCode.OUT_OF_STOCK)
     assert int(w.pois.stock[poi]) == 0
     assert int(w.pois.stock.min()) >= 0
@@ -128,14 +139,14 @@ def test_buy_without_stock_fails_and_stock_never_goes_negative():
 def test_buy_without_money_fails():
     w, a = _setup(money=1)
     poi = int(np.flatnonzero(w.pois.cell == 0)[0])
-    _apply(a, w, _intents(0, C.ACT_BUY, target=poi), tick=OPEN_TICK)
+    _apply(a, w, _intents(0, CV.ACT_BUY, target=poi), tick=OPEN_TICK)
     assert int(a.last_result[0]) == int(ResultCode.MONEY_SHORT)
     assert int(a.money[0]) == 1
 
 
 def test_buy_without_a_target_fails_bad_target():
     w, a = _setup()
-    _apply(a, w, _intents(0, C.ACT_BUY, target=-1), tick=OPEN_TICK)
+    _apply(a, w, _intents(0, CV.ACT_BUY, target=-1), tick=OPEN_TICK)
     assert int(a.last_result[0]) == int(ResultCode.BAD_TARGET)
 
 
@@ -146,7 +157,7 @@ def test_two_buyers_of_the_same_poi_both_decrement():
     a.registry.cell[:2] = 0
     a.freeze()
     stock0 = int(w.pois.stock[poi])
-    _apply(a, w, _intents([0, 1], C.ACT_BUY, target=poi), tick=OPEN_TICK)
+    _apply(a, w, _intents([0, 1], CV.ACT_BUY, target=poi), tick=OPEN_TICK)
     assert int(w.pois.stock[poi]) == stock0 - 2
 
 
@@ -154,9 +165,9 @@ def test_two_buyers_of_the_same_poi_both_decrement():
 @pytest.mark.parametrize(
     "action,activity",
     [
-        (C.ACT_WAIT, Activity.WAITING),
-        (C.ACT_REST, Activity.RESTING),
-        (C.ACT_LEAVE, Activity.IDLE),
+        (CV.ACT_WAIT, Activity.WAITING),
+        (CV.ACT_REST, Activity.RESTING),
+        (CV.ACT_LEAVE, Activity.IDLE),
     ],
 )
 def test_actions_that_never_fail(action, activity):
@@ -169,15 +180,15 @@ def test_actions_that_never_fail(action, activity):
 def test_rest_recovers_fatigue():
     w, a = _setup()
     before = int(a.fatigue[2])
-    _apply(a, w, _intents(2, C.ACT_REST))
+    _apply(a, w, _intents(2, CV.ACT_REST))
     assert int(a.fatigue[2]) == before - R.REST_FATIGUE_RELIEF
 
 
 def test_report_and_refuse_are_recorded_without_failing():
     """顕著行為の過程が無い(C2 互換)なら通報も断るも従来どおり記録のみ。"""
     w, a = _setup()
-    _apply(a, w, _intents([1, 2], C.ACT_REPORT))
-    _apply(a, w, _intents([3], C.ACT_REFUSE))
+    _apply(a, w, _intents([1, 2], CV.ACT_REPORT))
+    _apply(a, w, _intents([3], CV.ACT_REFUSE))
     assert int(a.last_result[1]) == int(ResultCode.OK)
     assert int(a.last_result[3]) == int(ResultCode.OK)
 
@@ -194,19 +205,19 @@ def test_report_requires_a_perceived_event_d113_2():
     """契約書 §2.1 通報の前提「当該事象を知覚済み」= 直近 5 tick に自分のセルの B4 に事象の行。"""
     w, a = _setup()
     s = _fake_salient(6, {1: 10, 2: 4})
-    out = R.apply(_intents([1, 2, 3], C.ACT_REPORT, tick=12), C.IntentBatch.empty(), a, w, 12, salient=s)
+    out = R.apply(_intents([1, 2, 3], CV.ACT_REPORT, tick=12), C.IntentBatch.empty(), a, w, 12, salient=s)
     assert int(a.last_result[1]) == int(ResultCode.OK)  # 2 tick 前に見た
     assert int(a.last_result[2]) == int(ResultCode.BAD_TARGET)  # 8 tick 前=窓の外
     assert int(a.last_result[3]) == int(ResultCode.BAD_TARGET)  # 見ていない
     assert out.n_report_ok == 1 and out.n_report_no_event == 2
     # 〔第330・RET〕K15 で fail_streak を消した(前: 3 は 1・1 は 0)
-    assert out.per_action[C.ACT_REPORT] == 3
+    assert out.per_action[CV.ACT_REPORT] == 3
 
 
 def test_report_window_boundary_is_inclusive():
     w, a = _setup()
     s = _fake_salient(6, {1: 5, 2: 4})
-    R.apply(_intents([1, 2], C.ACT_REPORT, tick=10), C.IntentBatch.empty(), a, w, 10, salient=s)
+    R.apply(_intents([1, 2], CV.ACT_REPORT, tick=10), C.IntentBatch.empty(), a, w, 10, salient=s)
     assert R.REPORT_WINDOW_TICKS == 5
     assert int(a.last_result[1]) == int(ResultCode.OK)  # 10 − 5 = 窓ちょうど
     assert int(a.last_result[2]) == int(ResultCode.BAD_TARGET)  # 6
@@ -215,21 +226,21 @@ def test_report_window_boundary_is_inclusive():
 def test_report_precondition_switch_off_restores_always_ok():
     w, a = _setup()
     s = _fake_salient(6, {})
-    out = R.apply(_intents([1], C.ACT_REPORT), C.IntentBatch.empty(), a, w, 0, salient=s, report_precondition=False)
+    out = R.apply(_intents([1], CV.ACT_REPORT), C.IntentBatch.empty(), a, w, 0, salient=s, report_precondition=False)
     assert int(a.last_result[1]) == int(ResultCode.OK) and out.n_report_ok == 1 and out.n_report_no_event == 0
 
 
 def test_refuse_is_unaffected_by_the_report_precondition():
     w, a = _setup()
     s = _fake_salient(6, {})
-    R.apply(_intents([3], C.ACT_REFUSE), C.IntentBatch.empty(), a, w, 0, salient=s)
+    R.apply(_intents([3], CV.ACT_REFUSE), C.IntentBatch.empty(), a, w, 0, salient=s)
     assert int(a.last_result[3]) == int(ResultCode.OK)
 
 
 # ---------------------------------------------------------------- 乗車・降車(C2 は列車なし)
 @pytest.mark.parametrize(
     "action, code",
-    [(C.ACT_BOARD, ResultCode.NO_TRAIN), (C.ACT_ALIGHT, ResultCode.NO_STOP)],
+    [(CV.ACT_BOARD, ResultCode.NO_TRAIN), (CV.ACT_ALIGHT, ResultCode.NO_STOP)],
 )
 def test_boarding_and_alighting_fail_per_contract(action, code):
     """行動契約書 §2.1: 乗車の失敗=列車なし・降車の失敗=その駅には止まらない。"""
@@ -245,7 +256,7 @@ def test_talk_creates_a_session_when_partner_is_idle_in_the_same_cell():
     a.registry.cell[:2] = 0
     a.registry.node[:2] = 0
     a.freeze()
-    out = _apply(a, w, _intents(0, C.ACT_TALK, target=1))
+    out = _apply(a, w, _intents(0, CV.ACT_TALK, target=1))
     assert int(a.activity[0]) == int(Activity.CONVERSING)
     assert int(a.talk_partner[0]) == 1
     assert out.n_conversations == 1
@@ -258,26 +269,26 @@ def test_talk_to_a_busy_partner_fails():
     a.registry.cell[:2] = 0
     a.registry.activity[1] = int(Activity.CONVERSING)
     a.freeze()
-    _apply(a, w, _intents(0, C.ACT_TALK, target=1))
+    _apply(a, w, _intents(0, CV.ACT_TALK, target=1))
     assert int(a.last_result[0]) == int(ResultCode.PARTNER_BUSY)
 
 
 def test_talk_to_someone_in_another_cell_fails():
     w, a = _setup()
-    _apply(a, w, _intents(0, C.ACT_TALK, target=5))
+    _apply(a, w, _intents(0, CV.ACT_TALK, target=5))
     assert int(a.last_result[0]) == int(ResultCode.PARTNER_GONE)
 
 
 def test_talk_without_a_partner_fails_bad_target():
     w, a = _setup()
-    _apply(a, w, _intents(0, C.ACT_TALK, target=-1))
+    _apply(a, w, _intents(0, CV.ACT_TALK, target=-1))
     assert int(a.last_result[0]) == int(ResultCode.BAD_TARGET)
 
 
 # ---------------------------------------------------------------- 手伝い(C2 は必ず失敗)
 def test_help_always_fails_in_c2():
     w, a = _setup()
-    _apply(a, w, _intents(0, C.ACT_HELP, target=1))
+    _apply(a, w, _intents(0, CV.ACT_HELP, target=1))
     assert int(a.last_result[0]) == int(ResultCode.BAD_TARGET)
 
 
@@ -285,7 +296,7 @@ def test_help_always_fails_in_c2():
 def test_sleep_at_home_sets_sleeping_and_records_a_reflection():
     w, a = _setup()
     sched = SimpleNamespace(home_cell=np.arange(a.n) % w.n_cells)
-    out = _apply(a, w, _intents(2, C.ACT_SLEEP, target=2), schedule=sched)
+    out = _apply(a, w, _intents(2, CV.ACT_SLEEP, target=2), schedule=sched)
     assert int(a.activity[2]) == int(Activity.SLEEPING)
     assert out.n_reflections == 1
     assert int(a.last_result[2]) == int(ResultCode.OK)
@@ -294,7 +305,7 @@ def test_sleep_at_home_sets_sleeping_and_records_a_reflection():
 def test_sleep_away_from_home_fails_no_bed():
     w, a = _setup()
     sched = SimpleNamespace(home_cell=np.full(a.n, 7))
-    _apply(a, w, _intents(2, C.ACT_SLEEP, target=7), schedule=sched)
+    _apply(a, w, _intents(2, CV.ACT_SLEEP, target=7), schedule=sched)
     assert int(a.last_result[2]) == int(ResultCode.NO_BED)
     assert int(a.activity[2]) != int(Activity.SLEEPING)
 
@@ -302,53 +313,54 @@ def test_sleep_away_from_home_fails_no_bed():
 # ---------------------------------------------------------------- 未定義行動(§7 段1)
 def test_undefined_action_falls_back_to_wait():
     w, a = _setup()
-    code = C.parse_action("これは2行形ではない")
-    assert code == C.UNDEFINED_ACTION
-    batch = C.intents_from_responses(
+    code = CW.parse_action("これは2行形ではない")
+    assert code == CW.UNDEFINED_ACTION
+    batch = CW.intents_from_responses(
         a, w, C.ResourceSpace(w.n_poi, a.n, w.n_cells), 0,
         np.array([0]), np.array([3]), np.array([code]),
     )
-    assert int(batch.action_code[0]) == C.ACT_WAIT
+    assert int(batch.action_code[0]) == CV.ACT_WAIT
     _apply(a, w, batch)
     assert int(a.activity[0]) == int(Activity.WAITING)
 
 
 def test_all_twelve_words_parse():
-    for word in C.ACTION_WORDS:
+    for word in CV.ACTION_WORDS:
         text = f"理由: テスト\n行動: {word} 対象: なし ひと言: なし"
-        assert C.parse_action(text) == C.ACTION_CODES[word]
+        assert CW.parse_action(text) == CV.ACTION_CODES[word]
 
 
 # ---------------------------------------------------------------- 密度・不応期・身体
 def test_density_is_recomputed_每tick():
     w, a = _setup(n_agents=6, n_cells=3)
-    _apply(a, w, _intents([0, 1, 2], C.ACT_WAIT))
+    _apply(a, w, _intents([0, 1, 2], CV.ACT_WAIT))
     assert int(w.cells.density.sum()) == a.n
     assert w.cells.density.tolist() == np.bincount(a.cell, minlength=3).tolist()
 
 
 def test_set_refractory_uses_the_section6_table():
     w, a = _setup()
-    R.set_refractory(a, [0], [int(10)], tick=5)  # CELL_BLOCK=30 分
+    R_MIND.set_refractory(a, [0], [int(10)], tick=5)  # CELL_BLOCK=30 分
     assert int(a.refractory_until[0, 10]) == 35
-    R.set_refractory(a, [0], [int(0)], tick=5)  # 会話ターン=0
+    R_MIND.set_refractory(a, [0], [int(0)], tick=5)  # 会話ターン=0
     assert int(a.refractory_until[0, 0]) == 5
 
 
 def test_advance_body_only_moves_on_its_period():
     w, a = _setup()
     h0 = int(a.hunger[0])
-    R.advance_body(a, tick=1)
+    R_BODY.advance_body(a, tick=1)
     assert int(a.hunger[0]) == h0
-    R.advance_body(a, tick=R.BODY_TICK_PERIOD)
+    R_BODY.advance_body(a, tick=BR.BODY_TICK_PERIOD)
     assert int(a.hunger[0]) == min(10, h0 + 1)
 
 
-def test_apply_detection_writes_hashes_and_stages():
+def test_write_b4_hash_and_write_intero_stages_write_hashes_and_stages():
     w, a = _setup(n_agents=20, n_cells=8)
     det = ChangeDetector(a.n, w.n_cells)
     res = det.detect(w, a, 0)
-    R.apply_detection(a, w, res)
+    R_DETECT.write_b4_hash(w, res)
+    R_MIND.write_intero_stages(a, res)
     assert int(np.count_nonzero(w.cells.b4_hash)) > 0
     assert a.frozen and w.frozen
 
@@ -361,7 +373,7 @@ def test_initialize_places_agents_at_home():
         kind=np.zeros(32, dtype=np.int8),
         initial_money=np.full(32, 5_000),
     )
-    R.initialize(a, w, sched)
+    R_INIT.initialize(a, w, sched)
     assert a.cell.tolist() == (np.arange(32) % 16).tolist()
     assert int(a.money.sum()) == 32 * 5_000
     assert int(w.cells.density.sum()) == 32

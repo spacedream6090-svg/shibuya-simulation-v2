@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-import shibuya.engine.run as RUN
-from shibuya.engine.tape import RUN_META_FILENAME, read_run_meta
+import shibuya.runtime.run as RUN
+from shibuya.runtime.inference.tape import RUN_META_FILENAME, read_run_meta
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"
@@ -25,13 +25,13 @@ KW = dict(n_agents=60, seed=3, ticks=480, checkpoint_every=240)
 
 
 def _rec(tmp_path, name: str, **kw):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     return cli.run(world_dir=str(WORLD_DIR), tape_path=tmp_path / name, **KW, **kw)
 
 
 def _rep(tmp_path, name: str, **kw):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
     from tests.engine.test_tape_wiring import BoomLLM
 
     return cli.run(world_dir=str(WORLD_DIR), mode="replay", replay=tmp_path / name, llm=BoomLLM(), **KW, **kw)
@@ -69,12 +69,20 @@ def test_ret_a_tape_from_before_the_activation_is_not_replayed(tmp_path):
             _rep(tmp_path, "t")
     meta.write_text(json.dumps(base) + "\n", encoding="utf-8")
     assert _rep(tmp_path, "t").tape_miss_count == 0
-    assert not hasattr(RUN, "resolve_calendar_schemes") and not hasattr(RUN, "CalendarSchemeWarning")
+    import importlib
+
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕消した名は run の元の名を定義する今のモジュールの全部に無い(割った後に割り先の 1 つだけを見ない。
+    # 割る前は shibuya.engine.run=前と同じ範囲)
+    for rel in PL.split_files("engine/run.py"):
+        mod = importlib.import_module(PL.module_of(rel))
+        assert not hasattr(mod, "resolve_calendar_schemes") and not hasattr(mod, "CalendarSchemeWarning"), rel
 
 
 def test_act_weather_manifest_declares_the_two_expedients(tmp_path):
     """親の決定 (3): 層を広げる順と「同じ近さの影は前の日」は expedient として manifest に載る。"""
-    from shibuya.engine.processes.environment import WEATHER_EXPEDIENTS
+    from shibuya.world.laws.environment import WEATHER_EXPEDIENTS
 
     new = _rec(tmp_path, "m")
     w = new.run_manifest_fields()["weather"]

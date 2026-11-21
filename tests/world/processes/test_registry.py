@@ -6,10 +6,10 @@ import json
 
 import pytest
 
-from shibuya.manifest.world_catalog import WorldCatalog
-from shibuya.world.processes.records import DetailDeclaration, Executor
-from shibuya.world.processes.registry import WorldRegistry
-from shibuya.world.processes.relations import Realizes, Records, Revises, SubjectType
+from shibuya.world.ledger.world_catalog import WorldCatalog
+from shibuya.world.ledger.records import DetailDeclaration, Executor
+from shibuya.world.ledger.registry import WorldRegistry
+from shibuya.world.ledger.relations import Realizes, Records, Revises, SubjectType
 from tests.world.processes.conftest import make_plan_spec, make_process
 
 

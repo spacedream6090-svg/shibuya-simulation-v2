@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 
 from shibuya.economy.accounts import BalanceLine, Sector
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 
 pytestmark = [pytest.mark.slow,
               pytest.mark.requires_data("world_v2:w17_schedule.parquet", "osm:poi_tags_overpass_20260928.json",
@@ -25,9 +25,8 @@ KW = dict(n_agents=300, seed=1, world_dir="data/world/v2", sim_days=2, vocab_ver
 
 @pytest.mark.parametrize("stop", [1_440, 2_190])
 def test_resume_equals_straight_with_the_arm(tmp_path, monkeypatch, stop):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
     straight = cli.run(**KW)

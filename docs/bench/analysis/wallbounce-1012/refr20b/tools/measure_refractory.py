@@ -153,7 +153,7 @@ def symbol_defined(text: str, symbol: str) -> bool:
 # ---------------------------------------------------------------- 腕
 def conditions() -> tuple[str, ...]:
     """不応期表の 11 行の条件名(``WakeCondition`` の値 0..10 の順・``ACTIVITY_EXPIRY`` は表の外=含まない)。"""
-    from shibuya.agents.state import N_WAKE_CONDITIONS, WakeCondition
+    from shibuya.foundation.vocab.agent_codes import N_WAKE_CONDITIONS, WakeCondition
 
     return tuple(WakeCondition(i).name for i in range(int(N_WAKE_CONDITIONS)))
 
@@ -195,14 +195,14 @@ def cli_flags(arm: str) -> list[str]:
 
 def scale_dict(arm: str) -> dict[str, float]:
     """``cli.parse_refractory_scale`` を通した倍率の辞書(CLI と同じ読み口)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     return cli.parse_refractory_scale(scale_items(arm))
 
 
 def effective_minutes(arm: str) -> list[int]:
     """腕の実効不応期表[分](``engine.resolve.refractory_ticks``・刻み 60 秒=分)。"""
-    from shibuya.engine import resolve as R
+    from shibuya.mind import ops as R
 
     sc = scale_dict(arm)
     return [int(x) for x in R.refractory_ticks(sc or None)]
@@ -327,7 +327,7 @@ def row_from_manifest(man: Mapping[str, Any], obs: Mapping[str, Any], *, config:
 
 def cmd_one(args: argparse.Namespace) -> int:
     import shibuya
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = config_kw(args.config)
     kw.setdefault("policy", "mock")  # 方策 mock を明示(CLI の既定と同じ値)
@@ -590,7 +590,7 @@ def extrapolate(ratio_B: float, base_calls_sample: int, *, n_full: int, n_sample
 
 
 def build_extrapolation(table: Mapping[str, Any], ref: Mapping[str, Any]) -> dict[str, Any]:
-    from shibuya.engine.arbiter import L4_CALLS_PER_DAY, L4_REFERENCE_AGENTS
+    from shibuya.runtime.arbiter import L4_CALLS_PER_DAY, L4_REFERENCE_AGENTS
 
     out: dict[str, Any] = {"reference": dict(ref), "l4_calls_per_day": int(L4_CALLS_PER_DAY),
                            "l4_reference_agents": int(L4_REFERENCE_AGENTS), "by_config": {}}

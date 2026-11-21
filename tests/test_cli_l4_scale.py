@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.arbiter import call_budget_per_tick
+from shibuya.runtime.arbiter import call_budget_per_tick
 
 SMALL = dict(
     n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -30,7 +30,7 @@ SMALL = dict(
      (["--l4-scale", "2"], 2.0), (["--l4-scale", "0"], 0.0)],
 )
 def test_cli_main_has_the_l4_scale_flag(monkeypatch, argv, expected):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 
@@ -49,7 +49,7 @@ def test_cli_main_has_the_l4_scale_flag(monkeypatch, argv, expected):
 
 def test_a_negative_factor_is_a_usage_error(capsys):
     """負の倍率は traceback ではなく usage で落とす(``--signage-p-see`` と同じ作法)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(SystemExit):
         cli.main(["--agents", "8", "--world", "__no_such_dir__", "--l4-scale", "-1"])
@@ -57,16 +57,31 @@ def test_a_negative_factor_is_a_usage_error(capsys):
 
 
 def test_cli_run_rejects_a_negative_factor():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with pytest.raises(ValueError):
         cli.run(l4_scale=-0.5, **SMALL)
 
 
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), -1.0])
+def test_a_non_finite_or_negative_factor_stops(bad):
+    """〔第347・Q13 検収 L-2〕予算を渡さないランの倍率が負・NaN・無限大なら止める(予算が NaN・無限大のまま黙って回らない。
+    文に値を書く)。``run_day`` も ``cli.run`` も同じ式 ``engine.run.l4_budget`` を通る。"""
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.run import l4_budget, run_day
+
+    with pytest.raises(ValueError, match=f"有限の値.*{bad!r}"):
+        l4_budget(8, bad)
+    with pytest.raises(ValueError, match="0 以上"):
+        run_day(n_agents=8, seed=1, ticks=2, renderer="stub", checkpoint_every=2, l4_scale=bad)
+    with pytest.raises(ValueError, match="0 以上"):
+        cli.run(l4_scale=bad, **SMALL)
+
+
 # ------------------------------------------------------- (t2) 変換規則
 @pytest.mark.parametrize("scale", [1.0, 0.5, 2.0])
 def test_the_factor_multiplies_the_l4_share(scale):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(l4_scale=scale, **SMALL)
     assert res.l4_scale == scale
@@ -78,7 +93,7 @@ def test_the_factor_multiplies_the_l4_share(scale):
 
 def test_zero_means_one_call_per_agent_per_tick():
     """``0`` = **無制限**。アービタは合流後に体あたり高々 1 件なので体数で足りる。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(l4_scale=0.0, **SMALL)
     assert res.budget_per_tick == float(SMALL["n_agents"])
@@ -87,7 +102,7 @@ def test_zero_means_one_call_per_agent_per_tick():
 
 def test_an_explicit_budget_wins_over_the_factor():
     """``budget`` を直に渡した呼び出しは倍率より優先(倍率は 1.0 のまま manifest に載る)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(budget=7.0, **SMALL)
     assert res.budget_per_tick == 7.0
@@ -97,7 +112,7 @@ def test_an_explicit_budget_wins_over_the_factor():
 # ------------------------------------------------------- (t3) 既定=無制限・1.0=旧挙動
 def test_the_default_is_unlimited_and_identical_with_the_explicit_0():
     """3 段目(D-99 (a′)・D-110): CLI と ``cli.run`` の既定は **0=無制限**(``CLI_DEFAULT_L4_SCALE``)。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     assert cli.CLI_DEFAULT_L4_SCALE == 0.0
     base = cli.run(**SMALL)
@@ -111,21 +126,28 @@ def test_the_default_is_unlimited_and_identical_with_the_explicit_0():
 
 
 def test_the_explicit_1_0_is_the_old_l4_share():
-    """``--l4-scale 1`` で旧挙動(L4 按分・持ち越し 2 tick)。ライブラリ ``run_day`` の既定と同じ。"""
-    from shibuya import cli
-    from shibuya.engine.run import run_day
+    """``--l4-scale 1`` で旧挙動(L4 按分・持ち越し 2 tick)。ライブラリ ``run_day(l4_scale=1.0)`` と同じ。
+
+    〔Q13・第347〕ライブラリ ``run_day`` の既定は CLI と同じ 0=無制限(前は按分)。予算を直に渡したランの倍率は 1.0((a′))。"""
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.run import run_day
 
     old = cli.run(l4_scale=1.0, **SMALL)
     assert old.budget_per_tick == call_budget_per_tick(SMALL["n_agents"])
     assert old.l4_scale == 1.0
-    lib = run_day(n_agents=8, seed=1, ticks=2, renderer="stub", checkpoint_every=2)
+    small = dict(n_agents=8, seed=1, ticks=2, renderer="stub", checkpoint_every=2)
+    lib = run_day(l4_scale=1.0, **small)
     assert lib.budget_per_tick == call_budget_per_tick(8) and lib.l4_scale == 1.0
+    dflt = run_day(**small)
+    assert dflt.budget_per_tick == 8.0 and dflt.l4_scale == 0.0
+    given = run_day(budget=3.0, **small)
+    assert given.budget_per_tick == 3.0 and given.l4_scale == 1.0
 
 
 # ------------------------------------------------------- (t4) L4 監査欄・艦隊の注記
 def test_the_manifest_always_carries_the_l4_audit_fields():
-    from shibuya import cli
-    from shibuya.engine.arbiter import L4_LINE_PER_AGENT_DAY
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.arbiter import L4_LINE_PER_AGENT_DAY
 
     assert L4_LINE_PER_AGENT_DAY == 10.0
     for scale in (0.0, 1.0):
@@ -149,7 +171,7 @@ def test_fleet_x_unlimited_without_a_queue_capacity_is_noted_when_it_cannot_be_f
     """
     from types import SimpleNamespace
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     fleet = SimpleNamespace(config=SimpleNamespace(queue_capacity=None), queue_capacity=448)
     note = cli.fleet_queue_note(fleet, 0.0, 5_000)
@@ -166,8 +188,8 @@ def test_fleet_x_unlimited_queue_capacity_defaults_to_the_agent_count():
     """第289 Q28(D-55): 艦隊 × 無制限 × 枠 未指定 → 枠の既定=体数(``FleetConfig`` を差し替え・manifest に載る)。"""
     from types import SimpleNamespace
 
-    from shibuya import cli
-    from shibuya.llm.fleet import FleetConfig
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.inference.fleet import FleetConfig
 
     def client(cap_total: int, queue_capacity: int | None = None) -> SimpleNamespace:
         cfg = FleetConfig(endpoints=("http://127.0.0.1:1",), max_in_flight=cap_total, queue_capacity=queue_capacity)

@@ -36,9 +36,9 @@ from typing import Any, Final, Mapping, Sequence
 import numpy as np
 
 import dm_eval  # noqa: F401
-from dm_eval.judge import Scorer, top1
+from dm_eval.judge import ScoreFailed, Scorer, failure_record, top1
 from dm_eval.situations import VOCAB, Situation, render, word_of_output
-from shibuya.engine.decision.port import OTHER_ID, Candidate
+from shibuya.foundation.ports.decision import OTHER_ID, Candidate
 
 SALT_COMPARE_PATH: Final = dm_eval.REPO / "tools" / "c7" / "salt_compare.py"
 _SALT_NAME: Final[str] = "dm_eval_salt_compare"
@@ -62,18 +62,35 @@ Record = tuple[tuple[Candidate, ...], dict[str, float]]
 
 def score_orders(scorer: Scorer, situations: Sequence[Situation],
                  orders_by_sid: Mapping[str, Sequence[tuple[Candidate, ...]]], *, arm: str,
-                 length: str = "short") -> tuple[dict[str, list[Record]], float]:
-    """状況 × 並びの全部を採点する → (状況 → [(提示, 分布)]・1 件あたりの壁時計の秒)。"""
+                 length: str = "short", failures: list[dict[str, Any]] | None = None
+                 ) -> tuple[dict[str, list[Record]], float]:
+    """状況 × 並びの全部を採点する → (状況 → [(提示, 分布)]・1 件あたりの壁時計の秒)。
+
+    〔11-01 検収 低 4〕``failures`` に箱(list)を渡すと、``ScoreFailed`` を場面ごとに捕まえて
+    (状況の id・並びの番号・例外の型の名・短い分類=``judge.failure_record``・例外の文は写さない)を足し、その場面を
+    結果から外して続ける(全体は止めない)。
+    渡さなければ今のまま(例外はそのまま上がる)。
+    """
     out: dict[str, list[Record]] = {}
     n = 0
     t0 = time.perf_counter()
     for s in situations:  # 逐次ループ宣言: 状況 × 並び
         recs: list[Record] = []
-        for pres in orders_by_sid[s.sid]:
+        failed = False
+        for k, pres in enumerate(orders_by_sid[s.sid]):
             text = render(s, pres, length=length, arm=arm).text if scorer.reads_text else None
-            recs.append((pres, scorer.score(s, pres, text=text)))
+            if failures is None:
+                recs.append((pres, scorer.score(s, pres, text=text)))
+            else:
+                try:
+                    recs.append((pres, scorer.score(s, pres, text=text)))
+                except ScoreFailed as e:
+                    failures.append({"sid": s.sid, "order": k, **failure_record(e)})
+                    failed = True
+                    break
             n += 1
-        out[s.sid] = recs
+        if not failed:
+            out[s.sid] = recs
     wall = (time.perf_counter() - t0) / n if n else None
     return out, wall
 
@@ -165,7 +182,7 @@ def pbs_null_floor(n_situations: int, n: int, offsets: Sequence[int], *, reps: i
     位置 r の並びでは (位置 − r) mod n に来る。状況 ``n_situations`` 件 × 並び ``len(offsets)`` 通りの位置の分布と一様の
     L2 の距離を ``reps`` 回(「その他」は選ばない)。
     """
-    from shibuya.core.rng import stream
+    from shibuya.foundation.rng import stream
 
     if n_situations < 1 or n < 1:
         return {"reps": 0, "mean": None, "p05": None, "p50": None, "p95": None}

@@ -11,9 +11,9 @@ import json
 
 import pytest
 
-from shibuya.agents.state import RESULT_TEXT, ResultCode
-from shibuya.engine.tape import TapeRow, TapeWriter
-from shibuya.perception import templates as T
+from shibuya.foundation.vocab.agent_codes import RESULT_TEXT, ResultCode
+from shibuya.runtime.inference.tape import TapeRow, TapeWriter
+from shibuya.foundation.text import templates as T
 
 
 # ---------------------------------------------------------------- 表が正典と一致する
@@ -194,13 +194,13 @@ def test_selection_can_be_restricted_to_other_kinds(c6lib):
 # ---------------------------------------------------------------- 記録クライアント
 class _StubLLM:
     def complete(self, request):
-        from shibuya.llm import LLMResponse
+        from shibuya.foundation.ports.inference import LLMResponse
 
         return LLMResponse(text=f"理由: r{request.agent_id}\n行動: 待機 対象: なし ひと言: なし")
 
 
 def test_recording_llm_captures_full_prompts(c6lib, tmp_path):
-    from shibuya.llm import LLMRequest
+    from shibuya.foundation.ports.inference import LLMRequest
 
     rec = c6lib.RecordingLLM(_StubLLM())
     for i in range(3):

@@ -1,0 +1,154 @@
+{
+ "stages": [
+  "society_contact"
+ ],
+ "rows_applied": 4,
+ "rows_applied_by_kind": {
+  "move": 4
+ },
+ "rows_already": [],
+ "refused_held": [],
+ "file_moves": 4,
+ "created_heads": [
+  "src/shibuya/society/contact/__init__.py"
+ ],
+ "emptied_heads": [],
+ "deleted": [],
+ "import_statements": {
+  "src": 5,
+  "build": 0,
+  "tests": 12,
+  "tools": 0,
+  "docs": 0
+ },
+ "import_files": {
+  "src": 2,
+  "build": 0,
+  "tests": 8,
+  "tools": 0
+ },
+ "import_via_head": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 2,
+  "build": 0,
+  "tests": 9,
+  "tools": 0
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 4
+ },
+ "path_string_sites": 2,
+ "path_string_sites_by_file": [
+  "src/shibuya/runtime/state/ledger.py::OWNER_ALT_CLASSES",
+  "src/shibuya/runtime/state/ledger.py::OWNER_CLASSES"
+ ],
+ "dropped_reexports": {},
+ "dropped_all": {},
+ "package_data_keys": [],
+ "ledger_paths_added": 4,
+ "class_id_keys": 4,
+ "class_ids_resorted": true,
+ "changed_files": 13,
+ "untouched_count": {
+  "src:slash": 5
+ },
+ "untouched_broad_constants": {
+  "docs": 12,
+  "src": 213,
+  "build": 15,
+  "tests": 281,
+  "tools": 14
+ },
+ "skipped_in_allowlist": [],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 0,
+  "rows_moving_active": 0
+ },
+ "bridging_ledger_moving": [],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 452)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 0)",
+  "package_data": "同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 0)"
+ },
+ "warnings": [],
+ "untouched": [
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/deliver.py",
+   "line": 1189,
+   "excerpt": "engine/contact/deliver.py(Mailbox)・engine/contact/layer.py(_send_now・_ring_now・_read・_system1・bind_queue)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/deliver.py",
+   "line": 1202,
+   "excerpt": "engine/contact/deliver.py(read_all・prune・counts・receipts)・engine/contact/layer.py(_screen_decision)"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/chat_state.py",
+   "line": 1210,
+   "excerpt": "engine/conversation.py(ConversationManager.step・_close・_terminate・purge_terminal)・engine/contact/chat_state.py(ChatBook."
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/calls.py",
+   "line": 1222,
+   "excerpt": "engine/conversation.py(ConversationManager)・engine/contact/calls.py(CallManager)・engine/contact/layer.py(_calls_turns・_r"
+  },
+  {
+   "file": "src/shibuya/runtime/state/ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/chat_state.py",
+   "line": 1243,
+   "excerpt": "engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・engine/conversation.py(counters)・"
+  }
+ ]
+}

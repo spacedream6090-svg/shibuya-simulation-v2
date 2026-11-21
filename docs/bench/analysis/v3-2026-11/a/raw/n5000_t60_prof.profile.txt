@@ -1,0 +1,216 @@
+         127801707 function calls (127107215 primitive calls) in 89.934 seconds
+
+   Ordered by: internal time
+   List reduced from 4313 to 80 due to restriction <80>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    61066    2.261    0.000   12.451    0.000 src\shibuya\perception\renderer.py:2412(_nearby_people_distance)
+  1373653    2.252    0.000    4.868    0.000 src\shibuya\perception\normalize.py:166(canonical_whitespace)
+     8522    2.238    0.000    2.278    0.000 src\shibuya\world\navmesh_route.py:161(w1_path)
+   122132    2.157    0.000    4.162    0.000 src\shibuya\llm\parser.py:829(_scan_labels)
+    61066    1.844    0.000   14.082    0.000 src\shibuya\perception\renderer.py:1648(_render_percept)
+  1771828    1.624    0.000    1.627    0.000 {method 'decode' of 'bytes' objects}
+    62081    1.584    0.000    5.333    0.000 src\shibuya\engine\spatial_index.py:134(query_many)
+  2230865    1.554    0.000    1.554    0.000 {method 'sub' of 're.Pattern' objects}
+  4266859    1.533    0.000    1.533    0.000 {method 'search' of 're.Pattern' objects}
+    81292    1.320    0.000    2.498    0.000 src\shibuya\core\rng.py:82(philox)
+    96529    1.302    0.000    1.761    0.000 src\shibuya\perception\renderer.py:1032(near_tie_keys)
+  1179242    1.296    0.000    3.782    0.000 {built-in method builtins.any}
+   345173    1.259    0.000    6.797    0.000 src\shibuya\perception\renderer.py:511(activity_line)
+     8519    1.224    0.000    2.398    0.000 src\shibuya\world\navmesh_route.py:249(_shape)
+  1802938    1.051    0.000    1.051    0.000 {built-in method numpy.asarray}
+    61066    1.020    0.000    8.038    0.000 src\shibuya\llm\parser.py:553(_parse_v3)
+    18408    0.986    0.000    3.764    0.000 src\shibuya\engine\space\nav1.py:853(_timed)
+    61066    0.937    0.000   16.914    0.000 src\shibuya\perception\renderer.py:1452(perceive)
+   786275    0.918    0.000    0.918    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+  6868461    0.896    0.000    0.896    0.000 {method 'strip' of 'str' objects}
+    64536    0.894    0.000    1.369    0.000 src\shibuya\engine\spatial_index.py:38(_grid_keys)
+    61066    0.799    0.000    3.883    0.000 src\shibuya\llm\mock.py:204(_render_v3)
+    61066    0.758    0.000    4.686    0.000 src\shibuya\perception\renderer.py:2154(_b5)
+  5908866    0.758    0.000    0.758    0.000 {method 'append' of 'list' objects}
+   779123    0.748    0.000    0.748    0.000 {method 'astype' of 'numpy.ndarray' objects}
+  4224072    0.740    0.000    1.321    0.000 src\shibuya\perception\renderer.py:522(<genexpr>)
+     1440    0.738    0.001    1.398    0.001 src\shibuya\engine\activity.py:459(cell_rows)
+    61066    0.730    0.000    1.572    0.000 src\shibuya\engine\llm_bridge.py:390(_wrap)
+  3173633    0.728    0.000    0.783    0.000 {method 'get' of 'dict' objects}
+2699992/2199847    0.726    0.000    3.699    0.000 {method 'join' of 'str' objects}
+    61066    0.724    0.000   14.629    0.000 src\shibuya\engine\llm_bridge.py:771(_after_render)
+   186833    0.709    0.000    1.711    0.000 src\shibuya\perception\channels.py:294(truncate_lines)
+    61066    0.693    0.000    1.170    0.000 src\shibuya\perception\renderer.py:1523(_scene)
+1263697/1263564    0.687    0.000    0.687    0.000 {method 'format' of 'str' objects}
+  7920135    0.656    0.000    0.656    0.000 src\shibuya\perception\renderer.py:520(<genexpr>)
+6100833/6100609    0.622    0.000    0.639    0.000 {built-in method builtins.len}
+     8522    0.608    0.000    6.135    0.001 src\shibuya\world\navmesh_route.py:189(plan)
+  1780455    0.596    0.000    1.050    0.000 src\shibuya\perception\channels.py:73(estimate_tokens)
+  1025466    0.580    0.000    2.846    0.000 Lib\site-packages\numpy\_core\fromnumeric.py:48(_wrapfunc)
+  3395171    0.566    0.000    0.583    0.000 {built-in method builtins.getattr}
+     1440    0.552    0.000   49.169    0.034 src\shibuya\engine\systems\decide.py:40(sys_decide)
+  3423513    0.540    0.000    0.540    0.000 {method 'find' of 'str' objects}
+    63096    0.527    0.000    1.462    0.000 src\shibuya\engine\spatial_index.py:67(expand_ranges)
+    46419    0.524    0.000    2.231    0.000 src\shibuya\perception\renderer.py:2511(_near_take)
+    61066    0.509    0.000    0.509    0.000 {built-in method cbor2._cbor2.dumps}
+    10244    0.486    0.000    1.285    0.000 src\shibuya\engine\space\nav1.py:762(link_times)
+   610660    0.484    0.000    1.065    0.000 src\shibuya\llm\parser.py:253(_clean_value)
+     9506    0.473    0.000    0.484    0.000 src\shibuya\world\navmesh_route.py:179(_astar)
+   207037    0.468    0.000    0.468    0.000 {method 'searchsorted' of 'numpy.ndarray' objects}
+   122132    0.464    0.000    0.947    0.000 src\shibuya\llm\parser.py:259(find_action_word)
+  2753203    0.447    0.000    0.447    0.000 {method 'replace' of 'str' objects}
+    18408    0.442    0.000    0.697    0.000 src\shibuya\engine\space\nav1.py:893(_smooth_grade)
+    50809    0.415    0.000    1.523    0.000 src\shibuya\perception\renderer.py:2489(_near_sort)
+     1438    0.407    0.000    8.588    0.006 src\shibuya\perception\renderer.py:2037(_merge_activity_lines)
+  2155764    0.398    0.000    0.648    0.000 {built-in method builtins.max}
+    20915    0.392    0.000    0.632    0.000 src\shibuya\agents\state.py:818(thaw)
+   668381    0.391    0.000    0.619    0.000 src\shibuya\agents\state.py:784(__getattr__)
+    15463    0.384    0.000    0.615    0.000 src\shibuya\world\navmesh_route.py:325(_funnel)
+   829109    0.359    0.000    0.547    0.000 src\shibuya\perception\hashes.py:150(<genexpr>)
+   576103    0.345    0.000    0.986    0.000 {built-in method builtins.sum}
+   625826    0.339    0.000    2.547    0.000 src\shibuya\perception\normalize.py:182(<genexpr>)
+    65659    0.338    0.000    0.424    0.000 src\shibuya\core\hashing.py:77(blake3_hex)
+   123365    0.331    0.000    0.331    0.000 {method 'cumsum' of 'numpy.ndarray' objects}
+    10287    0.318    0.000    0.391    0.000 src\shibuya\world\navmesh_route.py:153(nearest_node)
+    29027    0.313    0.000    0.313    0.000 {method 'argsort' of 'numpy.ndarray' objects}
+   212565    0.308    0.000    0.443    0.000 Lib\site-packages\numpy\_core\numeric.py:323(full)
+    38896    0.307    0.000    0.317    0.000 src\shibuya\engine\space\nav1.py:237(slope_speed_factor)
+  1452182    0.292    0.000    0.292    0.000 {method 'split' of 'str' objects}
+    61066    0.286    0.000    0.491    0.000 src\shibuya\perception\hashes.py:71(prefix_key)
+    61066    0.281    0.000   47.799    0.001 src\shibuya\engine\llm_bridge.py:659(call)
+   213606    0.276    0.000    1.031    0.000 Lib\site-packages\numpy\_core\numeric.py:675(flatnonzero)
+    12101    0.263    0.000    0.461    0.000 Lib\site-packages\numpy\lib\_arraysetops_impl.py:806(_isin)
+    81295    0.256    0.000    0.446    0.000 src\shibuya\core\rng.py:59(derive_key)
+   832697    0.254    0.000    0.254    0.000 {method 'match' of 're.Pattern' objects}
+  1296041    0.253    0.000    0.253    0.000 {method 'startswith' of 'str' objects}
+    34145    0.250    0.000    0.927    0.000 {built-in method numpy.fromiter}
+  1440482    0.246    0.000    0.246    0.000 {built-in method unicodedata.normalize}
+     1712    0.245    0.000    0.254    0.000 src\shibuya\world\navmesh.py:192(nearest)
+  1377131    0.240    0.000    0.429    0.000 src\shibuya\core\hashing.py:87(xxh64)
+   220970    0.238    0.000    0.238    0.000 {built-in method numpy.arange}
+
+
+         127801707 function calls (127107215 primitive calls) in 89.934 seconds
+
+   Ordered by: cumulative time
+   List reduced from 4313 to 120 due to restriction <120>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   92.171   92.171 src\shibuya\cli.py:835(main)
+        1    0.000    0.000   92.168   92.168 docs\bench\analysis\v3-2026-11\a\tools\measure_core.py:100(keep)
+        1    0.000    0.000   92.168   92.168 src\shibuya\cli.py:406(run)
+        1    0.000    0.000   91.748   91.748 src\shibuya\engine\run.py:1994(run_day)
+        1    0.009    0.009   91.748   91.748 src\shibuya\engine\systems\conductor.py:132(conduct)
+     1440    0.051    0.000   88.843    0.062 src\shibuya\engine\batching.py:347(run_window)
+     1440    0.029    0.000   88.707    0.062 src\shibuya\engine\systems\conductor.py:191(on_step)
+    31683    0.058    0.000   88.447    0.003 docs\bench\analysis\v3-2026-11\a\tools\measure_core.py:87(timed_run_system)
+    31683    0.161    0.000   88.363    0.003 src\shibuya\engine\systems\conductor.py:29(run_system)
+     1440    0.552    0.000   49.169    0.034 src\shibuya\engine\systems\decide.py:40(sys_decide)
+    61066    0.281    0.000   47.799    0.001 src\shibuya\engine\llm_bridge.py:659(call)
+    61066    0.149    0.000   32.866    0.001 src\shibuya\engine\llm_bridge.py:347(render)
+    61066    0.137    0.000   31.133    0.001 src\shibuya\perception\renderer.py:1411(render)
+     1440    0.040    0.000   17.048    0.012 src\shibuya\engine\systems\act.py:81(sys_phase_c)
+     1440    0.187    0.000   16.995    0.012 src\shibuya\engine\resolve.py:1286(apply)
+    61066    0.937    0.000   16.914    0.000 src\shibuya\perception\renderer.py:1452(perceive)
+    61066    0.724    0.000   14.629    0.000 src\shibuya\engine\llm_bridge.py:771(_after_render)
+    61066    1.844    0.000   14.082    0.000 src\shibuya\perception\renderer.py:1648(_render_percept)
+    61066    0.178    0.000   12.629    0.000 src\shibuya\perception\renderer.py:2318(_nearby_people)
+    61066    2.261    0.000   12.451    0.000 src\shibuya\perception\renderer.py:2412(_nearby_people_distance)
+     1440    0.062    0.000   11.632    0.008 src\shibuya\engine\systems\perceive.py:21(sys_perceive_prepare)
+     1386    0.020    0.000   11.314    0.008 src\shibuya\engine\resolve.py:1696(_apply_engine_step)
+     1386    0.093    0.000   11.197    0.008 src\shibuya\engine\resolve.py:1576(_nav_step)
+     1386    0.097    0.000   10.163    0.007 src\shibuya\engine\space\nav1.py:909(ensure_routes)
+     1440    0.006    0.000    9.601    0.007 src\shibuya\engine\llm_bridge.py:333(prepare_tick)
+     1440    0.118    0.000    9.596    0.007 src\shibuya\perception\renderer.py:1296(prepare_tick)
+     1438    0.407    0.000    8.588    0.006 src\shibuya\perception\renderer.py:2037(_merge_activity_lines)
+    61066    0.099    0.000    8.138    0.000 src\shibuya\llm\parser.py:419(parse_two_line)
+    61066    1.020    0.000    8.038    0.000 src\shibuya\llm\parser.py:553(_parse_v3)
+   345173    1.259    0.000    6.797    0.000 src\shibuya\perception\renderer.py:511(activity_line)
+    18411    0.105    0.000    6.282    0.000 src\shibuya\engine\space\nav1.py:831(_shape)
+     8522    0.608    0.000    6.135    0.001 src\shibuya\world\navmesh_route.py:189(plan)
+    62081    1.584    0.000    5.333    0.000 src\shibuya\engine\spatial_index.py:134(query_many)
+  1373653    2.252    0.000    4.868    0.000 src\shibuya\perception\normalize.py:166(canonical_whitespace)
+    61066    0.758    0.000    4.686    0.000 src\shibuya\perception\renderer.py:2154(_b5)
+    61066    0.137    0.000    4.215    0.000 src\shibuya\llm\mock.py:288(complete)
+   122132    2.157    0.000    4.162    0.000 src\shibuya\llm\parser.py:829(_scan_labels)
+    61066    0.043    0.000    3.925    0.000 src\shibuya\llm\mock.py:265(render)
+    61066    0.799    0.000    3.883    0.000 src\shibuya\llm\mock.py:204(_render_v3)
+  1179242    1.296    0.000    3.782    0.000 {built-in method builtins.any}
+    18408    0.986    0.000    3.764    0.000 src\shibuya\engine\space\nav1.py:853(_timed)
+2699992/2199847    0.726    0.000    3.699    0.000 {method 'join' of 'str' objects}
+     1440    0.131    0.000    3.046    0.002 src\shibuya\engine\systems\judge.py:66(sys_apply_responses)
+  1025466    0.580    0.000    2.846    0.000 Lib\site-packages\numpy\_core\fromnumeric.py:48(_wrapfunc)
+   125682    0.084    0.000    2.815    0.000 src\shibuya\perception\normalize.py:180(join_lines)
+    81291    0.148    0.000    2.646    0.000 src\shibuya\core\rng.py:90(stream)
+   625826    0.339    0.000    2.547    0.000 src\shibuya\perception\normalize.py:182(<genexpr>)
+        1    0.005    0.005    2.501    2.501 src\shibuya\engine\systems\build.py:130(build)
+    81292    1.320    0.000    2.498    0.000 src\shibuya\core\rng.py:82(philox)
+     8519    1.224    0.000    2.398    0.000 src\shibuya\world\navmesh_route.py:249(_shape)
+    61066    0.082    0.000    2.320    0.000 src\shibuya\llm\mock.py:172(_stream)
+     8522    2.238    0.000    2.278    0.000 src\shibuya\world\navmesh_route.py:161(w1_path)
+    46419    0.524    0.000    2.231    0.000 src\shibuya\perception\renderer.py:2511(_near_take)
+     1296    0.152    0.000    1.968    0.002 src\shibuya\engine\commit.py:667(intents_from_responses)
+    61066    0.075    0.000    1.796    0.000 src\shibuya\perception\renderer.py:2874(_b6)
+    96529    1.302    0.000    1.761    0.000 src\shibuya\perception\renderer.py:1032(near_tie_keys)
+   186833    0.709    0.000    1.711    0.000 src\shibuya\perception\channels.py:294(truncate_lines)
+     4050    0.175    0.000    1.669    0.000 src\shibuya\economy\ledger.py:621(transfer_many)
+     2964    0.007    0.000    1.655    0.001 src\shibuya\economy\ledger.py:695(purchase_many)
+  1771828    1.624    0.000    1.627    0.000 {method 'decode' of 'bytes' objects}
+     1440    0.002    0.000    1.620    0.001 src\shibuya\engine\systems\world.py:16(sys_world)
+     1440    0.054    0.000    1.618    0.001 src\shibuya\engine\processes\runner.py:453(step)
+    61066    0.730    0.000    1.572    0.000 src\shibuya\engine\llm_bridge.py:390(_wrap)
+  2230865    1.554    0.000    1.554    0.000 {method 'sub' of 're.Pattern' objects}
+     2964    0.092    0.000    1.553    0.001 src\shibuya\economy\stage2.py:586(purchase)
+  4266859    1.533    0.000    1.533    0.000 {method 'search' of 're.Pattern' objects}
+     1683    0.046    0.000    1.527    0.001 src\shibuya\engine\resolve.py:2375(_apply_buy)
+    50809    0.415    0.000    1.523    0.000 src\shibuya\perception\renderer.py:2489(_near_sort)
+    63096    0.527    0.000    1.462    0.000 src\shibuya\engine\spatial_index.py:67(expand_ranges)
+     1440    0.738    0.001    1.398    0.001 src\shibuya\engine\activity.py:459(cell_rows)
+222981/151451    0.102    0.000    1.374    0.000 {built-in method builtins.next}
+    64536    0.894    0.000    1.369    0.000 src\shibuya\engine\spatial_index.py:38(_grid_keys)
+     1534    0.062    0.000    1.337    0.001 src\shibuya\engine\resolve.py:2420(_complete_buy)
+  4224072    0.740    0.000    1.321    0.000 src\shibuya\perception\renderer.py:522(<genexpr>)
+    10244    0.486    0.000    1.285    0.000 src\shibuya\engine\space\nav1.py:762(link_times)
+     4050    0.203    0.000    1.284    0.000 src\shibuya\economy\ops.py:229(transfer)
+     1708    0.038    0.000    1.198    0.001 src\shibuya\engine\resolve.py:2514(_apply_eat)
+    61066    0.693    0.000    1.170    0.000 src\shibuya\perception\renderer.py:1523(_scene)
+     1174    0.191    0.000    1.126    0.001 src\shibuya\engine\poi_target.py:373(resolve)
+      962    0.017    0.000    1.080    0.001 src\shibuya\engine\resolve.py:2621(_apply_queue)
+   610660    0.484    0.000    1.065    0.000 src\shibuya\llm\parser.py:253(_clean_value)
+  1802938    1.051    0.000    1.051    0.000 {built-in method numpy.asarray}
+  1780455    0.596    0.000    1.050    0.000 src\shibuya\perception\channels.py:73(estimate_tokens)
+   213606    0.276    0.000    1.031    0.000 Lib\site-packages\numpy\_core\numeric.py:675(flatnonzero)
+     1430    0.022    0.000    1.000    0.001 src\shibuya\engine\resolve.py:2578(_complete_eat)
+   576103    0.345    0.000    0.986    0.000 {built-in method builtins.sum}
+    61066    0.110    0.000    0.979    0.000 src\shibuya\perception\normalize.py:243(assert_no_agent_dependent_words)
+   122132    0.464    0.000    0.947    0.000 src\shibuya\llm\parser.py:259(find_action_word)
+101570/65805    0.042    0.000    0.942    0.000 Lib\contextlib.py:132(__enter__)
+    34145    0.250    0.000    0.927    0.000 {built-in method numpy.fromiter}
+   786275    0.918    0.000    0.918    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+    61066    0.030    0.000    0.915    0.000 src\shibuya\llm\__init__.py:163(prompt_hash)
+    42285    0.136    0.000    0.901    0.000 src\shibuya\engine\events\log.py:407(append)
+  6868461    0.896    0.000    0.896    0.000 {method 'strip' of 'str' objects}
+     1440    0.008    0.000    0.894    0.001 src\shibuya\engine\systems\body.py:169(sys_activity_intent)
+    61066    0.073    0.000    0.886    0.000 src\shibuya\core\hashing.py:102(sha256_cbor)
+    42394    0.029    0.000    0.883    0.000 src\shibuya\agents\state.py:828(writable)
+  3173633    0.728    0.000    0.783    0.000 {method 'get' of 'dict' objects}
+        1    0.000    0.000    0.782    0.782 src\shibuya\engine\space\nav1.py:1098(load_space)
+   207037    0.128    0.000    0.765    0.000 Lib\site-packages\numpy\_core\fromnumeric.py:1459(searchsorted)
+     1440    0.061    0.000    0.759    0.001 src\shibuya\engine\resolve.py:2144(_serve_board_queue)
+  5908866    0.758    0.000    0.758    0.000 {method 'append' of 'list' objects}
+     4951    0.053    0.000    0.751    0.000 src\shibuya\engine\events\links.py:83(__call__)
+   779123    0.748    0.000    0.748    0.000 {method 'astype' of 'numpy.ndarray' objects}
+        1    0.110    0.110    0.739    0.739 src\shibuya\engine\space\nav1.py:676(__init__)
+    18408    0.442    0.000    0.697    0.000 src\shibuya\engine\space\nav1.py:893(_smooth_grade)
+1263697/1263564    0.687    0.000    0.687    0.000 {method 'format' of 'str' objects}
+     2880    0.017    0.000    0.670    0.000 src\shibuya\perception\hashes.py:137(field_row_hashes)
+     1440    0.020    0.000    0.659    0.000 src\shibuya\engine\systems\perceive.py:57(sys_detect)
+  7920135    0.656    0.000    0.656    0.000 src\shibuya\perception\renderer.py:520(<genexpr>)
+  2155764    0.398    0.000    0.648    0.000 {built-in method builtins.max}
+6100833/6100609    0.622    0.000    0.639    0.000 {built-in method builtins.len}
+    20915    0.392    0.000    0.632    0.000 src\shibuya\agents\state.py:818(thaw)
+   668381    0.391    0.000    0.619    0.000 src\shibuya\agents\state.py:784(__getattr__)
+     1049    0.018    0.000    0.616    0.001 src\shibuya\engine\resolve.py:2237(_board_riders)
+    15463    0.384    0.000    0.615    0.000 src\shibuya\world\navmesh_route.py:325(_funnel)
+    42285    0.046    0.000    0.609    0.000 src\shibuya\engine\systems\guard.py:57(events_write_allowed)
+     1537    0.127    0.000    0.601    0.000 src\shibuya\engine\activity.py:269(after_resolve)
+     1440    0.016    0.000    0.588    0.000 src\shibuya\engine\systems\judge.py:29(sys_arbiter)
+  3395171    0.566    0.000    0.583    0.000 {built-in method builtins.getattr}
+
+

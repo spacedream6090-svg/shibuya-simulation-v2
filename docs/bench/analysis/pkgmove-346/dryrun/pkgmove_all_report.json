@@ -1,0 +1,3317 @@
+{
+ "stages": [
+  "foundation",
+  "world",
+  "economy",
+  "act",
+  "mind",
+  "society",
+  "interim_bundles",
+  "runtime",
+  "experiments",
+  "validation",
+  "delete"
+ ],
+ "rows_applied": 204,
+ "rows_applied_by_kind": {
+  "delete": 2,
+  "move": 200,
+  "empty": 2
+ },
+ "rows_already": [],
+ "refused_held": [
+  {
+   "num": "151",
+   "old": "engine/contact/calls.py",
+   "held": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+  },
+  {
+   "num": "152",
+   "old": "engine/contact/chat_state.py",
+   "held": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+  },
+  {
+   "num": "153",
+   "old": "engine/contact/deliver.py",
+   "held": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1=今 society に置くか一時の区分に置くか)"
+  },
+  {
+   "num": "158",
+   "old": "engine/contact/tools.py",
+   "held": "問い 1 連絡の器 4 本の置き場(本文 §8-1 の 1)"
+  },
+  {
+   "num": "224a",
+   "old": "engine/removed_switches.py",
+   "held": "行 224a 置き場は段 4 の前に親が確かめる(move-346 の記録 §7-2 の (3))"
+  }
+ ],
+ "file_moves": 179,
+ "created_heads": [
+  "src/shibuya/act/__init__.py",
+  "src/shibuya/act/intake/__init__.py",
+  "src/shibuya/experiments/__init__.py",
+  "src/shibuya/experiments/drive/__init__.py",
+  "src/shibuya/experiments/port/__init__.py",
+  "src/shibuya/foundation/__init__.py",
+  "src/shibuya/foundation/arms/__init__.py",
+  "src/shibuya/foundation/decl/__init__.py",
+  "src/shibuya/foundation/journal/__init__.py",
+  "src/shibuya/foundation/manifest/__init__.py",
+  "src/shibuya/foundation/ports/__init__.py",
+  "src/shibuya/foundation/queues/__init__.py",
+  "src/shibuya/foundation/text/__init__.py",
+  "src/shibuya/foundation/vocab/__init__.py",
+  "src/shibuya/interim_bundles/__init__.py",
+  "src/shibuya/interim_bundles/calendar2/__init__.py",
+  "src/shibuya/interim_bundles/calendar3/__init__.py",
+  "src/shibuya/interim_bundles/contact/__init__.py",
+  "src/shibuya/interim_bundles/duties/__init__.py",
+  "src/shibuya/mind/__init__.py",
+  "src/shibuya/mind/judge/__init__.py",
+  "src/shibuya/mind/judge/decision/__init__.py",
+  "src/shibuya/mind/memory/__init__.py",
+  "src/shibuya/mind/percept/__init__.py",
+  "src/shibuya/mind/plan/__init__.py",
+  "src/shibuya/mind/relations/__init__.py",
+  "src/shibuya/runtime/__init__.py",
+  "src/shibuya/runtime/clocks/__init__.py",
+  "src/shibuya/runtime/inference/__init__.py",
+  "src/shibuya/runtime/state/__init__.py",
+  "src/shibuya/runtime/systems/__init__.py",
+  "src/shibuya/society/__init__.py",
+  "src/shibuya/society/speech/__init__.py",
+  "src/shibuya/society/tools/__init__.py",
+  "src/shibuya/validation/__init__.py",
+  "src/shibuya/validation/static/__init__.py",
+  "src/shibuya/world/body/__init__.py",
+  "src/shibuya/world/facts/__init__.py",
+  "src/shibuya/world/facts/rights/__init__.py",
+  "src/shibuya/world/facts/rules/__init__.py",
+  "src/shibuya/world/laws/__init__.py",
+  "src/shibuya/world/ledger/__init__.py",
+  "src/shibuya/world/ledger/frozen/__init__.py",
+  "src/shibuya/world/model/__init__.py",
+  "src/shibuya/world/model/space/__init__.py",
+  "src/shibuya/world/things/__init__.py"
+ ],
+ "emptied_heads": [
+  "src/shibuya/agents/__init__.py",
+  "src/shibuya/economy/__init__.py",
+  "src/shibuya/engine/__init__.py",
+  "src/shibuya/engine/contact/__init__.py",
+  "src/shibuya/engine/events/__init__.py",
+  "src/shibuya/engine/tools/__init__.py",
+  "src/shibuya/perception/__init__.py",
+  "src/shibuya/world/__init__.py"
+ ],
+ "deleted": [
+  "src/shibuya/census/__init__.py",
+  "src/shibuya/core/__init__.py",
+  "src/shibuya/engine/body/__init__.py",
+  "src/shibuya/engine/bridging/__init__.py",
+  "src/shibuya/engine/calendar2/__init__.py",
+  "src/shibuya/engine/calendar3/__init__.py",
+  "src/shibuya/engine/decision/__init__.py",
+  "src/shibuya/engine/duties/__init__.py",
+  "src/shibuya/engine/experiment/__init__.py",
+  "src/shibuya/engine/processes/__init__.py",
+  "src/shibuya/engine/rights/__init__.py",
+  "src/shibuya/engine/rules/__init__.py",
+  "src/shibuya/engine/space/__init__.py",
+  "src/shibuya/engine/speech/__init__.py",
+  "src/shibuya/engine/systems/__init__.py",
+  "src/shibuya/manifest/__init__.py",
+  "src/shibuya/world/processes/__init__.py"
+ ],
+ "import_statements": {
+  "src": 836,
+  "build": 38,
+  "tests": 1408,
+  "tools": 55
+ },
+ "import_files": {
+  "src": 176,
+  "build": 30,
+  "tests": 352,
+  "tools": 29
+ },
+ "import_via_head": {
+  "src": 5,
+  "build": 0,
+  "tests": 17,
+  "tools": 1
+ },
+ "import_split_statements": {
+  "src": 4,
+  "build": 0,
+  "tests": 11,
+  "tools": 1
+ },
+ "import_via_package": {
+  "src": 275,
+  "build": 5,
+  "tests": 705,
+  "tools": 5
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "src_table": 145,
+  "code_import": 45,
+  "chain": 16,
+  "dotted": 35,
+  "slash": 150
+ },
+ "path_string_sites": 140,
+ "path_string_sites_by_file": [
+  "src/shibuya/engine/rng_audit.py::SAFE_SITES",
+  "src/shibuya/engine/rng_audit.py::UNDETERMINED_SITES",
+  "src/shibuya/engine/rng_audit.py::scan_sites",
+  "src/shibuya/engine/state_ledger.py::OWNER_ALT_CLASSES",
+  "src/shibuya/engine/state_ledger.py::OWNER_CLASSES",
+  "src/shibuya/engine/state_ledger.py::_ALLOW_B4",
+  "src/shibuya/engine/state_ledger.py::_ALLOW_BAND",
+  "src/shibuya/engine/state_ledger.py::_ALLOW_ENERGY_BALANCE",
+  "src/shibuya/engine/state_ledger.py::_ALLOW_HEADING",
+  "src/shibuya/engine/state_ledger.py::_ALLOW_REVENUE",
+  "src/shibuya/engine/state_ledger.py::_ALLOW_TASK",
+  "src/shibuya/engine/state_ledger_ast.py::DECL_FILES",
+  "src/shibuya/engine/state_ledger_ast.py::DIAG_EXITS",
+  "src/shibuya/engine/state_ledger_ast.py::EXT_AST_ALLOW",
+  "src/shibuya/engine/state_ledger_ast.py::GENERIC_FILES",
+  "src/shibuya/engine/state_ledger_ast.py::RESULT_FILES",
+  "src/shibuya/engine/state_ledger_ast.py::UNRESOLVED_ALLOW",
+  "tests/build_pop/test_w21_stage8_9.py::test_persona_build_does_not_import_or_call_llm",
+  "tests/build_rail/test_w12_arrivals_2_3c.py::test_engine_reader_is_not_called_from_any_process",
+  "tests/economy/cp2/test_cp2_event_links.py::test_economy_and_the_ledger_api_do_not_import_engine_events",
+  "tests/economy/cp2/test_cp2_transfer_only_writer.py::test_negative_attribute_chain",
+  "tests/economy/cp2/test_cp2_write_window.py::test_negative_window_and_balance_write",
+  "tests/economy/stage2/test_stage2_writers.py::NEW_MODULES",
+  "tests/economy/test_rules42_runs.py::test_removed_rules_42_switch_env_stops",
+  "tests/economy/test_rules42b_ledger.py::test_removed_rules_42b_switch_env_stops",
+  "tests/economy/test_wage_occupation.py::test_build_and_runtime_share_one_function",
+  "tests/economy/test_wage_occupation.py::test_removed_wage_switch_env_and_cli_flag_stop",
+  "tests/engine/batching/test_conductor_windows.py::test_a_bad_environment_width_fails_at_import",
+  "tests/engine/body/test_body_guard.py::HEAD_CALLERS",
+  "tests/engine/body/test_body_guard.py::MODEL,SCHED",
+  "tests/engine/body/test_body_guard.py::OTHER_OWNERS",
+  "tests/engine/body/test_body_guard.py::test_only_the_ports_write_the_body_layer",
+  "tests/engine/body/test_body_rules_sources.py::test_declaration_tables_are_one_to_one_with_ledger_rows",
+  "tests/engine/body/test_meal_default_w17.py::test_removed_switch_env_and_cli_flag_stop",
+  "tests/engine/bridging/test_bridging_ledger.py::test_doc_rows_need_no_code_declaration",
+  "tests/engine/bridging/test_bridging_ledger.py::test_negative_a_changed_item_count_is_caught",
+  "tests/engine/calendar/test_ca1b_unit.py::test_manifest_section_ledger_rows_and_system_declarations",
+  "tests/engine/calendar3/test_ca3_runs.py::test_roster_is_not_built_at_assembly",
+  "tests/engine/clock/test_tm2_talk_clock.py::test_a_bad_environment_arm_fails_at_import",
+  "tests/engine/clock/test_tm2_talk_clock.py::test_think_time_is_not_added_to_the_gap",
+  "tests/engine/events/test_e_cause_three_kinds.py::ALLOWED",
+  "tests/engine/events/test_e_cause_three_kinds.py::LOG_MODULE",
+  "tests/engine/events/test_e_cause_three_kinds.py::PLANTED",
+  "tests/engine/events/test_e_cause_three_kinds.py::_log_aliases",
+  "tests/engine/events/test_e_cause_three_kinds.py::offenders",
+  "tests/engine/events/test_e_writes_declared.py::test_paths_permit_is_assigned_only_in_the_guard",
+  "tests/engine/experiment/test_x33_apply.py::GATE",
+  "tests/engine/experiment/test_x33_apply.py::_gate_names",
+  "tests/engine/experiment/test_x33_apply.py::test_admit_and_the_table_writers_are_called_only_from_apply",
+  "tests/engine/experiment/test_x33_apply.py::test_the_calendar_is_written_through_its_one_mouth",
+  "tests/engine/experiment/test_x33_apply.py::test_the_entry_check_catches_a_planted_call",
+  "tests/engine/experiment/test_x33_run.py::test_ledger_row_x_enters_no_hash",
+  "tests/engine/memory/test_m0_store_schema.py::test_ledger_rows_are_out_of_both_hashes_and_the_state_file",
+  "tests/engine/memory/test_m0_store_schema.py::test_store_imports_only_allowed_layers",
+  "tests/engine/memory/test_m0_store_schema.py::test_store_is_one_module_beside_the_memory_table",
+  "tests/engine/memory/test_mr65_grain_and_cli.py::CODE",
+  "tests/engine/memory/test_mr65_guards.py::test_child_columns_are_assigned_only_inside_their_classes",
+  "tests/engine/memory/test_mr65_guards.py::test_child_owner_ports_are_called_only_from_the_store",
+  "tests/engine/memory/test_mr65_guards.py::test_ledger_rows_and_axes",
+  "tests/engine/memory/test_mr65_guards.py::test_new_modules_respect_the_layer_contract",
+  "tests/engine/memory/test_mr65_guards.py::test_shop_table_ports_are_called_only_from_the_uncapped_store",
+  "tests/engine/memory/test_mr65_review_fixes.py::test_bridge_ids_use_the_stage_names_of_answer_6_2",
+  "tests/engine/proximity/test_rule.py::test_d_switch_is_checked_and_the_cell_switch_is_removed",
+  "tests/engine/rights/rights_writers.py::outside_touches",
+  "tests/engine/rights/test_rights_from_w16.py::test_blank_bridges_are_active_rows_of_the_ledger",
+  "tests/engine/rights/test_rights_schema.py::LEDGER_PY",
+  "tests/engine/rights/test_rights_schema.py::test_negative_outside_writes_are_caught",
+  "tests/engine/rules/test_rules_table_schema.py::TARGET",
+  "tests/engine/rules/test_rules_table_schema.py::test_only_the_manifest_and_the_daily_record_import_the_table",
+  "tests/engine/rules/test_rules_table_schema.py::test_the_reader_check_sees_every_import_form",
+  "tests/engine/space/test_nav1_units.py::SRC",
+  "tests/engine/space/test_nav1_units.py::test_engine_does_not_decide_for_the_person",
+  "tests/engine/speech/test_speech_port_schema.py::test_ledger_arm_rows_and_arm_items",
+  "tests/engine/speech/test_speech_writers_ast.py::OTHER_OWNERS",
+  "tests/engine/speech/test_speech_writers_ast.py::PORT",
+  "tests/engine/speech/test_speech_writers_ast.py::test_negative_control_planted_writes_are_found",
+  "tests/engine/state/test_class_ids.py::ENTRY_FILES",
+  "tests/engine/state/test_class_ids.py::test_entry_functions_go_through_the_table",
+  "tests/engine/state/test_move_prep_stage2.py::test_only_core_paths_reads_dunder_file_on_the_run_side",
+  "tests/engine/state/test_move_prep_stage2.py::test_rng_audit_names_come_from_the_rng_module",
+  "tests/engine/state/test_move_prep_stage2.py::test_static_check_names_come_from_the_modules",
+  "tests/engine/state/test_move_prep_stage2.py::test_world_catalog_package_name_comes_from_the_module",
+  "tests/engine/state/test_names_frozen.py::test_shaped_pattern_finds_both_forms_inside_japanese_text",
+  "tests/engine/systems/test_boxes.py::test_run_day_signature_is_unchanged_and_build_unpacks_every_argument",
+  "tests/engine/systems/test_fix_guards.py::D6_ALLOW",
+  "tests/engine/systems/test_fix_guards.py::GUARD_CALLS",
+  "tests/engine/systems/test_fix_guards.py::PERMIT_GLOBALS",
+  "tests/engine/systems/test_fix_guards.py::PERMIT_MODULES",
+  "tests/engine/systems/test_fix_guards.py::STATE_MODULES",
+  "tests/engine/systems/test_fix_guards.py::WP_ATTR_PLACES",
+  "tests/engine/systems/test_fix_guards.py::WP_CALLS",
+  "tests/engine/systems/test_fix_guards.py::WP_IMPORTERS",
+  "tests/engine/systems/test_fix_guards.py::_EXEMPT_D6",
+  "tests/engine/systems/test_fix_guards.py::permit_offenders",
+  "tests/engine/systems/test_fix_guards.py::test_permit_check_catches_planted_switches",
+  "tests/engine/systems/test_fix_guards.py::test_permit_check_catches_reexported_names",
+  "tests/engine/systems/test_stage_a_guard.py::D6_ALLOW",
+  "tests/engine/systems/test_stage_a_guard.py::FLAG_WRITERS",
+  "tests/engine/systems/test_stage_a_guard.py::_EXEMPT_D6",
+  "tests/engine/test_classical_policy.py::_PER_CALL",
+  "tests/engine/test_classical_policy.py::test_per_call_paths_have_no_python_loops_over_agents",
+  "tests/engine/test_defect_fixes_1103.py::test_removed_defect_fixes_switch_env_and_cli_flag_stop",
+  "tests/engine/test_energy_balance.py::_PER_TICK",
+  "tests/engine/test_energy_balance.py::test_per_tick_paths_have_no_python_loops",
+  "tests/engine/test_memory_recall.py::test_recall_has_no_loop_over_rows",
+  "tests/engine/test_memory_record.py::test_row_writers_are_array_ops",
+  "tests/engine/test_renderer_wiring.py::recording",
+  "tests/engine/test_resume_10d.py::_CHILD",
+  "tests/engine/test_salt_seed_split_10f.py::_HASH_SITES",
+  "tests/engine/test_salt_seed_split_10f.py::_PASSTHROUGH_OK",
+  "tests/engine/test_salt_seed_split_10f.py::_RNG_MODULES",
+  "tests/engine/test_salt_seed_split_10f.py::test_static_scan_catches_aliases_and_keyword_domains",
+  "tests/engine/test_seat_release_2_4.py::test_removed_seat_release_switch_env_and_cli_flag_stop",
+  "tests/engine/test_state_checks_10f.py::test_t5_static_fifth_word_caller_fails",
+  "tests/engine/test_state_checks_10f.py::test_u5_allow_entries_have_a_fixed_hit_count",
+  "tests/engine/test_state_checks_10f.py::test_v3_allow_entries_pin_the_function_of_the_line",
+  "tests/engine/test_state_ledger_10b.py::test_ast_false_positives_band_and_b4_hash_are_explicit",
+  "tests/engine/test_state_ledger_10b.py::test_coverage_fails_when_a_new_state_is_not_declared",
+  "tests/engine/test_store_choice.py::test_recall_first_is_array_ops",
+  "tests/engine/test_store_memory.py::test_store_readers_and_writer_rounds_are_array_ops",
+  "tests/engine/test_two_phase.py::test_every_hot_path_declares_its_sequential_loops",
+  "tests/engine/test_two_phase.py::test_thaw_is_never_called_outside_the_state_modules",
+  "tests/engine/test_wom.py::test_extraction_is_per_call_string_work",
+  "tests/engine/time/test_t0_literal_count.py::test_time_consts_module_itself_has_no_hits",
+  "tests/engine/time/test_t0_rng_key.py::PLAN_A_CALLERS",
+  "tests/engine/time/test_t0_time_consts.py::test_time_consts_imports_only_the_standard_library",
+  "tests/engine/tools/test_c0_phone_table_empty_and_declared.py::test_the_blank_is_declared_in_the_bridging_ledger",
+  "tests/llm/test_fleet_contract.py::FORBIDDEN_PREFIXES",
+  "tests/perception/facts/test_percept_is_scratch.py::_REPLAY_CHILD",
+  "tests/perception/test_templates.py::test_action_vocab_matches_llm_contract",
+  "tests/test_world_catalog_sha.py::PACKAGED_JSON",
+  "tests/test_world_catalog_sha.py::test_manifest_does_not_import_build",
+  "tests/tools/test_bytecheck.py::test_root_scanner_counts_the_paths_helpers",
+  "tests/tools/test_repo_guide.py::TABLE_SRC",
+  "tests/tools/test_repo_guide.py::repo",
+  "tests/tools/test_repo_guide.py::test_missing_ledger_is_reported",
+  "tools/bytecheck/tree.py::ROOT_READERS",
+  "tools/bytecheck/tree.py::TRACKED_READS",
+  "tools/instruments/batch_width_gauge.py::_CHILD",
+  "tools/repo_guide/guide_render.py::permit_lines_by_file"
+ ],
+ "class_id_keys": 352,
+ "class_ids_resorted": true,
+ "changed_files": 596,
+ "untouched_count": {
+  "build:bare_dotted": 4,
+  "build:slash": 2,
+  "src:bare_dotted": 48,
+  "src:dotted": 17,
+  "src:slash": 154,
+  "tests:bare_dotted": 20,
+  "tests:dotted": 16,
+  "tests:slash": 3,
+  "tools:bare_dotted": 1,
+  "tools:dotted": 2,
+  "tools:slash": 15
+ },
+ "untouched_broad_constants": {
+  "src": 311,
+  "build": 20,
+  "tests": 148,
+  "tools": 25
+ },
+ "skipped_in_allowlist": [
+  {
+   "file": "tests/engine/state/test_names_frozen.py",
+   "symbol": "test_shaped_pattern_finds_both_forms_inside_japanese_text",
+   "kind": "slash",
+   "token": "engine/energy.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "engine/rules/table.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "engine/bridging/ledger.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "world/processes/circularity.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "core/budget.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "world/processes/constitution.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "engine/classical.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "ROOT_READERS",
+   "kind": "slash",
+   "token": "core/paths.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  }
+ ],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 105,
+  "rows_moving_active": 103
+ },
+ "bridging_ledger_moving": [
+  {
+   "id": "BR-DOC-RNG-KEY-FORMAT",
+   "declared_in": "src/shibuya/core/rng.py#docstring:6d4234a1",
+   "status": "active",
+   "new": "src/shibuya/foundation/rng.py#docstring:6d4234a1"
+  },
+  {
+   "id": "BR-WEATHER-STRATUM-WIDEN",
+   "declared_in": "src/shibuya/engine/processes/environment.py#expedients:23fd4d07",
+   "status": "active",
+   "new": "src/shibuya/world/laws/environment.py#expedients:23fd4d07"
+  },
+  {
+   "id": "BR-SHADOW-NEAREST-DAY",
+   "declared_in": "src/shibuya/engine/processes/environment.py#expedients:a5d3ddf2",
+   "status": "active",
+   "new": "src/shibuya/world/laws/environment.py#expedients:a5d3ddf2"
+  },
+  {
+   "id": "BR-RUN-KIND-CLI-ARMS",
+   "declared_in": "src/shibuya/engine/run_kind.py#docstring:f3df880b",
+   "status": "active",
+   "new": "src/shibuya/experiments/port/run_kind.py#docstring:f3df880b"
+  },
+  {
+   "id": "BR-DOC-DECODING-FIELDS",
+   "declared_in": "src/shibuya/manifest/schema.py#docstring:fdde13ed",
+   "status": "active",
+   "new": "src/shibuya/foundation/manifest/schema.py#docstring:fdde13ed"
+  },
+  {
+   "id": "HD-agents.schedule-1af925f4",
+   "declared_in": "src/shibuya/agents/schedule.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/facts/mock_schedule.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-core.growth-1af925f4",
+   "declared_in": "src/shibuya/core/growth.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/growth.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-core.soa-1af925f4",
+   "declared_in": "src/shibuya/core/soa.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/soa.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-core.types-1af925f4",
+   "declared_in": "src/shibuya/core/types.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/types.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.activity-090e5c85",
+   "declared_in": "src/shibuya/engine/activity.py#heading:090e5c85",
+   "status": "active",
+   "new": "src/shibuya/act/activity.py#heading:090e5c85"
+  },
+  {
+   "id": "HD-engine.classical-4000a748",
+   "declared_in": "src/shibuya/engine/classical.py#heading:4000a748",
+   "status": "active",
+   "new": "src/shibuya/mind/judge/classical.py#heading:4000a748"
+  },
+  {
+   "id": "HD-engine.conversation-1af925f4",
+   "declared_in": "src/shibuya/engine/conversation.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/society/conversation.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.energy-cc73b60c",
+   "declared_in": "src/shibuya/engine/energy.py#heading:cc73b60c",
+   "status": "active",
+   "new": "src/shibuya/world/body/energy.py#heading:cc73b60c"
+  },
+  {
+   "id": "HD-engine.familiarity-a8af6821",
+   "declared_in": "src/shibuya/engine/familiarity.py#heading:a8af6821",
+   "status": "active",
+   "new": "src/shibuya/mind/memory/familiarity.py#heading:a8af6821"
+  },
+  {
+   "id": "HD-engine.geometry-1af925f4",
+   "declared_in": "src/shibuya/engine/geometry.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/model/geometry.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.growth_decl-1af925f4",
+   "declared_in": "src/shibuya/engine/growth_decl.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/runtime/state/growth_decl.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.intent-0c69afbc",
+   "declared_in": "src/shibuya/engine/intent.py#heading:0c69afbc",
+   "status": "active",
+   "new": "src/shibuya/act/intent.py#heading:0c69afbc"
+  },
+  {
+   "id": "HD-engine.ledger_api-1af925f4",
+   "declared_in": "src/shibuya/engine/ledger_api.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/ports/ledger.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.processes.civic-fe8b67d5",
+   "declared_in": "src/shibuya/engine/processes/civic.py#heading:fe8b67d5",
+   "status": "active",
+   "new": "src/shibuya/world/laws/civic.py#heading:fe8b67d5"
+  },
+  {
+   "id": "HD-engine.processes.crowd-1af925f4",
+   "declared_in": "src/shibuya/engine/processes/crowd.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/laws/crowd.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.processes.environment-1af925f4",
+   "declared_in": "src/shibuya/engine/processes/environment.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/laws/environment.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.processes.goods_flow-fe8b67d5",
+   "declared_in": "src/shibuya/engine/processes/goods_flow.py#heading:fe8b67d5",
+   "status": "active",
+   "new": "src/shibuya/world/laws/goods_flow.py#heading:fe8b67d5"
+  },
+  {
+   "id": "HD-engine.processes.logistics-fe8b67d5",
+   "declared_in": "src/shibuya/engine/processes/logistics.py#heading:fe8b67d5",
+   "status": "active",
+   "new": "src/shibuya/world/laws/logistics.py#heading:fe8b67d5"
+  },
+  {
+   "id": "HD-engine.processes.opening-1af925f4",
+   "declared_in": "src/shibuya/engine/processes/opening.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/laws/opening.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.processes.rail-1af925f4",
+   "declared_in": "src/shibuya/engine/processes/rail.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/laws/rail.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.processes.salient-1af925f4",
+   "declared_in": "src/shibuya/engine/processes/salient.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/laws/salient.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.processes.traffic-1af925f4",
+   "declared_in": "src/shibuya/engine/processes/traffic.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/laws/traffic.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.scheduler-1af925f4",
+   "declared_in": "src/shibuya/engine/scheduler.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/queues/scheduler.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-llm.contract-1af925f4",
+   "declared_in": "src/shibuya/llm/contract.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/vocab/actions.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-llm.parser-1af925f4",
+   "declared_in": "src/shibuya/llm/parser.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/act/intake/parser.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.channels-1af925f4",
+   "declared_in": "src/shibuya/perception/channels.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/channels.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.hashes-1af925f4",
+   "declared_in": "src/shibuya/perception/hashes.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/hashes.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.normalize-1af925f4",
+   "declared_in": "src/shibuya/perception/normalize.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/normalize.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.p_notice-16ea5cb3",
+   "declared_in": "src/shibuya/perception/p_notice.py#heading:16ea5cb3",
+   "status": "active",
+   "new": "src/shibuya/world/model/notice_reach.py#heading:16ea5cb3"
+  },
+  {
+   "id": "HD-perception.state-1af925f4",
+   "declared_in": "src/shibuya/perception/state.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/model/percept_state.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-perception.templates-1af925f4",
+   "declared_in": "src/shibuya/perception/templates.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/text/templates.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-world.graph-1af925f4",
+   "declared_in": "src/shibuya/world/graph.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/model/graph.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-world.processes.actual_log-1af925f4",
+   "declared_in": "src/shibuya/world/processes/actual_log.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/actual_log.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-world.processes.constitution-1af925f4",
+   "declared_in": "src/shibuya/world/processes/constitution.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/constitution.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-world.processes.records-6ad4df73",
+   "declared_in": "src/shibuya/world/processes/records.py#heading:6ad4df73",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/records.py#heading:6ad4df73"
+  },
+  {
+   "id": "HD-world.processes.registry-1af925f4",
+   "declared_in": "src/shibuya/world/processes/registry.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/registry.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-world.processes.relations-1af925f4",
+   "declared_in": "src/shibuya/world/processes/relations.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/relations.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-world.state-1af925f4",
+   "declared_in": "src/shibuya/world/state.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/model/state.py#heading:1af925f4"
+  },
+  {
+   "id": "PR-rail_operation_static",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:rail_operation_static",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:rail_operation_static"
+  },
+  {
+   "id": "PR-store_opening",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:store_opening",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:store_opening"
+  },
+  {
+   "id": "PR-shelf_stock_restock",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:shelf_stock_restock",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:shelf_stock_restock"
+  },
+  {
+   "id": "PR-delivery_inbound",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:delivery_inbound",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:delivery_inbound"
+  },
+  {
+   "id": "PR-waste_collection",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:waste_collection",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:waste_collection"
+  },
+  {
+   "id": "PR-indoor_occupancy",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:indoor_occupancy",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:indoor_occupancy"
+  },
+  {
+   "id": "PR-vehicle_cross_section",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:vehicle_cross_section",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:vehicle_cross_section"
+  },
+  {
+   "id": "PR-delivery_last_mile",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:delivery_last_mile",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:delivery_last_mile"
+  },
+  {
+   "id": "PR-bus_taxi_operation",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:bus_taxi_operation",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:bus_taxi_operation"
+  },
+  {
+   "id": "PR-public_service_dispatch",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:public_service_dispatch",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:public_service_dispatch"
+  },
+  {
+   "id": "PR-street_cleaning",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:street_cleaning",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:street_cleaning"
+  },
+  {
+   "id": "PR-infra_daily_load",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:infra_daily_load",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:infra_daily_load"
+  },
+  {
+   "id": "PR-hotel_room_inventory",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:hotel_room_inventory",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:hotel_room_inventory"
+  },
+  {
+   "id": "PR-road_works_occupancy",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:road_works_occupancy",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:road_works_occupancy"
+  },
+  {
+   "id": "PR-press_official_release",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:press_official_release",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:press_official_release"
+  },
+  {
+   "id": "PR-large_event",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:large_event",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:large_event"
+  },
+  {
+   "id": "PR-plan.opening_hours",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:plan.opening_hours",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:plan.opening_hours"
+  },
+  {
+   "id": "PR-plan.road_works",
+   "declared_in": "src/shibuya/world/processes/first_batch.py#process:plan.road_works",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/first_batch.py#process:plan.road_works"
+  },
+  {
+   "id": "FB-hotel_room_inventory",
+   "declared_in": "src/shibuya/world/processes/registry.py#fallback:hotel_room_inventory|",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/registry.py#fallback:hotel_room_inventory|"
+  },
+  {
+   "id": "FB-large_event",
+   "declared_in": "src/shibuya/world/processes/registry.py#fallback:large_event|",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/registry.py#fallback:large_event|"
+  },
+  {
+   "id": "FB-vehicle_cross_section",
+   "declared_in": "src/shibuya/world/processes/registry.py#fallback:vehicle_cross_section|",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/registry.py#fallback:vehicle_cross_section|"
+  },
+  {
+   "id": "FB-store_opening",
+   "declared_in": "src/shibuya/world/processes/registry.py#fallback:store_opening|plan.opening_hours",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/registry.py#fallback:store_opening|plan.opening_hours"
+  },
+  {
+   "id": "FB-rail_operation_static",
+   "declared_in": "src/shibuya/world/processes/registry.py#fallback:rail_operation_static|plan.rail_timetable",
+   "status": "active",
+   "new": "src/shibuya/world/ledger/registry.py#fallback:rail_operation_static|plan.rail_timetable"
+  },
+  {
+   "id": "HD-engine.rights.initial-1af925f4",
+   "declared_in": "src/shibuya/engine/rights/initial.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/facts/rights/initial.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.rights.record-1af925f4",
+   "declared_in": "src/shibuya/engine/rights/record.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/facts/rights/record.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.decision.port-1af925f4",
+   "declared_in": "src/shibuya/engine/decision/port.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/ports/decision.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.decision.sources-2eb55c6e",
+   "declared_in": "src/shibuya/engine/decision/sources.py#heading:2eb55c6e",
+   "status": "active",
+   "new": "src/shibuya/mind/judge/decision/sources.py#heading:2eb55c6e"
+  },
+  {
+   "id": "HD-engine.decision.layer-2d3672ba",
+   "declared_in": "src/shibuya/engine/decision/layer.py#heading:2d3672ba",
+   "status": "removed",
+   "new": "src/shibuya/mind/judge/decision/layer.py#heading:2d3672ba"
+  },
+  {
+   "id": "HD-engine.tools.contacts-1af925f4",
+   "declared_in": "src/shibuya/engine/tools/contacts.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/foundation/vocab/contact_flags.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.decision.layer-ce06b545",
+   "declared_in": "src/shibuya/engine/decision/layer.py#heading:ce06b545",
+   "status": "active",
+   "new": "src/shibuya/mind/judge/decision/layer.py#heading:ce06b545"
+  },
+  {
+   "id": "BR-DOC-SPEECH-MORA-KANA",
+   "declared_in": "src/shibuya/engine/speech/port.py#docstring:67c85df9",
+   "status": "active",
+   "new": "src/shibuya/society/speech/port.py#docstring:67c85df9"
+  },
+  {
+   "id": "HD-engine.speech.port-6f282ea4",
+   "declared_in": "src/shibuya/engine/speech/port.py#heading:6f282ea4",
+   "status": "active",
+   "new": "src/shibuya/society/speech/port.py#heading:6f282ea4"
+  },
+  {
+   "id": "HD-engine.speech.layer-1af925f4",
+   "declared_in": "src/shibuya/engine/speech/layer.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/society/speech/layer.py#heading:1af925f4"
+  },
+  {
+   "id": "HD-engine.proximity-1af925f4",
+   "declared_in": "src/shibuya/engine/proximity.py#heading:1af925f4",
+   "status": "active",
+   "new": "src/shibuya/world/model/proximity.py#heading:1af925f4"
+  },
+  {
+   "id": "BR-BODY-NATURAL-VARIATION",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:c51b596e",
+   "status": "active",
+   "new": "src/shibuya/world/body/rules.py#expedients:c51b596e"
+  },
+  {
+   "id": "BR-BODY-REST-RECOVERY",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:d525c6d6",
+   "status": "active",
+   "new": "src/shibuya/world/body/rules.py#expedients:d525c6d6"
+  },
+  {
+   "id": "BR-BODY-FELT-MAP",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:2ea3a407",
+   "status": "active",
+   "new": "src/shibuya/world/body/rules.py#expedients:2ea3a407"
+  },
+  {
+   "id": "BR-BODY-SHADE-TARGET",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:9e226d90",
+   "status": "active",
+   "new": "src/shibuya/world/body/rules.py#expedients:9e226d90"
+  },
+  {
+   "id": "BR-BODY-FELT-FALLBACK",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:897ef2b4",
+   "status": "active",
+   "new": "src/shibuya/world/body/rules.py#expedients:897ef2b4"
+  },
+  {
+   "id": "BR-BODY-COLLAPSE-RATE",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:dbe2c73e",
+   "status": "active",
+   "new": "src/shibuya/world/body/rules.py#expedients:dbe2c73e"
+  },
+  {
+   "id": "BR-BODY-INITIAL",
+   "declared_in": "src/shibuya/engine/body/rules.py#expedients:505a459e",
+   "status": "active",
+   "new": "src/shibuya/world/body/rules.py#expedients:505a459e"
+  },
+  {
+   "id": "BR-BODY-RESERVE-DETECT",
+   "declared_in": "src/shibuya/engine/body/schedule.py#expedients:abcc32fa",
+   "status": "active",
+   "new": "src/shibuya/world/body/schedule.py#expedients:abcc32fa"
+  },
+  {
+   "id": "BR-BODY-RESERVE-ACCUMULATE",
+   "declared_in": "src/shibuya/engine/body/schedule.py#expedients:937c0554",
+   "status": "active",
+   "new": "src/shibuya/world/body/schedule.py#expedients:937c0554"
+  },
+  {
+   "id": "BR-SYSTEM1-LOMBARD",
+   "declared_in": "src/shibuya/engine/body/system1.py#expedients:df29183b",
+   "status": "active",
+   "new": "src/shibuya/world/body/reactions.py#expedients:df29183b"
+  },
+  {
+   "id": "BR-SYSTEM1-CROWD-GAIT",
+   "declared_in": "src/shibuya/engine/body/system1.py#expedients:717a7090",
+   "status": "active",
+   "new": "src/shibuya/world/body/reactions.py#expedients:717a7090"
+  },
+  {
+   "id": "BR-SYSTEM1-LOUD-SOUND",
+   "declared_in": "src/shibuya/engine/body/system1.py#expedients:c59174f1",
+   "status": "active",
+   "new": "src/shibuya/world/body/reactions.py#expedients:c59174f1"
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-W17",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:c34bb9d1",
+   "status": "active",
+   "new": "src/shibuya/world/body/energy.py#expedients:c34bb9d1"
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-VALIDATION-ARM",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:55eacae3",
+   "status": "removed",
+   "new": "src/shibuya/world/body/energy.py#expedients:55eacae3"
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-FROZEN",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:674e4c38",
+   "status": "active",
+   "new": "src/shibuya/world/body/energy.py#expedients:674e4c38"
+  },
+  {
+   "id": "BR-MEAL-DEFAULT-INITIAL-HUNGER",
+   "declared_in": "src/shibuya/engine/energy.py#expedients:9e9e27b8",
+   "status": "active",
+   "new": "src/shibuya/world/body/energy.py#expedients:9e9e27b8"
+  },
+  {
+   "id": "BR-NAV1-E1",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:9a2e7974",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:9a2e7974"
+  },
+  {
+   "id": "BR-NAV1-E2",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:d48b0e99",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:d48b0e99"
+  },
+  {
+   "id": "BR-NAV1-E3",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:d360d13a",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:d360d13a"
+  },
+  {
+   "id": "BR-NAV1-E4",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:86cbf0ee",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:86cbf0ee"
+  },
+  {
+   "id": "BR-NAV1-E5",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:a375b4fc",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:a375b4fc"
+  },
+  {
+   "id": "BR-NAV1-E6",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:16d9047b",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:16d9047b"
+  },
+  {
+   "id": "BR-NAV1-E7",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:65284f0c",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:65284f0c"
+  },
+  {
+   "id": "BR-NAV1-DENSITY-SAMPLE-SCALE",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:a93f2ecb",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:a93f2ecb"
+  },
+  {
+   "id": "BR-NAV1-DENSITY-ARM-CELL",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:139873b3",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:139873b3"
+  },
+  {
+   "id": "BR-NAV1-DENSITY-ARM-UNSCALED",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:5ad73740",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:5ad73740"
+  },
+  {
+   "id": "BR-NAV1-LEGACY-SWITCH",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:6f2f6c96",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:6f2f6c96"
+  },
+  {
+   "id": "BR-NAV1-B4-LOS-FROM-STAGE",
+   "declared_in": "src/shibuya/engine/space/nav1.py#expedients:7c956536",
+   "status": "active",
+   "new": "src/shibuya/world/model/space/nav1.py#expedients:7c956536"
+  }
+ ],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 78)",
+  "outside_allowlist": "同じ"
+ },
+ "warnings": [
+  "src/shibuya/cli.py:486: from shibuya.engine import body: 包み shibuya.engine.body の頭を空にする段=属性で頭の名を読む所は壊れる",
+  "src/shibuya/cli.py:1616: from shibuya.engine import body: 包み shibuya.engine.body の頭を空にする段=属性で頭の名を読む所は壊れる",
+  "src/shibuya/engine/systems/static_check.py:32: from shibuya.engine import systems: 包み shibuya.engine.systems の頭を空にする段=属性で頭の名を読む所は壊れる",
+  "tests/engine/body/test_body_manifest.py:17: from shibuya.engine import body: 包み shibuya.engine.body の頭を空にする段=属性で頭の名を読む所は壊れる",
+  "tests/engine/body/test_body_reserve.py:18: from shibuya.engine import body: 包み shibuya.engine.body の頭を空にする段=属性で頭の名を読む所は壊れる",
+  "tests/engine/state/test_move_prep_stage2.py:29: from shibuya.engine import systems: 包み shibuya.engine.systems の頭を空にする段=属性で頭の名を読む所は壊れる"
+ ],
+ "untouched": [
+  {
+   "file": "src/shibuya/agents/state.py",
+   "symbol": "AgentState.__init__",
+   "kind": "bare_dotted",
+   "token": "llm.contract.ACTION_CODES",
+   "line": 712,
+   "excerpt": "直前に**試みた**行動コード(llm.contract.ACTION_CODES・§6「直前の結果」の主語。-1=まだ何も試みていない=LAST_ACTION_NONE)"
+  },
+  {
+   "file": "src/shibuya/agents/state.py",
+   "symbol": "AgentState.__init__",
+   "kind": "bare_dotted",
+   "token": "engine.geometry.EdgeGeometry.positions",
+   "line": 531,
+   "excerpt": "辺上の距離[m](``node`` からの街路長。``xy`` は両端ノードの線形補間=engine.geometry.EdgeGeometry.positions・M2)"
+  },
+  {
+   "file": "src/shibuya/agents/state.py",
+   "symbol": "AgentState.__init__",
+   "kind": "bare_dotted",
+   "token": "engine.memory.EVENT_KINDS",
+   "line": 654,
+   "excerpt": "事象の種類(engine.memory.EVENT_KINDS・0=空行)"
+  },
+  {
+   "file": "src/shibuya/agents/state.py",
+   "symbol": "AgentState.__init__",
+   "kind": "bare_dotted",
+   "token": "engine.space.nav1",
+   "line": 722,
+   "excerpt": "いまの経路を引いた出発の点の x[m](経路は (出発の点・階・行き先・人ごとの重み) の純関数=再開で引き直せる・engine.space.nav1)"
+  },
+  {
+   "file": "src/shibuya/build/catalog_freeze.py",
+   "symbol": "CATALOG_JSON_RELPATH",
+   "kind": "slash",
+   "token": "src/shibuya/manifest/frozen/world_catalog_v0_2.json",
+   "line": 46,
+   "excerpt": "src/shibuya/manifest/frozen/world_catalog_v0_2.json"
+  },
+  {
+   "file": "src/shibuya/build/field/w10_noise.py",
+   "symbol": "run",
+   "kind": "slash",
+   "token": "engine/processes/traffic.py",
+   "line": 790,
+   "excerpt": "静的な騒音場は区間別(対応表の立った辺=路線の区間の中央値)・動く車(engine/processes/traffic.py)は klass 既定のまま=食い違いを宣言して進む(車の段 R-67 まで)"
+  },
+  {
+   "file": "src/shibuya/build/lang/w14_signage.py",
+   "symbol": "run",
+   "kind": "bare_dotted",
+   "token": "perception.channels.estimate_tokens",
+   "line": 370,
+   "excerpt": "perception.channels.estimate_tokens(UTF-8 文字数 ÷ 2)"
+  },
+  {
+   "file": "src/shibuya/build/lang/w15_cell_static.py",
+   "symbol": "run",
+   "kind": "bare_dotted",
+   "token": "perception.channels.estimate_tokens",
+   "line": 363,
+   "excerpt": "perception.channels.estimate_tokens(UTF-8 文字数 ÷ 2)"
+  },
+  {
+   "file": "src/shibuya/build/pop/w21_build_c.py",
+   "symbol": "W21C_EXPEDIENTS",
+   "kind": "bare_dotted",
+   "token": "engine.geometry",
+   "line": 90,
+   "excerpt": "通勤の分=歩く道のり ÷ 1.34 m/s(Weidmann の自由速度=engine.geometry の参照値と同じ値・attr_fns.walk_seconds)・人物の文は分に四捨五入(丸めた言葉)・W20 の片道は分に切り上げ(整"
+  },
+  {
+   "file": "src/shibuya/build/sched/w17_schedule.py",
+   "symbol": "run",
+   "kind": "bare_dotted",
+   "token": "perception.channels.estimate_tokens",
+   "line": 1848,
+   "excerpt": "UTF-8 文字数 ÷ 2(perception.channels.estimate_tokens と同規約)"
+  },
+  {
+   "file": "src/shibuya/cli.py",
+   "symbol": "main",
+   "kind": "bare_dotted",
+   "token": "engine.rate_rules",
+   "line": 978,
+   "excerpt": "〔11-01 段 2 の 4〕率の形の規則の切替口(既定 off・環境変数 SHIBUYA_RATE_RULES と同じ。指定すれば環境変数より強い)。off=率の形の規則を外した状態(催しの 200 人注入・E8 の到着の分散・乗車の受け"
+  },
+  {
+   "file": "src/shibuya/cli.py",
+   "symbol": "main",
+   "kind": "slash",
+   "token": "world/processes/absent.py",
+   "line": 988,
+   "excerpt": "〔11-02r §1 #7〕「無い」と宣言した過程 5 件の切替口(既定 stopped・環境変数 SHIBUYA_ABSENT_PROCESSES と同じ。指定すれば環境変数より強い)。stopped=ごみの収集・街路の清掃・道路工事・救"
+  },
+  {
+   "file": "src/shibuya/cli.py",
+   "symbol": "main",
+   "kind": "bare_dotted",
+   "token": "engine.absent_processes",
+   "line": 988,
+   "excerpt": "〔11-02r §1 #7〕「無い」と宣言した過程 5 件の切替口(既定 stopped・環境変数 SHIBUYA_ABSENT_PROCESSES と同じ。指定すれば環境変数より強い)。stopped=ごみの収集・街路の清掃・道路工事・救"
+  },
+  {
+   "file": "src/shibuya/cli.py",
+   "symbol": "main",
+   "kind": "bare_dotted",
+   "token": "engine.experiment.form",
+   "line": 1531,
+   "excerpt": "第 3 期 3-3 反実仮想の申込書(JSON のパス・engine.experiment.form)。既定なし=今と同じ。渡すとランの種類は counterfactual・申込書の指紋は manifest の experiment に出る"
+  },
+  {
+   "file": "src/shibuya/engine/body/rules.py",
+   "symbol": "BODY_RULES",
+   "kind": "slash",
+   "token": "engine/energy.py",
+   "line": 129,
+   "excerpt": "D-118 K1 (c)・K2 (a)(式)・改訂版メッツ表 2012(METs)・AVG_METS と語の区切りは expedient(engine/energy.py の見出しの項)"
+  },
+  {
+   "file": "src/shibuya/engine/body/rules.py",
+   "symbol": "BODY_RULES",
+   "kind": "bare_dotted",
+   "token": "engine.energy",
+   "line": 130,
+   "excerpt": "HD-engine.energy-cc73b60c"
+  },
+  {
+   "file": "src/shibuya/engine/body/rules.py",
+   "symbol": "BODY_RULES",
+   "kind": "slash",
+   "token": "engine/energy.py",
+   "line": 145,
+   "excerpt": "engine/energy.py の見出しの項(前夜の夕食から 0:00 まで基準日の速さ)"
+  },
+  {
+   "file": "src/shibuya/engine/body/rules.py",
+   "symbol": "BODY_RULES",
+   "kind": "bare_dotted",
+   "token": "engine.energy",
+   "line": 145,
+   "excerpt": "HD-engine.energy-cc73b60c"
+  },
+  {
+   "file": "src/shibuya/engine/body/system1.py",
+   "symbol": "<module>",
+   "kind": "bare_dotted",
+   "token": "perception.facts.NEARBY_CHANGE_KINDS",
+   "line": 35,
+   "excerpt": "perception.facts.NEARBY_CHANGE_KINDS に loud_sound が無い"
+  },
+  {
+   "file": "src/shibuya/engine/bridging/scan.py",
+   "symbol": "FALLBACK_PATH",
+   "kind": "slash",
+   "token": "src/shibuya/world/processes/registry.py",
+   "line": 60,
+   "excerpt": "src/shibuya/world/processes/registry.py"
+  },
+  {
+   "file": "src/shibuya/engine/defect_fixes_1103.py",
+   "symbol": "FIX_DECLARATIONS",
+   "kind": "slash",
+   "token": "engine/systems/talk.py",
+   "line": 67,
+   "excerpt": "engine/systems/talk.py(会話の終わり・_revert に積まれた招待側=対象の決まらない会話の失敗・招待が流れた・期限切れ)・run._settle_pending_invites の末尾・resolve.end_co"
+  },
+  {
+   "file": "src/shibuya/engine/energy.py",
+   "symbol": "W17V2_FROZEN_SOURCE",
+   "kind": "bare_dotted",
+   "token": "agents.weekly.WEEKLY_FILE",
+   "line": 197,
+   "excerpt": "W17 の週次表(agents.weekly.WEEKLY_FILE=世界資産の W17 の出力)"
+  },
+  {
+   "file": "src/shibuya/engine/events/log.py",
+   "symbol": "Experiment",
+   "kind": "dotted",
+   "token": "shibuya.engine.events.log.Experiment",
+   "line": 187,
+   "excerpt": "shibuya.engine.events.log.Experiment"
+  },
+  {
+   "file": "src/shibuya/engine/events/log.py",
+   "symbol": "_only_from_gate",
+   "kind": "slash",
+   "token": "engine/experiment/gate.py",
+   "line": 174,
+   "excerpt": "CP12: 実験の条件(原因の種類 experiment)を作れるのは engine/experiment/gate.py の admit だけ(呼び手 "
+  },
+  {
+   "file": "src/shibuya/engine/processes/environment.py",
+   "symbol": "RNG_DOMAIN",
+   "kind": "bare_dotted",
+   "token": "engine.processes.environment",
+   "line": 112,
+   "excerpt": "engine.processes.environment"
+  },
+  {
+   "file": "src/shibuya/engine/processes/rail.py",
+   "symbol": "RNG_DOMAIN",
+   "kind": "bare_dotted",
+   "token": "engine.processes.rail",
+   "line": 162,
+   "excerpt": "engine.processes.rail"
+  },
+  {
+   "file": "src/shibuya/engine/proximity.py",
+   "symbol": "manifest_fields",
+   "kind": "bare_dotted",
+   "token": "core.rng.philox_array",
+   "line": 515,
+   "excerpt": "core.rng.philox_array(seed, "
+  },
+  {
+   "file": "src/shibuya/engine/removed_switches.py",
+   "symbol": "REMOVED_ENV",
+   "kind": "bare_dotted",
+   "token": "engine.economy_rules",
+   "line": 31,
+   "excerpt": "規則の表の空欄 3 件を埋める前の 4-2 の値(engine.economy_rules)"
+  },
+  {
+   "file": "src/shibuya/engine/removed_switches.py",
+   "symbol": "REMOVED_ENV",
+   "kind": "bare_dotted",
+   "token": "engine.economy_rules",
+   "line": 32,
+   "excerpt": "規則の表の中身を挿す前の 4-2 の前の値(engine.economy_rules)"
+  },
+  {
+   "file": "src/shibuya/engine/removed_switches.py",
+   "symbol": "REMOVED_ENV",
+   "kind": "bare_dotted",
+   "token": "engine.seat_release",
+   "line": 33,
+   "excerpt": "在席の印を歩き出しで解かない 2-4 より前の挙動(engine.seat_release)"
+  },
+  {
+   "file": "src/shibuya/engine/removed_switches.py",
+   "symbol": "REMOVED_ENV",
+   "kind": "bare_dotted",
+   "token": "engine.proximity",
+   "line": 34,
+   "excerpt": "近接を同じセルで判定する 2-2 までの値(engine.proximity)"
+  },
+  {
+   "file": "src/shibuya/engine/removed_switches.py",
+   "symbol": "REMOVED_ENV",
+   "kind": "bare_dotted",
+   "token": "engine.defect_fixes_1103",
+   "line": 35,
+   "excerpt": "棚卸し B の欠陥 4 件を直す前の値(engine.defect_fixes_1103)"
+  },
+  {
+   "file": "src/shibuya/engine/rights/initial.py",
+   "symbol": "SOURCE_STAFF",
+   "kind": "bare_dotted",
+   "token": "engine.rights.initial",
+   "line": 56,
+   "excerpt": "宣言:担当従業者の丸振り(engine.rights.initial)"
+  },
+  {
+   "file": "src/shibuya/engine/rng_audit.py",
+   "symbol": "K19_RECREATED",
+   "kind": "bare_dotted",
+   "token": "engine.processes.rail",
+   "line": 485,
+   "excerpt": "engine.processes.rail"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.processes.rail",
+   "line": 460,
+   "excerpt": "engine.processes.rail"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "agents.population.sample_population",
+   "line": 451,
+   "excerpt": "W16 母集団の定員先取り層の抽出(agents.population.sample_population)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.energy.draw_bodies",
+   "line": 455,
+   "excerpt": "体重(engine.energy.draw_bodies・体ごと)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.energy.MealStartDistribution.draw",
+   "line": 457,
+   "excerpt": "〔小さな版上げ・meal_w17〕範囲外の既定の食事時刻の引き(engine.energy.MealStartDistribution.draw・体ごと)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.geometry.desired_speeds",
+   "line": 458,
+   "excerpt": "希望歩行速度(engine.geometry.desired_speeds・--geometry edge と〔第 5 期 段 1〕--space nav1 のラン)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.space.nav1.turn_weights",
+   "line": 459,
+   "excerpt": "〔第 5 期 空間の段 1〕人ごとの曲がる重み 32〜62 m(engine.space.nav1.turn_weights・腕 --turn-weight person のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.memory_m1",
+   "line": 462,
+   "excerpt": "〔第 6 期 6-5〕忘れる速さの人ごとのばらつき 15%(MR8・engine.memory_m1・腕 --memory-model m1 のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.speech_clock",
+   "line": 463,
+   "excerpt": "〔第 6 期 6-3 T2〕人ごとの話す速さ(モーラの長さ・engine.speech_clock・腕 --talk-clock mora のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "core.wage_formula",
+   "line": 464,
+   "excerpt": "〔賃金の小さな版上げ〕体ごとの月の賃金の分位(core.wage_formula・第18表の階級の度数・賃金の腕 occupation のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "POPULATION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.device",
+   "line": 465,
+   "excerpt": "〔第 6 期 6-4 C1〕最初の道具の状態(マナーモード・かばん・イヤホン=engine.contact.device・腕 c1 のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "ENVIRONMENT_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.processes.environment",
+   "line": 471,
+   "excerpt": "engine.processes.environment"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "perception.p_notice",
+   "line": 487,
+   "excerpt": "perception.p_notice"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.speech_clock",
+   "line": 494,
+   "excerpt": "〔第 6 期 6-3 T2〕発言ごとの話す速さの揺れ(engine.speech_clock・腕 --talk-clock mora のランだけ・計器)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.port",
+   "line": 495,
+   "excerpt": "〔第 6 期 6-4 C1〕連絡の本人の判断の仮のモデルの選び(engine.contact.port・腕 c1 のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.contact.port",
+   "line": 497,
+   "excerpt": "〔第 6 期 6-4 C2〕習慣で答えられるときも判断の口へ戻すか(engine.contact.port・腕 c1 と SHIBUYA_CONTACT_HABIT=on のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar2.port",
+   "line": 499,
+   "excerpt": "〔第 6 期 6-2 カレンダー 2〕予定の本人の判断の仮のモデルの選び(engine.calendar2.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar3.port",
+   "line": 501,
+   "excerpt": "〔第 6 期 6-2 カレンダー 3〕雇い主と働く人の勤務の判断の仮のモデルの選び(engine.calendar3.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_RNG_DOMAINS",
+   "kind": "bare_dotted",
+   "token": "engine.duties.port",
+   "line": 503,
+   "excerpt": "〔第 6 期 6-6 ② 第 1 部〕店の仕事(開閉店・補充・廃棄)の本人の判断の仮のモデルの選び(engine.duties.port・腕 arm のランだけ)"
+  },
+  {
+   "file": "src/shibuya/engine/run.py",
+   "symbol": "MOTION_SALTS",
+   "kind": "bare_dotted",
+   "token": "engine.calendar_self._key_draw",
+   "line": 512,
+   "excerpt": "blake3(calendar1b:用途:seed) と agent_id の splitmix: 置き場所・余裕・時計を見る位相(engine.calendar_self._key_draw)"
+  },
+  {
+   "file": "src/shibuya/engine/speech_clock.py",
+   "symbol": "manifest_fields",
+   "kind": "bare_dotted",
+   "token": "engine.speech.port.mora_count",
+   "line": 599,
+   "excerpt": "engine.speech.port.mora_count(仮名の数の近似・漢字 2 拍)"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.activity.ActivityPayload",
+   "line": 59,
+   "excerpt": "shibuya.engine.activity.ActivityPayload"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.Target",
+   "line": 60,
+   "excerpt": "shibuya.llm.contract.Target"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.TargetKind",
+   "line": 61,
+   "excerpt": "shibuya.llm.contract.TargetKind"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 65,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 66,
+   "excerpt": "shibuya.core.types.EventClass"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.perception.p_notice.EventBudget",
+   "line": 69,
+   "excerpt": "shibuya.perception.p_notice.EventBudget"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.perception.p_notice.Counters",
+   "line": 70,
+   "excerpt": "shibuya.perception.p_notice.Counters"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.agents.weekly.InboundStarts",
+   "line": 75,
+   "excerpt": "shibuya.agents.weekly.InboundStarts"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.Session",
+   "line": 77,
+   "excerpt": "shibuya.engine.conversation.Session"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 78,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "ALLOWED_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.ConvState",
+   "line": 79,
+   "excerpt": "shibuya.engine.conversation.ConvState"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "CLASS_FIELDS",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 86,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "src/shibuya/engine/state_codec.py",
+   "symbol": "CLASS_FIELDS",
+   "kind": "dotted",
+   "token": "shibuya.perception.p_notice.EventBudget",
+   "line": 88,
+   "excerpt": "shibuya.perception.p_notice.EventBudget"
+  },
+  {
+   "file": "src/shibuya/engine/state_hashes.py",
+   "symbol": "VALUE_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 50,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "src/shibuya/engine/state_hashes.py",
+   "symbol": "VALUE_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.perception.p_notice.EventBudget",
+   "line": 51,
+   "excerpt": "shibuya.perception.p_notice.EventBudget"
+  },
+  {
+   "file": "src/shibuya/engine/state_hashes.py",
+   "symbol": "VALUE_CLASSES",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.Scheduler",
+   "line": 56,
+   "excerpt": "shibuya.engine.scheduler.Scheduler"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "engine/space/nav1.py",
+   "line": 309,
+   "excerpt": "agents/state.py:734・engine/space/nav1.py advance(先着順)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 312,
+   "excerpt": "world/state.py:121・resolve.py:1487,1511(agents.cell から毎 tick 再計算)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 313,
+   "excerpt": "world/state.py:123・salient.py:484・presence.py:1715"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 314,
+   "excerpt": "world/state.py:125・world/state.py:418・renderer.py:1219"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 314,
+   "excerpt": "world/state.py:125・world/state.py:418・renderer.py:1219"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 315,
+   "excerpt": "world/state.py:128・AST: 読み 0(open_count_per_cell(tick) から導出)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 316,
+   "excerpt": "world/state.py:130・world/state.py:221(プロパティの呼び手 0)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 316,
+   "excerpt": "world/state.py:130・world/state.py:221(プロパティの呼び手 0)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 319,
+   "excerpt": "world/state.py:134・資産"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 320,
+   "excerpt": "world/state.py:136・資産"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 321,
+   "excerpt": "world/state.py:138・resolve.py:2167"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 322,
+   "excerpt": "world/state.py:140・resolve.py:2166(資産・ラン中不変)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 323,
+   "excerpt": "world/state.py:142・run.py:1118,3993(保存則の検査とラン要約だけ)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 325,
+   "excerpt": "world/state.py:144・run.py:3316 → commit.py:413"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 326,
+   "excerpt": "world/state.py:146・world/state.py:393・renderer.py:1546"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 326,
+   "excerpt": "world/state.py:146・world/state.py:393・renderer.py:1546"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 327,
+   "excerpt": "world/state.py:148・world/state.py:393"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 327,
+   "excerpt": "world/state.py:148・world/state.py:393"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 328,
+   "excerpt": "world/state.py:150・opening.py:181・world/state.py:389"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 328,
+   "excerpt": "world/state.py:150・opening.py:181・world/state.py:389"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "perception/state.py",
+   "line": 330,
+   "excerpt": "perception/state.py:98・salient.py:205-214,400-414"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "perception/state.py",
+   "line": 332,
+   "excerpt": "perception/state.py:100・salient.py:205-214"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_SOA",
+   "kind": "slash",
+   "token": "perception/state.py",
+   "line": 334,
+   "excerpt": "perception/state.py:108・宣言のみ"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "world/processes/actual_log.py",
+   "line": 550,
+   "excerpt": "world/processes/actual_log.py:162-166"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/tape.py",
+   "line": 677,
+   "excerpt": "engine/tape.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "bare_dotted",
+   "token": "engine.state_hashes.to_state",
+   "line": 474,
+   "excerpt": "直列化の書き手=engine.state_hashes.to_state。sessions・pending_invites の走査の順が話し手と被招待の起床の順になる(conversation.py:617,627)=順を保つ。10e(E2"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/events/log.py",
+   "line": 730,
+   "excerpt": "engine/events/log.py(EventLog)・engine/systems/state_io.py(day_record の計器)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/state_io.py",
+   "line": 730,
+   "excerpt": "engine/events/log.py(EventLog)・engine/systems/state_io.py(day_record の計器)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 751,
+   "excerpt": "engine/memory_store.py(MemoryStore)・engine/memory.py(_write・_recall_from_store・rebuild_memory_store)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory.py",
+   "line": 751,
+   "excerpt": "engine/memory_store.py(MemoryStore)・engine/memory.py(_write・_recall_from_store・rebuild_memory_store)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 767,
+   "excerpt": "engine/memory_store.py(mark_shown・take_shown・recall の計数・summary)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/state_io.py",
+   "line": 776,
+   "excerpt": "economy/ops.py(transfer・TransferMeter)・economy/ledger.py・economy/goods.py・engine/systems/state_io.py(day_record の計器)・eng"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "bare_dotted",
+   "token": "perception.facts.Percept",
+   "line": 788,
+   "excerpt": "体 → perception.facts.Percept(凍結の dataclass)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "perception/facts.py",
+   "line": 790,
+   "excerpt": "perception/facts.py(Percept)・perception/renderer.py(perceive・render_percept)・engine/systems/decide.py(書く)・engine/systems"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/decide.py",
+   "line": 790,
+   "excerpt": "perception/facts.py(Percept)・perception/renderer.py(perceive・render_percept)・engine/systems/decide.py(書く)・engine/systems"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/boxes.py",
+   "line": 790,
+   "excerpt": "perception/facts.py(Percept)・perception/renderer.py(perceive・render_percept)・engine/systems/decide.py(書く)・engine/systems"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/decision/layer.py",
+   "line": 802,
+   "excerpt": "engine/decision/layer.py(DecisionLayer.decide_one・affordance_words)・engine/systems/decide.py(書く)・engine/run.py(manifest "
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/decide.py",
+   "line": 802,
+   "excerpt": "engine/decision/layer.py(DecisionLayer.decide_one・affordance_words)・engine/systems/decide.py(書く)・engine/run.py(manifest "
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/tools/contacts.py",
+   "line": 818,
+   "excerpt": "engine/relations.py(_write_contacts・seed_initial・_reset_slots・rebuild_contacts)・engine/tools/contacts.py(印の作り方と数え方)・engi"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/state_io.py",
+   "line": 818,
+   "excerpt": "engine/relations.py(_write_contacts・seed_initial・_reset_slots・rebuild_contacts)・engine/tools/contacts.py(印の作り方と数え方)・engi"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 835,
+   "excerpt": "engine/speech/port.py(SpeechPort.say・take_heard)・perception/renderer.py(perceive・_b6)・engine/systems/llm_io.py(utter)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/llm_io.py",
+   "line": 835,
+   "excerpt": "engine/speech/port.py(SpeechPort.say・take_heard)・perception/renderer.py(perceive・_b6)・engine/systems/llm_io.py(utter)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 847,
+   "excerpt": "engine/speech/port.py(meter・take_heard・report_shown・event_ids・take_input_ids)・engine/run.py(manifest の speech_port)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 862,
+   "excerpt": "engine/speech/port.py(say・_next_mark・_forget_mark・take_heard)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/proximity.py",
+   "line": 873,
+   "excerpt": "engine/proximity.py(ProximityLayer.build_index・observed)・engine/systems/perceive.py(書く)・engine/run.py(manifest の proximi"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/perceive.py",
+   "line": 873,
+   "excerpt": "engine/proximity.py(ProximityLayer.build_index・observed)・engine/systems/perceive.py(書く)・engine/run.py(manifest の proximi"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "bare_dotted",
+   "token": "engine.proximity.SpatialIndex",
+   "line": 882,
+   "excerpt": "engine.proximity.SpatialIndex(体の id・座標・層・B5 の単位・格子の鍵の配列)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/proximity.py",
+   "line": 884,
+   "excerpt": "engine/proximity.py(SpatialIndex)・engine/systems/perceive.py(書く)・engine/systems/boxes.py(SCRATCH_FIELDS)・perception/rend"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/perceive.py",
+   "line": 884,
+   "excerpt": "engine/proximity.py(SpatialIndex)・engine/systems/perceive.py(書く)・engine/systems/boxes.py(SCRATCH_FIELDS)・perception/rend"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/boxes.py",
+   "line": 884,
+   "excerpt": "engine/proximity.py(SpatialIndex)・engine/systems/perceive.py(書く)・engine/systems/boxes.py(SCRATCH_FIELDS)・perception/rend"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/economy_stage2.py",
+   "line": 897,
+   "excerpt": "economy/stage2.py(MoneyStage2)・economy/ledger.py(attach_stage2・purchase_many・endow_households・on_day_end)・engine/economy"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/economy_stage2.py",
+   "line": 912,
+   "excerpt": "engine/economy_stage2.py(AtmTable・build_atm_table・atm_open_cells)・engine/systems/build.py(Fixtures)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/build.py",
+   "line": 912,
+   "excerpt": "engine/economy_stage2.py(AtmTable・build_atm_table・atm_open_cells)・engine/systems/build.py(Fixtures)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/experiment/apply.py",
+   "line": 946,
+   "excerpt": "engine/experiment/apply.py(ApplyRecord・WorldHandle・apply)・engine/experiment/layer.py(ExperimentLayer・manifest・record_che"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/experiment/layer.py",
+   "line": 946,
+   "excerpt": "engine/experiment/apply.py(ApplyRecord・WorldHandle・apply)・engine/experiment/layer.py(ExperimentLayer・manifest・record_che"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/experiment/branch.py",
+   "line": 946,
+   "excerpt": "engine/experiment/apply.py(ApplyRecord・WorldHandle・apply)・engine/experiment/layer.py(ExperimentLayer・manifest・record_che"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 964,
+   "excerpt": "engine/memory_store.py(remember・rebuild・check_against_table)・engine/events/body.py(BodyEventLink)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/batching.py",
+   "line": 978,
+   "excerpt": "engine/batching.py(WindowQueue・manifest_fields)・engine/systems/conductor.py(conduct が置いて窓ごとに回す)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/conductor.py",
+   "line": 978,
+   "excerpt": "engine/batching.py(WindowQueue・manifest_fields)・engine/systems/conductor.py(conduct が置いて窓ごとに回す)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/body/model.py",
+   "line": 998,
+   "excerpt": "engine/body/model.py(BodyModel.step・initial・observed)・engine/body/schedule.py(BodySchedule)・engine/resolve.py(advance_bo"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/body/schedule.py",
+   "line": 998,
+   "excerpt": "engine/body/model.py(BodyModel.step・initial・observed)・engine/body/schedule.py(BodySchedule)・engine/resolve.py(advance_bo"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/processes/environment.py",
+   "line": 998,
+   "excerpt": "engine/body/model.py(BodyModel.step・initial・observed)・engine/body/schedule.py(BodySchedule)・engine/resolve.py(advance_bo"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/state_io.py",
+   "line": 1017,
+   "excerpt": "engine/calendar_shadow.py(CalendarShadow.relay_day・manifest)・engine/systems/state_io.py(relay_tables)・engine/systems/bui"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/build.py",
+   "line": 1017,
+   "excerpt": "engine/calendar_shadow.py(CalendarShadow.relay_day・manifest)・engine/systems/state_io.py(relay_tables)・engine/systems/bui"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_m1.py",
+   "line": 1032,
+   "excerpt": "engine/memory_m1.py(M1State・base_level)・engine/memory_store.py(remember・recall・seed_people・people_rows・_resize)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 1032,
+   "excerpt": "engine/memory_m1.py(M1State・base_level)・engine/memory_store.py(remember・recall・seed_people・people_rows・_resize)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_embed.py",
+   "line": 1045,
+   "excerpt": "engine/memory_embed.py(CueState)・engine/memory_store.py(note_cue・remember・recall・rebuild)・engine/memory.py(note_utteranc"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_store.py",
+   "line": 1045,
+   "excerpt": "engine/memory_embed.py(CueState)・engine/memory_store.py(note_cue・remember・recall・rebuild)・engine/memory.py(note_utteranc"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory.py",
+   "line": 1045,
+   "excerpt": "engine/memory_embed.py(CueState)・engine/memory_store.py(note_cue・remember・recall・rebuild)・engine/memory.py(note_utteranc"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_m1.py",
+   "line": 1057,
+   "excerpt": "engine/memory_m1.py(M1State.summary)・engine/memory_embed.py(CueState.summary)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_embed.py",
+   "line": 1057,
+   "excerpt": "engine/memory_m1.py(M1State.summary)・engine/memory_embed.py(CueState.summary)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory_shops.py",
+   "line": 1068,
+   "excerpt": "engine/memory_shops.py(ShopTable・UncappedStoreMemory)・engine/store_memory.py(columns・_evict_slots・_put)・engine/memory.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/store_memory.py",
+   "line": 1068,
+   "excerpt": "engine/memory_shops.py(ShopTable・UncappedStoreMemory)・engine/store_memory.py(columns・_evict_slots・_put)・engine/memory.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/memory.py",
+   "line": 1068,
+   "excerpt": "engine/memory_shops.py(ShopTable・UncappedStoreMemory)・engine/store_memory.py(columns・_evict_slots・_put)・engine/memory.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar_self.py",
+   "line": 1083,
+   "excerpt": "engine/calendar_self.py(CalendarSelf.relay_day・step・_opportunities・_finish_go)・engine/systems/state_io.py(relay_tables)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/state_io.py",
+   "line": 1083,
+   "excerpt": "engine/calendar_self.py(CalendarSelf.relay_day・step・_opportunities・_finish_go)・engine/systems/state_io.py(relay_tables)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/body.py",
+   "line": 1083,
+   "excerpt": "engine/calendar_self.py(CalendarSelf.relay_day・step・_opportunities・_finish_go)・engine/systems/state_io.py(relay_tables)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar_self.py",
+   "line": 1095,
+   "excerpt": "engine/calendar_self.py(_summary・manifest・_check_continuity・_opportunities)・engine/run.py(manifest の calendar_1b)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech_clock.py",
+   "line": 1106,
+   "excerpt": "engine/speech_clock.py(TalkClock.mora_len_s・person_mora_len_s)・engine/systems/llm_io.py(utter が on_turn を呼ぶ)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/llm_io.py",
+   "line": 1106,
+   "excerpt": "engine/speech_clock.py(TalkClock.mora_len_s・person_mora_len_s)・engine/systems/llm_io.py(utter が on_turn を呼ぶ)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech_clock.py",
+   "line": 1117,
+   "excerpt": "engine/speech_clock.py(TalkClock.on_turn・on_dispatch・on_close・observed)・engine/systems/conductor.py(発言の事象の種類 talk を窓の待ち行"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/conductor.py",
+   "line": 1117,
+   "excerpt": "engine/speech_clock.py(TalkClock.on_turn・on_dispatch・on_close・observed)・engine/systems/conductor.py(発言の事象の種類 talk を窓の待ち行"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/talk.py",
+   "line": 1117,
+   "excerpt": "engine/speech_clock.py(TalkClock.on_turn・on_dispatch・on_close・observed)・engine/systems/conductor.py(発言の事象の種類 talk を窓の待ち行"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/step_scope.py",
+   "line": 1130,
+   "excerpt": "engine/step_scope.py(StepScope.marks・detect・after_detection)・engine/change_detect.py(detect の scope=)・engine/systems/per"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/perceive.py",
+   "line": 1130,
+   "excerpt": "engine/step_scope.py(StepScope.marks・detect・after_detection)・engine/change_detect.py(detect の scope=)・engine/systems/per"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/regional_clock.py",
+   "line": 1142,
+   "excerpt": "engine/regional_clock.py(RegionalClock.schedule・run_windows・hear_delay_ns・observed)・engine/systems/conductor.py(窓のループの後に"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/conductor.py",
+   "line": 1142,
+   "excerpt": "engine/regional_clock.py(RegionalClock.schedule・run_windows・hear_delay_ns・observed)・engine/systems/conductor.py(窓のループの後に"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/device.py",
+   "line": 1158,
+   "excerpt": "engine/contact/device.py(Devices.stimulus・drain・take_out・put_back)・engine/contact/layer.py(run_step・percept_hook)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1158,
+   "excerpt": "engine/contact/device.py(Devices.stimulus・drain・take_out・put_back)・engine/contact/layer.py(run_step・percept_hook)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/attention.py",
+   "line": 1170,
+   "excerpt": "engine/contact/attention.py(Attention・coarsen・gate_salient)・engine/contact/layer.py(run_step・percept_hook)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1170,
+   "excerpt": "engine/contact/attention.py(Attention・coarsen・gate_salient)・engine/contact/layer.py(run_step・percept_hook)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/attention.py",
+   "line": 1179,
+   "excerpt": "engine/contact/attention.py(look_at_screen・look_up)・engine/contact/layer.py(計器)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1179,
+   "excerpt": "engine/contact/attention.py(look_at_screen・look_up)・engine/contact/layer.py(計器)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1189,
+   "excerpt": "engine/contact/deliver.py(Mailbox)・engine/contact/layer.py(_send_now・_ring_now・_read・_system1・bind_queue)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1202,
+   "excerpt": "engine/contact/deliver.py(read_all・prune・counts・receipts)・engine/contact/layer.py(_screen_decision)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/conversation.py",
+   "line": 1210,
+   "excerpt": "engine/conversation.py(ConversationManager.step・_close・_terminate・purge_terminal)・engine/contact/chat_state.py(ChatBook."
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1210,
+   "excerpt": "engine/conversation.py(ConversationManager.step・_close・_terminate・purge_terminal)・engine/contact/chat_state.py(ChatBook."
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/conversation.py",
+   "line": 1222,
+   "excerpt": "engine/conversation.py(ConversationManager)・engine/contact/calls.py(CallManager)・engine/contact/layer.py(_calls_turns・_r"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1222,
+   "excerpt": "engine/conversation.py(ConversationManager)・engine/contact/calls.py(CallManager)・engine/contact/layer.py(_calls_turns・_r"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 1234,
+   "excerpt": "engine/speech/port.py(SpeechPort.say・take_heard)・engine/contact/layer.py(_calls_turns)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1234,
+   "excerpt": "engine/speech/port.py(SpeechPort.say・take_heard)・engine/contact/layer.py(_calls_turns)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1243,
+   "excerpt": "engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・engine/conversation.py(counters)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/conversation.py",
+   "line": 1243,
+   "excerpt": "engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・engine/conversation.py(counters)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 1243,
+   "excerpt": "engine/contact/layer.py(_bump・_hist_add・manifest)・engine/contact/chat_state.py(counts)・engine/conversation.py(counters)・"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1268,
+   "excerpt": "engine/contact/layer.py(_salient_gate・salient_view・_person_decisions・take_main・_take_main_looks)・engine/systems/remember"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/remember.py",
+   "line": 1268,
+   "excerpt": "engine/contact/layer.py(_salient_gate・salient_view・_person_decisions・take_main・_take_main_looks)・engine/systems/remember"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/decision/layer.py",
+   "line": 1268,
+   "excerpt": "engine/contact/layer.py(_salient_gate・salient_view・_person_decisions・take_main・_take_main_looks)・engine/systems/remember"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1285,
+   "excerpt": "engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes・_send_now・_unread_basis・_drop_read_marks・_calls_turn"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/speech/port.py",
+   "line": 1285,
+   "excerpt": "engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes・_send_now・_unread_basis・_drop_read_marks・_calls_turn"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/state_io.py",
+   "line": 1285,
+   "excerpt": "engine/contact/layer.py(_issue・issued_keys・model_calls・audit_causes・_send_now・_unread_basis・_drop_read_marks・_calls_turn"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/book.py",
+   "line": 1302,
+   "excerpt": "engine/contact/book.py(add_contact・make_group・invite・answer_invite・leave・save_place・personal・groups_of)・engine/contact/l"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1302,
+   "excerpt": "engine/contact/book.py(add_contact・make_group・invite・answer_invite・leave・save_place・personal・groups_of)・engine/contact/l"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/habit.py",
+   "line": 1312,
+   "excerpt": "engine/contact/habit.py(HabitBook.note・answer)・engine/contact/layer.py(_habit_or_decide)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1312,
+   "excerpt": "engine/contact/habit.py(HabitBook.note・answer)・engine/contact/layer.py(_habit_or_decide)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/book.py",
+   "line": 1322,
+   "excerpt": "engine/calendar2/book.py(PromiseBook.write・edit・observe・drop・own_rows)・engine/calendar2/layer.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1322,
+   "excerpt": "engine/calendar2/book.py(PromiseBook.write・edit・observe・drop・own_rows)・engine/calendar2/layer.py"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1330,
+   "excerpt": "engine/calendar2/layer.py(_propose・_respond・_hear・_settle_offers・_schedule_row・_opportunities・_look・_depart・_track・_outs"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1342,
+   "excerpt": "engine/calendar2/layer.py(note_turn・run_step・_opportunities)・engine/systems/llm_io.py(utter)・engine/contact/layer.py(_ca"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/systems/llm_io.py",
+   "line": 1342,
+   "excerpt": "engine/calendar2/layer.py(note_turn・run_step・_opportunities)・engine/systems/llm_io.py(utter)・engine/contact/layer.py(_ca"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1342,
+   "excerpt": "engine/calendar2/layer.py(note_turn・run_step・_opportunities)・engine/systems/llm_io.py(utter)・engine/contact/layer.py(_ca"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1351,
+   "excerpt": "engine/calendar2/layer.py(_bump・_hist_add・manifest)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar2/layer.py",
+   "line": 1361,
+   "excerpt": "engine/calendar2/layer.py(_issue・issued_keys・model_calls・audit_causes)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1383,
+   "excerpt": "engine/calendar3/layer.py(_begin_compose・_compose・_answer・_due_units・_act)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1392,
+   "excerpt": "engine/calendar3/layer.py(note_sent・_send・_poll_calls・_deliver・_write_rows・_schedule_row・_agenda_step・_act・_prune・run_st"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1405,
+   "excerpt": "engine/calendar3/layer.py(note_read・run_step・_opportunities)・engine/contact/layer.py(_read)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/contact/layer.py",
+   "line": 1405,
+   "excerpt": "engine/calendar3/layer.py(note_read・run_step・_opportunities)・engine/contact/layer.py(_read)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1413,
+   "excerpt": "engine/calendar3/layer.py(_bump・_hist_add・_ask_rest・manifest)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/calendar3/layer.py",
+   "line": 1422,
+   "excerpt": "engine/calendar3/layer.py(_issue・issued_keys・model_calls・audit_causes)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1432,
+   "excerpt": "engine/duties/layer.py(run_step・_set_shop・_discard・binned_mask)・engine/processes/goods_flow.py(WasteCollectionProcess._s"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/processes/goods_flow.py",
+   "line": 1432,
+   "excerpt": "engine/duties/layer.py(run_step・_set_shop・_discard・binned_mask)・engine/processes/goods_flow.py(WasteCollectionProcess._s"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1441,
+   "excerpt": "engine/duties/layer.py(note_role_word・run_step)・engine/llm_bridge.py(_after_render の role_sink)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1449,
+   "excerpt": "engine/duties/layer.py(_bump・_hist_add・_labor・run_step・note_bridge・manifest)"
+  },
+  {
+   "file": "src/shibuya/engine/state_ledger.py",
+   "symbol": "_EXT",
+   "kind": "slash",
+   "token": "engine/duties/layer.py",
+   "line": 1461,
+   "excerpt": "engine/duties/layer.py(_issue・issued_keys・role_call_ids・model_calls・audit_causes)"
+  },
+  {
+   "file": "src/shibuya/engine/systems/allow.py",
+   "symbol": "TRANSFER_PORTS_HOUSEHOLD",
+   "kind": "slash",
+   "token": "engine/processes/rail.py",
+   "line": 68,
+   "excerpt": "運賃(世帯 → 外界・持ち出し)= engine/processes/rail.py → Ledger.transfer_many → ops.transfer"
+  },
+  {
+   "file": "src/shibuya/engine/systems/table.py",
+   "symbol": "_build_fn",
+   "kind": "bare_dotted",
+   "token": "engine.systems.build.build",
+   "line": 105,
+   "excerpt": "build は進行役が engine.systems.build.build で呼ぶ"
+  },
+  {
+   "file": "src/shibuya/perception/p_notice.py",
+   "symbol": "notice_event",
+   "kind": "bare_dotted",
+   "token": "perception.p_notice",
+   "line": 477,
+   "excerpt": "perception.p_notice"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "_RATE_OFF",
+   "kind": "slash",
+   "token": "engine/rate_rules.py",
+   "line": 48,
+   "excerpt": "外した(率の規則 {rule}=既定 off・engine/rate_rules.py・段 2 の 3・4)。旧道 `--rate-rules legacy` では {where} が動く(1 版だけ=次の版上げで消す)"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "_ABSENT_OFF",
+   "kind": "slash",
+   "token": "engine/absent_processes.py",
+   "line": 50,
+   "excerpt": "止めた(「無い」の過程 {name}=既定 stopped・engine/absent_processes.py・11-02r §1 #7)。旧道 `--absent-processes legacy` では {where} が動く(1 版"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "REPLACED",
+   "kind": "slash",
+   "token": "engine/processes/goods_flow.py",
+   "line": 207,
+   "excerpt": "エンジンの規則がまだ動く(05〜08 時の乱数・15% 遅れ=engine/processes/goods_flow.py)。入力の欄は input.inbound_goods(値は段 0 の後)"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_ACTOR",
+   "kind": "slash",
+   "token": "engine/processes/goods_flow.py",
+   "line": 63,
+   "excerpt": "06〜10 時にセル順=engine/processes/goods_flow.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_ACTOR",
+   "kind": "slash",
+   "token": "engine/processes/goods_flow.py",
+   "line": 79,
+   "excerpt": "05〜07・13〜15 時に 8 セル/刻み=engine/processes/goods_flow.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_ACTOR",
+   "kind": "slash",
+   "token": "engine/processes/logistics.py",
+   "line": 97,
+   "excerpt": "区按分 27,000 個/日=engine/processes/logistics.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_ACTOR",
+   "kind": "slash",
+   "token": "engine/processes/logistics.py",
+   "line": 113,
+   "excerpt": "毎晩 6 辺・22〜05 時=engine/processes/logistics.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_ACTOR",
+   "kind": "slash",
+   "token": "engine/processes/civic.py",
+   "line": 131,
+   "excerpt": "倒れたら 100% 出動・中央値 8 分=engine/processes/civic.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_ACTOR",
+   "kind": "slash",
+   "token": "engine/processes/civic.py",
+   "line": 150,
+   "excerpt": "18 時に 200 人を会場へ・21 時に出す=engine/processes/civic.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_ACTOR",
+   "kind": "slash",
+   "token": "engine/processes/civic.py",
+   "line": 184,
+   "excerpt": "人数 × 0.35 kWh・0.012 m³/時=engine/processes/civic.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "REPLACED",
+   "kind": "slash",
+   "token": "engine/processes/goods_flow.py",
+   "line": 226,
+   "excerpt": "納品のロット=補充ロット × 2 の固定=engine/processes/goods_flow.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "NO_PORT",
+   "kind": "slash",
+   "token": "engine/body/rules.py",
+   "line": 298,
+   "excerpt": "1 万体あたり 1 日 3.0 件=engine/body/rules.py BR-BODY-COLLAPSE-RATE"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "RATE_REMOVED",
+   "kind": "slash",
+   "token": "engine/processes/goods_flow.py",
+   "line": 308,
+   "excerpt": "セルの人数 × 0.05 g/刻み=engine/processes/goods_flow.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/absent.py",
+   "symbol": "RATE_REMOVED",
+   "kind": "slash",
+   "token": "engine/processes/goods_flow.py",
+   "line": 314,
+   "excerpt": "閉店帯に SKU 別 waste_rate を棚へ掛ける=engine/processes/goods_flow.py"
+  },
+  {
+   "file": "src/shibuya/world/processes/deletion_candidates.py",
+   "symbol": "write_candidates",
+   "kind": "bare_dotted",
+   "token": "world.processes.constitution.check_constitution5",
+   "line": 106,
+   "excerpt": "world.processes.constitution.check_constitution5 (D-R2-4)"
+  },
+  {
+   "file": "src/shibuya/world/processes/inputs.py",
+   "symbol": "WEATHER",
+   "kind": "slash",
+   "token": "src/shibuya/engine/processes/environment.py",
+   "line": 67,
+   "excerpt": "src/shibuya/engine/processes/environment.py(D-W15・再生日・_heat_now=時別の暑さ段と WBGT を 5 分ごとに引く)"
+  },
+  {
+   "file": "src/shibuya/world/processes/inputs.py",
+   "symbol": "WEATHER",
+   "kind": "slash",
+   "token": "src/shibuya/world/processes/first_batch.py",
+   "line": 68,
+   "excerpt": "src/shibuya/world/processes/first_batch.py(weather の update_rule)"
+  },
+  {
+   "file": "src/shibuya/world/processes/inputs.py",
+   "symbol": "TIMETABLE",
+   "kind": "slash",
+   "token": "src/shibuya/world/processes/first_batch.py",
+   "line": 93,
+   "excerpt": "src/shibuya/world/processes/first_batch.py(plan.rail_timetable)"
+  },
+  {
+   "file": "src/shibuya/world/processes/records.py",
+   "symbol": "WorldProcess.__post_init__",
+   "kind": "bare_dotted",
+   "token": "core.growth.GrowthDeclaration",
+   "line": 457,
+   "excerpt": ": growth は core.growth.GrowthDeclaration(§3 実装原則2)"
+  },
+  {
+   "file": "tests/engine/body/test_body_rules_sources.py",
+   "symbol": "test_moved_items_left_the_old_headings",
+   "kind": "bare_dotted",
+   "token": "engine.processes.environment",
+   "line": 70,
+   "excerpt": "HD-engine.processes.environment-1af925f4"
+  },
+  {
+   "file": "tests/engine/body/test_body_rules_sources.py",
+   "symbol": "test_moved_items_left_the_old_headings",
+   "kind": "bare_dotted",
+   "token": "engine.processes.salient",
+   "line": 71,
+   "excerpt": "HD-engine.processes.salient-1af925f4"
+  },
+  {
+   "file": "tests/engine/bridging/test_bridging_ledger.py",
+   "symbol": "test_heading_rows_carry_the_heading_and_the_item_count",
+   "kind": "bare_dotted",
+   "token": "engine.decision.layer",
+   "line": 220,
+   "excerpt": "HD-engine.decision.layer-2d3672ba"
+  },
+  {
+   "file": "tests/engine/experiment/test_x33_apply.py",
+   "symbol": "pytestmark",
+   "kind": "dotted",
+   "token": "shibuya.engine.processes.environment.WeatherWarning",
+   "line": 26,
+   "excerpt": "ignore::shibuya.engine.processes.environment.WeatherWarning"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "EXP_ID",
+   "kind": "dotted",
+   "token": "shibuya.engine.events.log.Experiment",
+   "line": 63,
+   "excerpt": "shibuya.engine.events.log.Experiment"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "test_allowed_class_refuses_a_path_that_points_to_another_class",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 218,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "test_pretend_move_keeps_a_short_run_and_resume",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 361,
+   "excerpt": "shibuya.core.types.EventClass"
+  },
+  {
+   "file": "tests/engine/state/test_class_ids.py",
+   "symbol": "test_pretend_move_keeps_a_short_run_and_resume",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 362,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "tests/engine/systems/test_fix_guards.py",
+   "symbol": "test_d1_sees_plain_imports_and_other_aliases",
+   "kind": "dotted",
+   "token": "shibuya.engine",
+   "line": 380,
+   "excerpt": "from shibuya.engine.resolve import revert_conversation\nimport shibuya.engine.resolve as RV\nfrom shibuya.engine import re"
+  },
+  {
+   "file": "tests/engine/test_env_and_sections_10f.py",
+   "symbol": "test_every_top_level_manifest_field_has_a_section",
+   "kind": "slash",
+   "token": "engine/manifest_sections.py",
+   "line": 469,
+   "excerpt": "節の決まっていない manifest の欄(engine/manifest_sections.py に足す): "
+  },
+  {
+   "file": "tests/engine/test_salt_seed_split_10f.py",
+   "symbol": "test_every_rng_domain_in_src_is_classified",
+   "kind": "bare_dotted",
+   "token": "engine.processes.environment",
+   "line": 138,
+   "excerpt": "engine.processes.environment"
+  },
+  {
+   "file": "tests/engine/test_salt_seed_split_10f.py",
+   "symbol": "test_population_and_motion_streams_use_their_own_seed_world",
+   "kind": "bare_dotted",
+   "token": "engine.processes.environment",
+   "line": 298,
+   "excerpt": "engine.processes.environment"
+  },
+  {
+   "file": "tests/engine/test_salt_seed_split_10f.py",
+   "symbol": "test_population_and_motion_streams_use_their_own_seed_world",
+   "kind": "bare_dotted",
+   "token": "engine.processes.rail",
+   "line": 302,
+   "excerpt": "engine.processes.rail"
+  },
+  {
+   "file": "tests/engine/test_salt_seed_split_10f.py",
+   "symbol": "_rng_aliases",
+   "kind": "bare_dotted",
+   "token": "core.rng",
+   "line": 78,
+   "excerpt": "core.rng"
+  },
+  {
+   "file": "tests/engine/test_state_checks_10f.py",
+   "symbol": "test_k19_runtime_overlaps_only_in_the_allow_list",
+   "kind": "bare_dotted",
+   "token": "perception.p_notice",
+   "line": 391,
+   "excerpt": "perception.p_notice"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.TargetKind",
+   "line": 167,
+   "excerpt": "shibuya.llm.contract.TargetKind"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 168,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 170,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 172,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.engine.conversation.PendingInvite",
+   "line": 175,
+   "excerpt": "shibuya.engine.conversation.PendingInvite"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.perception.p_notice.EventBudget",
+   "line": 176,
+   "excerpt": "shibuya.perception.p_notice.EventBudget"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_unknown_classes_and_marks_are_refused",
+   "kind": "dotted",
+   "token": "shibuya.llm.contract.TargetKind",
+   "line": 182,
+   "excerpt": "shibuya.llm.contract.TargetKind"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_allowed_class_table_is_importable_and_has_no_custom_pickling",
+   "kind": "dotted",
+   "token": "shibuya.engine.scheduler.DeferralQueue",
+   "line": 230,
+   "excerpt": "shibuya.engine.scheduler.DeferralQueue"
+  },
+  {
+   "file": "tests/engine/test_state_format_10f.py",
+   "symbol": "test_allowed_class_table_is_importable_and_has_no_custom_pickling",
+   "kind": "dotted",
+   "token": "shibuya.perception.p_notice.EventBudget",
+   "line": 230,
+   "excerpt": "shibuya.perception.p_notice.EventBudget"
+  },
+  {
+   "file": "tests/engine/test_version_bump_10e.py",
+   "symbol": "test_e4_u2_next_key_is_no_longer_a_shifted_copy",
+   "kind": "bare_dotted",
+   "token": "perception.p_notice",
+   "line": 166,
+   "excerpt": "perception.p_notice"
+  },
+  {
+   "file": "tests/engine/time/test_t0_literal_count.py",
+   "symbol": "test_no_time_literals_outside_the_allow_table",
+   "kind": "bare_dotted",
+   "token": "core.time_consts",
+   "line": 61,
+   "excerpt": "時間の直書き(core.time_consts の名に置き換えるか、allow の表に理由つきで載せる): "
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "agents.weekly",
+   "line": 63,
+   "excerpt": "agents.weekly"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "core.growth",
+   "line": 63,
+   "excerpt": "core.growth"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "engine.activity",
+   "line": 63,
+   "excerpt": "engine.activity"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "engine.growth_decl",
+   "line": 63,
+   "excerpt": "engine.growth_decl"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "engine.scheduler",
+   "line": 63,
+   "excerpt": "engine.scheduler"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "engine.processes.civic",
+   "line": 64,
+   "excerpt": "engine.processes.civic"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "engine.processes.goods_flow",
+   "line": 64,
+   "excerpt": "engine.processes.goods_flow"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "engine.processes.logistics",
+   "line": 64,
+   "excerpt": "engine.processes.logistics"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "engine.processes.opening",
+   "line": 65,
+   "excerpt": "engine.processes.opening"
+  },
+  {
+   "file": "tests/engine/time/test_t0_time_consts.py",
+   "symbol": "test_module_level_aliases_elsewhere_are_the_same_value",
+   "kind": "bare_dotted",
+   "token": "world.processes.actual_log",
+   "line": 65,
+   "excerpt": "world.processes.actual_log"
+  },
+  {
+   "file": "tests/tools/test_repo_guide.py",
+   "symbol": "LEDGER_AST_SRC",
+   "kind": "slash",
+   "token": "world/state.py",
+   "line": 85,
+   "excerpt": "\"\"\"見本。\"\"\"\nDECL_FILES = {\"agents\": \"agents/state.py\", \"world\": \"world/state.py\", \"perception\": \"perception/state.py\"}\nWRI"
+  },
+  {
+   "file": "tests/tools/test_repo_guide.py",
+   "symbol": "LEDGER_AST_SRC",
+   "kind": "slash",
+   "token": "perception/state.py",
+   "line": 85,
+   "excerpt": "\"\"\"見本。\"\"\"\nDECL_FILES = {\"agents\": \"agents/state.py\", \"world\": \"world/state.py\", \"perception\": \"perception/state.py\"}\nWRI"
+  },
+  {
+   "file": "tests/tools/test_repo_guide.py",
+   "symbol": "LAYER_SRC",
+   "kind": "dotted",
+   "token": "shibuya.engine",
+   "line": 128,
+   "excerpt": "# -*- coding: utf-8 -*-\n\"\"\"engine.layer — 見本の層の 1 段目\n折り返しの続き arr[i](x) と ``keep[i](x)``。\n\n2 段目はカードに出ない。\n\"\"\"\nimport os\n\nf"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "world/processes/inputs.py",
+   "line": 75,
+   "excerpt": "引用の文字列(world/processes/inputs.py の出典の欄)。開かない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "world/processes/inputs.py",
+   "line": 76,
+   "excerpt": "引用の文字列(world/processes/inputs.py)。開かない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "world/processes/absent.py",
+   "line": 77,
+   "excerpt": "引用の文字列(world/processes/absent.py・inputs.py)。開かない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "world/processes/inputs.py",
+   "line": 78,
+   "excerpt": "引用の文字列(world/processes/inputs.py)。開かない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "world/processes/inputs.py",
+   "line": 79,
+   "excerpt": "引用の文字列(world/processes/inputs.py)。開かない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "world/processes/inputs.py",
+   "line": 80,
+   "excerpt": "引用の文字列(world/processes/inputs.py)。開かない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "engine/experiment/warmup.py",
+   "line": 81,
+   "excerpt": "manifest に書く計器の名(engine/experiment/warmup.py)。開かない"
+  },
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "NOT_COPIED",
+   "kind": "slash",
+   "token": "engine/bridging/ledger.py",
+   "line": 82,
+   "excerpt": "接頭辞の文字列(engine/bridging/ledger.py の _DOC_PREFIX=台帳の行の出典の形の検査)。開かない"
+  },
+  {
+   "file": "tools/c8/ablation_runner.py",
+   "symbol": "arm_markdown",
+   "kind": "bare_dotted",
+   "token": "core.rng",
+   "line": 638,
+   "excerpt": "> p_see=1.0 は現行の描画(在圏セルの看板行が必ず入る)。抽選は **体×看板×tick** の決定論ベルヌーイ(core.rng Philox・ドメイン perception.attention.p_see・カウンタ (tick"
+  },
+  {
+   "file": "tools/c8/sensitivity.py",
+   "symbol": "D44_II",
+   "kind": "slash",
+   "token": "world/processes/first_batch.py",
+   "line": 653,
+   "excerpt": "エンジンは w7_plan_spec の poi_id・kind・content しか読まない(world/assets.py)=改訂権者の列はランに届かない。同じ宣言はエンジン側 world/processes/first_batch.p"
+  },
+  {
+   "file": "tools/fig/fig_calls_by_hour.py",
+   "symbol": "draw",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 271,
+   "excerpt": "wake_class = shibuya.core.types.EventClass(昇順が優先)。24×クラスの表は fig2_calls_by_hour.json。"
+  },
+  {
+   "file": "tools/fig/fig_calls_by_hour.py",
+   "symbol": "draw",
+   "kind": "dotted",
+   "token": "shibuya.core.types.EventClass",
+   "line": 272,
+   "excerpt": "wake_class = shibuya.core.types.EventClass (ascending = higher priority). Table: fig2_calls_by_hour.json."
+  },
+  {
+   "file": "tools/instruments/absent_declarations.py",
+   "symbol": "render",
+   "kind": "slash",
+   "token": "src/shibuya/world/processes/absent.py",
+   "line": 63,
+   "excerpt": "宣言の正: `src/shibuya/world/processes/absent.py`・`inputs.py`。文案は routing §3(`docs/reference/decision-routing-2026-11-01.md`"
+  },
+  {
+   "file": "tools/instruments/anchor_gauge.py",
+   "symbol": "ssb_work_rise",
+   "kind": "slash",
+   "token": "engine/classical.py",
+   "line": 1020,
+   "excerpt": "15 分の枠の 0 番=0:00(engine/classical.py の minute // 15 と同じ読み)・閾値 50% は expedient"
+  },
+  {
+   "file": "tools/ledger/add_decision_rows_1101.py",
+   "symbol": "_ABSENT_STOPPED_NOTE",
+   "kind": "slash",
+   "token": "engine/absent_processes.py",
+   "line": 78,
+   "excerpt": "〔11-02r §1 #7〕既定で止めた(engine/absent_processes.py の既定 stopped)。旧道 --absent-processes legacy は次の版上げで消す(記録 docs/bench/analys"
+  },
+  {
+   "file": "tools/repo_guide/guide_render.py",
+   "symbol": "RULES",
+   "kind": "slash",
+   "token": "engine/state_ledger.py",
+   "line": 15,
+   "excerpt": "## 読み方の規則\n\nカードは `tools/repo_guide/build.py` が作る。対象のコードは import も実行もせず、AST と本文の文字列だけを読む。空の欄は載せない。\n\n- **対象**: `git ls-file"
+  },
+  {
+   "file": "tools/repo_guide/guide_render.py",
+   "symbol": "RULES",
+   "kind": "slash",
+   "token": "engine/state_ledger.py",
+   "line": 15,
+   "excerpt": "## 読み方の規則\n\nカードは `tools/repo_guide/build.py` が作る。対象のコードは import も実行もせず、AST と本文の文字列だけを読む。空の欄は載せない。\n\n- **対象**: `git ls-file"
+  },
+  {
+   "file": "tools/repo_guide/guide_render.py",
+   "symbol": "RULES",
+   "kind": "slash",
+   "token": "engine/systems/table.py",
+   "line": 15,
+   "excerpt": "## 読み方の規則\n\nカードは `tools/repo_guide/build.py` が作る。対象のコードは import も実行もせず、AST と本文の文字列だけを読む。空の欄は載せない。\n\n- **対象**: `git ls-file"
+  }
+ ]
+}

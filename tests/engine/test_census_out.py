@@ -17,7 +17,9 @@ from __future__ import annotations
 
 import pyarrow.parquet as pq
 
-from shibuya import cli
+# 〔割る段 5b の G3〕別名 cli を割り先ごとに分けた(cli=interfaces.cli.main・cli_wire=interfaces.cli.wire_economy の名)
+from shibuya.interfaces.cli import main as cli
+from shibuya.interfaces.cli import wire_economy as cli_wire
 from shibuya.economy.census import DAILY_COLUMNS, SECTOR_FLOW_COLUMNS, SECTORS
 
 #: 合成世界の極小ラン(``tests/test_cli_intent_mode.py`` と同じ書き方)。
@@ -48,9 +50,9 @@ def test_explicit_none_is_the_same_as_the_default(tmp_path):
 def test_census_out_writes_the_three_files(tmp_path):
     target = tmp_path / "census"
     res = cli.run(census_out=str(target), **SMALL)
-    daily = target / cli.DAILY_CENSUS_FILENAME
-    mer = target / cli.MONTHLY_MER_FILENAME
-    sectors = target / cli.MONTHLY_MER_SECTORS_FILENAME
+    daily = target / cli_wire.DAILY_CENSUS_FILENAME
+    mer = target / cli_wire.MONTHLY_MER_FILENAME
+    sectors = target / cli_wire.MONTHLY_MER_SECTORS_FILENAME
     assert sorted(p.name for p in target.iterdir()) == sorted(
         [daily.name, mer.name, sectors.name]
     )
@@ -134,7 +136,7 @@ def test_the_checkpoint_does_not_move(tmp_path):
 
 # ------------------------------------------------------------------ 台帳が無いラン
 def test_run_day_without_a_ledger_writes_nothing(tmp_path):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=32, seed=1, ticks=4, checkpoint_every=4, n_cells=9,
                   processes=False, conversations=False, census_out=str(tmp_path / "c"))

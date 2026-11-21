@@ -8,16 +8,19 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from shibuya.agents.state import AgentState, IntentKind, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.chooser import NearestChooser
-from shibuya.engine.poi_target import TargetResolver
-from shibuya.engine.run import _named_closed_lookup
-from shibuya.llm.contract import UntilKind, parse_target
-from shibuya.perception import channels as ch
-from shibuya.perception import renderer as PR
-from shibuya.perception.renderer import Renderer
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import IntentKind, ResultCode
+from shibuya.foundation.vocab import act_codes as C
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_SHOP=act/ops/shop。割る前は全部 resolve)
+from shibuya.act import gate as R
+from shibuya.act.ops import shop as R_SHOP
+from shibuya.mind.judge.chooser import NearestChooser
+from shibuya.act.target import TargetResolver
+from shibuya.runtime.run import _named_closed_lookup
+from shibuya.foundation.vocab.actions import UntilKind, parse_target
+from shibuya.foundation.text import channels as ch
+from shibuya.foundation.text import percept_words as PR
+from shibuya.mind.percept.draw import Renderer
 
 from tests.engine.test_intent_hold import (
     _FakeGoods,
@@ -57,7 +60,7 @@ def test_n_purchases_counts_only_the_rows_the_ledger_passed():
         w.pois.stock[7] = 5
         led = SimpleNamespace(money=_PickyMoney(ag, refuse={1}), goods=_FakeGoods(w.pois.stock))
         out = R.ResolveOutcome(tick=NOON, ledger=led)
-        R._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
+        R_SHOP._complete_buy(ag, w, np.array([0, 1, 2]), np.array([7, 7, 7]),
                         np.array([800, 800, 800]), NOON, out)
     assert out.n_purchases == 2                 # 却下された体 1 は数えない(以前は 3)
     assert out.revenue_delta == 1_600

@@ -20,11 +20,11 @@ import tracemalloc
 
 import pytest
 
-from shibuya.core.time_consts import NS_PER_STEP, STEPS_PER_DAY
-from shibuya.engine.events import log as EV
-from shibuya.engine.events import vocab as V
-from shibuya.engine.experiment import gate as GATE
-from shibuya.engine.run import run_day
+from shibuya.foundation.time_consts import NS_PER_STEP, STEPS_PER_DAY
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.ports import experiment_gate as GATE
+from shibuya.runtime.run import run_day
 
 from tests.engine.decision._j0 import SMALL, decision_arm
 
@@ -66,7 +66,7 @@ def test_llm_call_source_and_number_are_checked(kw):
     with pytest.raises(ValueError):
         EV.LlmCall("1:2:3", **kw)
     assert EV.CANDIDATE_SOURCES == ("experience", "affordance", "plan", "continue", "deliberate", "vocab")
-    from shibuya.engine.decision.port import ALL_SOURCES
+    from shibuya.foundation.ports.decision import ALL_SOURCES
 
     assert tuple(ALL_SOURCES) == EV.CANDIDATE_SOURCES
 
@@ -179,7 +179,7 @@ def test_decision_events_carry_the_source_and_the_number():
 
 def test_growth_declaration_adds_the_decision_events_only_on_the_port_arm():
     """検収 L2: 成長の宣言=腕 legacy は今のまま・腕 port は判断の出来事の行(出来事の行+原因の表の行)を足す。"""
-    from shibuya.engine.decision import layer as DL
+    from shibuya.mind.judge.decision import layer as DL
 
     log = EV.EventLog()
     base = log.growth_declaration()

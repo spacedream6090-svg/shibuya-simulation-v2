@@ -21,11 +21,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents import population as POP
-from shibuya.engine.decision import persona as PE
-from shibuya.engine.decision.port import compose
-from shibuya.engine.rights import initial as RI
-from shibuya.engine.rights.ledger import AGENT, DWELLING, EMPLOY, LEASE, PARCEL, STORE
+from shibuya.world.facts import population_reader as POP
+from shibuya.mind.judge.decision import persona as PE
+from shibuya.foundation.ports.decision import compose
+from shibuya.world.facts.rights import initial as RI
+from shibuya.world.facts.rights.ledger import AGENT, DWELLING, EMPLOY, LEASE, PARCEL, STORE
 
 REPO = Path(__file__).resolve().parents[2]
 STAGE = REPO / "data" / "world" / "v2_stage_4-3"
@@ -99,7 +99,7 @@ def test_missing_columns_and_unknown_words_stop(tmp_path):
 
 
 def test_wage_inputs_take_w21_words_and_given_wages(tmp_path, monkeypatch):
-    from shibuya.engine import economy_stage2 as ES2
+    from shibuya.economy import stage2_bind as ES2
 
     pop = POP.load_population(_write(tmp_path, _pop_table()))
     monkeypatch.setattr(ES2, "persona_words",
@@ -165,7 +165,7 @@ def test_table_rows_give_store_staff_and_dwellings(tmp_path):
 
 
 def test_swapped_population_without_the_table_stops(tmp_path):
-    from shibuya.engine.systems import build as SB
+    from shibuya.runtime.systems import assemble as SB
 
     pop = POP.load_population(_write(tmp_path, _pop_table()))
     with pytest.raises(ValueError):
@@ -246,11 +246,16 @@ def test_persona_file_names_are_the_w21c_outputs():
 
 # ================================================================================ 実データ(組んだ資産)
 @pytest.mark.requires_data("world_stage_4-3")
-def test_real_short_run_has_dwellings_w21_store_staff_and_outside_employers():
-    from shibuya import cli
+def test_real_short_run_has_dwellings_w21_store_staff_and_outside_employers(monkeypatch):
+    from shibuya.interfaces.cli import main as cli
+
+    from tests.engine.space._legacy import legacy_space
 
     # 〔段 5-1b〕既定は nav1=段の世界(build_hash あり・nav1_* なし)は止まる → 前の移動(legacy)で回す(この試験は権利の行を見る)
-    res = cli.run(n_agents=3000, seed=1, world_dir=str(STAGE), ticks=30, space="legacy")
+    # 〔第347 止めた切替口の削除〕前は space="legacy"(切替口)=試験の中だけの口
+    legacy_space(monkeypatch)
+    res = cli.run(n_agents=3000, seed=1, world_dir=str(STAGE), ticks=30)
+    assert res.run_manifest_fields()["space"]["effective"] == "legacy"
     man = res.run_manifest_fields()
     r = man["rights"]
     assert r["by_object_kind"]["dwelling"] > 0

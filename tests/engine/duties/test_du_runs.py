@@ -13,16 +13,16 @@ import dataclasses
 import numpy as np
 import pytest
 
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.duties import arm as AD
-from shibuya.engine.duties import layer as LY
-from shibuya.engine.duties import port as PD
-from shibuya.engine.events import vocab as V
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import table as TB
-from shibuya.world.processes.records import DEVIATION_CODES, DeviationVocab
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.foundation.arms import duties as AD
+from shibuya.interim_bundles.duties import layer as LY
+from shibuya.mind.plan import duties_port as PD
+from shibuya.foundation.vocab import events as V
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import table as TB
+from shibuya.world.ledger.records import DEVIATION_CODES, DeviationVocab
 
 from tests.engine.duties._du import KW, RULE_FROM, ST, UN, RULE_TO, STEP_NS, TPD, by_pref, choose, du, duty_events, fresh
 
@@ -172,7 +172,7 @@ def test_a_second_employee_acts_and_coverage_is_split_by_origin(monkeypatch):
 
 # ================================================================= 〔検収 M2〕バックヤードが空なら補充の候補を出さない
 def test_no_restock_offer_when_the_backroom_is_empty(monkeypatch):
-    from shibuya.engine.processes import goods_flow as GF
+    from shibuya.world.laws import goods_flow as GF
 
     monkeypatch.setattr(GF.DeliveryInboundProcess, "step", lambda self, t: None)  # 納品が来ない=バックヤードはいつも 0
     with choose(monkeypatch, by_pref("restock", "unlock", "lock")), du():
@@ -186,7 +186,7 @@ def test_no_restock_offer_when_the_backroom_is_empty(monkeypatch):
 def test_restock_presence_ignores_the_agent_kind(monkeypatch):
     """担当が種別 従業者でない(通勤者=W21c の担当)店を模して has_permission をいつも偽に=腕 arm のつなぎは店に居て起きている
     担当の店を補充しない(本人が補充する)。"""
-    from shibuya.engine.processes import goods_flow as GF
+    from shibuya.world.laws import goods_flow as GF
 
     monkeypatch.setattr(GF.ShelfRestockProcess, "has_permission",
                         lambda self, a, p: np.zeros(np.asarray(a).size, dtype=bool))
@@ -257,8 +257,13 @@ def test_without_the_decision_the_shelf_is_not_restocked_by_the_engine_at_a_staf
 
 # ================================================================= 廃棄は閉店の作業
 def test_discard_is_a_closing_task_and_the_morning_bridge_skips_it(monkeypatch):
-    from shibuya.engine import resolve as R
-    from shibuya.engine.processes import goods_flow as GF
+    from shibuya.act.ops import law_writes as R
+    from shibuya.world.laws import goods_flow as GF
+    from tests.engine._legacy_world import legacy_world_rules
+
+    # 〔11-01 段 2 の 4〕05:00 の売れ残りのつなぎは旧道だけ=つなぎと担当の体の分け方を旧道で見る。〔第347〕切替口
+    # --rate-rules legacy の代わりに、試験の中だけで実行器と計画実行層に部品の口(率の規則の旧道)を挿す
+    legacy_world_rules(monkeypatch, absent=False)
 
     calls = []
     real = R.discard_to_bin
@@ -331,7 +336,7 @@ def test_resuming_with_the_arm_off_stops(monkeypatch, tmp_path):
 
 
 def test_event_log_on_off_does_not_change_the_arm_run(monkeypatch):
-    from shibuya.engine.events import log as EV
+    from shibuya.foundation.journal import log as EV
 
     prev = EV.enabled()
     try:
@@ -397,8 +402,8 @@ def test_role_words_from_the_main_decision_take_effect_at_the_store(monkeypatch)
 
 
 def test_llm_bridge_hands_the_role_word_to_the_sink():
-    from shibuya.engine.llm_bridge import LLMBridge
-    from shibuya.llm.contract import ACTION_CODES
+    from shibuya.runtime.inference.bridge import LLMBridge
+    from shibuya.foundation.vocab.actions import ACTION_CODES
     from tests.engine.rights.test_rights_events import WordLLM
 
     got = []
@@ -412,7 +417,7 @@ def test_llm_bridge_hands_the_role_word_to_the_sink():
 
 # ================================================================= 監査・語彙・腕の行・系・CLI
 def test_audit_catches_forged_causes(day_run):
-    from shibuya.engine.events.log import Event, LlmCall, Process
+    from shibuya.foundation.journal.log import Event, LlmCall, Process
 
     r = day_run
     lay = r.duties_layer
@@ -459,8 +464,8 @@ def test_arm_rows_and_system_declarations():
 
 
 def test_cli_flag_and_run_kind(monkeypatch):
-    from shibuya import cli
-    from shibuya.engine import run_kind as RK
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.experiments.port import run_kind as RK
 
     monkeypatch.delenv(RK.PYTEST_ENV, raising=False)
     kw = dict(n_agents=30, seed=1, world_dir=None, n_cells=9, ticks=30, checkpoint_every=30, vocab_version="v3",

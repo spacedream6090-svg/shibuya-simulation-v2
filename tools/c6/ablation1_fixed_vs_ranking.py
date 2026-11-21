@@ -53,12 +53,12 @@ def probe_switch(n_agents: int = 64, n_cells: int = 25, seed: int = 1, n_scenes:
 
     レンダラだけを合成世界の上に組むので GPU も実資産も要らない。
     """
-    from shibuya.agents.schedule import synthesize
-    from shibuya.agents.state import AgentState
-    from shibuya.engine import resolve as R
-    from shibuya.perception import channels as ch
-    from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.world.facts.mock_schedule import synthesize
+    from shibuya.world.model.agent_table import AgentState
+    from shibuya.act.ops import init_writes as R
+    from shibuya.foundation.text import channels as ch
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.world.model.state import World
 
     def render_all(mode) -> list[str]:
         world = World.synthetic(n_cells=n_cells, seed=seed)
@@ -109,12 +109,13 @@ def run_arm(args, tag: str, endpoints: list[str], tape_root: Path) -> dict:
             world_dir=c6lib.world_dir_of(args),
             tape_path=tape_root / tag,
             fleet=client,
-            extra={"budget_mode": tag},  # 09-09 親: サブ R の切替口(fixed/ranking)を腕へ渡す
+            # 09-09 親: サブ R の切替口(fixed/ranking)を腕へ渡す。〔第347・Q13〕前と同じラン=語彙 v1 を明示(cli.run の既定は v3)
+            extra={"budget_mode": tag, "vocab_version": "v1"},
         )
     finally:
         if client is not None:
             client.close()
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     # D-58: 繰り延べ行(応答空)は書式・行動の分母に入れない
     texts = [str(r.response) for r in Tape(tape_root / tag).rows() if not r.deferred]
@@ -123,6 +124,7 @@ def run_arm(args, tag: str, endpoints: list[str], tape_root: Path) -> dict:
     return {
         "arm": tag,
         "route": route,
+        "vocab_version": str(res.vocab_version),
         "llm_calls": int(res.llm_calls),
         "action_counts": sc["action_counts"],
         "format_error_rate": sc["format_error_rate"],

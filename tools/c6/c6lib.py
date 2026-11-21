@@ -793,7 +793,7 @@ def scenes_from_tape(tape: Any) -> list[Scene]:
     指標B は ``RecordingLLM`` が出す ``scenes.jsonl``(全文)を使うこと。
     本関数は **モックテープでの純関数テスト**と、テープしか無いときの診断用に置く。
     """
-    from shibuya.engine.tape import Tape  # 遅延 import(pyarrow を要する)
+    from shibuya.runtime.inference.tape import Tape  # 遅延 import(pyarrow を要する)
 
     t = tape if isinstance(tape, Tape) else Tape(tape)
     out: list[Scene] = []
@@ -903,9 +903,9 @@ def score_texts(texts: Sequence[str], vocab_version: str = "v1") -> dict[str, An
     割合。辞書で救えた分は ``dictionary_mapped_rate`` に分け、行動分布では**写像先の契約語**
     として数える(エンジンの ``UndefinedActionRegistry.observe`` と同じ扱い)。
     """
-    from shibuya.llm.contract import ROLE_ACTION_WORDS, is_role_action
-    from shibuya.llm.parser import parse_two_line
-    from shibuya.llm.undefined import map_synonym
+    from shibuya.foundation.vocab.actions import ROLE_ACTION_WORDS, is_role_action
+    from shibuya.act.intake.parser import parse_two_line
+    from shibuya.act.intake.undefined import map_synonym
 
     n = len(texts)
     actions: Counter[str] = Counter()
@@ -974,7 +974,7 @@ def violation_flags(scenes: Sequence[Scene], texts: Sequence[str]) -> list[int]:
     「直前の結果」が失敗として提示されている以上、**同じ行動をそのまま繰り返すのは制約違反**
     という判定(行動契約書 §6「いま可能」3 語が提示されている場面)。表に無い種は違反にしない。
     """
-    from shibuya.llm.parser import parse_two_line
+    from shibuya.act.intake.parser import parse_two_line
 
     out: list[int] = []
     for s, t in zip(scenes, texts):
@@ -1074,7 +1074,7 @@ def run_smoke(
     Returns:
         ``(RunResult, 使った経路の説明)``。
     """
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kwargs: dict[str, Any] = {
         "n_agents": int(n_agents),
@@ -1111,8 +1111,8 @@ def build_fleet_client(
     stream: bool = True,
 ) -> Any:
     """``llm.fleet.FleetClient`` を組む(実サーバーに繋ぐのは呼び出し側の責任)。"""
-    from shibuya.llm.fleet import FleetClient, FleetConfig
-    from shibuya.manifest.schema import Mode
+    from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
+    from shibuya.foundation.manifest.schema import Mode
 
     cfg = FleetConfig(
         endpoints=tuple(endpoints),

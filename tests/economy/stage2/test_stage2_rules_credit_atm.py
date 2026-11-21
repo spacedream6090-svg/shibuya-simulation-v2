@@ -15,7 +15,7 @@ from shibuya.economy import ops as OPS
 from shibuya.economy import stage2 as S2
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_stage2 as ES2
+from shibuya.economy import stage2_bind as ES2
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 
@@ -76,17 +76,14 @@ def test_credit_book_rows_and_auto_repayment_with_delinquency():
 
 
 # ================================================================= 腕と部品
-def test_arm_and_parts_switches(monkeypatch):
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_OFF)
+def test_parts_switches(monkeypatch):
+    """〔第347〕前(``test_arm_and_parts_switches``)は腕の切り替え(off → on・名の検査)も見た。切替口 off を消した=腕の行を
+    消し、部品の切り替えと名の検査だけ残す(消したことは ``test_stage2_default_2_4.py``)。"""
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
-    assert ES2.arm() == "off" and ES2.active_parts() == frozenset()
-    ES2.set_arm("on")
     assert ES2.active_parts() == frozenset(ES2.PARTS)
     ES2.set_parts("tax,wages")
-    assert ES2.parts() == ("wages", "tax")
+    assert ES2.parts() == ("wages", "tax") and ES2.active_parts() == frozenset({"wages", "tax"})
     assert ES2.parse_parts("") == ES2.PARTS and ES2.parse_parts("all") == ES2.PARTS and ES2.parse_parts("none") == ()
-    with pytest.raises(ValueError):
-        ES2.set_arm("maybe")
     with pytest.raises(ValueError):
         ES2.set_parts("wages,bonus")
     assert ES2.PARTS == S2.PARTS
@@ -129,7 +126,7 @@ def test_atm_table_open_cells_follow_the_weekday_and_minute():
 
 @pytest.mark.requires_data("world_v2", "osm:poi_tags_overpass_20260928.json", "osm:poi_opening_hours_overpass_20260907.json")
 def test_atm_table_from_osm_has_the_55_points():
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     world = World.load("data/world/v2")
     t = ES2.build_atm_table(world)
@@ -146,7 +143,7 @@ def test_atm_table_from_osm_has_the_55_points():
 
 # ================================================================= 暦の給料日(暦の口)と雇用の行
 def test_payday_follows_the_calendar_port():
-    from shibuya.engine.calendar import SimCalendar
+    from shibuya.world.facts.calendar import SimCalendar
 
     cal = SimCalendar(dt.datetime(2026, 8, 24))
     plan = ES2.Stage2Plan(parts=ES2.PARTS, kinds=np.zeros(1), monthly_hours=None, hours_source="default", atms=None,
@@ -161,7 +158,7 @@ def test_payday_follows_the_calendar_port():
 
 
 def test_rights_pairs_reads_employment_rows_in_row_order():
-    from shibuya.engine.rights.ledger import AGENT, EMPLOY, ORG, STORE, Right, Rights
+    from shibuya.world.facts.rights.ledger import AGENT, EMPLOY, ORG, STORE, Right, Rights
 
     r = Rights(capacity=4)
     r.grant(Right(holder=(AGENT, 5), object=(ORG, 9), kind=EMPLOY, source="t"))
@@ -171,7 +168,7 @@ def test_rights_pairs_reads_employment_rows_in_row_order():
     assert list(h) == [5] and list(o) == [9]
     h, o = r.pairs(EMPLOY, AGENT, STORE, 0)
     assert list(h) == [2, 5] and list(o) == [1, 0]
-    from shibuya.engine.calendar import SimCalendar  # Stage2Plan.employment は組織の行を先に・体ごとに最初の 1 行
+    from shibuya.world.facts.calendar import SimCalendar  # Stage2Plan.employment は組織の行を先に・体ごとに最初の 1 行
 
     p = ES2.Stage2Plan(parts=ES2.PARTS, kinds=np.zeros(8), monthly_hours=None, hours_source="default", atms=None,
                        calendar=SimCalendar(dt.datetime(2026, 8, 24)), tick_seconds=60, n_agents=8,

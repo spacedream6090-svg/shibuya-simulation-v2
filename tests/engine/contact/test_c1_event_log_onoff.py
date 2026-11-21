@@ -14,17 +14,17 @@ import dataclasses
 import numpy as np
 import pytest
 
-from shibuya.engine.contact import layer as LY
-from shibuya.engine.contact import port as P
-from shibuya.engine.contact.calls import CallSpeechPort
-from shibuya.engine.contact.layer import W_DELIVERED, W_READ, W_SENT
-from shibuya.engine.events import log as EV
-from shibuya.engine.events.log import EventLog, LlmCall
-from shibuya.engine.run import run_day
-from shibuya.engine.speech.port import WHAT as W_SPEECH
-from shibuya.engine.speech.port import SpeechContext, Utterance
-from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.interim_bundles.contact import layer as LY
+from shibuya.mind.plan import contact_port as P
+from shibuya.society.contact.calls import CallSpeechPort
+from shibuya.interim_bundles.contact.layer import W_DELIVERED, W_READ, W_SENT
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.journal.log import EventLog, LlmCall
+from shibuya.runtime.run import run_day
+from shibuya.society.speech.port import WHAT as W_SPEECH
+from shibuya.society.speech.port import SpeechContext, Utterance
+from shibuya.society.tools import record as TR
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, STEP_NS, c1
 

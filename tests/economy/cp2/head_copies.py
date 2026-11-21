@@ -1,7 +1,9 @@
 """第 1 期 1-9: 載せ替えの前(HEAD ``136fdbb``)の ``economy/ledger.py`` と ``economy/goods.py`` の写しを読む道具(試験の補助)。
 
-写し ``head_ledger_136fdbb.py``・``head_goods_136fdbb.py`` は ``git show 136fdbb:src/shibuya/economy/<名>`` のまま(1 バイトも
-変えない)。中身が HEAD の blob と同じことは git の blob の名(sha1)で確かめる(改行は LF に揃えてから)。
+写し ``head_ledger_136fdbb.py``・``head_goods_136fdbb.py`` は ``git show 136fdbb:src/shibuya/economy/<名>`` のまま(手で
+書き換えない)。固定は ``PINS``=改行を LF に揃えてから ``tests/_head_copy_pin.py`` の 3 つ(字面・文の順・読み込んだ後の
+意味)。コードの区分の移動 段 4 の下ごしらえ・親の決定 10 を検収 M-1 の後に改めた形。段 4 で移す道具は import の文の
+モジュールの道を書き換える(1 本の文を分けることもある)。
 
 HEAD の口は ``cause``(1-3 の原因・1-9 で足した引数)を知らないので、今のエンジンから呼べるように ``cause`` を捨てる
 子クラス(``HeadLedger``・``HeadGoods``・``HeadWalletLedger``)を作る(中身は HEAD のまま)。
@@ -11,7 +13,6 @@ HEAD の口は ``cause``(1-3 の原因・1-9 で足した引数)を知らない�
 
 from __future__ import annotations
 
-import hashlib
 import importlib.util
 import sys
 from pathlib import Path
@@ -20,18 +21,80 @@ from typing import Any
 
 import numpy as np
 
+from tests import _head_copy_pin as PIN
+
 HERE = Path(__file__).resolve().parent
 HEAD = "136fdbb"
-#: ``git rev-parse 136fdbb:src/shibuya/economy/<名>``(blob の名)。
-BLOBS = {
-    "head_ledger_136fdbb.py": "8a6a964dfbd201a00617c81bd095c482df00f581",
-    "head_goods_136fdbb.py": "7165e5bc78bb4a2a5a715a0b52da412524b04997",
+#: 写しの固定(``tests/_head_copy_pin.py``・LF に揃えてから): 名 → 字面の sha256(import の文の束を印の行に替えた全体)・
+#: 文の順(束ごとに元の文ごとの置く名)・意味(置いた名 → 指す物の元の置き場。``shibuya.`` を外した元のモジュールの名)。
+#: 元の全体の値(136fdbb の時点のバイト。前は blob の名で固定していた):
+#: head_ledger_136fdbb.py= blob 8a6a964dfbd201a00617c81bd095c482df00f581(``git rev-parse 136fdbb:src/shibuya/economy/ledger.py``)・
+#: sha256 7cc77652d1421416dcfe2f7a52dc76b94e1da7bd809139fba3429df7ee3e538a。
+#: head_goods_136fdbb.py= blob 7165e5bc78bb4a2a5a715a0b52da412524b04997(``git rev-parse 136fdbb:src/shibuya/economy/goods.py``)・
+#: sha256 f1335542841533b544f1b85d03e21781bdae67df49e2ddcd14b13975c2d16168。
+PINS: dict[str, dict[str, Any]] = {
+    "head_ledger_136fdbb.py": {
+        "text": "58f43aaedced44960e7f4154bac92390af9178fce217759e814d024166f3c3a0",
+        "order": (
+            (
+                ("GrowthDeclaration", "Retention"),
+                ("blake3_hex",),
+                ("ACCOUNT_NAMES", "ENTRY_CAPITAL_PAYERS", "NON_TRANSFERABLE", "STORED_LINES",
+                 "UNCONSTRAINED_SECTORS", "AccountCode", "BalanceLine", "Sector", "is_allowed"),
+                ("EntityRef", "TransferStatus"),
+                ("STEPS_PER_DAY",),
+            ),
+        ),
+        "refs": {
+            "ACCOUNT_NAMES": "value economy.accounts 1201313c0f2387fe",
+            "AccountCode": "def economy.accounts AccountCode",
+            "BalanceLine": "def economy.accounts BalanceLine",
+            "ENTRY_CAPITAL_PAYERS": "value economy.accounts e47d7a2aa0f91f80",
+            "EntityRef": "def engine.ledger_api EntityRef",
+            "GrowthDeclaration": "def core.growth GrowthDeclaration",
+            "NON_TRANSFERABLE": "value economy.accounts 89f52ffcb323db58",
+            "Retention": "def core.growth Retention",
+            "STEPS_PER_DAY": "value core.time_consts a4ff3ad278c7b057",
+            "STORED_LINES": "value economy.accounts e5fb0d41517e95b7",
+            "Sector": "def economy.accounts Sector",
+            "TransferStatus": "def engine.ledger_api TransferStatus",
+            "UNCONSTRAINED_SECTORS": "value economy.accounts e838d3e4cb5f7d6c",
+            "blake3_hex": "def core.hashing blake3_hex",
+            "is_allowed": "def economy.accounts is_allowed",
+        },
+    },
+    "head_goods_136fdbb.py": {
+        "text": "2f3f44b954e62b8e292b8def54628e91928034d48705d620d21213dbf476daa4",
+        "order": (
+            (
+                ("GrowthDeclaration", "Retention"),
+                ("pricing",),
+                ("AccountCode", "FlowKind", "Sector"),
+                ("WASTE_BAND_RATIO", "WASTE_TONNES_PER_DAY"),
+            ),
+        ),
+        "refs": {
+            "AccountCode": "def economy.accounts AccountCode",
+            "FlowKind": "def economy.accounts FlowKind",
+            "GrowthDeclaration": "def core.growth GrowthDeclaration",
+            "Retention": "def core.growth Retention",
+            "Sector": "def economy.accounts Sector",
+            "WASTE_BAND_RATIO": "value economy.anchors 221764976efe0413",
+            "WASTE_TONNES_PER_DAY": "value economy.anchors 0bd2fcdd091e0a2f",
+            "pricing": "module economy.pricing",
+        },
+    },
 }
 
 
-def blob_sha(path: Path) -> str:
-    data = path.read_bytes().replace(b"\r\n", b"\n")
-    return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+def pin_problems(name: str, mod: ModuleType) -> list[str]:
+    """写し ``name`` と読み込んだ ``mod`` が固定と違う所(字面・文の順・意味)。"""
+    want = PINS[name]
+    path = HERE / name
+    out = [] if PIN.text_sha256(path, lf=True) == want["text"] else [f"{name}: 字面の sha256 が違う"]
+    out += [f"{name}: {x}" for x in PIN.order_problems(path, want["order"], lf=True)]
+    out += [f"{name}: {x}" for x in PIN.ref_problems(mod, path, want["refs"], lf=True)]
+    return out
 
 
 def _load(name: str, file: str) -> ModuleType:

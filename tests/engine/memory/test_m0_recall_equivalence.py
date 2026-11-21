@@ -19,9 +19,9 @@ from typing import Any, Callable
 
 import pytest
 
-from shibuya.engine.memory import MemoryLayer
-from shibuya.engine.run import run_day
-from shibuya.engine.tape import Tape
+from shibuya.mind.memory.memory import MemoryLayer
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.tape import Tape
 
 from tests.engine.memory._m0 import KW, WORLD, run_with_arm, table_vs_store
 
@@ -181,7 +181,7 @@ def test_synthetic_two_days_resume_rebuilds_the_store(probe, tmp_path):
 @pytest.mark.parametrize("cfg", ["v3_mem_rel", "v3_mem_store"])
 def test_world_5000_sampled_recalls_are_the_same(probe, cfg):
     """世界資産 5,000 体・mock・1 日(byte-check の記憶の構成)で、刻みの 1/7 の全部の想起を突き合わせる。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     extra = {"v3_mem_rel": {"relations": "on"}, "v3_mem_store": {"store_memory": "on"}}[cfg]
     kw = dict(n_agents=5_000, seed=1, world_dir=str(WORLD), vocab_version="v3", memory="on", **extra)

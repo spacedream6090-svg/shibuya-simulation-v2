@@ -27,8 +27,8 @@ from shibuya.economy import stage2 as S2
 from shibuya.economy import wages as WG
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_stage2 as ES2
-from shibuya.engine.events import log as EV
+from shibuya.economy import stage2_bind as ES2
+from shibuya.foundation.journal import log as EV
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 O_ = len(WG.WAGE_OCCUPATIONS)
@@ -63,13 +63,13 @@ def _status(words) -> np.ndarray:
 def test_build_and_runtime_share_one_function():
     assert A.WAGE_OCCUPATIONS is WG.WAGE_OCCUPATIONS and A.WAGE_AGE_EDGES is WG.WAGE_AGE_EDGES
     assert A._wage_quantile is WG.wage_quantile
-    from shibuya.core import wage_formula as WF
+    from shibuya.economy import wage_formula as WF
 
     assert WG.wage_values is WF.wage_values and WG.occupation_wages is WF.occupation_wages
     # 式の置き場は numpy と core.rng だけを読む(build が読んでも engine と llm が読まれない)
     imports = {n.module for n in ast.walk(ast.parse(Path(WF.__file__).read_text(encoding="utf-8")))
                if isinstance(n, ast.ImportFrom) and n.module}
-    assert {m for m in imports if m.startswith("shibuya")} == {"shibuya.core.rng"}
+    assert {m for m in imports if m.startswith("shibuya")} == {"shibuya.foundation.rng"}
     from shibuya.build.pop import w21_money as M
 
     assert M.WAGE_CLASS_FLOOR_YEN == WG.WAGE_CLASS_FLOOR_YEN and M.WAGE_TOP_FACTOR == WG.WAGE_TOP_FACTOR
@@ -200,7 +200,7 @@ def _w17_hits(tree: ast.AST) -> list[str]:
 
 
 def test_wage_path_does_not_read_w17_hours_ast_with_a_negative_control():
-    from shibuya.core import wage_formula as WF
+    from shibuya.economy import wage_formula as WF
 
     for f in (WG.__file__, WF.__file__):
         assert _w17_hits(ast.parse(Path(f).read_text(encoding="utf-8"))) == [], f
@@ -355,15 +355,11 @@ def test_wage_path_header_and_resume_check(monkeypatch):
     """賃金の道は occupation だけ(〔第 2 部〕腕 w17 と切替口は消した)。見出しは賃金の道を持ち、見出しに無い(版上げの前)・
     違う道の再開は止まる。"""
     assert ES2.DEFAULT_WAGE == "occupation" and ES2.WAGE_ARMS == ("occupation",) and ES2.wage_arm() == "occupation"
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     plan_occ = types.SimpleNamespace(parts=ES2.PARTS, wage_model="occupation")
     assert ES2.header_fields(plan_occ) == {"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation"}
-    from shibuya.engine import economy_rules as ER  # 〔第 4 期 4-2〕見出しの規則の表の中身の腕(既定 on)もそろえる
-
-    law = {} if ER.arm() == ER.ARM_OFF else {"rules_42": ER.arm()}
-    if law and ER.arm_42b() != ER.ARM_OFF:  # 〔第 4 期 4-2b〕空欄 3 件を埋めた値の腕(既定 on)も見出しにそろえる
-        law["rules_42b"] = ER.arm_42b()
+    # 〔第 4 期 4-2・4-2b〕見出しの規則の表の中身と空欄 3 件を埋めた値もそろえる(〔第346〕切替口 42・42B は消した)
+    law = {"rules_42": "on", "rules_42b": "on"}
     ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), "wage": "occupation", **law})
     with pytest.raises(ValueError, match="賃金の腕"):
         ES2.check_resume({"arm": "on", "parts": list(ES2.PARTS), **law})  # 見出しに無い=w17(版上げの前の状態)
@@ -378,13 +374,17 @@ def test_removed_wage_switch_env_and_cli_flag_stop():
     import subprocess
     import sys
 
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     env = {**os.environ, "SHIBUYA_WAGE": "w17", "PYTHONIOENCODING": "utf-8"}
-    r = subprocess.run([sys.executable, "-c", "import shibuya.engine.economy_stage2"], env=env, capture_output=True,
+    r = subprocess.run([sys.executable, "-c", "import shibuya.economy.stage2_bind"], env=env, capture_output=True,
                        text=True, encoding="utf-8")
     assert r.returncode != 0 and "消した切替口" in r.stderr
-    src = inspect.getsource(cli)
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    src = PL.split_source("cli.py")
     assert '"--wage"' not in src and "set_wage_arm" not in src
     with pytest.raises(SystemExit):
         cli.main(["--wage", "w17"])
@@ -471,7 +471,7 @@ def test_payroll_pays_the_outside_employer_from_the_rest_of_the_world(monkeypatc
     """〔第 4 期 4-3 段 10・検収 M3〕外の雇用主(閉じた表の外の組織の番号)の雇用の行は外界から払う(登録済みの faucet
     「域外雇用主の賃金」=外界 → 世帯の口座)・雇用主の原資の行は無い・保存則の残差 0。"""
     from shibuya.economy.stage2 import OUTSIDE_EMPLOYER_ORG
-    from shibuya.engine.rights import initial as RI
+    from shibuya.world.facts.rights import initial as RI
 
     assert OUTSIDE_EMPLOYER_ORG == RI.OUTSIDE_EMPLOYER_ORG  # 経済と権利台帳で同じ番号
 

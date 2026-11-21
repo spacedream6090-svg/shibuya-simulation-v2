@@ -1,0 +1,323 @@
+[
+ {
+  "dir": "v2",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13"
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13"
+  }
+ },
+ {
+  "dir": "v2_10e_steps",
+  "perception_files": false,
+  "w13_both": false,
+  "processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  }
+ },
+ {
+  "dir": "v2_pre1c_20260928",
+  "perception_files": false,
+  "w13_both": false,
+  "processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  }
+ },
+ {
+  "dir": "v2_pre20260928",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-08-31",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-08-31",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_pre_10e_2026-10-12",
+  "perception_files": false,
+  "w13_both": true,
+  "processes": {
+   "stopped": true,
+   "error": "ValueError: 天気の資産の片方だけ: 描画の資産が合成(描画の資産のファイルのどれかが無い)なのに、環境の過程に W13 の日の表がある(合成の世界の決まった天気で黙って埋めない=A48)"
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  }
+ },
+ {
+  "dir": "v2_pre_2-4",
+  "perception_files": false,
+  "w13_both": false,
+  "processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  }
+ },
+ {
+  "dir": "v2_pre_4-3",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_2-3",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_2-3b",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_2-3c",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_2-4",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_3-1",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_4-1",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_4-1b",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_4-1c",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_4-3",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13",
+   "space_legacy": true
+  }
+ },
+ {
+  "dir": "v2_stage_5-1",
+  "perception_files": true,
+  "w13_both": true,
+  "processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13"
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": false,
+   "replay_date": "2026-07-13"
+  }
+ },
+ {
+  "dir": "v2_steps_2-4",
+  "perception_files": false,
+  "w13_both": false,
+  "processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  }
+ },
+ {
+  "dir": "v2_steps_4-1",
+  "perception_files": false,
+  "w13_both": false,
+  "processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  }
+ },
+ {
+  "dir": "v2_steps_4-1b",
+  "perception_files": false,
+  "w13_both": false,
+  "processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  },
+  "no_processes": {
+   "stopped": false,
+   "declared": true,
+   "replay_date": ""
+  }
+ }
+]

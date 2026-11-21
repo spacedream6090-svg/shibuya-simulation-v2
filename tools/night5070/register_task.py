@@ -21,19 +21,28 @@ realworld-fetch-check.md §5-2)と同じ: タスクの XML(UTF-16)を作り ``sc
         *>> docs/bench/night5070/_scheduler.log"
 
 リポの根はこのスクリプトの位置から、python は ``sys.executable`` から求めて XML に書く(登録先は手元の OS
-なので、ユーザー名を含む絶対パスが XML に入るのはよい)。``--print-only`` の表示ではホームを ``<HOME>`` に
-置き換える。このスクリプトのファイル自身には絶対パスを書かない。
+なので、ユーザー名を含む絶対パスが XML に入るのはよい)。``--print-only`` の表示ではホームを ``<HOME>`` に、
+``<UserId>`` の中身を ``<USER>`` に置き換える。このスクリプトのファイル自身には絶対パスを書かない。
+
+安全の規則 5(README「安全の規則」): タスクはユーザー権限で動かす(SYSTEM にしない)。XML の ``<Principal>`` に
+``<UserId>``(登録する本人=``USERDOMAIN`` と ``USERNAME`` をバックスラッシュでつないだ名)・``<LogonType>InteractiveToken</LogonType>``・
+``<RunLevel>LeastPrivilege</RunLevel>`` を書き、``check_principal_xml`` で生成の側から確かめる(SYSTEM・
+LocalService・NetworkService・機械のアカウント(末尾 ``$``)・``<GroupId>`` は拒む=登録しない・終了コード 2)。
+動かすのはリポの中の ``tools/night5070/night_run.py`` だけ。
 """
 
 from __future__ import annotations
 
 import argparse
 import datetime as dt
+import getpass
+import os
 import re
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 
 HERE = Path(__file__).resolve().parent
@@ -44,6 +53,15 @@ DEFAULT_MAX_HOURS = 10
 DEADLINE_MARGIN_HOURS = 0.5
 DEFAULT_LOG_ROOT = "docs/bench/night5070"
 TASK_NS = "http://schemas.microsoft.com/windows/2004/02/mit/task"
+#: 安全の規則 5: タスクの主体にしてはならない名(大文字で比べる。ドメインの部分を外した名でも比べる)。
+FORBIDDEN_PRINCIPALS: tuple[str, ...] = (
+    "SYSTEM", "LOCALSYSTEM", "NT AUTHORITY\\SYSTEM", "S-1-5-18",
+    "LOCAL SERVICE", "LOCALSERVICE", "NT AUTHORITY\\LOCAL SERVICE", "S-1-5-19",
+    "NETWORK SERVICE", "NETWORKSERVICE", "NT AUTHORITY\\NETWORK SERVICE", "S-1-5-20",
+)
+#: 安全の規則 5: 許すログオンの型(ユーザーのセッションで動く=WSL2 が要る)。
+ALLOWED_LOGON_TYPES: tuple[str, ...] = ("InteractiveToken",)
+ALLOWED_RUN_LEVEL = "LeastPrivilege"
 
 
 def next_start(at: str, now: dt.datetime | None = None) -> dt.datetime:
@@ -93,11 +111,79 @@ def mask_home(text: str, *, xml: bool = False) -> str:
     return text
 
 
+def current_user_id() -> str:
+    """登録する本人(``USERDOMAIN\\USERNAME``。分からなければ空)。"""
+    try:
+        name = os.environ.get("USERNAME") or getpass.getuser()
+    except Exception:  # noqa: BLE001 - 分からなければ空(build_xml が拒む)
+        name = ""
+    dom = os.environ.get("USERDOMAIN", "")
+    return f"{dom}\\{name}" if (dom and name) else (name or "")
+
+
+def check_user_id(user_id: str) -> None:
+    """安全の規則 5: ユーザー権限の主体か(SYSTEM などでない・機械のアカウントでない)。違えば ValueError。"""
+    u = str(user_id or "").strip()
+    if not u:
+        raise ValueError("タスクの UserId が分からない(USERNAME が無い)=ユーザー権限を保証できないので登録しない")
+    up = u.upper()
+    bare = up.rsplit("\\", 1)[-1]
+    if up in FORBIDDEN_PRINCIPALS or bare in FORBIDDEN_PRINCIPALS or bare.endswith("$"):
+        raise ValueError(f"タスクの UserId がユーザー権限でない({bare})=安全の規則 5 により登録しない")
+
+
+def check_principal_xml(xml: str) -> dict[str, str]:
+    """安全の規則 5: XML の主体がユーザー権限か(``<UserId>``・``<LogonType>``・``<RunLevel>``・``<GroupId>`` が無い)。
+
+    違えば ValueError。戻り値=読んだ値(UserId・LogonType・RunLevel)。
+    """
+    body = xml.split("\n", 1)[1] if xml.startswith("<?xml") else xml
+    root = ET.fromstring(body)
+    ns = {"t": TASK_NS}
+    prs = root.findall("t:Principals/t:Principal", ns)
+    if len(prs) != 1:
+        raise ValueError(f"Principal が 1 つでない({len(prs)} 個)")
+    pr = prs[0]
+    if pr.find("t:GroupId", ns) is not None:
+        raise ValueError("Principal に GroupId がある(ユーザー権限を保証できない)")
+    uid = (pr.findtext("t:UserId", default="", namespaces=ns) or "").strip()
+    logon = (pr.findtext("t:LogonType", default="", namespaces=ns) or "").strip()
+    level = (pr.findtext("t:RunLevel", default="", namespaces=ns) or "").strip()
+    check_user_id(uid)
+    if logon not in ALLOWED_LOGON_TYPES:
+        raise ValueError(f"LogonType が {logon or '無い'}(許すのは {'・'.join(ALLOWED_LOGON_TYPES)})")
+    if level != ALLOWED_RUN_LEVEL:
+        raise ValueError(f"RunLevel が {level or '無い'}(許すのは {ALLOWED_RUN_LEVEL})")
+    return {"UserId": uid, "LogonType": logon, "RunLevel": level}
+
+
+def worktree_reason(root: Path) -> str:
+    """``root`` が作業木なら理由(道筋の部分が ``wt_`` で始まる・``.git`` がファイル=git worktree)。本体なら空。
+
+    タスクの ``WorkingDirectory`` と ``Set-Location`` は ``root``(=このスクリプトの位置から求めたリポの根)になる。
+    作業木から登録すると、作業木を消した後に夜のタスクが動かなくなるため、登録は本体のリポの根からだけ行う。
+    """
+    r = Path(root)
+    if any(part.lower().startswith("wt_") for part in r.parts):
+        return "道筋に wt_ で始まる部分がある"
+    if (r / ".git").is_file():
+        return ".git がファイル(git worktree)"
+    return ""
+
+
+def mask_user(text: str, *, xml: bool = False) -> str:
+    """表示用に ``<UserId>`` の中身を ``<USER>`` に置き換える。"""
+    rep = "&lt;USER&gt;" if xml else "<USER>"
+    return re.sub(r"(<UserId>)[^<]*(</UserId>)", lambda m: m.group(1) + rep + m.group(2), text)
+
+
 def build_xml(*, experiment: str, start: dt.datetime, wake: bool = False, daily: bool = False,
               max_hours: int = DEFAULT_MAX_HOURS, deadline_hours: float | None = None, python: str | None = None,
               workdir: str | None = None, config: str | None = None, out: str | None = None,
-              start_at: str | None = None) -> str:
-    """タスクの XML(文字列)。書き出すときは UTF-16。締め切りが上限以上なら ValueError。"""
+              start_at: str | None = None, user_id: str | None = None) -> str:
+    """タスクの XML(文字列)。書き出すときは UTF-16。締め切りが上限以上・主体がユーザー権限でないなら ValueError。"""
+    user_id = current_user_id() if user_id is None else user_id
+    check_user_id(user_id)
     python = python or sys.executable
     workdir = workdir or str(REPO)
     dl = float(max_hours) - DEADLINE_MARGIN_HOURS if deadline_hours is None else float(deadline_hours)
@@ -116,7 +202,7 @@ def build_xml(*, experiment: str, start: dt.datetime, wake: bool = False, daily:
                    f"      <Enabled>true</Enabled>\n    </TimeTrigger>\n")
     desc = (f"shibuya-simulation-v2: 5070 の夜の実験 {experiment}(回答 10-25 §6-0)。"
             f"tools/night5070/night_run.py が艦隊を立て、実験を回し、要約を docs/bench/night5070 に書く。")
-    return (
+    xml = (
         '<?xml version="1.0" encoding="UTF-16"?>\n'
         f'<Task version="1.2" xmlns="{TASK_NS}">\n'
         "  <RegistrationInfo>\n"
@@ -127,8 +213,9 @@ def build_xml(*, experiment: str, start: dt.datetime, wake: bool = False, daily:
         "  </Triggers>\n"
         "  <Principals>\n"
         '    <Principal id="Author">\n'
-        "      <LogonType>InteractiveToken</LogonType>\n"
-        "      <RunLevel>LeastPrivilege</RunLevel>\n"
+        f"      <UserId>{escape(user_id)}</UserId>\n"
+        f"      <LogonType>{ALLOWED_LOGON_TYPES[0]}</LogonType>\n"
+        f"      <RunLevel>{ALLOWED_RUN_LEVEL}</RunLevel>\n"
         "    </Principal>\n"
         "  </Principals>\n"
         "  <Settings>\n"
@@ -159,6 +246,8 @@ def build_xml(*, experiment: str, start: dt.datetime, wake: bool = False, daily:
         "  </Actions>\n"
         "</Task>\n"
     )
+    check_principal_xml(xml)  # 安全の規則 5 を生成の側で確かめる
+    return xml
 
 
 def create_command(name: str, xml_path: str) -> list[str]:
@@ -204,10 +293,16 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         print(f"register_task: 登録しない: {exc}", file=sys.stderr)
         return 2
+    wt = worktree_reason(REPO)
     if args.print_only:
-        print(mask_home(xml, xml=True))
+        print(mask_user(mask_home(xml, xml=True), xml=True))
         print(" ".join(create_command(args.name, "<XML の一時ファイル>")))
+        if wt:
+            print(f"register_task: 注: この道筋からは登録しない({wt})。登録は本体のリポの根から回す", file=sys.stderr)
         return 0
+    if wt:
+        print(f"register_task: 登録しない: 作業木から登録しようとした({wt})。本体のリポの根から回す", file=sys.stderr)
+        return 2
     with tempfile.TemporaryDirectory(prefix="night5070_") as td:
         xp = Path(td) / f"{args.name}.xml"
         xp.write_text(xml, encoding="utf-16")

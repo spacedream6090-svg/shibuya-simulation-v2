@@ -14,13 +14,13 @@ from types import MappingProxyType
 import numpy as np
 import pytest
 
-from shibuya.engine.rights import ledger as L
+from shibuya.world.facts.rights import ledger as L
 
 from . import rights_writers as RW
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
-LEDGER_PY = SRC / "engine" / "rights" / "ledger.py"
+LEDGER_PY = SRC / "world" / "facts" / "rights" / "ledger.py"
 
 
 def _r(**kw):
@@ -267,7 +267,7 @@ def test_negative_a_third_write_port_is_caught(planted):
     "object.__setattr__(rights, '_n', 0)\n",                                     # 外からの object.__setattr__
     "getattr(rights, '_r' + '_kind')[0] = 1\n",                                  # 名を組み立てる getattr
     "for n in ledger._COL_NAMES:\n    getattr(st, n)[0] = 0\n",                  # _COL_NAMES を回す getattr
-    "from shibuya.engine.rights.ledger import _COL_NAMES\n",
+    "from shibuya.world.facts.rights.ledger import _COL_NAMES\n",
     "getattr(rights, f'_r_{name}')[0] = 0\n",                                    # f 文字列の名
     "rights._Rights__st.n = 0\n",                                                # 名を変えた slot
     "setattr(rights, '_Rights__st', None)\n",

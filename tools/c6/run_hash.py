@@ -43,11 +43,15 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             pass
 
-    from shibuya.engine.run import run_day
-    from shibuya.world.state import World
+    from shibuya.runtime.run import run_day
+    from shibuya.world.model.state import World
 
     world_dir = c6lib.world_dir_of(args)
     world = World.load_or_synthetic(world_dir, n_cells=args.cells, seed=args.seed) if world_dir else None
+    # 〔第347・Q13-8〕ランの既定が CLI にそろった(語彙 v3・空腹 energy・呼数 無制限)=前と同じランになるよう語彙 v1 を明示する。
+    # 直呼びの道は前の run_day の既定の呼数(L4 の按分=倍率 1.0)も明示する。空腹の旧規則 v1 は試験の中だけの口になった=直呼びの道の
+    # 空腹は energy(T3 は同じ引数の 2 プロセスを突き合わせる道具なので、値の前後は比べない)。台帳つきの道(cli.run)の空腹と呼数は
+    # 前から energy・無制限で、前と同じ。
     if args.no_ledger:
         res = run_day(
             n_agents=args.agents,
@@ -57,6 +61,8 @@ def main(argv: list[str] | None = None) -> int:
             checkpoint_every=max(1, args.ticks // 2),
             n_cells=args.cells,
             world_dir=world_dir,
+            vocab_version="v1",
+            l4_scale=1.0,
         )
     else:
         res, _ = c6lib.run_smoke(
@@ -65,6 +71,7 @@ def main(argv: list[str] | None = None) -> int:
             ticks=args.ticks,
             world_dir=world_dir,
             checkpoint_every=max(1, args.ticks // 2),
+            extra={"vocab_version": "v1"},
         )
 
     payload = {
@@ -88,6 +95,9 @@ def main(argv: list[str] | None = None) -> int:
             "cells": int(args.cells),
             "world": str(world_dir) if world_dir else "",
             "ledger": not args.no_ledger,
+            # 〔第347・Q13〕どの空腹のモデルと語彙で回したか(出力の欄だけ・ランの値は変えない)
+            "hunger_model": str(res.hunger_model),
+            "vocab_version": str(res.vocab_version),
         },
     }
     sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")

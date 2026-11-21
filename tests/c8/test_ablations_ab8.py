@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from shibuya.engine.arbiter import call_budget_per_tick
+from shibuya.runtime.arbiter import call_budget_per_tick
 
 ARM_ID = "AB8-L4-SCALE"
 #: ⑥b を呼数制限なしで回し直す腕(第245 ユーザー指示)。
@@ -39,8 +39,9 @@ ARM_UNCAPPED_ID = "AB6c-AD-NOTICE-UNCAPPED"
 
 #: AB6b(看板の注視ゲート)の腕定義の凍結 SHA256。**2026-09-19 に末尾でなくなったので凍らせる**
 #: (第1陣 6 本〜AB7c の 9 本は ``tests/c8/test_ablations_ab7.py`` の FROZEN_ARM_SHA256 が持つ)。
-#: 第290(Q29)で各ランに ``l4_scale: 1.0`` を明示して張り替えた(それまで 1be4e00f74c52ab8…)。
-FROZEN_AB6B_SHA256 = "9c324baa2ee1e295502df2b6bfc6f7b739db4235db5aeab416cb489a8ffbcfd1"
+#: 第290(Q29)で各ランに ``l4_scale: 1.0`` を明示して張り替えた(それまで 1be4e00f74c52ab8…)。第347(Q13)で各ランに
+#: ``vocab_version: "v1"`` を明示して張り替えた(それまで 9c324baa2ee1e295…=表のトップ ``vocab_version_pin``)。
+FROZEN_AB6B_SHA256 = "0906ce6fb93c6931b41ebdb84b3f302c0f945c84d3dde0e05154ded64086ccd5"
 
 #: 変異検出用の極小ラン。**就寝抑止を切る**=合成世界の 0 時台でも起床候補が立つ
 #: (既定の D-56 抑止が効くと候補が 0 件になり、予算の腕が何も動かさない)。
@@ -64,14 +65,14 @@ def _canonical_sha256(arm) -> str:
 # ------------------------------------------------------------ (t2) 変換規則
 @pytest.mark.parametrize("scale", [1.0, 0.5, 2.0])
 def test_the_factor_multiplies_the_l4_share(scale):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(l4_scale=scale, **MUTATION_RUN)
     assert res.budget_per_tick == pytest.approx(call_budget_per_tick(200) * scale)
 
 
 def test_zero_means_the_agent_count():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(l4_scale=0.0, **MUTATION_RUN)
     assert res.budget_per_tick == 200.0
@@ -81,7 +82,7 @@ def test_zero_means_the_agent_count():
 @pytest.fixture(scope="module")
 def mutation_runs():
     """既定 / 1.0 / 0.5 / 0 の 4 ラン(mock・極小)を 1 回だけ回して使い回す。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     out = {"default": cli.run(**MUTATION_RUN)}
     for key, scale in (("x1", 1.0), ("x0.5", 0.5), ("unlimited", 0.0)):
@@ -262,18 +263,19 @@ def test_the_two_arms_are_appended(ablation_runner, table):
 def test_the_runs_and_their_kwargs(ablation_runner, table):
     a8 = ablation_runner.arm_by_id(table, ARM_ID)
     assert [r["tag"] for r in a8["runs"]] == ["l4_x1", "l4_x0.5", "l4_x2", "l4_unlimited"]
-    assert [r["kwargs"] for r in a8["runs"]] == [
-        {"l4_scale": 1.0}, {"l4_scale": 0.5}, {"l4_scale": 2.0}, {"l4_scale": 0.0},
+    assert [r["kwargs"] for r in a8["runs"]] == [  # 第347 Q13: 語彙 v1 を明示(表のトップ vocab_version_pin)
+        {"l4_scale": 1.0, "vocab_version": "v1"}, {"l4_scale": 0.5, "vocab_version": "v1"},
+        {"l4_scale": 2.0, "vocab_version": "v1"}, {"l4_scale": 0.0, "vocab_version": "v1"},
     ]
     a6c = ablation_runner.arm_by_id(table, ARM_UNCAPPED_ID)
     assert [r["tag"] for r in a6c["runs"]] == [
         "p_see_1_00", "ad_zero", "p_see_0_30", "p_see_0_14",
     ]
-    assert [r["kwargs"] for r in a6c["runs"]] == [
-        {"l4_scale": 0.0, "signage_p_see": 1.0},
-        {"l4_scale": 0.0, "signage": False},
-        {"l4_scale": 0.0, "signage_p_see": 0.3},
-        {"l4_scale": 0.0, "signage_p_see": 0.14},
+    assert [r["kwargs"] for r in a6c["runs"]] == [  # 第347 Q13: 語彙 v1 を明示
+        {"l4_scale": 0.0, "signage_p_see": 1.0, "vocab_version": "v1"},
+        {"l4_scale": 0.0, "signage": False, "vocab_version": "v1"},
+        {"l4_scale": 0.0, "signage_p_see": 0.3, "vocab_version": "v1"},
+        {"l4_scale": 0.0, "signage_p_see": 0.14, "vocab_version": "v1"},
     ]
     for arm in (a8, a6c):
         assert arm["runs"][0]["is_baseline"] is True

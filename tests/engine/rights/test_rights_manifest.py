@@ -14,10 +14,10 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine.rights import initial as RI
-from shibuya.engine.run import run_day
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
+from shibuya.world.facts.rights import initial as RI
+from shibuya.runtime.run import run_day
 
 HERE = Path(__file__).resolve().parent
 TOP = json.loads((HERE.parent / "time" / "manifest_keys_frozen.json").read_text(encoding="utf-8"))["keys"]
@@ -37,8 +37,10 @@ def test_rights_is_the_last_key_and_observed(res):
     # experiment・〔第 3 期 3-2〕その後ろに batching・〔第 3 期 3-5〕その後ろに body・〔第 3 期 3-1〕その後ろ(末尾)に
     # calendar_shadow(試験の名は履歴のまま)
     # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space
-    assert keys == TOP and keys[-10:] == ["rights", "decision_port", "tools", "speech_port", "proximity", "experiment",
-                                          "batching", "body", "calendar_shadow", "space"]
+    # 〔11-01 段 2 の 4〕その後ろに rate_rules・〔11-02r §1 #7〕その後ろ(末尾)に absent_processes
+    assert keys == TOP and keys[-13:] == ["rights", "decision_port", "tools", "speech_port", "proximity", "experiment",
+                                          "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes",
+                                          "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103
     assert MS.section_of("rights") == MS.OBSERVED and MS.section_of("rights.by_kind") == MS.OBSERVED
 
 
@@ -63,12 +65,12 @@ def test_no_world_processes_means_none():
 
 def test_the_record_does_not_move_the_result(res, monkeypatch):
     """権利台帳の中身を空にしても(担当の表は同じに読む)final と呼数は同じ=manifest の欄は記録だけ。"""
-    from shibuya.engine.processes import opening as OP
+    from shibuya.world.laws import opening as OP
 
     real = OP.OpeningProcess._build_rights
 
     def only_staff(self):  # noqa: ANN001  雇用(W16)と賃借の行を作らない台帳
-        from shibuya.engine.rights import ledger as L
+        from shibuya.world.facts.rights import ledger as L
 
         full = real(self)
         led = L.Rights()

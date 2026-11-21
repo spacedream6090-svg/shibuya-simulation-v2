@@ -1,0 +1,345 @@
+"""元の置き場で範囲を決める道具(試験の補助・段 4=コードの区分の移動の下ごしらえ)。
+
+段 4 では src のファイルが別の包みへ移る(対応表 ``tools/pkgmove/map.toml``=全ファイルの表から作った「今の道 → 新しい道」)。
+「包み X のモジュール」「包み X を読まない」を確かめる試験が包みの名やディレクトリを字面で持つと、移した後に空回りする
+(ディレクトリが空になり、走査するファイルが減る)か、黙って別の確かめに変わる(包みの名は中のファイルが 2 つ以上の包みへ
+分かれるので、行き先が 1 つに決まらない=移す道具は包みの名を書き換えない)。
+
+ここでは範囲を「移す前に包み X にあったモジュール」(元の置き場)で決め、今の名と今のファイルを対応表で引く。
+
+- 包みは、その包みにある(あった)モジュールを 1 つ import して渡す(:func:`origin_dir`)。包みの名を字面で持たない。
+- 木にあるほうの道を使う: 移す前の木では古い道、移した後の木では新しい道(段の途中でも同じ)。新しい道にファイルがあり、
+  古い道にファイルが無ければ、そのファイルの元の置き場は古い道。それ以外のファイルは今の道がそのまま元の置き場
+  (古い置き場に空にして残した頭・段 4 で足す空の頭・表に無いファイル)。
+- 移す前の木では、元の置き場=今の置き場なので、どの関数も前の字面の確かめと同じ範囲を返す。
+
+逐次ループ宣言: なし(試験の補助)。
+"""
+
+from __future__ import annotations
+
+import ast
+import tomllib
+from dataclasses import dataclass
+from functools import cache
+from pathlib import Path
+from types import ModuleType
+
+ROOT = Path(__file__).resolve().parents[1]
+PKG = ROOT / "src" / "shibuya"
+MAP = ROOT / "tools" / "pkgmove" / "map.toml"
+
+
+def module_of(rel: str) -> str:
+    """``src/shibuya`` からの道 → モジュールの名(``__init__.py`` は包みの名)。"""
+    parts = rel.removesuffix(".py").split("/")
+    if parts[-1] == "__init__":
+        parts = parts[:-1]
+    return ".".join([PKG.name, *parts])
+
+
+#: 対応表の形の名(``tools/pkgmove/table.py`` の ``MAP_SCHEMA`` と同じ。違えば読まずに止める)。
+MAP_SCHEMA = "shibuya.tools/pkgmove/map/1"
+
+
+#: 表に行を足す手順(``PlacesMapError`` の文に添える)。〔再検収 M-4〕段 4 の終わりに範囲を新しい包みへ移すまでは、新しい
+#: ファイルの行を move の形で書く決まり(道が変わらない行で載せると、元の置き場で決める範囲から黙って外れる)。〔L-8・L-9〕
+#: 道が変わらない行=move でない行(keep・split・delete・empty)と old と new が同じ move の行・old は偽らない。
+#: ``tools/c8/c8lib.py`` の ``PLACES_ADD_ROW_HELP`` と同じ文(``tests/c8/test_places_rule_copies.py`` が確かめる)。
+ADD_ROW_HELP = (
+    "src にファイルを足したら、全ファイルの表 docs/reference/package-map-final-2026-11-09-files.md に行を足し、"
+    "python tools/pkgmove/cli.py map で tools/pkgmove/map.toml を作り直す(手で書かない)。"
+    "段 4 の終わりに範囲を新しい包みへ移すまでは、新しいファイルの行は move の形で書く"
+    "(old=移す前の置き場に在ったとしたらの道=どの範囲の守りを受けるかを決める道・new=今の道)。"
+    "old は範囲を決める道なので偽らない(そのファイルが受けるはずの範囲の外の置き場=例えば build を書かない)。"
+    "道が変わらない行(keep・split・delete・empty か、old と new が同じ move)は、移す前から在って動かない置き場"
+    "(build・economy の直下など)に足すときだけにし、tests/test_places_guard.py の固定の一覧にも足す")
+
+
+class PlacesMapError(AssertionError):
+    """対応表が今の木を説明しない(空・形が違う・古い)。試験を黙って通さず落とす(検収 M-2)。
+
+    〔再検収 M-3〕落ちるのは元の置き場を使う試験だけ(試験のモジュールの読み込みの時点では表を引かない=範囲の試験の全体の収集は
+    止まらない)。"""
+
+
+def origins_from(map_text: str, pkg: Path) -> dict[str, str]:
+    """対応表の中身と包みの根 → 今の木の全部の ``.py``(``pkg`` からの道)→ 元の道。
+
+    〔検収 M-2〕表を確かめてから使う: 形の名が :data:`MAP_SCHEMA`・行が空でない・どの行にも ``old`` と ``kind`` があり、
+    ``move`` の行には ``new`` がある。さらに **今の木の ``.py`` は、表の ``old`` か ``move`` の ``new`` のどちらかに必ず在る**
+    (どちらにも無くてよいのは 0 バイトの ``__init__.py``=段 4 で足す空の頭だけ)。外れたら :class:`PlacesMapError`
+    (空や古い表で範囲が黙って縮むのを止める)。
+
+    〔割る段 5a・親の裁定 Q1〕割る行の ``new``(主な割り先)も表に在るファイルと見て、元の道は割る行の ``old``(元のファイルが
+    0 バイトの頭として木に残る間は今の道のまま=元の道が重ならない)。2 つ目以降の割り先は move の形の行(``split_from``)の old。
+    """
+    try:
+        doc = tomllib.loads(map_text)
+    except tomllib.TOMLDecodeError as e:
+        raise PlacesMapError(f"対応表を読めない: {e}") from e
+    if doc.get("schema") != MAP_SCHEMA:
+        raise PlacesMapError(f"対応表の形の名が違う: {doc.get('schema')!r}(想定 {MAP_SCHEMA!r})")
+    rows = doc.get("row")
+    if not isinstance(rows, list) or not rows:
+        raise PlacesMapError("対応表に行が無い")
+    olds: set[str] = set()
+    moved: dict[str, str] = {}
+    split_main: dict[str, str] = {}
+    for i, r in enumerate(rows):
+        if not isinstance(r, dict) or not isinstance(r.get("old"), str) or not isinstance(r.get("kind"), str):
+            raise PlacesMapError(f"対応表の {i} 行目に old か kind が無い: {r!r}")
+        olds.add(r["old"])
+        if r["kind"] == "move":
+            if not isinstance(r.get("new"), str):
+                raise PlacesMapError(f"対応表の {i} 行目(move)に new が無い: {r!r}")
+            if r["old"].endswith(".py"):
+                moved[r["new"]] = r["old"]
+        elif r["kind"] == "split" and isinstance(r.get("new"), str) and r["old"].endswith(".py"):
+            split_main[r["new"]] = r["old"]  # 〔割る段 5a・親の裁定 Q1〕主な割り先の元の道=割る行の old
+    out: dict[str, str] = {}
+    unknown: list[str] = []
+    for p in sorted(pkg.rglob("*.py")):
+        if "__pycache__" in p.parts:
+            continue
+        rel = p.relative_to(pkg).as_posix()
+        if (rel not in olds and rel not in moved and rel not in split_main
+                and not (p.name == "__init__.py" and p.stat().st_size == 0)):
+            unknown.append(rel)
+        old = moved.get(rel)
+        out[rel] = old if old is not None and not (pkg / old).is_file() else rel
+        sm = split_main.get(rel)
+        if old is None and sm is not None and not (pkg / sm).is_file():
+            out[rel] = sm  # 割った後の主な割り先(元のファイルが 0 バイトの頭として残る間は今の道のまま=元の道が重ならない)
+    if unknown:
+        raise PlacesMapError(f"対応表に無い(old にも move の new にも無い)ファイル {len(unknown)} 本: {unknown[:10]}"
+                             f"(表が古いか空。{ADD_ROW_HELP})")
+    return out
+
+
+@cache
+def origins() -> dict[str, str]:
+    """今の木の全部の ``.py``(``src/shibuya`` からの道)→ 元の道(:func:`origins_from` で表を確かめてから)。"""
+    return origins_from(MAP.read_text(encoding="utf-8"), PKG)
+
+
+def rel_of(mod: ModuleType) -> str:
+    """モジュールの今の道(``src/shibuya`` からの相対)。"""
+    return Path(mod.__file__).resolve().relative_to(PKG.resolve()).as_posix()
+
+
+def origin_of(rel: str) -> str:
+    """今の道 → 元の道。"""
+    return origins()[rel]
+
+
+def current_index(org: dict[str, str]) -> dict[str, str]:
+    """「今の道 → 元の道」から「元の道 → 今の道」の索引を作る。〔再検収 L-7〕2 つの今のファイルが同じ元の道を持てば止める
+    (どちらを返すかが決まらない)。"""
+    back = {v: k for k, v in org.items()}
+    assert len(back) == len(org), f"元の道が重なる今のファイルがある: {sorted(o for o in back if list(org.values()).count(o) > 1)}"
+    return back
+
+
+def current_of(old: str) -> str:
+    """元の道 → 今の道(``.py`` だけ。移す前の木では同じ道。今の木に無い元の道は ``KeyError``)。src の宣言の文などが元の道で
+    書くファイルを、今の木で引くのに使う。"""
+    return current_index(origins())[old]
+
+
+def declared_path_now(rel: str, org: dict[str, str] | None = None, pkg: Path | None = None) -> str:
+    """src の宣言の文が書く ``.py`` の道(``src/shibuya`` からの相対)→ 今の木の道。
+
+    〔再検収 L-6〕**表の元の道として引ければ今の道へ。引けなければ、その道が今の木に在るか**の順で引く(段 4 の後に新しい道で
+    書いた宣言も通る。元の道を先に引くので、移したファイルの古い道に別のファイルが在っても、元のファイルを指す)。どちらでも
+    なければ ``KeyError``。``org``・``pkg`` は既定で今の木(試験が作った索引と木を渡すため)。"""
+    org = origins() if org is None else org
+    pkg = PKG if pkg is None else pkg
+    back = current_index(org)
+    if rel in back:
+        return back[rel]
+    if (pkg / rel).is_file():
+        return rel
+    raise KeyError(rel)
+
+
+def origin_dir(mod: ModuleType) -> str:
+    """モジュールの元の置き場のディレクトリ(``src/shibuya`` からの相対・末尾に ``/``。根なら空)。"""
+    d = origin_of(rel_of(mod)).rpartition("/")[0]
+    return d + "/" if d else ""
+
+
+def rels_from(*mods: ModuleType, recursive: bool = True) -> list[str]:
+    """元の置き場が ``mods`` の元のディレクトリ(``recursive`` なら下の包みも)にある、今のファイルの道(並べたもの)。"""
+    dirs = {origin_dir(m) for m in mods}
+    assert "" not in dirs, "根のモジュールは包みの代わりにならない(module_names を使う)"
+    out = []
+    for rel, old in origins().items():
+        d = old.rpartition("/")[0] + "/"
+        if any(d == x or (recursive and d.startswith(x)) for x in dirs):
+            out.append(rel)
+    return sorted(out)
+
+
+def files_from(*mods: ModuleType, recursive: bool = True) -> list[Path]:
+    """:func:`rels_from` の今のファイル。"""
+    return [PKG / r for r in rels_from(*mods, recursive=recursive)]
+
+
+@dataclass(frozen=True)
+class Names:
+    """モジュールの名の集まり。頭(包み)は名の一致だけ、頭でないモジュールは中の名(``mod.名``)も含む。"""
+
+    heads: frozenset[str]
+    leaves: frozenset[str]
+
+    def __or__(self, other: "Names") -> "Names":
+        return Names(self.heads | other.heads, self.leaves | other.leaves)
+
+    def has(self, name: str) -> bool:
+        return name in self.heads or name in self.leaves or any(name.startswith(m + ".") for m in self.leaves)
+
+    def hits(self, name: str) -> bool:
+        """層の試験の違反: :meth:`has` か、木のどのモジュールにも包みにも解けない ``shibuya.`` の名(:func:`unknown`)。
+
+        〔検収 L-1〕前の字面の前方一致は、無いモジュールの名(``shibuya.economy.zz_future``)も拾っていた。元の置き場で引く
+        と、無い名はどの包みにも入らないので、強い側(違反)に倒す。"""
+        return self.has(name) or unknown(name)
+
+    def prefixes(self) -> tuple[str, ...]:
+        """前の字面の ``startswith`` の代わり(文字列の定数に名の前の部分が残っていないかを見る)。"""
+        return tuple(sorted(self.heads | self.leaves))
+
+
+def names_from(*mods: ModuleType, recursive: bool = True) -> Names:
+    """元の置き場が ``mods`` の元のディレクトリにある、今のモジュールの名。"""
+    rels = rels_from(*mods, recursive=recursive)
+    return Names(frozenset(module_of(r) for r in rels if r.endswith("__init__.py")),
+                 frozenset(module_of(r) for r in rels if not r.endswith("__init__.py")))
+
+
+def module_names(*mods: ModuleType) -> Names:
+    """モジュールそのものの名(包みの代わりでなく 1 本ずつ)。"""
+    return Names(frozenset(), frozenset(m.__name__ for m in mods))
+
+
+@cache
+def tree_modules() -> frozenset[str]:
+    """今の木の全部のモジュールの名(包みの頭を含む)。"""
+    return frozenset(module_of(r) for r in origins())
+
+
+def unknown(name: str) -> bool:
+    """``shibuya.`` で始まるのに、木のどのモジュールにも包みにも解けない名(:func:`imported` が返す名に使う)。"""
+    return name.startswith(PKG.name + ".") and name not in tree_modules()
+
+
+@cache
+def _rel_by_module() -> dict[str, str]:
+    return {module_of(r): r for r in origins()}
+
+
+def origin_module(name: str) -> str:
+    """今のモジュールの名 → 元の置き場のモジュールの名(木に無い名=``shibuya`` の外など はそのまま)。"""
+    rel = _rel_by_module().get(name)
+    return module_of(origin_of(rel)) if rel is not None else name
+
+
+def split_name_origins_from(map_text: str) -> dict[str, dict[str, str]]:
+    """〔割る段 5a・親の裁定 Q2〕対応表の割る行の名の表 → 割り先のモジュールの名 → {頂上の名 → 割る行の元のモジュールの名}。"""
+    doc = tomllib.loads(map_text)
+    out: dict[str, dict[str, str]] = {}
+    for r in doc.get("row", []):
+        if r.get("kind") != "split" or not str(r.get("old", "")).endswith(".py"):
+            continue
+        for name, dest in (r.get("names") or {}).items():
+            out.setdefault(module_of(dest), {})[name] = module_of(r["old"])
+    return out
+
+
+@cache
+def _split_name_origins() -> dict[str, dict[str, str]]:
+    return split_name_origins_from(MAP.read_text(encoding="utf-8"))
+
+
+@cache
+def _split_names(old: str) -> dict[str, str]:
+    """対応表の割る行 ``old`` の名の表(頂上の名 → 割り先)。割る行でなければ止める。"""
+    for r in tomllib.loads(MAP.read_text(encoding="utf-8")).get("row", []):
+        if r.get("old") == old:
+            if r.get("kind") != "split" or not r.get("names"):
+                raise PlacesMapError(f"割る行でないか名の表が無い: {old}")
+            return dict(r["names"])
+    raise PlacesMapError(f"対応表に行が無い: {old}")
+
+
+def _top_names(path: Path) -> frozenset[str]:
+    """ファイルの頂上で結ぶ名(関数・クラス・代入の左辺)。"""
+    out: set[str] = set()
+    for st in ast.parse(path.read_text(encoding="utf-8")).body:
+        if isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            out.add(st.name)
+        elif isinstance(st, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+            for t in (st.targets if isinstance(st, ast.Assign) else [st.target]):
+                out |= {n.id for n in ast.walk(t) if isinstance(n, ast.Name)}
+    return frozenset(out)
+
+
+def split_files(old: str, names: tuple[str, ...] | list[str] | None = None) -> list[str]:
+    """〔割る段 5b の G0〕割る行 ``old``(全ファイルの表の今の道)の名(既定は表の全部)を頂上で定義する今のファイル(``src/shibuya``
+    からの道・並べたもの)。名の割り先は表(対応表の割る行の名の表)から引く: 割る前は元のファイル、割った後は名の割り先。入口の
+    転送(``shibuya/cli.py`` を割った後=名を定義しない)は入らない。
+
+    中身(字面)を見る試験が、割った後に主な割り先 1 本へ黙って狭まらないための引き口(5a の G4・G5 の検収の中-1=割り先の 2 つ目へ
+    移った名が P4 の確かめから外れた件)。割る前の木では ``[old]`` で、前の字面の確かめと同じ範囲。
+
+    〔G0 の再検収 低-3〕``old`` は呼び出しの第 1 引数に**字面で**書く(``split_source``・``split_module_names`` も同じ)。割る道具は
+    この形の第 1 引数だけを表の鍵と見て書き換えない。変数や並びに入れて渡すと、道の文字列として割り先へ書き換えられて鍵が壊れる。"""
+    nm = _split_names(old)
+    want = list(nm) if names is None else list(names)
+    miss = [n for n in want if n not in nm]
+    if miss:
+        raise PlacesMapError(f"割る行 {old} の名の表に無い名: {miss}")
+    out: set[str] = set()
+    for n in want:
+        for rel in (old, nm[n]):  # 割る前は元のファイル、割った後は名の割り先
+            p = PKG / rel
+            if p.is_file() and n in _top_names(p):
+                out.add(rel)
+                break
+        else:
+            raise PlacesMapError(f"名 {n} を定義するファイルが元にも割り先 {nm[n]} にも無い(割る行 {old})")
+    return sorted(out)
+
+
+def split_source(old: str, names: tuple[str, ...] | list[str] | None = None) -> str:
+    """:func:`split_files` のファイルの中身をつないだ字面(割る前は元のファイルの中身そのもの)。"""
+    return "\n".join((PKG / r).read_text(encoding="utf-8") for r in split_files(old, names))
+
+
+def split_module_names(old: str, names: tuple[str, ...] | list[str] | None = None) -> Names:
+    """:func:`split_files` のモジュールの名(:func:`module_names` と同じ形=1 本ずつ)。"""
+    return Names(frozenset(), frozenset(module_of(r) for r in split_files(old, names)))
+
+
+def origin_module_of_name(module: str, name: str) -> str:
+    """〔割る段 5a・親の裁定 Q2〕名の元の置き場のモジュール: 割る行の割り先のモジュールに載る名は、割る行の元のモジュール
+    (割り先の 2 つ目以降のファイルへ行った名も元のファイルへ戻る)。ほかは :func:`origin_module`(ファイルの元の置き場)。
+    割る前の木では名は元のモジュールに在るので、:func:`origin_module` と同じ答え。"""
+    got = _split_name_origins().get(module, {}).get(name)
+    return got if got is not None else origin_module(module)
+
+
+def imported(node: ast.AST) -> list[str]:
+    """import の文が読むモジュール: ``import a.b`` は ``a.b``。``from P import c`` は、``P.c`` が木のモジュール(子の
+    モジュールか子の包み)なら ``P.c``、そうでなければ ``P``(``P`` の中の名を読む)。相対の import は数えない。
+
+    〔段 4〕``from <新しい包み> import <移したモジュール>`` の形では、新しい包みの頭(空の頭)ではなく、読む子のモジュールで
+    元の置き場を引く。移す前の木では、前の「``node.module`` の前方一致」と同じ範囲か、それより広い(``from shibuya import X``
+    の ``X`` も見る)。"""
+    if isinstance(node, ast.Import):
+        return [a.name for a in node.names]
+    if isinstance(node, ast.ImportFrom) and node.module and not node.level:
+        mods = tree_modules()
+        return [f"{node.module}.{a.name}" if f"{node.module}.{a.name}" in mods else node.module for a in node.names]
+    return []

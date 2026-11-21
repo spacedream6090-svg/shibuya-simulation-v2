@@ -5,18 +5,20 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     N_WAKE_CONDITIONS,
     REFRACTORY_MINUTES,
     RESULT_TEXT,
     WAKE_CONDITION_CLASS,
     Activity,
     AgentKind,
-    AgentState,
     ResultCode,
     WakeCondition,
 )
-from shibuya.core.types import EventClass
+from shibuya.world.model.agent_table import (
+    AgentState,
+)
+from shibuya.foundation.types import EventClass
 
 
 def test_m9_every_field_declared_and_within_m1():

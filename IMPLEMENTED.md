@@ -394,6 +394,430 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #177 コードの区分の移動 段 7 の G-S=`perception/renderer.py` を道具で 4 つの割り先へ割った(1 バイト不変・`perception` の包みが消えた・割る段 25 本が全部済んだ)(11-16 §8 の 5・第347・2026-11-20・実装役 1・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §11・§12。commit= 54d8c68。安定版のタグ `stable-v2-before-split7-S`(1e33d19=割る前)。戻し方= `git checkout stable-v2-before-split7-S`。
+- **割り先(4)**: `world/model/percept_scene.py`(主な割り先・名 22)・`mind/percept/draw.py`(名 31)・`mind/percept/notice.py`(名 2)・`foundation/text/percept_words.py`(名 19)。消えたファイル 2(`perception/renderer.py`・`perception/__init__.py`)。
+- **道具が書いた物**: ファイル 58(新しい 4・書き換え 54)・import の文(src 10・tests 51・tools 1)・クラスの名の鍵 6(値は不変)・台帳の道 1。手で直す一覧 0・見られなかった差し替え 0。
+- **手直し**: 割る道具の決まりの表から、割った後は要らない例外 1 本を外した(道具の側の表を変えたのは、この 1 か所)・`pyproject.toml`(契約は新しい 10・例外 16 行 14 辺)・心の読みの凍結の表の、割るファイルの表を空に。割った結果として落ちた試験 1 本(心の読みの表の負の対照)を、親の裁定で直した(合成の項でいつも確かめる)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 422 秒・親 425 秒・基準 1e33d19・既定の final `c8d68704b7b0760d`・呼数 60,939)。性能の悪化なし(構成ごとの比 0.84〜1.02)。副作用の順の固定の値は、割る前に作ったまま通る。差し替えの「外すと落ちる」は落ちる 13/落ちない 2(どちらも割る前からの弱さ)。範囲の試験 7,145 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。
+- **別の役の検収(2 人)**: 道具の出力と決まりの側=受入(高 0・中 0・低 4)。意味の側=受入(高 0・中 0・低 4)。
+- **残した物**: 心のクラスが世界のクラスを継ぐ辺(例外 T1・v3 まで)・ランの出力の文字列の古い名・使われない場面の側の関数 2 つ・docs の古い台本 3 本・古い名の docstring と注(文の掃除のときに直す)。
+
+### #176 コードの区分の移動 段 7 の G-M=renderer.py を割る行を、表・対応表・決まりの表・割る段の順に載せた(src は変えていない)(11-16 §8 の 5・第347・2026-11-20・実装役 1・検収役 1=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §9・§10。commit= 1e33d19。
+- 全ファイルの表の行 305(主な割り先を世界の側へ・割り先 4 つ)と行 305a〜305c(行は 358 → 361)・名の表 74(今の renderer.py の頂上の名とちょうど同じ)・`SPLIT_ORDER` の 25 本目・例外 T1・弱まりの宣言・道の文字列の宣言 1 つ・道具が書き換えない自分の試験の一覧に 1 本。
+- 本物の木の書かない実行(厳しい当て): 断らない・手で直す一覧 0・見られなかった差し替え 0。test_pkgmove 175 passed・21 skipped・slow 2 passed。既に割った 24 本への当て直しは 1 バイトも同じ。検収 受入(高 0・中 0・低 4)。
+
+### #175 コードの区分の移動 段 7 の G-R2=renderer.py の中で、`Renderer` を 3 つのクラスに分けた(1 バイト不変・ファイルは割っていない)(11-16 §8 の 5・第347・2026-11-20・実装役 1・検収役 1=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §7・§8。commit= 9274355。安定版のタグ `stable-v2-before-split7-R2`(04031d1=直す前)。戻し方= `git checkout stable-v2-before-split7-R2`。
+- **形**: `PerceptScene`(世界の側・メソッド 24・`__init__` の 31 文)・`SignageNotice`(気づく側・メソッド 2)・`Renderer(PerceptScene, SignageNotice)`(枠・`__init__` の 37 文・`render`・描く側 35)。枠の `__init__` は世界の側を先に呼ぶ(`super()` は使わない)。メソッドの本文は 1 字も変えていない。renderer.py は 3,170 行 → 3,184 行。
+- **一緒に直した 3 つ**: `CLASS_IDS` と凍結の JSON に 2 行ずつ・`OWNER_ALT_CLASSES` に 1 行・心の読みの凍結の表(鍵 2 つ・範囲の記号 26・クラスの名 2 つ。合計 83・72 は同じ)。
+- **確かめ**: 照合の台本は 10 項目とも同じ(置き場 24・2・36・宣言どおりの違いは 2 つ)。byte-check 19 構成 37 欄 19/19 同じ(実装役 441 秒・親 445 秒・基準 dc496d7・既定の final `c8d68704b7b0760d`・呼数 60,939)。性能の悪化なし(構成ごとの比 0.85〜1.07)。副作用の順の固定の値は変えていない。差し替え 13 か所は落ちる 12/落ちない 1。範囲の試験 7,089 passed・1 failed(前からの 1 本)・22 skipped。
+- **別の役の検収**: 受入(高 0・中 0・低 4)。検収役は照合の台本に頼らず、自分の台本で確かめた。
+- **残り**: G-M(割る行を表と順に載せる)→ G-S(道具で割る)。
+
+### #174 コードの区分の移動 段 7 の G0(道具)と G-R1=形の変更の照合の台本と、`INTERO_UP_EDGES` の二重の定義を 1 つに(11-16 §8 の 5・第347・2026-11-20・実装役 2・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §3〜§6。commit は 2 つ= dc496d7(G-R1)・04031d1(道具・src は変えていない)。安定版のタグ `stable-v2-before-split7-R1`(1d4d7e9=G-R1 の前)。戻し方= `git checkout stable-v2-before-split7-R1`。
+- **G-R1**(dc496d7): renderer.py の `INTERO_UP_EDGES` の定義を消し、`foundation/vocab/agent_codes.py` から読む形に(+1・−2 行)。byte-check 19 構成 37 欄 19/19 同じ(実装役 439 秒・親 436 秒・基準 3c8e126)。範囲の試験 7,089 passed・1 failed(前からの 1 本)。検収 受入(高 0・中 0・低 3)。
+- **道具 `shapecheck`**(04031d1): `tools/pkgmove/shapecheck.py` と口 `cli.py shapecheck`。形を変える前と後の renderer.py を、10 項目(台本の前提・頂上の文・メソッド・`__init__` の文と頼り・枠の口・MRO で引ける名・書く属性・互いの読み・文字列の定数・注)で比べる。試験 55 本・植えた誤り 46 個は全部検出。検収 条件つき受入(中 3=挙動が変わるのに「同じ」と言う形 16 個のうち、本物で起こりうる 3 つ)→ 直し → 再検収 受入(低 6)。
+
+### #173 コードの区分の移動 段 7 の G0(試験)=`renderer.py` を割る前の試験の直しと、副作用の順の試験(src は変えていない)(11-16 §8 の 5・第347・2026-11-19・計画の役 1・実装役 1・検収役 1=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §1・§2。commit= 93a37cf。
+- **数の取り直し**(段 6 の後の木・読むだけ): 裁定の前提は崩れない。差し替え 9 → 13 か所・手で直す一覧 15・例外 18 行 16 辺 → 17 行 15 辺の見込み・包み `perception` は消える・docs の台本 17 本は道具の範囲の外。計画の役の問い 5 つに親の仮の答え(報告 §11 の 23 の (6))。
+- **読み手の直し 14 本**: 割り先が 2 つ以上の別名の読みを名の import に(7 本)・範囲の手がかり 3 本を templates に(範囲は前後で同じ)・`hasattr(別名, 名の変数)` の 2 本を、renderer の名の割り先の全部で見る形に(負の対照つき)・差し替えの形 4 か所。
+- **副作用の順の試験**: `tests/perception/facts/test_perceive_order.py` と固定の値(出来事 2,961・sha256 `6a4b27c5…`)。構成 5 つ・負の対照 3 種。固定の値は、段 7 の G-S まで作り直さない。
+- **確かめ**: 直した 14 本は前後で同じ(261 passed)・足した試験 20 本・差し替え 13 か所の「外すと落ちる」は落ちる 12/落ちない 1・書かない実行で手で直す一覧 15 → 1/見られなかった差し替え 1 → 0・範囲の試験 7,083 passed・1 failed(前からの 1 本)・22 skipped。
+- **別の役の検収**: 条件つき受入(高 0・中 2・低 5)→ 直し → 再検収 受入(高 0・中 0・低 4)。
+- **残り**: G0-道具(形の変更の照合の台本)・G-R1(`INTERO_UP_EDGES` の 1 文)→ G-R2(renderer.py の中で形を変える)→ G-M(表)→ G-S(道具で割る)。
+
+### #172 落ちていた slow の試験 1 本の直し(版上げ Q13 の直し残し・試験だけ)と、slow の試験の調べ(第347・2026-11-19・実装役 1=Opus 5.5・親が検収)
+
+- commit= b578df5。割った後の頭で slow の全部(44 ファイル・111 本・並列なし・112 分)を手元で回した: 109 passed・1 skipped・1 failed。割る段が足した落ちは 0。
+- 落ちた 1 本(`test_conversation_invite` の名指しの招待の通し)は、二分探索で 9626f65(版上げ Q13 の ②)から。ランの既定の語彙が v3 になり、v3 では名指しの相手が別セルなら意図になる(決めて作った挙動=意図の保持)ので、フォールバックが 0 回になる。
+- 直し: 試験を語彙の版で 2 形に(v1=確かめを全部・既定の v3=フォールバックのほかを全部)。ファイルの全部は 22 passed。src は変えていない。
+- 夜の slow の CI は `main` でだけ回る=作業の枝の分は CI で回っていなかった(報告 §11 の 27)。
+
+### #171 コードの区分の移動 段 6 の M=延ばしていた `mora_count` の行を当てた(M0=道具と表・M1=当てる・1 バイト不変)(11-16 §8 の 5・§1-6 の 3・第347・2026-11-19・実装役 1・検収役 1=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-6 の 3(`mora_count` は割る段で foundation へ)。記録 [split6-347 の道具](docs/bench/analysis/split6-347/s6_g0_tools.md) の「M0」の 2 節・[split6-347](docs/bench/analysis/split6-347/README.md) §11・§12。commit は 2 つ= 9f61eea(M0=道具と表と試験・src は変えていない)・3c8e126(M1=当てる)。安定版のタグ `stable-v2-before-split6-M`(9f61eea=当てる前)。戻し方= `git checkout stable-v2-before-split6-M`。
+- **M0**: `SPLIT_ORDER` の 24 本目に載せた(`SPLIT_DEFERRED` は空)・核の例外 1 本の消える段・道の文字列の宣言 1 つ・試験の別名 2 つを割る前に分けた・`judge.py` の宣言に `patches` を足した(S6-G1 の検収の低)。本物の木の書かない実行で、手で直す一覧 0・見られなかった差し替え 0。
+- **M1**: `society/speech/port.py` から `mora_count`・`_SMALL_KANA` を `foundation/text/mora.py`(新)へ。道具が書いたファイル 7 本。手直しは `pyproject.toml`(核 1 の 1 行が消えた)と、つなぎの台帳の負の対照の試験 1 本(親の裁定)。割る段は 24 本とも当たった。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 434 秒・親 442 秒・基準 9f61eea・既定の final `c8d68704b7b0760d`・呼数 60,939)。腕 mora の 1 構成も前後で同じ(final `fc2246613b0e5695`)。範囲の試験 7,069 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。契約 11 のまま・例外 17 行 15 辺。
+- **別の役の検収**: M0=受入(高 0・中 0・低 3)。M1=受入(高 0・中 0・低 2)。
+
+### #170 コードの区分の移動 段 6 の本体=`engine/resolve.py` を道具で 18 の割り先へ割った(1 バイト不変・`engine` の包みが消えた)(11-16 §8 の 5・第347・2026-11-19・実装役 1・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 2。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §9・§10。commit= c79ae25。安定版のタグ `stable-v2-before-split6-G1`(4a5bd30=写す前)。戻し方= `git checkout stable-v2-before-split6-G1`。
+- **割り先(18)**: `act/apply.py`(18 名)・`act/gate.py`(3)・`act/ops/` の 11 本(shop 20・rail 13・move 10・intent_writes 9・law_writes 8・talk 8・body_writes 7・focus 7・plan_writes 6・init_writes 2・detect_writes 1)・`mind/ops.py`(10)・`runtime/state/restore.py`(4)・在るファイルへ足した 3 本(`foundation/write_guard.py` 1・`foundation/vocab/act_codes.py` 3・`agent_codes.py` 1)。新しいファイル 16・消えたファイル 2。
+- **道具が書いた物**: ファイル 112・import の文 166(src 43・tests 119・tools 3・docs 1)・クラスの名の鍵 1・台帳の道 1 と前向きの表 2 行・手で直す一覧 0・見られなかった差し替え 0・印のある宣言 5。
+- **手直し(発注の 3 つ)と、割った結果として落ちた試験 2 本**: `runtime/systems/allow.py` の `RESOLVE_FILES` を 15 本に・`money_writers_frozen.json` の 4 行の道・`mind_world_reads_frozen.json` の範囲/`test_bridging_ledger` の数の固定(今のファイル 83・台帳の道 81・負の対照 1 本)・`test_state_checks_10f` の偽のファイルの置き場を `act` に。
+- **import の決まり**: 契約は古い 1+新しい 10(lint-imports 11 kept)。例外 26 行・20 辺 → 18 行・16 辺(8 辺が消え、割 5〜8 の 4 辺が載った)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 434 秒・親 438 秒・基準 4a5bd30・既定の final `c8d68704b7b0760d`・呼数 60,939)。凍結の表(`resolve_index_frozen.json`・`writes_soa_frozen.json`)は 1 字も変えずに通った。範囲の試験 7,069 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。
+- **別の役の検収(2 人)**: 道具の出力と決まりの側=受入(高 0・中 0・低 2)。意味の側=受入(高 0・中 0・低 2)。差し替え 17 か所は全部届く。
+- **残した物**: 割り先をまたぐ名の import の一覧(記録 §10-3)・外しても落ちない試験 2 本・割り先を 1 本だけ読むと止まらなくなる 13 形・再開の復元が世界の欄を書く例外の宣言(置き場は判断待ち)。
+- **残り**: `mora_count` の行(延ばしていた 18 本目)→ 段 7(`renderer.py`)。
+
+### #169 コードの区分の移動 段 6 の写す前の下ごしらえ=src の別名の分け(1 バイト不変)と、道具の「素で使う別名の宣言」(11-16 §8 の 5・第347・2026-11-19・実装役 2・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §7・§8・[split6-347 の道具](docs/bench/analysis/split6-347/s6_g0_tools.md) の「E5-c」。commit は 2 つ= 2c4a164(src の別名の分け)・4a5bd30(道具の宣言・src は変えていない)。安定版のタグ `stable-v2-before-split6-G1`(4a5bd30=写す前)。戻し方= `git checkout stable-v2-before-split6-G1a`。
+- **src の別名の分け**(2c4a164): 8 本(`interim_bundles/calendar_self`・`mind/relations/layer`・`runtime/systems` の `assemble`・`body`・`judge`・`perceive`・`talk`・`world/laws/presence`)で、別名を割り先ごとに 1 つ(別名 23・属性の読み 69・元の別名 `R` は残さない)。足した別名を畳むと、8 本とも土台と AST が同じ。試験が差し替える名は、定義の割り先の別名の属性で読む。byte-check 19 構成 37 欄 19/19 同じ(実装役 434 秒・親 440 秒・基準 e543f3b)。範囲の試験 7,044 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。
+- **道具の宣言 E5-c**(4a5bd30): `AliasDest` に `bare`・`reads`・`patches`・`why`。許す素の使い方 5 つ(渡す・返す・しまう・既定の引数・`is None` で比べる)。宣言 5 つ(`judge.py`・試験 2 本の `R_TALK` → `act/ops/talk.py`/`tools/c7` の 2 本の `module` → `act/apply.py`)。`STRING_EXCLUDE` に `guide_permits.py` の `RESOLVE_FILE`。決まり=印のある宣言を足すときは、受け手を確かめる試験に足す。`test_pkgmove` は 150 → 174 passed・21 skipped・slow 2 passed。
+- **本物の木の書かない実行(写す前の姿)**: 守りは全部同じ(決まりは宣言どおり 4)・手で直す一覧 0・見られなかった差し替え 0・確かめた 13・宣言で確かめた 2・前向きの表 2 行・消えるのは `engine/resolve.py` と `engine/__init__.py`。
+- **別の役の検収**: src の別名=受入(高 0・中 0・低 1)。道具の宣言=受入(高 0・中 0・低 3)→ 続き(`judge.py` の宣言と決まり)→ 再検収 受入(低 2)。
+- **残り**: S6-G1 の写し(道具で `resolve` を 18 の割り先へ・`RESOLVE_FILES` を 15 本に・凍結の JSON 2 本・byte-check)→ `mora_count` → 段 7。
+
+### #168 コードの区分の移動 段 6 の S6-G0 の後半=表と順と、試験の別名の分け(src は変えていない)(11-16 §8 の 5・第347・2026-11-19・実装役 2・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split6-347](docs/bench/analysis/split6-347/README.md) の「S6-G0 の表と順」と §5・§6。commit は 2 つ= ae9e206(表と順)・e543f3b(別名)。src は 1 本も変えていない(byte-check は要らない)。戻し方= `git checkout stable-v2-before-split6-G0`。
+- **表と順**: 全ファイルの表に 14 行(225a〜225n)と §4-14 の直し(裁定 Q2 の 2 名・`apply_detection` を 2 つの名に書き分け・「ほか 1 個」を開く・重なりの解消)。`SPLIT_ORDER` は 23 本・`map.toml` は 358 行(move 235・resolve の行は名 131)・`contracts.toml` に割る段の例外 4 本(どれも注釈だけの辺)と `[[split_weakens]]` 1 つ・道の文字列の割り先の宣言 2 行。`test_two_phase` の `_loop_scan_paths` を割り先の全部へ広げる 1 行。
+- **本物の木の書かない実行**: 守り 13 項すべて同じ(決まりは宣言どおり 4)・割り先 18・包み `engine` が消える・前向きの表 2 行・決まりは古い 2+新しい 9(例外 26 行/20 辺)→ 古い 1+新しい 10(18 行/16 辺)。
+- **試験の別名の分け**: 試験 32 本で、割り先ごとに別名を 1 つ(`R_APPLY`・`R_BODY`・`R_TALK` ほか 18 個・属性の読みのまま)。足した別名を戻すと 32 本とも土台と AST が同じ。`test_meal_gate_per_hour` は別名を返す形をやめた。`test_cp2_write_window` の負の対照の名札を、割る段に当たらない字面へ(書きの負の対照は、書き手を持つ置き場 `economy/ledger.py`)。手で直す一覧は 49 → 13。
+- **別の役の検収**: 表と順=受入(高 0・中 0・低 2)。別名=受入(高 0・中 0・低 3)→ 続きの直し → 再検収 受入(低 2)。
+- **確かめ**: `test_pkgmove` 150 passed・21 skipped・slow 2 passed。範囲の試験 7,043 passed・2 failed・22 skipped・1 xfailed(別名の木。落ちた 2 本=前からの 1 本と、親が範囲の試験の最中に同じ作業木を編集させたために落ちた 1 本=木が動かない状態で回し直して通る)。載せ直しの後の回し直し 715 passed。
+- **残り**: 道具の「素で使う別名の宣言」(別名を渡す・しまう形の 4 つを宣言で通す・書き換えから 1 つ外す)→ S6-G1(src の別名の分け → 道具で写す)。
+
+### #167 コードの区分の移動 段 6 の S6-G0 の前半=割る道具の拡張 4 つと、割る前の試験の直し(src は変えていない)(11-16 §8 の 5・§1-1 の (b)・第347・2026-11-19・実装役 2・検収役 2=Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split6-347 の道具](docs/bench/analysis/split6-347/s6_g0_tools.md)・[split6-347](docs/bench/analysis/split6-347/README.md) §3・§4。commit は 2 つ= d9d3fe0(道具)・c8bfcde(試験)。src は 1 本も変えていない(byte-check は要らない)。戻し方= `git checkout stable-v2-before-split6-G0`。
+- **道具の拡張(`tools/pkgmove`)**: E7=つなぎの台帳の道の前向きの表(`LEDGER_PATHS_SPLIT` に、宣言の入る 2 つ目以降の割り先の行を書き足す・守り ④ は前と同じ厳しさ)/E8=道の文字列の割り先の宣言(`SPLIT_PATH_DESTS`・宣言の無い道は手で直す一覧へ)/E5-b=差し替えの届く先の守り(`patch_reach`・見られなかった差し替えは厳しい当てで断る)/E9=`cli.py split` の `--map`・`--contracts` と見本の木の試験。`test_pkgmove` は 112 → 150 passed・21 skipped・slow 2 passed。5b の G3 の土台に当て直すと、書いたファイル 127 本が 1 バイトも同じ。
+- **割る前の試験の直し**: 範囲の作り方=ループは `split_files`(割り先の全部)・書き手は `allow.RESOLVE_FILES`(裁定 R1)。直した 16 本は直す前後で同じ試験が同じ数。範囲の手がかりを `shibuya.act.intent` へ(6 本・範囲は同じ)。再輸出 4 名の確かめ 2 つを外した(裁定 Q7)。足した試験=`resolve_index_frozen.json` と試験(書きの許可の索引の凍結)・前向きの表の条件 ③・書き手の一覧の固定。カードの道具は `RESOLVE_FILES` の全部を読む。
+- **別の役の検収**: 道具=条件つき受入(高 0・中 1・低 6)→ 直し → 再検収 受入(低 3)。試験=条件つき受入(高 0・中 2・低 4)→ 直し → 再検収 受入(低 2)。
+- **確かめ**: 範囲の試験 7,005 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed(試験の直しの木)。lint-imports 11 kept・例外 20 辺・延べ 26 行のまま。
+- **残り(S6-G0 の後半)**: 表と順(全ファイルの表に 14 行・割る順・決まりの表・宣言・書かない実行)と、試験と道具の別名の分け。ループを探す範囲を割り先の全部へ広げる 1 行は、表と順の commit で足す。
+
+### #166 コードの区分の移動 段 6 の S6-A=`apply_detection` を 2 つの関数に割った(下ごしらえ・1 バイト不変)(11-16 §8 の 5・§1-6 の 2・第347・2026-11-19・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 2。記録 [split6-347](docs/bench/analysis/split6-347/README.md) §1・§2。commit 102bfe5。安定版のタグ `stable-v2-before-split6-G0`(この commit)。戻し方= `git checkout stable-v2-before-split6-A`。
+- **src**: `engine/resolve.py` の `apply_detection` → `write_b4_hash(world, result)`(世界の欄 `cells.b4_hash`)・`write_intero_stages(agents, result)`(心の欄=内受容の段)。`with` の中の文は元と AST が同じ。`runtime/systems/perceive.py` は同じ位置で 2 行(b4 → 段)・`table.py` の `resolve_ops`・`allow.py` の `ALIAS_WRITES` の鍵。名は親の仮採用(裁定 Q3)。
+- **静的な検査**: `validation/static/system_static_check.py` は resolve を import せず、`allow.RESOLVE_FILES` から作る名の集合 `RESOLVE_MODULES` で見る(割る前は 1 つの名=同じ範囲)。
+- **台帳の道の前向きの表**: `foundation/decl/ledger_paths.py` に `LEDGER_PATHS_SPLIT`(空)。`ledger_path()` は `LEDGER_PATHS` → `LEDGER_PATHS_SPLIT` → そのまま。`current_path()` と台帳の JSON は変えていない(裁定 Q1 の (ii))。
+- **試験**: `tests/engine/test_detection_writes_split.py`(32 本=割る前の形の写しと同じ結果・負の対照・AST の比べ。段 6 の後も残す)・`test_bridging_ledger.py` に 3 本。名を替えた試験 7 本(確かめは弱めていない)。`writes_soa_frozen.json` は同じ・`mind_world_reads_frozen.json` の合計は同じ。
+- **別の役の検収**: 受入(高 0・中 0・低 4)。低= 表に古い名が残る(S6-G0 で 2 つの名を割り先に書き分ける)/足した試験が S6-G1 の手で直す一覧に入る/場合が空でない確かめが種 1 だけ(S6-G0 で直す)/記録の置き場の途中の状態(そろった)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 441 秒・親 438 秒・基準 bde381e・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,996 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。lint-imports 11 kept・例外 20 辺・延べ 26 行のまま。
+- **段 6 の数の取り直し**(読むだけ): 計画の前提は崩れない。差し替え 17 か所(宣言が要る所 0)・手で直す読み 54 文・`RESOLVE_FILES` は写す段で手で 15 本に。
+
+### #165 コードの区分の移動 段 5b の群 3=`cli.py` を割り、`shibuya/cli.py` を入口の転送として残した(1 バイト不変・段 5b の 5 本が済んだ)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18〜19・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4-15。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §16〜§18。commit は 2 つ= e6d221c(道具の拡張と割る前の試験の直し・src は変えていない)・a6469a2(当てた段)。安定版のタグ `stable-v2-before-split6-A`(当てた段の commit)。戻し方= `git checkout stable-v2-before-split5b-G3`。
+- **割り先**: 22 本目 `cli.py` → `interfaces/cli/main.py`(20 名と `if __name__ == "__main__"` の文)・`interfaces/cli/wire_economy.py`(10 名)。`shibuya/cli.py` は決まった型の転送(docstring と `__main__` の節の中の import と呼び出しだけ・名を結ばない)。
+- **入口**: `python -m shibuya.cli` は前と同じに動く(`--help` は 43,348 バイトで 1 バイトも同じ・既定の mock のランの final と呼数も同じ)。`from shibuya import cli` で名を読む形は動かない(道具が読み手を書き換えた= import の文 189・コードの文字列 14)。
+- **道具の拡張 E5-a**(e6d221c): `split.py` に別名の割り先の宣言の表 `SPLIT_ALIAS_DESTS`(6 行・試験 4 ファイル)と守り 6 つ。差し替えの向け先の決まり(割る前にその名を読んでいた関数の全部に届くように向ける)を道具が通せるようにした。割る前の試験 7 本を直し、試験を 1 本足した。
+- **import の決まり**: 契約 11 のまま・例外 20 辺・延べ 26 行のまま(全部効く)。古い読み手 `shibuya.cli` が 2 つの契約の読んでよい側から外れた。
+- **別の役の検収**: E5-a は受入(高 0・中 0・低 2)。当てた段は条件つき受入(高 0・中 1・低 4)。土台に道具を当て直して作業木と突き合わせ、違いは 0 本。差し替え 25 か所は決まりどおり・外しても落ちない行は 0。中-1= docs の古い台本 2 本が、誤りが起きても止まらず「止まった」と黙って書く形 → import の行を手で直した。低= 不正な環境変数で止まらない import の形 2 つ(`wire_economy` だけ・転送を `-m` なしで。入口と `main` は前と同じ=親の仮採用でそのまま)/割る行が残り 0 で飛ぶ道具の試験 1 本 → 飛ばさず、書かない実行が何も書かないことを確かめる形に直した/割り先に残る古い名の docstring(段 8)/宣言の効き目は当てた後に確かめる手順を段 6 へ。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 440 秒・親 449 秒・基準 e6d221c・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,960 passed・1 failed(前からの 1 本)・23 skipped・1 xfailed(検収の後の直しの前の回。飛んだ 1 本は直しで passed に戻り、道具の試験の束は 754 passed・21 skipped)。lint-imports 11 kept。`split` の書かない実行は「割る段は全部当たっている」(22 本)。
+
+### #164 コードの区分の移動 段 5b の群 2=`engine/run` を割り、`python -m shibuya.engine.run` の入口を interfaces へ移した(1 バイト不変)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4-15。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §14・§15。commit b0afefd。安定版のタグ `stable-v2-before-split5b-G3`(この commit)。戻し方= `git checkout stable-v2-before-split5b-G2`。
+- **割り先**: 21 本目 `engine/run.py` → `runtime/run.py`(39 名)・`runtime/result.py`(19 名)・`interfaces/cli/run_args.py`(5 名と `if __name__ == "__main__"` の文)。頭 2 つ(`interfaces/__init__.py`・`interfaces/cli/__init__.py`=0 バイト)。`engine/` に残るのは `resolve.py`。
+- **入口**: `python -m shibuya.engine.run` は動かない(`No module named`)。同じ入口は `python -m shibuya.interfaces.cli.run_args`。`--help` の違いは `prog`(`run.py` → `run_args.py`)と使い方の行の折り返しだけ。`tests/c7/test_accept_table.py` は道具が 1 行だけ書き換えた(記号 `TIME_V`・`-m` の文脈)。
+- **手で直した読み**: 6 本(src 1=`runtime/systems/assemble.py` の `_RUN` を `_RUN`・`_RES` に分けた・tests 5=別名を分けた 1 本と、読まない別名の import を外した 4 本)。道具が書き換えた import の文は 206。表を引く口の鍵 14 か所は書き換えていない。手で戻した試験 1 本(`test_state_format_10f` の `_HEAD_CHILD`=古い commit の src で回す子のコード。`split.STRING_EXCLUDE` に足した)。
+- **import の決まり**: 契約 11 のまま・例外 20 辺・延べ 26 行のまま(全部効く)。`interfaces` が層の並びと読んでよい側に入り、古い読み手 `shibuya.engine.run` が外れた。
+- **別の役の検収**: 受入(高 0・中 0・低 5)。土台に道具を当て直して作業木と突き合わせ、違いは記録の 8 本だけ。差し替えの空振り・範囲の狭まりは無い。低=消した切替口の環境変数で止まる場所が変わった(`runtime.run`・`runtime.result` の import だけでは止まらない・入口 2 つと `run_day` は前と同じ=親の仮採用でそのまま)/割る段の順を断る道の試験を見本の木で足した/読まない別名の import を外したのは親が受け入れた/除外の一覧の記号が木に在る試験を足した/古い置き場の名の注(段 8)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役 430 秒・親 431 秒・基準 ce59591・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,951 passed・1 failed(前からの 1 本)・22 skipped・1 xfailed。lint-imports 11 kept。`RESULT_FILES` は割り先 1 つ(`runtime/run.py`)=確かめの厳しい側(該当の文は前後とも 0)。
+
+### #163 コードの区分の移動 段 5b の群 1=`engine/commit`・`engine/presence`・`engine/calendar_shadow` の 3 本を割った(1 バイト不変)(11-16 §8 の 5・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §3・§4。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md) §12・§13。commit ce59591。安定版のタグ `stable-v2-before-split5b-G2`(この commit)。戻し方= `git checkout stable-v2-before-split5b-G1`。
+- **割り先**: 18 本目 `engine/commit.py` → `act/commit.py`(9 名)・`act/intake/from_words.py`(11 名)・`foundation/vocab/act_codes.py`(在るファイルの後ろへ 34 名)/19 本目 `engine/presence.py` → `world/laws/presence.py`(15 名)・`world/laws/presence_plan.py`(15 名)/20 本目 `engine/calendar_shadow.py` → `society/calendar_shadow.py`(21 名と腕の確かめの文 1)・`world/facts/w20_calendar_reader.py`(15 名)。`engine/` に残るのは `resolve.py` と `run.py`。
+- **手で直した読み**: 28 本(18 本目=src 5・tests 21/20 本目=src 1・tests 1/19 本目 0)。割り先ごとに別名を 1 つ・属性の読みのまま(名の import に替えない=差し替えの効く先を保つ)。道具が書き換えた import の文は 79・18・13。表を引く口の鍵は書き換えていない。`tests/c7` は道具が 1 か所も挙げなかった。
+- **import の決まり**: 契約 11 のまま。例外は 22 辺・延べ 30 行 → 20 辺・延べ 26 行(`mind.judge.decision.layer`・`mind.memory.memory` → `engine.commit` の 2 辺が消えた)。載せた例外は全部効いている。
+- **別の役の検収**: 受入(高 0・中 0・低 3)。土台に道具を当て直して作業木と突き合わせ、違いは手で直した 28 本と足した試験 1 本だけ。差し替えの空振り・範囲の狭まりは無い。低=割り先に古い置き場の名の注が残る(段 8 で直す)/不正な `SHIBUYA_CALENDAR_SHADOW` で止まる確かめが暦の影の側だけになった(読み口だけを読む道具は止まらない・ランは変わらない=親の仮採用でそのまま)/記録の数の書き添え(済)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(実装役が 1 本ごと・親が群の終わりに本体の道具で・基準 4af887b・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,950 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed。lint-imports 11 kept。割る道具の試験に、f 文字列の部分を手で直す一覧へ出す枝の負の対照を 1 本足した(G0 の再検収の低)。
+
+### #162 コードの区分の移動 段 5b の G0=割る道具に入口の転送・入口の移し・byte-check の入口を足し、割る前の試験を直した(src は変えていない)(11-16 §8 の 5・§1-6 の 6・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6 の 6。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §3・§4。記録 [split5b-347](docs/bench/analysis/split5b-347/README.md)。commit 4af887b。安定版のタグ `stable-v2-before-split5b-G1`(この commit)。src は 1 字も変えていない(astsame で変わった .py 0 本)。
+- **道具(`tools/pkgmove`)**: 順に 18〜22 本目(commit → presence → calendar_shadow → run → cli)。入口の転送(`shibuya/cli.py` を消さずに決まった型で書き直す・名を結ばない・守り「入口の転送」)。入口の移し(`engine/run.py` の `if __name__` を `interfaces/cli/run_args.py` へ・名の無い点の道は `-m` の文脈なら入口へ、それ以外は主な割り先へ黙って向けずに手で直す一覧へ)。byte-check の入口(`tools/bytecheck/check.py` の `resolve_run`=割った後の入口のファイルが在ればその `run`・無ければ `shibuya.cli.run`)。表の鍵を渡す口の第 1 引数は書き換えない。コードの文字列の中の `from <包み> import <割るモジュール>` の形を見落とさない。
+- **表(親の仮採用)**: 全ファイルの表 §3 に 2 つ目以降の割り先の行 6 本(344 行)・主な割り先の入れ替え(run → `runtime/run.py`・commit → `act/commit.py`)・§4 の 5 本の節を全部の名に開いた。5 本とも表の名=頂上の名(54・30・36・63・30)。
+- **割る前に直した試験**: `tests/_places.py` に、名の定義のファイルを表から引く口(`split_files`・`split_source`・`split_module_names`)を足し、29 本を直した(割った後に空回りする形・範囲が黙って狭まる形。根の `cli.py` を字面で読む 15 本は計画に無かった)。`test_two_phase` の個体数ぶんのループを探す検査は、割り先の全部を見る形に広げた。5a の残り 1 か所(`test_fix_guards` の植えた import の行)を今の名にそろえた。
+- **書かない実行**: 5 本とも守りは全部「同じ」・手で直す読み 40(26・0・2・6・6)・宣言の外の弱まり 0・循環 0。例外は commit の本で 22 辺/30 行 → 20 辺/26 行の見込み。`tests/c7` で道具が書き換えるのは `test_accept_table.py` の 1 か所だけ。
+- **別の役の検収**: 条件つき受入(高 2・中 0・低 5)→ 道具を直して再検収は受入(高 0・中 0・低 3)。高=表の鍵の字面を道具が書き換えて壊す/コードの文字列の `from shibuya import cli` の形 14 か所を書き換えも一覧にも出さない。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(木の側の新しい道具で両側・基準 9363b36・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。前の道具の記録と全欄を突き合わせ、違いは時間の 3 欄と置き場の診断の 3 欄だけ。範囲の試験 6,942 passed・1 failed(前からの 1 本)・21 skipped・1 xfailed(直しの前)。直しの後は道具の試験と決まりの束を回し直した(記録 §11)。lint-imports 11 kept。
+
+### #161 コードの区分の移動 段 5a の群 4・5=選び手・店の語・注意・変化の検出・裁き手・関係の 6 本を割った(5a の 17 本が済んだ・1 バイト不変)(11-16 §8 の 5・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §12・§13。commit b801a53。安定版のタグ `stable-v2-before-split5a-G4`(7b4e8a6=群の土台)・次の段の土台 `stable-v2-before-split5b-G0`(この commit)。
+- **割った 6 本**: `engine/chooser.py` → `mind/judge/chooser.py` と `foundation/ports/choice.py`/`engine/poi_target.py` → `act/target.py`(店の語 4 名は `foundation/vocab/place_words.py` へ)/`perception/attention.py` → `foundation/text/salience.py` と `mind/percept/attention.py`/`engine/change_detect.py` → `mind/system1/change_detect.py` と `world/model/scene_hash.py` と `foundation/vocab/agent_codes.py`/`engine/arbiter.py` → `runtime/arbiter.py` と `mind/system1/wake.py`/`engine/relations.py` → `mind/relations/layer.py` と `world/facts/initial_ties.py` と `foundation/vocab/relations.py`。
+- **読み手**: import の文 18・14・16・21・20・37 を道具が書き換えた。固定の表の鍵・台帳の道の表 6 行も同じ実行で直した。凍結の値(クラスの名・名の凍結・つなぎの台帳・乱数の領域の名・版の ID)は変えていない。手で直した読み 17(主でない割り先へ行く名を名の import に・17 本目は別名を割り先ごとに分けた)。差し替えの相手はクラスの属性だけ=空振りなし。中身を見る試験 1 本を、2 つの割り先を見て、見る関数が全部見つかることも確かめる形に直した。
+- **import の決まり**: 契約 11 のまま。例外は 25 本/34 行 → 22 本/30 行(消えた 6 本=#5・#17・#23・#27・#28・核 2/15 本目で宣言済みの 3 本=割 2〜4 が載った)。効いている例外は 22 本/30 行(計画どおり)。`split --through all` は 17/17 が済み。18 本目 `mora_count` は延ばしたまま。
+- **別の役の検収**: 条件つき受入(高 0・中 1・低 7)。今の道具と表で 6 本を当て直し、できた src が作業木と全部同じ。中=`test_two_phase` のホットパスの一覧が、割った分だけ黙って狭くなっていた → 親が 2 つ目の割り先 `world/model/scene_hash.py` を足した。低から、消した切替口の名を見る試験も 2 つ目の割り先まで見る形に直した。古くなった注と docstring は段 8 の文の掃除で直す。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(基準 ee23ee2・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま。実装役の 1 本ごとの 6 組も同じ=基準 7b4e8a6)。範囲の試験 6,926 passed(落ちたのは前からの 1 本だけ)。lint-imports 11 kept。
+
+### #160 コードの区分の移動 段 5a の群 3=推論の口 5 本を割った(1 バイト不変)(11-16 §8 の 5・第347・2026-11-18・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §11。commit 7b4e8a6。安定版のタグ `stable-v2-before-split5a-G3`(6af6cf1=群の土台)・次の群の土台 `stable-v2-before-split5a-G4`(この commit)。
+- **割った 5 本**: `llm/__init__.py` → `foundation/ports/inference.py`(口の型 5 名。末尾の再輸出 3 文は持ち込まない)/`llm/fleet.py` → `runtime/inference/fleet.py` と `foundation/ports/inference.py`(型と口 17 名)/`llm/mock.py` → `runtime/inference/mock.py`(`MOCK_UTTERANCE` は `foundation/vocab/actions.py` へ)/`llm/undefined.py` → `act/intake/undefined.py`(`TARGET_HINT_WORDS` は `foundation/vocab/act_codes.py` へ)/`engine/llm_bridge.py` → `runtime/inference/bridge.py`(`RenderedPrompt`・`Renderer` は inference へ)。古い包み `llm/` は無くなった。
+- **読み手**: import の文 36・25・30・26・29 を道具が書き換えた。固定の表の鍵 33・台帳の道の表 5 行も同じ実行で直した。凍結の値(クラスの名・名の凍結・つなぎの台帳・乱数の領域の名・`shibuya.cache_salt`・版の ID)は変えていない。手で直した読み 0。中身を見る試験 1 本を、2 つの割り先を見る形に直した。
+- **import の決まり**: 契約 12 → 11(`llm` の古い決まり 1 つが宣言どおり消えた)。例外は 5 本消えて 25 本・延べ 34 行。効いている例外は 18 本/27 行(計画どおり)。前から在った読み込みの時の import の循環 1 組(parser・llm・llm.fleet・llm.mock)は 0 組になった。
+- **別の役の検収**: 受入(高 0・中 0・低 6)。今の道具と表で 5 本を当て直し、できた src が作業木と全部同じ。頭の再輸出が消えて読み込みの順が変わっても結果が変わらないこと(読み込みの時に走るのは飾りと表の計算と assert だけ)を確かめた。低への直し=消えた決まりの代わりに、mock と undefined を fleet と同じ範囲で AST から見る試験を 1 本足した。古くなった注と docstring は段 8 の文の掃除で直す。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(基準 46f4b69・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま。実装役の 1 本ごとの 5 組も同じ=基準 6af6cf1)。範囲の試験 6,927 passed・前からの 1 本だけが落ちる。lint-imports 11 kept。実装役は 5 本目の途中で週の利用の上限に当たり、約 1 日半あとに続きから再開した(状態を確かめてから試験と byte-check を回し直した)。
+
+### #159 コードの区分の移動 段 5a の群 2=出来事の語 3 本を割った(1 バイト不変)+割る道具に循環の守り(11-16 §8 の 5・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4(1 名だけ親の仮採用で変えた)。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §10。commit 6af6cf1。次の群の土台の安定版のタグ `stable-v2-before-split5a-G3`(この commit)。直前の commit は 9f4fa77(版上げ Q13 の後)。
+- **割った 3 本**: `engine/tools/registry.py` → `society/tools/registry.py`/`engine/tools/record.py` → `society/tools/record.py`/`engine/events/body.py` → `mind/memory/body_events.py`。語(`SIGNBOARD`・`SIGNBOARD_ORIGIN`・`SIGNBOARD_WHAT` ほか 10 名)は `foundation/vocab/events.py` の後ろへ。古い包み `engine/tools/` と `engine/events/` は無くなった。
+- **表のとおりに割れなかった 1 名(親の仮採用=PENDING)**: 表は `SIGNBOARD_CAUSE` を `foundation/vocab/events.py` へ置くが、型 `Process`(`foundation/journal/log.py`)を使い、log.py は events.py を読むので import が循環する(11-05 の案の表が先に挙げていた組)。この 1 名だけ `foundation/journal/log.py` へ下ろした。表の狙い(例外を 1 本消す)は保てた。
+- **道具の直し**: 書かない実行の守りが、既に在る割り先へ足す import が作る循環を見ていなかった(当てた後の import の確かめで 357 本のうち 38 本が落ちて見つかった・commit の前)。`tools/pkgmove/split.py` に守り「import の循環」を足した(12 個目・書く前に終了コード 2 で止める・試験 2 本)。木は 1 つ前の本の後へ戻して当て直した。失敗の後に続きの操作が走った手順の誤りは、成功の条件でつなぐ形に直した。
+- **読み手**: import の文 16・14・4 を道具が書き換えた。固定の表の鍵 6・台帳の道の表 3 行も同じ実行で直した。凍結の値(クラスの名・名の凍結・つなぎの台帳・版の ID)は変えていない。手で直した読み 5 か所(試験 4 本)。
+- **import の決まり**: 契約は古い 3+新しい 9 のまま。例外は 1 本消えて(`engine.events.body -> engine.tools.record`)30 本・延べ 43 行。効いている例外は 20 本/30 行(計画どおり)。
+- **別の役の検収**: 受入(高 0・中 0・低 3)。今の道具と表で 3 本を当て直し、できた src が作業木と完全に同じ。案 A に壊れる所は無い。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(版上げ Q13 の後の本体へ載せ直した木・基準 9f4fa77・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま。実装役の 1 本ごとの 3 組も同じ=基準 bf0ccbb)。範囲の試験 6,927 passed・前からの 1 本だけが落ちる。lint-imports 12 kept。
+
+### #158 版上げ(小)Q13=ランの入口の既定を CLI にそろえた(語彙 v3・空腹 energy・呼数 無制限。CLI の既定の結果は不変)(11-16 §1-2 Q13・Q7 (d)・§8 の 5・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-2 の Q13・Q7 (d)・§8 の 5。記録 [library-defaults-q13-347](docs/bench/analysis/library-defaults-q13-347/README.md)。commit 9495521(① 試験に引数を明示・src は変えていない)・9626f65(② 版上げ)。安定版のタグ `stable-v2-before-library-defaults-q13`(25ca546)。
+- **変えた既定(ランの入口=`run_day`・`cli.run`・`RunResult` だけ)**: 語彙 v1 → v3(1 つの値 `engine.run.RUN_DEFAULT_VOCAB_VERSION`)/空腹のモデル v1 → energy/呼数の倍率 1.0(L4 の按分)→ 渡さなければ 0=無制限・予算を渡したら 1.0(`resolve_l4_scale`。予算の式は `l4_budget` の 1 か所・負と NaN と無限大は止める)。低い層の既定(`text.templates`・`vocab.actions`)は v1 のまま(親の仮採用=PENDING)。
+- **空腹の旧規則 v1 は試験の中だけの口**: 引数 `hunger_model` は残り、`"v1"` は組み立ての入口で止まる。試験は助け `tests/engine/body/_hunger_v1.py` が非公開の印を立てる(切替口 ③a と同じ形)。印を立てたランは腕に数える。
+- **前と同じランに保った所(語彙 v1 を明示)**: byte-check の構成 `w6_golden_null_arm`・腕定義の表 `tools/c8/ablations_v1.json` の 10 腕(凍結の SHA を注つきで張り替え)・道具 9 本。道具 2 本(`tools/c6/run_hash.py` の直呼びの道・`tools/c7/occupancy_series.py`)は空腹が energy になり、前と違うランになる(出力に空腹のモデルの欄)。
+- **試験**: ① で旧の既定の性質を確かめる 14 ファイルに引数を明示(確かめる中身は同じ)。② で既定を確かめる 8 本を新しい既定へ・名の凍結に 4 名を足した(減った名は無い)・golden の値は張り替えていない。既定だけを替えた木で落ちた 53 本に、本当の退化は 0。
+- **別の役の検収(2 回)**: 1 回目 ① 受入・② 条件つき(中 1=語彙を渡さずにランを回す道具 7 本が黙って別のランになる)→ 直した → 2 回目 条件つき(中 1=その直しで、試験 T3 が比べる 2 本のランの語彙がずれた)→ 親が直した。
+- **見つけて直していないもの(判断待ち)**: 艦隊の応答の書式の判定が v1 の規則で読む・語彙 v3 のランの中で低い層の既定 v1 に頼る 8 か所/店の仕事の腕は、空腹 energy では担当が開店に間に合わない。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(作業木の道具で・基準 25ca546・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。語彙を明示しない元の構成の表では、帰無腕だけ 17 欄が動く(既定の変更の効き目)。範囲の試験 6,925 passed・前からの 1 本だけが落ちる。slow の束 75 passed。性能 5,000 体・1 日・seed 1・mock=CLI の既定 土台 52.2/50.3 秒・最大 523.5/539.9 MB → 後 47.9/50.2 秒・529.6/530.3 MB・呼数 60,939 で同じ(悪化なし)。引数を渡さない `run_day`(世界過程なし)は別のランになった=約 17 秒・呼数 23,501 → 約 45 秒・62,251(約 2.6 倍=既定の変更の帰結)。
+
+### #157 コードの区分の移動 段 5a の群 1=語彙の土台 3 本を割った(1 バイト不変)(11-16 §8 の 5・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §4。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md) §9。commit bf0ccbb。安定版のタグ `stable-v2-before-split5a-G1`(adbe8bb=群の土台)・次の群の土台 `stable-v2-before-split5a-G2`(この commit)。
+- **割った 3 本**: `world/assets.py` → `world/model/assets.py` と `foundation/vocab/place_words.py`/`agents/state.py` → `world/model/agent_table.py` と `foundation/vocab/agent_codes.py`(古い包み `agents/` は無くなった)/`engine/calendar.py` → `world/facts/calendar.py`(`ticks_per_day` は `foundation/types.py` へ)。
+- **読み手**: import の文 55・199・36 を道具が書き換えた(2 本目は 67 文が 2 つの割り先に分かれた)。固定の表の鍵 12・台帳の道の表 3 行・道の文字列(byte-check の道具の表を含む)も同じ実行で直した。凍結の値(クラスの名・名の凍結・つなぎの台帳・乱数の領域の名)は変えていない。手で直した読み 3 か所。
+- **import の決まり**: 契約は古い 3+新しい 9 のまま。古い決まり 4 本から名 `agents` が外れた(宣言どおり)。例外は 1 本載り(`perception.renderer -> world.model.agent_table`・計画に無い・段 7 まで)、1 本消えて(`mind.judge.classical -> engine.calendar`)、31 本・延べ 45 行のまま。効いている例外は 18 本/28 行 → 20 本/30 行(計画どおり)。
+- **範囲の試験で出た新しい失敗 1 本**: 割って `foundation/types.py` へ移った `ticks_per_day` の docstring の素の「tick」が、核と系の注釈・docstring の決まりの試験に当たった。語を「刻み」に直した(コードは変えていない・記録 §9-6 に宣言)。次の群から、置き場で範囲が決まる決まりの試験の束を 1 本ごとの確かめに入れる。
+- **別の役の検収**: 受入(高 0・中 0・低 3)。割った 3 本の頂上の文は、元と数・並び・字面が完全に同じ。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(基準 adbe8bb・既定の final `c8d68704b7b0760d`・呼数 60,939 のまま。実装役の 1 本ごとの 3 組も同じ)。範囲の試験 6,918 passed(前からの 1 本と、上の 1 本=直して回し直した)。lint-imports 12 kept。
+
+### #156 コードの区分の移動 段 5a の G0=移す道具に「割る」仕組みと守りを足した(src は変えていない)(11-16 §8 の 5・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5・§1-6。計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7-4 の段 5a・割り先は [全ファイルの表](docs/reference/package-map-final-2026-11-09-files.md) §3・§4。記録 [split5a-347](docs/bench/analysis/split5a-347/README.md)。commit adbe8bb。安定版のタグ `stable-v2-before-split5a-G1`(同じ commit=まだ 1 本も割っていない)。
+- **道具**: `tools/pkgmove/split.py`(新)。名の単位の表(`map.toml` の割る行)から、元のファイルの頂上の文を割り先へ元の順に写し、割り先ごとの import を組み立てる。読み手の import は名の単位で書き換える。書かない実行が先にでき、段を飛ばす・逆の順・済んだ本の当て直し・本体の作業木への当ては断る。
+- **守り 11 個**(1 つでも「同じ」でなければ当てない): 元の頂上の文の AST の多重集合と割り先ごとの順・定数・名の結び(組み込みを覆う名・星の import)・つなぎの台帳の宣言・import の決まり(割った後に、宣言の外で言えなくなった単位や決まりが増えたら止める)ほか、段 4 の守り。
+- **表**: 全ファイルの表 §3 に 2 つ目以降の割り先の行(move の形)・§4 の「ほか N 個」を全部の名に開いた。計画に無い例外 4 本は `[[ignore_split]]`、割ると古い包みの名が外れる所は `[[split_weakens]]`(2 本)に宣言。表に無かった名 1 つ(`CELL_WAKE_USES_NUMBA`)の割り先を決めた(仮採用)。
+- **18 本目(`mora_count`)は延ばした**: docstring の宣言がつなぎの台帳の行に結び付き、台帳の道の表が 1 対 1 のため、今の形では守りで止まる。台帳の道を書き換えられる版上げのときに下ろす。それまで決まり 10 の例外 1 本が残る。
+- **置き場の守りと試験**: `tests/_places.py` と写しの `tools/c8/c8lib.py` が割る行と新しい行を読む。割った後に空回りする試験 3 本と範囲の手がかり 8 本を、割る前に直した。
+- **別の役の検収(2 回)**: 1 回目 条件つき(高 1=7 本目を割った後に import の決まりの 1 つ「foundation は何も読まない」が黙って消える・中 4・低 6)→ 直した → 2 回目 受入。直した後の書かない実行で、17 本を順に当てたときの契約の数は計画どおり(終わりに 11)・例外は 31 辺から 22 辺。
+- **確かめ**: AST の道具で src の差 0 本。範囲の試験 6,902 passed・前からの 1 本だけが落ちる。道具の試験と置き場の守り 108 passed(本物の木で 17 本を順に当てる slow の試験を含む)。lint-imports 12 kept。
+
+### #155 版上げ(小)A48=住民に見せる天気の語の「最頻値の補い」を消した(既定の結果は不変)(11-16 §3・§8 の 5・記録 2-55・第347・2026-11-16・実装役と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §3 の A48 の行・§8 の 5。決定の正は壁打ちの記録 2-55。記録 [weather-a48-347](docs/bench/analysis/weather-a48-347/README.md)。commit 5bcd4ff。安定版のタグ `stable-v2-before-weather-a48`(8c58d9f)。
+- **変えたこと**: W13 の表に行が無いときの「その時刻の最頻値」の補いを消し、実データの資産で行が無ければ日付と時を書いて止める(組み立てと日の頭で確かめる)/世界過程の無いランも、天気だけの環境の過程で本筋と同じ規則・同じ環境の seed の再生日を引く(体感温度は書かない)/資産の片方だけは両向きとも組み立てで止める/合成の世界(試験用)だけは決まった天気を宣言して使い、manifest の `weather.declared` に出す/描画の docstring の項は同じ位置で書き換えた(項の数 8 のまま=つなぎの台帳は動かない)。旧道の腕は残していない。
+- **数えた差**: 前は、世界過程が無く開始日が窓の外のランで、天気の語が 228 回中 228 回、最頻値だった。直した後は、同じランが本筋と同じ再生日の実データの行を引く。標準のラン(19 構成)は前も後も補い 0 回。
+- **親が決めた細部 6 点(仮採用)**: 世界過程の無いランのそろえ方・合成の天気の値は今のまま・宣言の置き場・止める所・腕なし・「次の版上げで扱う文字列」は束ねない。
+- **別の役の検収(2 回)**: 1 回目 条件つき(高 0・中 1=実データの世界で描画の資産だけが合成に落ちた場合に止まらない → 組み立てで止める形に直した)→ 2 回目 受入。
+- **残した所**: 天気だけの環境の過程は状態のハッシュの外(再開では作り直す。途中で止めて再開したランが通しと同じことを検収役が確かめた)/世界過程の無いランでは、見せる暑さと体の体感の食い違いが前からあり、直していない/根拠の文献 2 本は要旨までの確認で、今の天気の抽選は前の日に条件を付けていない([R-155](docs/research/v2-r155-primary-check-a48-m10-citations.md) §2-2)。
+- **確かめ**: byte-check 19 構成 37 欄 19/19 同じ(既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験 6,884 passed・前からの 1 本だけが落ちる。性能 5,000 体・1 日・seed 1・mock=土台 51.6/48.8 秒・35.8/33.9 ms/刻み・最大 515.9/533.7 MB → 後 50.3/49.1 秒・34.9/34.1 ms・550.6/519.9 MB・呼数 60,939 で同じ(揺れの中・悪化なし)。世界過程の無いラン 16.9 秒・500.0 MB → 17.1 秒・518.4 MB。
+
+### #154 止めた切替口 3 本と Q7=旧道の切替口を消し、旧道は部品の口と試験の中だけの口に(1 バイト不変)(11-16 §1-1・§1-2・§6-3・第347・2026-11-16・実装役と検収役 Opus 5.5・親が段ごとに検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-1(b)・§1-2 Q7(d)・§6-3・§1-10。記録 [switch-removal-347](docs/bench/analysis/switch-removal-347/README.md)(§15=5 段のまとめ)。安定版のタグ `stable-v2-before-switch-removal-347`(73c2f5f=5 本の口が全部在る最後の commit)。
+- **段と commit**: ① 旧道を使う試験 27 ファイルの書き直し(73c2f5f・src は変えていない)→ ②a 経済の段階 2 の off(231d9fd)→ ① の検収の直し(17ad6eb・試験と記録だけ)→ ②b 率の規則と「無い」の過程(aa97ce1)→ ③a `--space`(dcd25a6)→ ③b `--hunger-model` の旗(962c727)→ 後片付け=検収の中 1 件と低の直し(986773e)。
+- **消した口**: 環境変数 4 本(`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_RATE_RULES`・`SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_SPACE`)・CLI の旗 5 本(`--economy-stage2`・`--rate-rules`・`--absent-processes`・`--space`・`--hunger-model`)・腕の名(`arm`・`set_arm` ほか)・`run_day(space="legacy")`・試験の口 `run_day(salient_rate_per_10k=)`(None 以外は止める)。渡すと止まる(一覧と止める文は `foundation/arms/removed.py`・タグは名ごとに引く)。既定と同じ値を環境変数に置いた場合も止まる。
+- **残した口**: 部品の口(過程と実行器の引数 `rate_rules`・`absent_processes`・倒れる率)/試験の中だけの口 3 つ(段階 2 の外の束・率の規則と「無い」の過程の旧道の助け・space の印。どれも tests の下の助けが立てる)/既定をそろえる版上げ(Q13)まで残る引数 `hunger_model` とライブラリの既定/値を固定した manifest と見出しの鍵。
+- **答えのとおりにできなかった所(仮採用・確認待ち)**: 段階 2 を on にすると、部品を何も挿さなくても台帳の値が off と違う(5 構成・38 欄で測った)。指示の字面どおりの段階 2 on の道の試験を足し(台帳の配線 16 本・購入の行と出来事の 1 対 1)、前と同じ値を確かめる基準の口(外の束)も残した。外の束を残すかはユーザーの確認待ち(消すなら試験と助け 1 本だけ)。
+- **別の役の検収(3 回)**: ① 条件つき(高 1=乱数の種の分け方の試験で確かめる範囲が減っていた → 腕を替え、退化を止める確かめを足した。中 2)→ ②a と直し 受入 → ②b 受入・③a 条件つき(中 1=試験の中だけの口で回したランのランの種類が既定のランと見分けられない → 腕に数える形に直した)・③b 受入。
+- **変えていないもの(次の版上げで扱う)**: つなぎの台帳の 6 行・`world/ledger/absent.py` の文・`NAV1_EXPEDIENTS` の項。直すと `bridges_version`・`registry_hash`・manifest の `space.expedients` が動く。一覧は記録 §6。
+- **確かめ**: 各段 byte-check 19 構成 37 欄 19/19 同じ(既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)。範囲の試験=②a 6,826 passed(前からの 1 本だけが落ちる)・②b+③a 6,861 passed(本体の木・失敗 0)・③b+後片付け 6,868 passed(前からの 1 本だけが落ちる)・21 skipped・1 xfailed。lint-imports 12 kept。例外(ignore)の本数は変わらない(31 本・延べ 45 行)。
+
+### #153 走査の道具の自己更新の規則の直しと、心の読みの一覧の試験(1 バイト不変)(11-16 §1-6 の 4・第347・2026-11-16・実装役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-6 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §8-1 の 4 と §7-4。記録 [self-update-347](docs/bench/analysis/self-update-347/README.md)。commit e7a1c48(規則の直し)・55b8881(一覧の試験)=指示のとおり別の commit。
+- **規則の直し**: `runtime/state/ledger_ast.py` の `_is_self_update` は列の名前だけを比べ、受け手を見ていなかった。右辺の別の受け手の読み(問いの件)と、左辺の添字の中の読みを、いつも自己更新として外していた。左辺が同じ受け手の同じ列を書くときだけ自己更新と見なす形に直した(docstring の言う規則と実装をそろえた)。
+- **検査の結果の変わり方**: strict 841 → 844・loose 1,154 → 1,175。新しく strict に入ったのは 3 行=`mind/judge/store_choice.py` の `world.pois.price`(店の値段・心の読みの一覧に +1)・`mind/memory/familiarity.py` の `fam_thing`・`mind/memory/memory.py` の `mem_kind`(後の 2 つは心の自分の列)。許可の表に足した行は無い。
+- **心の読みの一覧の試験**: `tests/engine/state/test_mind_world_reads.py` と固定の表 `mind_world_reads_frozen.json`(72 組・83 か所・組ごとの完全一致。増えても減っても落ちる)。割る段(5〜7)で表を作り直す。
+- **確かめ**: byte-check 19 構成 37 欄すべて同じ(基準 6064564・終了コード 0)。直した関数はランでは呼ばれない。範囲の試験 6,818 passed・前からの 1 本だけが落ちる。
+
+### #152 コードの区分の移動 段 4-10〜4-13=連絡の器 4 本 → society・一時の区分 interim_bundles・消した切替口の一覧 → foundation・消す 2 本(1 バイト不変)(11-16 §1-4・§1-6・第347・2026-11-16・道具の役と検収役 Opus 5.5・親が段ごとに当てて検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §1-3 の 1・§1-4・§1-6 の 1・2・3・6・7・§1-10。計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの表と節)・[pkgmove-346 §13](docs/bench/analysis/pkgmove-346/README.md)。
+- **道具の直し**(124b3bb・ff28372): 保留の行を 0 にした(連絡の器 4 本は今 society に置く=記録 2-35/行 224a は foundation/arms/removed.py/`engine/resolve.py` と `engine/run.py` は割る段まで動かさず、決着の文を書いた)。答えの後の行に段の名を足した(society_contact・foundation_224a)。段を飛ばす・逆の順は move が断る。効いている例外の数を報告に出す。検収役=条件つき受入(高 0・中 3・低 6)で、指摘は直した。
+- **当てた 4 段**: 4-10 society_contact 4 本(8b39437)・4-11 interim_bundles 9 本(6774b85)・4-12 foundation_224a 1 本(d42fbba)・4-13 delete=`census/__init__.py` を消し、`agents/__init__.py` の再輸出を消した(6064564)。foundation〜validation の 171 本(#145・#146)と合わせて、割らないファイルの移動は済んだ。
+- **段ごとの確かめ(どの段も同じ形)**: 当てた後の import の落ち 0・守り 8 つ「同じ」/byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(基準は直前の commit。既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)/範囲の試験は前からの 1 本だけが落ちる(passed は 6,818・6,819・6,815・6,803)/lint-imports は全部 kept(10・11・11・12)。
+- **import の決まり**: 決まり 9「一時の区分を読めるのは runtime と interfaces だけ」を interim_bundles の段から、決まり 10「runtime の核は中身を読まない(直の辺だけ)」を delete の段から入れた。delete の段で古い契約から `shibuya.census` が外れた。例外は重なりを除いて 31 本(延べ 45 行)で、そのうち効いているのは 18 本(延べ 28 行)。まだ入らない決まり=決まり 4(段 6 の後)・interfaces の単位(段 5b の後)。
+- **封印の一覧との照らし**: `tests/c7/test_accept_table.py` は封印の語の表 2 つのどちらにも名前で当たらず、CLAUDE.md §7 の封印の層の一覧にも無い。入口 `python -m shibuya.engine.run` は割る段 5b で interfaces へ移す。
+- **タグ**: 各段の前の commit に `stable-v2-before-move4-<段>`。
+
+### #151 削除の段 その 1=S50 の待ち時間の関数・使われていない効き目の上限の定数・pricing の結線しない関数(1 バイト不変)(11-16 §6-3・§1-3 の 2・第347・2026-11-16・実装役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §6-3・§1-3 の 2・§3 の表の A72 と S50 の行。決定の正は壁打ちの記録 2-60・2-66 の C2。記録 [delete-347](docs/bench/analysis/delete-347/README.md)。commit d27a07c。
+- **消したもの**: `world/laws/crowd.py` の `CrowdProcess.mean_wait_ticks`(呼ぶ所 0)/`perception/attention.py` の `EFFECT_CAP_PER_EXPOSURE`(読む所 0。行動の効き目に上限を掛ける役の定数はこの 1 つだけだった)/`economy/pricing.py` の Calvo の改定・r の適用・逸脱比例コスト・`propose_price` と、それらだけが使う定数(11 個)。消した物だけを試す試験 8 本と 1 行も消した。
+- **残したもの**: 係数 `K_VOLUME`・`K_AVERAGE`・`K_PREMIUM`/型 `PriceSector`・`PriceProposal`(クラスの名の固定の表に行がある)/呼び手の無い `StoreKind`・`K_BY_KIND`・`floor_price`・`clearing`・`MEMORY_CAP_*`・`BUDGET_ADS`・`BUDGET_OVERHEARD`(名指しの外=判断待ち)。つなぎの台帳と manifest に出る文字列は変えていない。
+- **確かめ**: byte-check 19 構成 37 欄すべて同じ(基準 6d454c5・終了コード 0)/範囲の試験 6,797 passed・前からの 1 本だけが落ちる/lint-imports 10 kept。
+- **タグ**: `stable-v2-before-delete-347`(0716cc5)。
+
+### #150 仕様書と設計書に 11-10〜11-16 の決定を書いた・仕様書の 10 問(11-16 §3・§4・§1-7・§1-8・第347・2026-11-16・文書の役 2 人と検収役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §3・§4。決定の正は [壁打ちの記録](docs/reference/wallbounce-record-2026-11-02_05.md) 2-45〜2-69・U20〜U24(すべて仮決定)。commit f19e7a8・b2b01e1。
+- **仕様書**: 30 項目を足し(PR-33〜35・MD-63〜75・AC-34・35・SO-33・IF-26〜28・WD-54〜56・VL-48・EX-28〜31)、52 項目を直した。計 445 項目。差の一覧=差のある 334(無い 126・形が違う 148・腕だけ 37・器だけ 23)・未決 37・未確認 8・差なし 66。
+- **食い違いの一覧**: C-15・C-04・C-05・C-06・C-10 を仮決定に。「11/14 に決める」の印を「壁打ちの後に決める」に。決着 21・仮決定 15・未決 11・壁打ちの後に決める 6。
+- **仕様書の 10 問**: [questions-346.md](docs/design/spec/questions-346.md)(問いごとに 問い・関わる記録と仕様の文の引用・読みの候補・仕様書の役の推し)。壁打ちで決まるまで、仕様書は今の書き方のまま。
+- **ほか**: v3 の設計書(題 5・題 9 ほか・設計の文だけ)・用語集に 2 語(呼びかけへの反応のずれ・機械向けの記号の取り違え)・仕分けの表 2 本の決着の印・古い写しの注(v2-*.md 9 本)。
+- **検収**: 別の役の写し検査=条件つき受入(高 0・中 1・低 15)。指摘は直した。
+
+### #149 研究 6 本とデータの確かめ・改版の文の案(11-16 §7・§5・第347・2026-11-16・研究役と文の案の役 Opus 5.5・親が一次確認)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §7・§5。commit d47ec8d・c2e1388。どれも推薦は書かず、比較の表まで。親の一次確認は各答申の末尾の表。
+- **研究**: [R-152](docs/research/v2-r152-model-candidates-inventory.md) モデルの候補の棚卸し/[R-153](docs/research/v2-r153-attention-gate-and-person-information-relevance.md) 注意の門と人と情報の関係度/[R-154](docs/research/v2-r154-persona-forms-and-primary-check.md) ペルソナ(未発注だった R-F を広げた題。claude.ai の材料 2 本の数値の一次確認を含む)/R-149 の追補 [1](docs/research/v2-r149-addendum-1-safety-tuning-and-response-to-appeals.md)・[2](docs/research/v2-r149-addendum-2-persona-drift-self-image-and-retest.md)/[R-150 の追補](docs/research/v2-r150-addendum-human-distribution-reward-and-shibuya-data.md)/[データの確かめ 2 件](docs/research/v2-data-check-2026-11-16-crime-counts-and-hourly-traffic.md)。
+- **取り方の判断待ち**(PENDING §1-1): 発行元が robots で断っている雑誌の論文を著者の頁の PDF で読んだ 2 本・第三者のサイトの走査の写しで読んだ 1 本・雑誌の頁が 403 の論文について著者の公開コードを読んだ 1 本。決まるまで、その読みで確かめた値は新しい決定の根拠に使わない。
+- **改版の文の案**: [revision-draft-2026-11-16-resident-facing-text.md](docs/design/revision-draft-2026-11-16-resident-facing-text.md)(A07・A32・A72・憲法 6 行目・印の文言・腕・影響の見込み)。**まだ当てない**(返事その 9 の後)。
+
+### #148 数える・確かめる(A48・A49・M10・A07・9 月のテープ・ランの記録・S46)と、dm_eval の呼びかけの列(11-16 §6-1・§6-2・第347・2026-11-16・数える役と実装役 Opus 5.5・親が検収)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §6-1・§6-2。記録 [count-347](docs/bench/analysis/count-347/)(weather-noise.md・talk-kinds-tape.md・s46-path-cache.md)・[dm-eval-appeal-347](docs/bench/analysis/dm-eval-appeal-347/README.md)。commit d47ec8d・c2e1388・0716cc5。ランは変えていない(数えるための包みを入れても、19 構成の final と呼数は byte-check の記録と同じ)。
+- **数えた結果の場所**: A48 天気の最頻値の補い・A49 6 時と 22 時の騒音の段の切り替え・2-56 ランの記録に残るもの=weather-noise.md/M10 会話の後・A07 種別ごとの事実・9 月の実 LLM のテープ=talk-kinds-tape.md/S46 道の線の控えと丸め=s46-path-cache.md。
+- **足した試験**: `tests/engine/space/test_nav1_route_cache.py`(控えの有り無しで返る線が 1 バイト一致・4 本)。
+- **dm_eval**: `--scenes appeal`(場面 53 行・38 対・11 場面=頼み・禁止の表示・店頭の呼びかけ)と 3 列(応じる候補の確率の差・あり・なしの分布の JSD・1 位が変わった対の率)。既定の走らせ方と既存の golden は変わらない。今の値は mock と対照だけで、実 LLM と判断モデルの値は GPU の後。
+
+### #147 返事その 8 の受領・CLAUDE.md §3 の DT 定義・CI の上限 120 分・道具 3 本(11-16 §0〜§2・§1-5・§1-12・§1-6 の 5・§1-3 の 4 と 5・第347・2026-11-16・親)
+
+- 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md)。commit 1b186d3・38b0142・6d454c5。
+- **受領**: 原文と添付 4 本(壁打ちの記録の 11-16 版=2-45〜2-69・ペルソナ研究のまとめ 2 本・第 346 の受け入れの確かめ)を置き、決定の索引に 11-16 を足した。CLAUDE.md §3 の DT 定義の文で、未来の分布で揺らすものに「外からの入力(天気・運行の乱れ・催し)」を足した(記録 2-56・旧文は改訂記録 ㉑)。
+- **CI**: 単体と結合の段の上限を 90 → 120 分に。実行機の CPU の型を記録に出す段を足した。
+- **道具**: `tools/bytecheck/astsame.py`(文だけの直しの commit を、docstring と注を除いた AST で確かめる。記録 [astsame-347](docs/bench/analysis/astsame-347/README.md)。第346 の c6c8799 は値の文字列 3 本が変わっていたので、前後の byte-check を後から回した=19 構成すべて同じ)/`tools/instruments/sealed_tokens_compare.py`(封印の語の表 2 つを個数だけで比べる。結果=12 語と 3 語・共通 1=同じでない → まとめずに止めた。記録 [sealed-tokens-347](docs/bench/analysis/sealed-tokens-347/README.md))/`tools/instruments/deletion_candidates_ci.py`(削除候補を CI の出力と成果物に出す・落とす条件にしない・今は 0 件)。
+- **文だけの直し**: `world/laws/rail_events.py` の docstring(鉄道の秒の段まで結線しない)。
+
+### #146 コードの区分の移動 段 4-2〜4-9=world・economy・act・mind・society・runtime・experiments・validation へ移した(1 バイト不変)(11-09 §4-2 の 4・第346・2026-11-11・親が段ごとに当てて検収・試験の役 Opus 5.5 が予行)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの表と節・byte-check の JSON・道具と決まりの報告)。
+- **移した数(道具の数え)と commit**: world 48(3b807f4)・economy 3(ddce87e)・act 3(d6fa47c)・mind 25(66d9509)・society 6(37508e6)・runtime 35(b7ab0b9)・experiments 9(454c55c)・validation 6(1a1b584)。foundation の 36 本(#145)と合わせて 171 本。割る行・保留の 7 行(連絡の器 4・`engine/resolve.py`・`engine/run.py`・`engine/removed_switches.py`)・`interim_bundles` の段は当てていない。
+- **段ごとの確かめ(どの段も同じ形)**: 当てた後の import の落ち 0・守り 8 つ「同じ」/byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(基準は直前の commit。既定の final `c8d68704b7b0760d`・呼数 60,939 のまま)/範囲の試験は前からの 1 本だけが落ちる/lint-imports は段ごとに差し替えた決まりが全部 kept(world 9・economy と act 8・mind 9・society から 10)。
+- **import の決まり**: world の段から段ごとの形([PENDING §1-2](PENDING.md) の仮採用)。validation の段の今=古い決まり 3+新しい決まり 7・ignore 43 行(計画の 28 本+表の外の 1 本)。package-data の鍵は world の段で `shibuya.world.ledger` に。
+- **world の段で見つけたこと**: 古い commit の src と比べる試験 1 本が、移した後に落ちた(子のコードの import が新しい道に書き換わる=試験の作り)。予行の写しの木が git の木でなく、git が要る試験 12 本が飛んでいた。試験を直し(fbb2287)、git のある作業木で world から delete までの予行をやり直した。
+- **止めた段**: delete(`census/__init__.py` を消す・`agents/__init__.py` の再輸出を消す)は、棚卸しの表の確認 1 と同じ行なので当てていない(当てて lint 10 kept まで確かめ、取り消した)=[PENDING §1-1](PENDING.md)。
+- **タグ**: 各段の前の commit に `stable-v2-before-move4-<段>`。
+
+### #145 コードの区分の移動 段 4-1=foundation へ 36 本を移した+移す道具に段ごとの import の決まりと package-data(1 バイト不変)(11-09 §4-2 の 4・第346・2026-11-11・実装役 Opus 5.5・別の検収役・親が当てて検収)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2 の 4・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7 の段 4。記録 [move4-346](docs/bench/analysis/move4-346/README.md)(段ごとの手順と結果)・[pkgmove-346 §10-12](docs/bench/analysis/pkgmove-346/README.md)(import の決まり)。
+- **foundation(f0a550a)**: core 10・engine 17・perception 6・manifest 2・llm 1 の 36 本を `src/shibuya/foundation/` へ。書き換えは許可の一覧の中だけ(import の文・道の文字列 26 か所・`class_ids.py` の鍵 92・つなぎの台帳の道の表 36 行・頭の再輸出 61)。守り 7 つは全部「同じ」・当てた後の import の落ち 0。
+- **結果**: byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(final `c8d68704b7b0760d`・呼数 60,939)。範囲の試験 6,777 passed・1 failed(前からの 1 本)。lint-imports 5 kept。CI 緑(276019c)。安定版のタグ `stable-v2-before-move4-foundation`(aabfa0d)。
+- **道具の更新(276019c)**: `cli.py contracts --stage <段>`=import の決まりを段ごとに差し替える(world の段から。計画 §6-4 の 8 つのうちその段の木で言えるもの+計画の 28 本と表の外の 1 本の ignore)。`move --apply` が package-data の鍵を JSON の移る段で書き換える。予行=同じ木に 11 段を重ねて全段 KEPT。検収=条件つき受入(H 0・M 2=試験の穴)→ 直し → 受入。親の仮採用は [PENDING §1-2](PENDING.md)。
+- **残り**: world の段は当てて byte-check 19/19 同じまで済み、範囲の試験で 1 本(古い commit の src を取り出して比べる試験。子のコードの import が新しい道に書き換わる)が落ちたので commit していない=試験の直しと、git のある木での残りの段の予行(試験の役)の後。
+
+### #144 コードの区分の移動 段 3=移す道具 `tools/pkgmove/` と、段 4 の下ごしらえ(1 バイト不変・ファイルは動かしていない)(11-09 §4-2・第346・2026-11-10〜11・実装役 Opus 5.5 ×2・別の検収役 2・親検収)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7。記録 [pkgmove-346](docs/bench/analysis/pkgmove-346/README.md)(道具)・[prep4-346](docs/bench/analysis/prep4-346/README.md)(試験)。commit 5c2e06c。
+- **移す道具**: `python tools/pkgmove/cli.py map|allow|move|importcheck`。対応表 `map.toml` 328 行。既定は書かない実行で、`--apply` は写しか linked の作業木にだけ当てる(本体の作業木は断る)。書き換えるのは許可の一覧の中だけ(import の文・道の文字列の表・`class_ids.py` の鍵・つなぎの台帳の道の表・頭の `__all__`)。守り 7 つ。当てた後に全モジュールを別プロセスで import して確かめる。保留の 7 行は当てない。
+- **src の下ごしらえ(結果を変えない)**: 包みの頭の再輸出を通さない import 3 か所・`llm/parser.py` の import の位置(act の段で出る循環を切る)・`engine/bridging/ledger_paths.py`(今の道 → つなぎの台帳の道の表。台帳は変えない=[PENDING §1-2](PENDING.md))。
+- **試験の下ごしらえ**: 試験が置き場を字面で持たない形にした(`tests/_places.py`=元の置き場で範囲を決める・`tests/_head_copy_pin.py`・`tests/test_places_guard.py`)。追跡の試験 54 本と `tools/c8` の走査を直した。
+- **結果**: 親の byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(final `c8d68704b7b0760d`)。範囲の試験 6,760 passed・1 failed(前からの 1 本=data のつなぎ)。lint-imports 5 kept。CI 緑(5c2e06c)。予行(段を 1 つずつ重ねた木)=foundation・world・runtime・全段の 4 つの木で、範囲の試験が落ちるのは前からの 1 本だけ・import の落ち 0。
+- **検収**: 道具=別の検収役が条件つき受入(H 0・M 3・L 9)→ 直し → 再検収で受入(H 0・M 0)。試験=別の検収役が 3 回(どれも H 0)。弱めた確かめは無い(同じ突然変異を直す前と後に当てた=第 1 回 61 件・第 2 回 25 件)。
+- **検収の後の直し(次の commit)**: 試験の検収の M-4(移した後に作ったファイルが元の置き場の範囲から外れる)=新しいファイルの行は move の形で書く決まりと、move でない行 122 本の固定。L-6〜L-10(宣言の道の引き方・元の道の重なり・`tools/c8` の写しの規則が同じ答えを返すことの固定 ほか)。再検収=受入(H 0・M 0)。
+- **残り**: world の段から今の import の決まりが落ちる件=段ごとに差し替える道具(検収=条件つき受入・試験の穴 2 つを直し中・[PENDING §1-2](PENDING.md))。
+
+### #143 コードの区分の移動 段 1・段 2=クラスの名の固定の表・名前の凍結・道筋の下ごしらえ(1 バイト不変・ファイルは動かしていない)(11-09 §4-2 の 3・第346・2026-11-10・実装役 Opus 5.5・別の検収役 2 回・親検収)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §4-2・計画 [最終の表](docs/reference/package-map-final-2026-11-09.md) §7-1〜§7-3。記録 [move-346](docs/bench/analysis/move-346/README.md)。
+- **段 1(42daae7)**: `engine/class_ids.py`=src(build を除く)のクラス 480 の「モジュール.クラス名」→ 凍結の名の表。ハッシュ・状態のファイル・設定の指紋・系ごとの指紋に名を流す 5 か所が表から引く(`class_id`/`class_path`)。表にも宣言にも無い shibuya の型は止まる。CP12 の実験の条件の型は `Experiment.CLASS_ID` で凍結の名を宣言(門の試験が型の名を書いてよい置き場のまま)。
+- **段 2(02ec851)**: 名前を変えてはいけない文字列の凍結(`tests/engine/state/names_frozen.json`=乱数の領域の名 41・版の ID 69・ハッシュの見出し 9 ほか+6 構成の短いランから拾った道の形の名 74 種)・根の道 `core/paths.py`(ランの側で `__file__` を読むのはここだけ)・書きの許可の一覧の形・乱数の検査の道。
+- **結果**: byte-check 19 構成 37 欄 19/19 同じ・終了コード 0(段 1・段 2・検収の直しの後=実装役 3 回・親 2 回)。final `c8d68704b7b0760d`。範囲の試験 6,702 passed(作業木だけで落ちる 1 本=data のつなぎで道の相対化の 1 行)。CI 緑(f5426de)。
+- **検収**: 別の検収役=2 回とも条件つき受入・H 0。1 回目の M 6(CP12 の型の今の名が系ごとの指紋に入っていた・表に無い型を止めない・値の入れ替えを落とせない・manifest に入る道の形の名の漏れ ほか)を直した(8b940dd)。再検収=突然変異 20 件すべて落ちる・止める口つきの全体の試験で表に無い型 0 件。残り 1 件(腕 mora の manifest の道の形の名ほか、凍結に無い道の形の定数 472 本)は、移す道具を「許可の一覧だけ書き換える」作りにして閉じる(#144 の段)。
+- **しなかったこと**: 2-6(封印の語の AST の検査と `sealed_only` の試験)=封印の語の表が 2 つある件の判断待ち。
+
+### #142 旧道の切替口 5 本と死んだ道 2 本を消した(整理の段・既定の結果は不変)(11-05 §3-2 の 1・2・第346・2026-11-09〜10・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [返事その 6](docs/design/prompt-2026-11-05-reply6.md) §3-2・[返事その 7](docs/design/prompt-2026-11-09-reply7.md) §2 の 5・手順 [6-1 メモ](docs/design/v2-prep-6-1-notes-2026-10-25.md) §2。記録 [delete-346](docs/bench/analysis/delete-346/README.md)。
+- **中身**: `SHIBUYA_RULES_42B`・`SHIBUYA_RULES_42`・`--seat-release legacy`・`--proximity cell`・`--defect-fixes-1103 legacy` を消し、渡すと止まる形に(一覧と止める文は `engine/removed_switches.py`・組み立ての最初で検査・消した旗は help に出さない旗で受けて止める)。死んだ道=会話の応答率 0.8 の抽選・重要度上位の +2 呼。1 本ずつ commit(7e595d9〜7827c5e)。旧値の再現は安定版のタグ `stable-v2-before-switch-removal-346`(6753891)。
+- **止めたもの(判断待ち)**: `--economy-stage2 off`・`--rate-rules legacy`・`--absent-processes legacy`(旧道がほかの試験の駆動と基準)。消さなかったもの: `--space legacy`(Q7)・`--hunger-model v1`(Q13)。
+- **結果**: 項目ごとに byte-check 25 欄 19/19 同じ(final `c8d68704b7b0760d` / 60,939)。親の 37 欄=25 欄・テープの全ファイル・型と見出し・run_meta・全 checkpoint は同じ・動いたのは manifest の `bridges_count`(763→758)・`bridges_version`・`daily[*].bridges_count` だけ(台帳の 5 行を removed にした結果)。
+- **検収**: 別の検収役=条件つき受入(H1 消した環境変数がランの入口で止まらない・M2 描画の結合の試験を消していた・M3 再開を止める試験が名前どおりでない・L1 略記で `--proximity` が `--proximity-d` に吸われる ほか)→ 実装役が直した(c3594ee)→ 親(取り込んだ src が削除の作業木と同一・範囲の試験 1,435 passed・37 欄の byte-check)。検収の中で、仕様書の役が決定の置き場の表の欄に注を書き込み CI-1 を赤にしていたことも見つかった(ac3d63e で直した)。
+
+### #141 byte-check の道具 `tools/bytecheck/`(37 欄・CI では回せない)(11-09 §2 の 4・第346・2026-11-09・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [返事その 7](docs/design/prompt-2026-11-09-reply7.md) §2 の 4。使い方 [tools/bytecheck/README.md](tools/bytecheck/README.md)・版上げの手順 [version-history](docs/ops/version-history.md) と CLAUDE.md §4。
+- **中身**: 10e の道具の働きを引き継ぎ、run=基準の commit を git archive で写す→data へのつなぎ→両側→比べる→つなぎだけを外す、を 1 回で(b1bd58e)。検収の後に強くした(05be3f1)=比べるもの 25 欄 → 37 欄(テープの全ファイルの sha256・型と見出し・manifest と run_meta の全欄=比べない欄は名前と理由つき・全 checkpoint)・欄の欠けと条件の不一致は誤り・ランが読んだ shibuya のファイルの digest を記録・外で開いたファイルの記録。
+- **結果**: 基準 vs 作業木(src 同じ)で 19 構成すべて同じ(約 7 分)。v3-0a の記録と final が一致。既知の答え=定数 1 つで終了コード 1・戻して 0・注だけ 0。
+- **検収**: 別の検収役=条件つき受入(H1 テープの型と見出し・manifest の 115 欄を比べていない=型の変更と版の文字列の変更で「同じ」を返した・M1 突然変異 27 本のうち 12 本が生き残る ほか)→ 実装役が直した(生き残り 12→0・新しい 30 本も 0・試験 121 本)。親の直し 1 点=本体から回すと editable の名札 `*.egg-info` を「道具のリポを開いた」と誤って数えた。
+
+### #140 段 3 ファイルのカードの道具 `tools/repo_guide/`(1 バイト不変・src の変更 0)(11-05 §3-1 の 1・第345・2026-11-05)
+
+- 正典: [指示書 11-05](docs/design/prompt-2026-11-05-reply6.md) §3-1。置き場 [リポの案内](docs/reference/repo-guide/README.md)。
+- **中身**: AST だけで src・tests・tools の全ファイル(Python 935 本)の説明・公開の関数とクラス・import と呼び手・状態の台帳の行・書きの許可・CLI の引数・環境変数・読む試験・決定の ID を集め、ディレクトリごとのカード 120 本にする。docs は索引、data は名前と大きさだけ(ファイルを開かない)。`build.py --check` を CI の ci-0 と pre-commit に足した。
+- **検収**: 別の検収役=条件つき受入(全数の突き合わせは src で差なし・tools と tests の import の辺 52 本が落ちる欠陥ほか)→ 実装役が直した(突然変異の生き残り 0)→ 親=試験 39 本・`--check`・`read_guard` の呼び手を確認。
+- 同じ回の文書(コードなし): [段 1](docs/reference/repo-guide/day-flow.md)・[段 2](docs/reference/repo-guide/catalog/)・[言えること](docs/reference/repo-guide/can-say.md)・[仕様書 v0](docs/design/spec/README.md) 393 項目・[差の一覧](docs/design/spec/gaps.md)・[食い違い](docs/design/spec/conflicts.md)・[包みの案](docs/reference/package-map-claude-code-2026-11-05.md)・R-143〜R-148。
+
+### #139 v3-0a 案 A=乱数の鍵・呼びの id・時間帯の材料を世界の時刻 t_ns から作る(届く 18 か所・1 バイト不変・切替口なし)(11-04 §2-1・第344・2026-11-04・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-04 返事その 4](docs/design/prompt-2026-11-04-reply4.md) §2-1・[11-03](docs/design/prompt-2026-11-03-reply3.md) §5。記録 [v30a](docs/bench/analysis/v3-2026-11/v30a/README.md)(§1 棚卸し・§2〜§7)。
+- **中身**: `core.rng.key_time_from_t_ns`(t_ns // (幅 × 1e9)・v3-0b で単位を替えるときはこの 1 本)・`DecisionPort.time_key_at`。18 か所=艦隊の道の呼びの id と時間帯・判断の口の並べ替えの鍵・decide_one の呼びの id・腕の口(contact・calendar2・calendar3・duties)の鍵と呼びの id・連絡の習慣の鍵。既存の署名の変更 0・`step_key` は残した(v3-0b で判断)。
+- **結果**: byte-check 19 構成 25/25 同じ(実装役)・親の 4 構成 25/25・腕 on(7 変数)の w6_v3_default 25/25(final `a1ef8fe8d4f5a257`)。実のランで通るのは 11 か所(calendar3 と習慣の道は合成のランと試験)。性能は揺れの範囲(土台 60.3/56.2 s・作業木 60.3/55.1 s・呼数 60,939)。
+- 検収: 検収役=条件つき受入(コードの欠陥なし・記録の訂正 2 点を親が直した・`MockPort.pick` の棚卸しの漏れは v3-0b へ=PENDING §2 の 22)→ 親(範囲の試験 4,140 passed・1 skipped・0 failed・`b36ed1a`)。
+
+### #138 棚卸し B の欠陥 4 件(M10・M11・M28・M16)の直し=小さな版上げ+宣言の食い違い 31 件を文書の側で(11-03 §3・第343・2026-11-03〜04・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-03 返事その 3](docs/design/prompt-2026-11-03-reply3.md) §3(欠陥は親が確かめてから直す・既定が動けば小さな版上げ 1 回・宣言の食い違いは文書の側だけ)。記録 [fix4-1103](docs/bench/analysis/fix4-1103/README.md)(byte-check の比較 JSON は `bytecheck/`)。取り込み `8165b3d`・安定版のタグ `stable-v2-before-defect-fixes-1103`(3b375dc)。
+- **中身**: 切替口 `--defect-fixes-1103 {on,legacy}`(既定 on・環境変数 `SHIBUYA_DEFECT_FIXES_1103`・absent_processes と同じ形)。M10=会話の終わり・招待側の戻し・返事の解決の末尾で CONVERSING の体だけ IDLE に戻す(旧道は対象の決まらない会話の失敗でも寝ている・歩いている・在店の体を IDLE にしていた)。M11=歩き出す・乗る体は列を離れ、給仕の前に店のセルに居ない体を外す。M28=列から席へ入る前の支払いを `_payable` に。M16=届かない承諾を不成立に(断りの記憶に入れない)。計器 4 種(M10 は原因 × 活動)。宣言の食い違い 31 件=docstring とコメントだけ(値とプロンプトの文字列は不変・値の側 15 件は注だけ)・つなぎの台帳 +3 行(794)・死んだ道 2 本に印。
+- **結果**: 既定の 5,000 体 1 日 mock の final `73aa01d9afb206d0` → `c8d68704b7b0760d`・呼数 61,066 → 60,939・食事 4,124 → 4,164。非 IDLE の活動を保った体 663(うち対象なし 642)・届かない承諾 32・列を離れた体 9・現金不足 0。性能は悪化なし(同じ巡で土台 62.8/61.8 s・on 60.5/61.8 s・43 ms/刻み・最大 480〜530 MB=揺れの範囲)。状態台帳の版は上げない(診断の欄だけ・再開を検収役が確認)。
+- 検収: 検収役=条件つき受入(中 2=招待の帳尻に不成立の項が無い・M10 の続きの原因の説明の誤り/低 6)→ 中 2 と低 4 をコードで直し、低 2 を宣言 → 親(範囲の試験 4,118 passed・1 skipped・0 failed・byte-check=legacy は 4 構成とも土台と 25/25・on は会話のある 3 構成で 13 欄・classical は 25/25)。**残り**: 会話の番で別の行為を選んだ体をセッションから外す配線・同じ刻みの列の捌きと新しい行為の順・招待の帳尻の門の 1 件・列を離れない歩き出しの道(記録 §8)=仕分けへ。
+
+### #137 事象 1 件の固定費を測る道具 `tools/bench/event_cost/`+第343 の文書(仕分けの表・追補・技術マップ・答申 R-135〜R-140・v3 の設計書)(11-03 §1・§2・§4・§6-1・§6-2・§7・第343・2026-11-03・実装役/研究役 Opus 5.5・親検収)
+
+- 正典: [指示書 11-03 返事その 3](docs/design/prompt-2026-11-03-reply3.md)。取り込み `a800790`(答申の訂正の注)・`56dee43`(文書)・`3b375dc`(道具)。
+- **中身**: 道具=heapq・dict の振り分け・NumPy の束の 1 件あたりの費用を 1 万〜1,000 万件で測る(記録 [v3-2026-11/b](docs/bench/analysis/v3-2026-11/b/README.md)・試験 5 本)。文書=[仕分けの表](docs/reference/behavior-audit-triage-2026-11-03.md)(164 件=V 28・K 38・D 23・E 75・親案)・[判断の置き場の追補](docs/reference/decision-routing-addendum-2026-11-03.md)(#113〜#155)・[技術マップ](docs/reference/tech-map-2026-11-03.md)(src 323 ファイル)・答申 R-135〜R-140(等級 B)・[v3 の設計書](docs/design/v3-core-design-2026-11-03.md)(題 1・題 2 の仮決定)。
+- **結果**: 事象の往復 1.4〜2.8 µs(床は heapq の pop)・35 万体 1 日の固定費 38〜125 秒・体ごとの次の時刻を窓で引く形 9.3 秒/日(1 件ずつ argmin は約 1,200 秒/日で使えない)。v3-0a(鍵の書き換え)は約 45 か所・署名 20〜25 本で止めた([記録](docs/bench/analysis/v3-2026-11/v30a/README.md)・案 A/B/C はユーザーの判断)。
+
+### #136 まだ動いていた「無い」の過程 5 件を既定で止める小さな版上げ+循環の CI を 2 段に(11-02r §1 #7・#6・第342・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-02 返事その 2](docs/design/prompt-2026-11-02-reply2.md) §1 #7(5 件を次の小さな版上げで外す・計器で止めた側へ・街路にごみが残るのは正しい不合格)・#6(CI は 2 段=宣言の無い重なりは落とす・宣言つきは警告・D5′ は検証へ+burned・E5 は検証+既知の循環)・§2-2(時間の方針)。版上げの運用 [回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §0-6・§0-7。記録 [s2e-1102](docs/bench/analysis/s2e-1102/README.md)(byte-check の比較 JSON は `bytecheck/`)。取り込み `4566492`・安定版のタグ `stable-v2-before-absent-5`(1c137c6)。
+- **中身**: 新しい切替口 `--absent-processes {stopped,legacy}`(既定 stopped・環境変数 `SHIBUYA_ABSENT_PROCESSES`・CLI が環境変数に勝つ・rate_rules と同じ形=設定の指紋に入れず・manifest の末尾の節 `absent_processes`・state の header は stopped のランだけ・既定でない腕は run kind arm・再開で腕が違えば ValueError)。止め方=ごみ収集(goods_flow の世帯の消費の後で返す)・街路の清掃(ポイ捨ての後で返す)・道路工事(step の頭で返す=辺の抽選は腕に依らず引く)・救急の出動(`request` が −1 を返し乱数を引かず記録しない)・電気と水(step の頭で返す・`peak_hour` は −1)。宣言 `absent.py` の 5 件を `engine_stopped=True`・計器 `absent_declarations`=止めた 20/動く 6 → **25/1**(残りは `absent.inbound_delivery`=次の版上げ)・指紋 81215f34… → 3bddeacc…。CI 2 段=`circularity.classify`(KNOWN_CIRCULARITIES の宣言あり → `warnings.warn`・無し → AssertionError・空の外す段と空の主体は作れない・古い宣言は落ちる)・宣言 9 件(主体 15。drives_from: 車→D5・騒音→D12′・W17→A5/A6/A7。代打: D8・W1・E5・W1。外す段は 8 件が当て・E5 は親の案=inferred)。パターン台帳 D5′=錨(検証・今は burned「今は入力と重なるので採点できない」)・E5=holdout(検証へ)+既知の循環(外す段は親の案=配送の入荷が店の発注と配達員の行動になる段)。つなぎの台帳 DEC 5 行(43/103/104/106/110)を next-bump・PR 6 行に注・`DOC-s2e-absent-legacy-switch`(791 行・`BASE_ROWS` 679・sha eaf4d8e7…)。`CONFIG_PATHS_SHA256` fc5174c7… → 0e6dfaaa…(差は absent_processes の 4 道筋)・manifest の凍結した鍵に `absent_processes`。新しいコードは刻みの番号に依存しない(試験は世界の秒から刻みを都度求める)。
+- **結果**: 既定の 5,000 体 1 日 mock の final `73aa01d9afb206d0`・61,066 呼は**不変**(率の規則 off では 5 過程の出力が behavior hash にも起床にも効かない=検収役がコードの依存を追って確認)。変わるのは過程の計数(掃いたセル 1,920 → 0・工事 12/6/6 → 0・電気 16,458 kWh → 0・水 564 m³ → 0)と ActualLog 25,276 → 25,264 と manifest。legacy は土台と同一。**「正しい不合格」**は率の規則 legacy と組むと現れる(final c090385d84cbcf4d・61,997=街路のごみ 59,747 → 141,743 g・倒れて運ばれた 5/5 → 0/5・店のごみ収集 910,750 g → 0)。性能(5,000 体 mock・1 日): 50.0 s・34.7 ms/刻み・最大 511 MB・LLM 呼 61,066・判断モデル 0(土台は同じ日の機械で 49.6〜51.2 s=差は揺れの範囲・検収役が順を入れ替えて 1% 以内を確認。STATUS の 41.8 s は別の日)。
+- 検収: 検収役=条件つき受入(高 0・中 2=宣言の数 10 → 9 と外す段の当て 9 → 8・E5 の basis の定義のずれ/低 4=片方向の突き合わせ・`_counts` の docstring・`peak_hour`・再開の試験)→ 全部直した(再開の試験は run_day を通す形を追加)→ 親(byte-check: 既定側 4 構成とも 23/25(final と行動は一致・full_last と end_of_day だけ動く=過程の計数と ActualLog)・legacy 側 4 構成とも 25/25・取り込み後の本体 4566492 でも同じ・範囲の試験(本体・取り込みの後) 5,331 passed・2 skipped・0 failed(tests/engine perception build_pop build_sched economy c6 c8 tools bridging world・-n 4・1 時間 05 分)・LF・絶対パスなし・識別子・CLEAN)。**残り(問い)**: D5(D5′ でない方)も burned にするか=ユーザー(PENDING §1-1)・D12′ の外す段「7」は根拠の段が無い(inferred)・突き合わせの逆向き(宣言 → 台帳の欄)は次の段・`delivery_inbound` の E5 と気象の文=次の版上げ・旧道 `legacy` は次の版上げで消す。
+
+### #135 都の区部点群 LAS の集計の道具 `tools/spatial/`(11-02 取得 1・tools だけ=src/ 不変・第341・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-02 研究と取得](docs/design/prompt-2026-11-02-research.md) 取得 1(「集計(デッキと地下の床の高さ・坂の勾配・歩道の面)は従来どおり作る」)・従来の計画 R-119 #11(SR1)・R-82 §3。記録 [pointcloud-2026-11](docs/bench/analysis/pointcloud-2026-11/README.md)。取り込み `3e91751`。raw は `data/raw/tokyo_pointcloud_23ku/`(zip 62・展開した LAS 62=生データを残す規則・台帳 その 21-c に zip と LAS の sha256)・集計は `data/spatial/tokyo_pointcloud_23ku/agg/`。
+- **中身**: `las_io.py`=LAS 1.2 PF0〜3 を struct+numpy で読む(memmap・VLR と GeoKey)・`jgd_plane.py`=平面直角第 9 系 ↔ 経緯度(国土地理院の式・GRS80・検収役が別の実装で 0.06 mm 以内・GSI の 2 点で一致)・`las_pointcloud_agg.py`=zip の一覧の確認 → 展開 → 0.25 m の DEM(Class 2)/DSM → 520 セル(`w2_cells` の 100 m 格子)の地面の高さの中央値と 5/95 分位・2 m と 0.25 m の勾配・隣のセルとの勾配・DSM−DEM 3〜8 m の割合と最頻値・地盤点の密度・デッキ 39 セルの床(橋梁 LOD2 の外形の中の DSM 27=`brid`・3〜8 m の最頻値 12=`heuristic`・欄 `deck_floor_confidence`)・縁石の試み(段差 0.10〜0.25 m・PLATEAU の歩道と車道の境から L1 で 2 画素=境の近くに偶然の 2.5〜3.8 倍だが拾えた率 4.9〜11.7%=取れない)・地下 28 セルは「無いと宣言」・1 m のラスタ 3 本・要約 JSON(図郭ごとの点数・Class・bbox の IoU・sha256)。CLI `--raw-dir --cells --out [--meshes] [--jobs]`。軸は LAS の X=東・Y=北(bbox の IoU ≥ 0.9945・逆なら 0)・VLR の無い 09LD2762/2763 は bbox で判定・EPSG が 6677 以外なら止まる。
+- **結果**: 62/62 図郭(点 390,485,561・地上 453 セルは全部 complete)。2 m 勾配のセル中央値 3.75%(5〜95 分位 1.8〜7.3%・**expedient `slope2m_min_valid=8` に敏感=32 で 3.30%・56 で 2.74%**・PLATEAU nav1_dem の床 3.71%・相関 0.90)・隣のセルとの勾配の最大 中央値 4.4%・点群 DEM − PLATEAU DEM の中央値 −0.007 m(平均絶対差 0.11 m)・デッキの床−地面 中央値 6.4 m(2.8〜14.1)・橋梁 39 構造の DSM − PLATEAU 上面 +0.91 m(±1 m 18・±2 m 35)。性能 1 図郭 3.3 s・62 図郭 248 s・私有メモリ最大 1.97 GB。
+- 検収: 検収役=条件つき受入(高 0・中 5=向きの試験が対称・軸の逆と VLR 無しの試験が無い・PLATEAU の道と縁石の試験が無い・デッキ 12 セルの言い過ぎ・勾配の感度の未宣言/低 8)→ 全部直した(試験 20 → 26・値は不変)→ 親(26 passed・LF・識別子に open/tick なし・raw の sha256 不変・CLEAN)。**残り(問い)**: VLR の無い 2 図郭の扱い・段差の定数の感度(3dcel で同じ試みをするか)・デッキの床の正(PLATEAU の上面か DSM か=屋根の混入 2 セル)・R-82 の種別不明 30 構造との結び(gml ID)・0.25 m DEM の出力・SR12 の坂に使う量(セル内の中央値か隣のセルとの勾配か)。
+
+### #134 presence.py の docstring を今の実装に合わせて書き直し+食い違いの表(11-02 研究 6・docstring と注釈だけ=コードは ast で同一・第341・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [指示書 11-02 研究と取得](docs/design/prompt-2026-11-02-research.md) 研究 6・元の指摘 [回答 10-25](docs/design/v2-answers-2026-10-25.md) §9 の 2。記録 [presence-docstring-1102](docs/bench/analysis/presence-docstring-1102/README.md)(食い違い 24 行・設計書との食い違い 10 行・1,355 m の検算・`check_ast_equal.py`)。取り込み `95c4ced`。
+- **中身**: モジュール docstring に「到着と退出の場所と時刻(今の挙動)」の節=到着は W11 の出口 45 行 → 重複を除いた 25 セルへブロックの通し番号の round-robin(線・方面・ホームと結ばない・6/25 は表参道・明治神宮前の出口)・方面 8/9 の体も駅の出口(W12 の門のセルはエンジンでは読まない)・退出は今いるセルから即時・同じ刻みの退出と到着(旧既定・nav1 の腕で 18〜20 件/日・最大 1,355.0 m=新南口 `g3_-5_GL` ↔ 明治神宮前 `g3_9_GL` の代表ノード間と一致・今の既定 off は未計測)・日の境目(32,065/4,281 体・静的)・P4 の 4 種とループの一覧・書き込み口に `begin_exit_walk`/`clear_board_intent`・E6/E8 の削除の経緯・E12/E13 を登録簿に。関数 docstring 17 本と注釈も直し、穴には「〔既知の穴・11-02〕」の印(PENDING §2 の 17 を指す)。
+- 検収: 検収役=条件つき受入(高 0・中 6=測定の条件(旧既定)・`ticks` の意味・日の境目の穴(自己申告に無い)・`_flush_walkers` の古い記述・行数 1,960・設計書との食い違いの漏れ/低 9)→ 全部直した → 親(ast で docstring を外した dump の sha256 が HEAD と同一・陰性対照あり・LF・絶対パスなし・`tests/engine -k presence` 70 passed を本体でも)。**残り**: 穴の修正は段 2(PENDING §2 の 17)・設計書 §2・§3・§6 の 10 件・既定 off での瞬間移動の件数の測り直し。
+
+### #133 台帳の欄と循環の機械検査・「無いと宣言」の器・入力の宣言(11-01p 段 2 の 2・6・7・宣言だけ=既定は 1 バイト不変・第340・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [回答 11-01](docs/design/v2-answers-2026-11-01.md) §1(入力の宣言の型)・§2(代打の 5 条件・無いと宣言)・§3(`drives_from`・採点する系・`burned`・CI の突き合わせ)・§10-3。根拠 [routing](docs/reference/decision-routing-2026-11-01.md) §1・§3・§4。記録 [s2-ledger-1101](docs/bench/analysis/s2-ledger-1101/README.md)(検収 [review.md](docs/bench/analysis/s2-ledger-1101/review.md))。取り込み `49d22f0`。
+- **中身**: `WorldProcess`/`PlanSpec` に `drives_from`・`absence`(宣言の文・理由・外す段・`engine_stopped`)・`input_decl`(変数と単位/出典と版/時間の細かさ/一方向/較正か検証かの期間/揺らし方/代理している層/内生化の条件)=hash に入れない。つなぎの台帳 `Bridge` に欄 7 つ(`drives_from`・`routing_row`・`world_process`・`decided`・`contributes`・`calibration_declined`・`drives_note`)と `PLAN_STAGES` に 11-01p-1〜5。routing §1 の 112 行を `DEC-<#>-…` の行として追加(冪等の道具)・既存 673 行はバイト不変(sha を固定)。パターン台帳 10 表に「採点する系」(行 ID+出典の系 `data:<id>`)と `burned`(F1〜F3・D11′・§10-3)。CI の突き合わせ `tests/bridging/test_drives_from_vs_scoring.py`=drives_from の系と採点する系が重なれば落とす(例外=burned・「外す」の印・`engine_stopped=True` の「無い」の宣言)。「無い」の一覧の計器 `tools/instruments/absent_declarations.py`(26 件・版上げごとに出す)。入力の宣言=既存 5 つ(気象=時別の暑さ段と WBGT を 5 分ごと・ダイヤ・暦・外界ノード・外の売上)は値まで・新しい 7 つと納品は欄だけ。
+- 検収: 検収役=条件つき受入(中 4=データの系の循環が見えない・気象の宣言の写しの誤り・「無い」の例外が動く過程にも効く・外す段の不一致/低 9)→ 全部直した → 親(試験・registry_hash 不変・4 構成 byte-check 25/25・manifest は `bridges_count` 643→755+α と版だけ)。**警告のまま(落とさない)の重なり**: 車→D5′/D5・騒音→D12′・W17→A5〜A7・席 30 分→D8・補充→W1/E5・家で使う→W1=CI で落とす側へ移すかはユーザー(PENDING §1-1)。**残り**: ごみ収集・清掃・道路工事・救急の出動・電気と水はエンジンの規則が動いたまま(`engine_stopped=False`)=外す段は問い・`delivery_inbound` の E5 と気象の文の直しは次の版上げ(hash が変わる)。
+
+### #132 率の形の規則を外す=小さな版上げ(11-01 §2・§3・11-01p 段 2 の 3・4・第340・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [回答 11-01](docs/design/v2-answers-2026-11-01.md) §2(率の 5 件+同じ形の 4 件)・§3(循環 3 件)・[回答 10-13b](docs/design/v2-answers-2026-10-13b.md) §0-6(小さな版上げ=切替口は次の版上げで消す)。記録 [s2-rates-1101](docs/bench/analysis/s2-rates-1101/README.md)(前後の表・性能・golden の前後・検収 [review.md](docs/bench/analysis/s2-rates-1101/review.md))。取り込み `ce52662`。**安定版のタグ `stable-v2-before-rate-rules`(6a943af)**。
+- **中身(既定 off=外した状態・旧道は切替口 `--rate-rules legacy`/環境変数 `SHIBUYA_RATE_RULES` を 1 版だけ)**: 出勤率(`--attendance-rate` と くじを削除=全員出勤)・催しの 200 人の注入と退出(会場の抽選と開催の行は残す)・E8 ±8 便(全員 E1 の便)・乗車の受け入れ確率(200% の上限だけ)・ポイ捨て・売れ残りの廃棄のつなぎ(duties の担当の分は残る)・宅配(組んだまま予定 0=登録から外すのは #133)・倒れる率(出動の過程は残す=発火しない)。Calvo は結線しない(AST の試験)。店の廃棄の帯は off では「非該当」。計器=manifest の `rate_rules`(mode・removed・counts)と各過程の印。再開=腕が違えば止める。
+- **結果**: legacy は土台と 1 バイト不変(5,000 体 mock の final `7bfe215641b792ac`・呼数 62,176・親の 4 構成 byte-check 25/25)。off は final `73aa01d9afb206d0`・呼数 61,066(催し 200→0・ごみ 0・廃棄 sink 1,308,400→395,850 g=世帯の消費の分だけ・宅配 7,967→0・倒れた 5→0)。golden 12 本を off の値へ(旧値は legacy の 1 本とタグで再現)。性能(単独・5,000 体 × 1 日): 土台 42.5 秒/29.5 ms/刻み/543 MB → off 41.8 秒/29.1 ms/534 MB(悪化なし)。
+- 検収: 検収役=条件つき受入(高 0・中 3=店の廃棄の帯が毎回 NG・宣言の食い違い・性能の記録/低 7)→ 全部直した(範囲 3,916 passed)→ 親。**次の版上げで消すもの**: `--rate-rules legacy`・`salient_rate_per_10k` の試験の口・旧道に固定した試験(du_runs・cp2_event_links・resume_10d ほか)。**問い**: #41「家で使う」(率の形・W1 を直に作る)を外すか・E5 は較正か検証か・催しの開催の記録を残すか。
+
+### #131 規則の表=最低賃金を human へ(machine の床はつなぎ)+違反の記録の器(11-01 §5・11-01p 段 2 の 5・既定は 1 バイト不変・第340・2026-11-02・実装役 Opus 5.5・別の検収役・親検収)
+
+- 正典: [回答 11-01](docs/design/v2-answers-2026-11-01.md) §5。記録 [s2-rules-1101](docs/bench/analysis/s2-rules-1101/README.md)(検収 [review.md](docs/bench/analysis/s2-rules-1101/review.md))。取り込み `6a943af`。訂正の伝播=R-118 の親の注・決定台帳の 11-01 の行。
+- **中身**: `rules-table.json` の `minimum_wage.tokyo` 3 版を `human` に・`params.bridge`(kind machine・conf expedient・remove_at 7・remove_note「検知と反応の口ができる段」・ledger_id)・消費税の申告期限の行も同じ形に統一。`economy/anchors.py`(`rule_bridge`・`check_rule_bridges`=開始時に全版を検査・`min_wage_terms`)・`wages.py` `floor_with_shortfall`(床は machine か human+machine の bridge のときだけ=同じバイト)・`stage2.py` の器 `rules.minimum_wage_shortfall`(manifest・ラン累計・`scope: run`・below/lifted/violation の行数と額・`below_at_start`)。法定労働時間は元から human で機械の床なし=器だけ(0・計算の口なし)。つなぎの台帳 +1 行。
+- **結果**: 既定の violation は 0(床で全員が持ち上がる=5,000 体で 531 体 29,642,965 円が below→lifted・below_at_start 924)。bridge を外した表では 93 件 4,776,962 円(1,000 体)を記録し保存則の残差 0。3 日のランの日末のハッシュ・金の流れの sha・賃金の計器が前後で同一(final_hash は給料日の締めの前なので賃金の差を見られない=記録に明記)。
+- 検収: 検収役=条件つき受入(高 0・中 2=つなぎの書き方が 2 通り・記録の根拠/低 6)→ 全部直した → 親(試験 109+3,935 passed・4 構成 byte-check 25/25)。**次**: bridge を行の欄へ(schema v3=engine)・ほかの machine の行(`overtime_premium`・`interest_cap`)に同じ判定を掛けるか(問い)。
+
+### #130 dm_eval の消費の場面と比較の列 `tools/instruments/dm_eval/`(11-01p 段 1 の 3・tools だけ=src/ 不変・第340・2026-11-01・実装役 Opus 5.5・別の検収役 2 回・親検収)
+
+- 正典: [指示書 11-01](docs/design/prompt-2026-11-01.md) 段 1 の 3・[指示書 11-01 5070](docs/design/prompt-2026-11-01-5070.md)「dm_eval の場面」「比較の列」・[回答 11-01](docs/design/v2-answers-2026-11-01.md) §2(消費の 4 判断点)・§11(選び方の列)。記録 [dm-eval-11-01](docs/bench/analysis/dm-eval-11-01/README.md)(検収 [review.md](docs/bench/analysis/dm-eval-11-01/review.md))。取り込み `1306835`。
+- **中身**: 消費の場面 44 件(買うか見送るか/何をいくつ/値段を見て見送る/また行くか × 11・語彙 v3・架空の名と丸い値段・判断に要る事実は B6 に置き短い版に入る・`scenes/consumption_v1.jsonl`+md5+再現の生成スクリプト)・当て口の抽象 `ChoiceBackend`/`FreeTextBackend`(Choice/Score/Noul の形を差し替え)と口 2 つ=`HFCausalChoiceScorer`(transformers・safetensors・trust_remote_code=False・import は遅延)・`VLLMLogprobScorer`((G) 案・127.0.0.1 固定・Bearer・`prompt_logprobs` が既定・境界の不一致は破綻)・比べの列 9 本(8B との 1 位の一致と JSD・エントロピー・決定論 32 回の一致率・破綻率・数の一致ほか=既存 25 列は見出しも位置も不変で末尾に)・cli `--scenes evalset|consumption|both`・`--length short|long`・失敗は場面ごとに型と分類だけ記録(本文は写さない)・古典の当て口は同じ語の候補で等分・否定と漢数字の当て方。dm61 の golden digest は不変。
+- 検収: 検収役 1 回目=条件つき受入(高 1=短い版に所持金が入らない・中 4・低 7)→ 直し → 2 回目=条件つき受入(中 1=否定の答えが反対の候補に当たる・低 2)→ 直し → 親(試験 75 passed・CLEAN・LF・絶対パスなし)。**残り**: 実機(torch・vLLM)で未試験・engine の短い版(DM4)に状態の欄が無い=段 3 の問い(それまで消費の場面の (G) との一致を選定の根拠にしない)・VRAM の測り方と「A/A と分岐に要る seed の本数」の式は空欄・候補の判断モデルの行は R-125 の採否の後。
+
+### #129 漏洩の検査の器 `tools/instruments/leak_check/`(11-01p 段 1 の 4・tools だけ=src/ 不変・第340・2026-11-01・実装役 Opus 5.5・別の検収役 2 回・親検収)
+
+- 正典: [指示書 11-01](docs/design/prompt-2026-11-01.md) 段 1 の 4・[回答 11-01](docs/design/v2-answers-2026-11-01.md) §6(①時点を切る ②名前を伏せる ④記憶の誘い出し=E 系列から毎回・架空名を施設と出来事へ)・先例は [a1-research](docs/reference/a1-research-2026-10-31.md) §4-2。記録 [leak-check-11-01](docs/bench/analysis/leak-check-11-01/README.md)(検収 [review.md](docs/bench/analysis/leak-check-11-01/review.md))。取り込み `e584e04`。
+- **中身**: 型①=日付 20(時点 2026-07-13 の前後 10/10)+架空の出来事 10(実在の出来事は親が `data/leak_check/real_events.jsonl` に置く・md5 で照合)・`--model-cutoff` で学習の締め切りでも分ける・判定語の表(日本語と英語の断り・否定・迎合)。型②=施設(渋谷スクランブルスクエア・MIYASHITA PARK)・出来事(ハロウィン)・店名 6 の 21 対=42 行(実名と架空名は名だけ違う=構造の語を残しブランドの語だけ無意味語に)・分布の差 JSD と 1 位の一致・logprobs と本文の出所を分けて集計・番号の確率の下限 `--min-mass`。型④=名+冒頭から続きを書かせ一致(完全・正規化・LCS)=参照は親が置く(無ければ「未投入」)。result は集計だけ・台帳の運用規則 9 の 1 行「疑い(モデル 名@版): …」・read_guard に検証側の語とパターン台帳・送りは http.client(urlopen は識別子の規則に当たる)。
+- 検収: 1 回目=条件つき受入(高 1=「知らない」の言い回しが「知っている」に数えられる・中 5・低 8)→ 直し → 2 回目=条件つき受入(中 1=英語の断り・低 6)→ 直し → 親(試験 43 passed・CLEAN・LF)。**残り**: 架空名 9・架空の出来事 10・実名 6 店の実在は親が確かめる・実 LLM で未試験・反事実 ③ は主張の前(C-3)・前置きの腕(「あなたは 2026-07-13 の渋谷の住人」)は拡張=判断待ち。
+
+### #128 5070 の試走と安全の規則の機械検査 `tools/night5070/`(11-01g・#127 の続き・tools だけ=src/ 不変・第340・2026-11-01・実装役 Opus 5.5・別の検収役 2 回・親検収)
+
+- 正典: [指示書 11-01 5070](docs/design/prompt-2026-11-01-5070.md)「許可」「安全の規則」1〜6・「完了の条件」4〜6。手順書 [night5070-runbook](docs/ops/night5070-runbook.md)。記録 [night5070-1101](docs/bench/analysis/night5070-1101/review.md)。取り込み `7e94057`。
+- **中身**: `--smoke`(E1 に 500 体 × 120 刻みの上書き・刻み数は `smoke.vars.TICKS`)・安全の規則の機械検査 9 件(endpoints と `--host` は 127.0.0.1 だけ・API key(VLLM_ENV の `VLLM_API_KEY=` か `--api-key`)・`--load-format safetensors`・`--trust-remote-code` と `--config` は 0 回・WSLENV に鍵の名が無い+艦隊の環境から WSLENV を外す・`.wslconfig` は nat だけ・シェルの展開の文字を拒む・各旗はちょうど 1 回=shlex で切る)→ 違えば艦隊を立てず rc 5・段の順=設定 → 安全 → 前の艦隊を落とす → VRAM が落ち着くまで待って測る(不足は測り直して rc 6)→ 調整の後の再検査 → ランごとの API key(ファイルは icacls で本人だけ・要約とログでは `<API_KEY>`・ラン後に消す)→ 立てる。応答 0 の検出(`require_answers`=401 の疑い・rc 1)・終了コード 2/3/4/5/6・XML の `<UserId>` とユーザー権限の検査(SYSTEM は rc 2・作業木からの登録は rc 2)・計測の一覧に VRAM の 3 欄(schema 3)・README「安全の規則」(6 条を指示書の文のまま+検査の対応表)と「E1 の開始の合図」。
+- **発見(ユーザーの判断待ち)**: 艦隊のクライアント `src/shibuya/llm/fleet.py` は Authorization を送らない=規則 1 を満たすには環境変数 `SHIBUYA_FLEET_API_KEY` から Bearer を付ける 15 行(変数が空なら不変)が要る=11-01p の段の外の src。差分と試験 4 本は [fleet_auth_pending.patch](docs/bench/analysis/night5070-1101/fleet_auth_pending.patch)(取り込まなければ試走は rc 1 で止まる)。
+- 検収: 1 回目=条件つき受入(高 2=VRAM の確認が艦隊の後始末より前・src の差分/中 3/低 8)→ 直し → 2 回目=条件つき受入(中 1=落とした直後に待たずに測る・低 8)→ 直し → 親(試験 181 passed・CLEAN・LF・絶対パスなし)。親の手順の誤り 1 件=検収中に実装役へ追加の作業を送り作業木が動いた(以後は検収の間は実装役を止める)。**残り**: WSL の導入の後に実機で(VLLM_API_KEY を vLLM が読むか・tmux の過程・WSL のログの鍵)・`VRAM_PLAN_GB` の穴・昼の窓の試走は src の開始の刻みの引数(段 3 の問い)。
+
 ### #127 5070 の夜間ランの仕組み `tools/night5070/`(回答 10-25 §6-0・運用の道具=src/ 不変・第339・2026-10-25・実装役 Opus 5.5・別の検収役 1・親検収)
 
 - 正典: [回答 10-25](docs/design/v2-answers-2026-10-25.md) §6-0(1 コマンドの起動・タスクの登録・朝の要約)・§6-2(E1〜E8)・§6-7(計測の分離)。手順書 [docs/ops/night5070-runbook.md](docs/ops/night5070-runbook.md)。取り込み `3505eec`(作業木 `stage/night5070`・tools/・tests/tools/・docs/ops/ の新規 6 本だけ)。

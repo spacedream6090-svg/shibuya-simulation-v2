@@ -32,7 +32,7 @@ from typing import Final, Mapping, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import k19_counter_array, philox_array, unit_float
+from shibuya.foundation.rng import k19_counter_array, philox_array, unit_float
 
 from . import fitting as F
 from . import w21_tables as T

@@ -12,10 +12,11 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import MEMORY_FIELDS, AgentState, ResultCode
-from shibuya.engine import commit as C
-from shibuya.engine import memory as M
-from shibuya.engine.familiarity import place_thing
+from shibuya.foundation.vocab.agent_codes import MEMORY_FIELDS, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab import act_codes as C
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory.familiarity import place_thing
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -214,7 +215,7 @@ def test_gists_are_capped_per_agent():
 
 # ================================================================= ラン
 def test_run_default_is_off_and_memory_on_keeps_mock_behavior(monkeypatch):
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = run_day(**kw)
@@ -236,17 +237,21 @@ def test_run_default_is_off_and_memory_on_keeps_mock_behavior(monkeypatch):
 
 
 def test_cli_flags():
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     assert '"--memory"' in text and '"--memory-n"' in text
 
 
 def test_row_writers_are_array_ops():
     """P4: 1 回の書き込み(統合/新規/追い出し)と読み口に for/while を書かない。"""
-    tree = ast.parse((SRC / "engine/memory.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/memory/memory.py").read_text(encoding="utf-8"))
     names = {"scores", "importance_of", "activation_rows"}
     bad = [f"{n.name}:{s.lineno}" for n in ast.walk(tree)
            if isinstance(n, ast.FunctionDef) and n.name in names
            for s in ast.walk(n) if isinstance(s, (ast.For, ast.While))]
     assert not bad, bad
-    src = (SRC / "engine/memory.py").read_text(encoding="utf-8")
+    src = (SRC / "mind/memory/memory.py").read_text(encoding="utf-8")
     assert "逐次ループ宣言" in src

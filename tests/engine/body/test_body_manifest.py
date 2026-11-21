@@ -13,12 +13,13 @@ from pathlib import Path
 
 import pytest
 
-from shibuya import cli
-from shibuya.engine import body as B
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import run_kind as RK
-from shibuya.engine.body import model as BM
-from shibuya.engine.run import run_day
+from shibuya.interfaces.cli import main as cli
+from shibuya.foundation.manifest import sections as MS
+from shibuya.experiments.port import run_kind as RK
+from shibuya.world.body import model as BM
+# 〔段 4 の下ごしらえ・親の決定 3〕腕の口は定義したモジュール(schedule)を直に読む(包みの頭の再輸出に頼らない)
+from shibuya.world.body import schedule as B
+from shibuya.runtime.run import run_day
 
 WORLD_DIR = Path("data/world/v2")
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -39,7 +40,7 @@ def test_manifest_body_keys_and_sections(monkeypatch):
     res = run_day(**kw)
     m = res.run_manifest_fields()
     assert res.final_hash == run_day(**kw).final_hash
-    assert list(m)[-3:] == ["body", "calendar_shadow", "space"]  # 〔第 5 期 空間の段 1〕末尾に space  # 〔第 3 期 3-1 の取り込み〕その後ろ(末尾)に calendar_shadow
+    assert list(m)[-6:] == ["body", "calendar_shadow", "space", "rate_rules", "absent_processes", "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103  # 〔11-02r §1 #7〕末尾に absent_processes  # 〔11-01 段 2 の 4〕rate_rules  # 〔第 5 期 空間の段 1〕space  # 〔第 3 期 3-1 の取り込み〕その後ろ(末尾)に calendar_shadow
     body = m["body"]
     assert list(body) == list(BM.CONFIG_KEYS) + list(BM.OBSERVED_KEYS)
     assert body["owner"] == "body" and body["arm"] == "sweep" and body["arms"] == ["sweep", "reserve"]
@@ -62,7 +63,7 @@ def test_arm_switch_reads_env_and_cli(monkeypatch):
     with pytest.raises(ValueError):
         B.set_arm("lazy")
     B.set_arm("reserve")
-    assert B.arm() == "reserve" and B.BodyModel(3).arm == "reserve"
+    assert B.arm() == "reserve" and BM.BodyModel(3).arm == "reserve"
     B.set_arm("sweep")
     seen = {}
     monkeypatch.setattr(cli, "run", lambda **kw: (seen.update(arm=B.arm()), type("S", (), {

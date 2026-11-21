@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.calendar3 import layer as LY
-from shibuya.engine.contact import layer as CL
+from shibuya.interim_bundles.calendar3 import layer as LY
+from shibuya.interim_bundles.contact import layer as CL
 
 from tests.engine.calendar3._ca3 import STEP_NS, SUNDAY, ca3
 
@@ -14,7 +14,7 @@ pytestmark = [pytest.mark.slow, pytest.mark.requires_data("world_v2:w20_calendar
 
 
 def test_world_5000_sunday_composes_and_audits_are_clean():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     with ca3():
         r = cli.run(n_agents=5_000, seed=1, world_dir="data/world/v2", vocab_version="v3", start_sim_datetime=SUNDAY)

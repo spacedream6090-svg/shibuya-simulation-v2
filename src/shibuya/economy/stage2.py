@@ -1,22 +1,24 @@
-"""economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・腕 ``--economy-stage2``・既定 off)。
+"""economy.stage2 — 経済の段階 2(第 2 期 2-1・CP2 の段階 2・〔2-4 V4〕既定 on・〔第347〕切替口 off は消した)。
 
 正: 決定 10-12 §4-11(EC1〜EC6・税・信用・v1 の手持ちのお金の問題と直し方・見張り)・計画 10-12 第 2 期 2-1・回答 10-13b §0-3
 (新しい問いは既定 off の腕で仮採用)・口の約束 1-9(基本操作 ``ops.transfer`` だけが残高を書く=本モジュールは帳簿の汎用の口
 ``Ledger.transfer_many`` を呼ぶだけ・新しい書き手は作らない)。
 
-腕は 1 つ(``engine.economy_stage2``・``--economy-stage2 {off,on}``・環境変数 ``SHIBUYA_ECONOMY_STAGE2``)。部品は 5 つ
+組み立ての口は ``economy.stage2_bind``(金の台帳が段階 2 の口を持つランはいつも挿す=〔第347〕2-1 までの値の切替口
+``--economy-stage2 off``・環境変数 ``SHIBUYA_ECONOMY_STAGE2`` は消した)。部品は 5 つ
 (``--economy-stage2-parts``・既定=全部)。部品ごとに 1 つずつ止められる(止めると当該の流れが 0):
 
 | 部品 | 流れ | 口 |
 |---|---|---|
 | ``wages`` | 給料日(毎月 25 日・土休なら前の営業日=暦の口)の日の締めで、雇用主 → 世帯の銀行預金(``金:賃金``・
   ``Process("payroll")``)。雇用主(組織・店の担当従業者の店)の原資=外界 → 雇用主の消費支出(域外の取引先の支払い=払う
-  賃金と同じ額=第 1 陣の「外生」・faucet)。給与の天引きは器だけ(規則の表に行が無い=0) | ``before_close`` |
+  賃金と同じ額=第 1 陣の「外生」・faucet)。給与の天引きは〔第 4 期 4-2〕規則の表の中身で動く(``engine.economy_rules``・
+  ``engine.economy_stage2.attach`` が ``Stage2Plan.law`` に渡す。``law`` の無い部品の口では 0) | ``before_close`` |
 | ``withdraw`` | ATM・銀行の支店で本人が下ろす(銀行 → 世帯の現金・``金:引き出し``・``Process("atm")``) | ``withdraw`` |
 | ``payment`` | 購入・食事・運賃の支払いの方法(現金か口座=カード・電子マネー・IC)を本人が選ぶ。口座=世帯の預金 → 店(本体の
   行は ``金:消費支出`` のまま+銀行の決済の行 ``金:カード``) | ``purchase``・``can_pay``・``pay_fares`` |
 | ``tax`` | レジの消費税(規則の表の率=国 7.8%+地方 22/78=10%)の分を店 → 政府(``金:税``・``Process("register")``)=店の
-  売上は税抜きに。〔第 4 期 4-2・Q1〕腕 ``SHIBUYA_RULES_42=on``(既定)では店の預かり金の口に積み(``economy.tax_deposit``)、
+  売上は税抜きに。〔第 4 期 4-2・Q1〕規則の表の中身のある組み立て(既定)では店の預かり金の口に積み(``economy.tax_deposit``)、
   申告の期限の日の締めに店 → 政府へ移す | ``purchase``・``before_close`` |
 | ``visitors`` | 来街者(種別 1・6・7)にも口座(持ち込み=初期の財布の ``VISITOR_ACCOUNT_SHARE`` を預金へ分ける=合計は不変)=カード払いが効く | ``endow`` |
 
@@ -42,17 +44,19 @@
   最低賃金に戻して注記)の道。
 - 店の外界の売上(範囲の外の取引先)の額は 0(資料なし)。縮小ランの比(体数 / 母集団)を manifest に宣言する。
 
-〔第 4 期 4-2〕給与の天引き(``economy.taxes``=規則の表の 6 行・PENDING 仮-40 の Q4・Q7): 腕 ``SHIBUYA_RULES_42=on``(既定・
-組み立ての物 ``plan.law``=加入の判定の材料がある)のランは、給料日に雇用主が額面を払い(雇用主 → 世帯の口座)、本人の分
+〔第 4 期 4-2〕給与の天引き(``economy.taxes``=規則の表の 6 行・PENDING 仮-40 の Q4・Q7): 組み立ての物 ``plan.law``
+(加入の判定の材料=組み立ては常に渡す)のあるランは、給料日に雇用主が額面を払い(雇用主 → 世帯の口座)、本人の分
 (源泉所得税・住民税・健保と介護・支援金・厚年・雇用保険)を世帯の口座 → 政府(``金:税``・登録の sink「給与の天引き(本人 →
 政府)」)・雇用主の分(健保と介護・支援金・厚年・雇用保険)を雇用主 → 政府(「給与の天引き(雇用主 → 政府)」)へ移す。雇用主の
 原資(外界の売上=faucet)は額面+雇用主の分。外の雇用主(閉じた表の外)の体は外界が額面を払い、本人の分だけ政府へ(雇用主の分は
 範囲の外=記録しない)。納付は給料日の締めに即時(現実は翌月 10 日・翌月末=未リサーチ(expedient)・台帳
-``DOC-rules42-remit-timing``)。腕 ``off`` は 4-2 の前の値の再現(天引き 0)=次の版上げで消す。記録 ``rules42/README.md``。
-〔第 4 期 4-2b〕腕 ``SHIBUYA_RULES_42B=on``(既定・manifest の鍵 ``economy.stage2.plan.rules_42b``・組み立ての物の
-``PayrollInputs.rules_42b``)は規則の表の空欄 3 件を埋めた値(住民税の基礎控除・調整控除・非課税/厚年 70 歳・健保 75 歳/
-子ども・子育て拠出金=事業主だけ=雇用主の分に足して同じ「給与の天引き(雇用主 → 政府)」で移す)。``off`` は 4-2 の値の再現
-(次の版上げで消す)。記録 ``rules42b/README.md``。
+``DOC-rules42-remit-timing``)。``law`` の無い ``Stage2Plan`` を直に作る物は 4-2 の前の値(天引き 0)=部品の単体試験の基準の口
+(〔第346〕ランの切替口 ``SHIBUYA_RULES_42=off`` は消した・旧値の再現は安定版のタグ)。記録 ``rules42/README.md``。
+〔第 4 期 4-2b〕天引きは規則の表の空欄 3 件を埋めた値(manifest の鍵 ``economy.stage2.plan.rules_42b``=``on``・組み立ての物の
+``PayrollInputs.rules_42b``=常に真)で行う(住民税の基礎控除・調整控除・非課税/厚年 70 歳・健保 75 歳/子ども・子育て拠出金=
+事業主だけ=雇用主の分に足して同じ「給与の天引き(雇用主 → 政府)」で移す)。記録 ``rules42b/README.md``。〔第346〕4-2 の値の
+再現の切替口 ``SHIBUYA_RULES_42B=off`` は消した(旧値の再現は安定版のタグ ``stable-v2-before-switch-removal-346``)。
+``PayrollInputs.rules_42b`` を偽にして直に作る物は部品の単体試験の基準の口(4-2 の値・ランの口からは選べない)。
 
 つなぎの台帳の行(``docs/design/bridging-ledger.json``・宣言の場所=記録 ``ec21/README.md``): ``DOC-ec21-*``。
 
@@ -82,7 +86,7 @@ from shibuya.economy.accounts import (
     flow_registry_table,
     registered_cells,
 )
-from shibuya.engine.ledger_api import TransferStatus
+from shibuya.foundation.ports.ledger import TransferStatus
 
 __all__ = [
     "PARTS",
@@ -183,7 +187,7 @@ def payroll_deductions(gross: np.ndarray, asof: "str | _dt.date", *, inputs: Any
 
     〔第 4 期 4-2〕``inputs``(加入の判定の材料=``engine.economy_rules.PayrollInputs``)と ``agents``(行の体)を渡せば、給料日
     ``asof`` に効いている規則の表の 6 行で本人の分を出す(内訳=``economy.taxes.Deductions``=雇用主の分も持つ)。``inputs`` が
-    無い(腕 ``SHIBUYA_RULES_42=off``=4-2 の前の値の再現)ときは 0 と ``None``(器のまま)。
+    無い(部品の単体試験の基準の口=4-2 の前の値・〔第346〕ランの切替口は消した)ときは 0 と ``None``(器のまま)。
     """
     g = np.asarray(gross, dtype=np.int64)
     if inputs is None:
@@ -195,7 +199,7 @@ def payroll_deductions(gross: np.ndarray, asof: "str | _dt.date", *, inputs: Any
 
 
 def _r42b(inputs: Any) -> bool:
-    """〔第 4 期 4-2b〕加入の判定の材料が持つ腕(``PayrollInputs.rules_42b``=組み立てで読んだ ``SHIBUYA_RULES_42B``)。"""
+    """〔第 4 期 4-2b〕加入の判定の材料が持つ印(``PayrollInputs.rules_42b``=組み立ては常に真・偽は単体試験の基準の口)。"""
     return bool(getattr(inputs, "rules_42b", True))
 
 
@@ -211,6 +215,26 @@ def _q(x: np.ndarray) -> dict[str, int]:
     if v.size == 0:
         return {f"p{q}": 0 for q in QUANTILES}
     return {f"p{q}": int(round(float(np.percentile(v, q)))) for q in QUANTILES}
+
+
+#: 〔11-01 §5・段 2 の 5〕最低賃金の違反の記録の器の鍵(manifest の ``economy.stage2.rules`` の下=観測)。
+SHORTFALL_KEY: Final[str] = "minimum_wage_shortfall"
+#: 器の積算の欄(どれも整数・ランの初めに 0)。``below_*``=床を当てる直前に時給が最低賃金を下回った体と不足の額・
+#: ``lifted_*``=つなぎの床(machine)が上げた体と額・``violation_*``=下回ったまま払った体と額(=起きた違反)。
+SHORTFALL_COUNTS: Final[tuple[str, ...]] = ("paydays", "checked", "below_rows", "below_amount", "lifted_rows",
+                                            "lifted_amount", "violation_rows", "violation_amount")
+
+
+#: 〔検収 L3〕器の積算の範囲(このランの始めから=再開のランでは再開の後の分だけ=計器 s2_meter と同じ)。
+SHORTFALL_SCOPE: Final[str] = "run"
+
+
+def _empty_shortfall() -> dict[str, Any]:
+    """〔11-01 §5〕違反の記録の器(積算 0・最後の給料日の行の読み ``last`` は None・``scope`` は ``run``=再開で 0 に戻る・
+    ``below_at_start``=組み立ての日に最低賃金を下回る体の数=つなぎの有無に依らない)。法定労働時間の超過は数えない
+    (勤務の時間は経済の側に無い=カレンダー 3 と持ち場の層の ``labor_over`` が数える・記録 s2-rules-1101)。"""
+    return {"rule": "minimum_wage.tokyo", "scope": SHORTFALL_SCOPE, **{k: 0 for k in SHORTFALL_COUNTS},
+            "below_at_start": None, "last": None}
 
 
 def _empty_meter(employer_items: tuple[str, ...] = _TX.EMPLOYER_ITEMS_42,
@@ -293,12 +317,12 @@ class MoneyStage2:
         self.atms = getattr(plan, "atms", None)
         #: 支払い(payment)か税(tax)が動くランは購入を委ねる。
         self.handles_purchase = bool({"payment", "tax"} & self.parts)
-        #: 〔第 4 期 4-2〕規則の表の中身の腕(``engine.economy_rules``)の加入の判定の材料(``None``=腕 off=4-2 の前の値の再現)と、
+        #: 〔第 4 期 4-2〕規則の表の中身(``engine.economy_rules``)の加入の判定の材料(``None``=部品の口=4-2 の前の値)と、
         #: 店の預かり消費税(Q1・税の部品が動くランだけ・状態台帳の腕の行 TXD)。
         self.law = getattr(plan, "law", None)
         self.tax_deposit = (TaxDeposit(int(n_stores)) if self.law is not None and "tax" in self.parts else None)
         #: 計器(状態台帳の行 EM=diag・discardable)。ランの積算と日の欄(日の締めで 0)。
-        #: 〔第 4 期 4-2b〕計器の雇用主の分の項目(腕 off と段階 2 の天引きの無いランは 4-2 の 4 項目=記録は 4-2 のまま)。
+        #: 〔第 4 期 4-2b〕計器の雇用主の分の項目(部品の口の 4-2 の値と天引きの無い物は 4-2 の 4 項目=記録は 4-2 のまま)。
         self._r42b = self.law is not None and _r42b(self.law)
         self._meter_items = (_TX.EMPLOYER_ITEMS if self._r42b else _TX.EMPLOYER_ITEMS_42, self._r42b)
         self.s2_meter: dict[str, Any] = {"run": _empty_meter(*self._meter_items), "day": _empty_meter(*self._meter_items),
@@ -312,6 +336,11 @@ class MoneyStage2:
             "path": wsrc, **(summary or {}),
             "inputs": winp.record() if winp is not None and hasattr(winp, "record") else None,
             "floor_at_start": self._floor_record(plan, mw, hours)}
+        # 〔11-01 §5・段 2 の 5〕最低賃金(規則の表の human の行)の違反の記録の器=ランの積算(観測・金の流れは変えない)
+        # 〔検収 L1〕表の全部の版のつなぎの欄をランの始めに検査する(壊れていればここで落ちる)
+        AN.check_rule_bridges()
+        self.s2_meter["rules"][SHORTFALL_KEY] = _empty_shortfall()
+        self.s2_meter["rules"][SHORTFALL_KEY]["below_at_start"] = self._below_at_start(plan, mw, hours)
         self._rates: dict[str, tuple[Fraction, str]] = {}
         #: 〔検収 A1〕体ごとの最後の「金に触れる行為」(購入・食事・並ぶ)の呼の id(None=まだ無い)と、その呼の支払いの方法の
         #: 答え(-1=答えなし・0=現金・1=口座)。着いて実行する意図・列から席へ入った体の支払いも同じ呼を原因にする。
@@ -325,6 +354,49 @@ class MoneyStage2:
             if a is not None:
                 a.setflags(write=False)
         object.__setattr__(self, "_sealed", True)
+
+    @staticmethod
+    def _below_at_start(plan: Any, mw: np.ndarray | None, hours: np.ndarray | None) -> int | None:
+        """〔検収 L4〕組み立ての日に効いている最低賃金を時給が下回る体の数(つなぎの有無に依らない=床を当てない表でも数える)。
+        賃金の表の無い写し・日付の無い計画・版の無い日は ``None``。"""
+        if mw is None or hours is None:
+            return None
+        try:
+            asof = plan.date_of(0).isoformat()
+        except (AttributeError, TypeError):
+            return None
+        terms = _WG.min_wage_terms(asof)
+        if terms.yen_per_hour is None:
+            return None
+        _f, below = _WG.apply_floor(mw, hours, terms.yen_per_hour)
+        return int(below.sum())
+
+    def _count_min_wage_shortfall(self, asof: str, terms: Any, checked: int, below: np.ndarray, shortfall: int,
+                                  raised: np.ndarray, lift: np.ndarray | None) -> None:
+        """〔11-01 §5・段 2 の 5〕違反の記録の器(体ごとでなく集計)。``below``=床を当てる直前に時給が最低賃金を下回った体・
+        ``shortfall``=その不足の合計[円]・``raised``=つなぎの床が上げた体・``lift``=床で上げた額(体ごと・2-1 の道は None)。
+        ``violation_*``=下回ったまま払った体と額(=起きた違反)。つなぎで床が掛かる道(occupation)では 0・床の無い道
+        (2-1 の道=``lift`` が None・つなぎの無い表)では数える。``last.enforced_by`` はその給料日に床を当てた道
+        (2-1 の道は ``none``)。金の流れは変えない(観測)。"""
+        box = self.s2_meter["rules"][SHORTFALL_KEY]
+        below = np.asarray(below, dtype=bool)
+        raised = np.asarray(raised, dtype=bool)
+        lifted_amount = int(np.asarray(lift)[raised].sum()) if lift is not None and raised.any() else 0
+        stood = below & ~raised
+        box["paydays"] += 1
+        box["checked"] += int(checked)
+        box["below_rows"] += int(below.sum())
+        box["below_amount"] += int(shortfall)
+        box["lifted_rows"] += int(raised.sum())
+        box["lifted_amount"] += lifted_amount
+        box["violation_rows"] += int(stood.sum())
+        box["violation_amount"] += int(shortfall) - lifted_amount
+        bridge = getattr(terms, "bridge", None)
+        box["last"] = {"asof": asof, "yen_per_hour": getattr(terms, "yen_per_hour", None),
+                       "source": str(getattr(terms, "source", "none")), "kind": str(getattr(terms, "kind", "")),
+                       "enforced_by": "none" if lift is None else str(getattr(terms, "enforced_by", "none")),
+                       "bridge_ledger_id": None if bridge is None else bridge.get("ledger_id"),
+                       "wage_path": str(self.wage_source)}
 
     @staticmethod
     def _floor_record(plan: Any, mw: np.ndarray | None, hours: np.ndarray | None) -> dict[str, Any] | None:
@@ -665,14 +737,23 @@ class MoneyStage2:
         hourly_arr = getattr(self.plan, "hourly", None)
         rate = float(hourly) if hourly_arr is None else np.asarray(hourly_arr, dtype=np.float64)[agents]
         occupation = self.monthly_wage is not None
+        # 〔11-01 §5・段 2 の 5〕最低賃金の行は human(人が取り締まる)。床を当てるのは machine のつなぎ(params.bridge)の
+        # 間だけ。床を当てる直前に「床を下回る額」を数える(違反の記録の器=rules.minimum_wage_shortfall)
+        terms = _WG.min_wage_terms(asof.isoformat())
         if occupation:  # 〔賃金の小さな版上げ〕月の賃金=職業 × 性 × 年齢 × 雇用形態(W17 の勤務時間を使わない)
-            # 〔検収 M1〕最低賃金法の床(4 条 2 項)=給料日に効いている規則の表の版(machine の行)。版が無ければ床なし
-            floor, floor_src = _WG.min_wage_floor(asof.isoformat())
-            floored, raised = _WG.apply_floor(self.monthly_wage[agents], self.wage_hours[agents], floor)
-            raised_amount = int((floored - self.monthly_wage[agents])[raised].sum())
+            # 〔検収 M1〕最低賃金法の床(4 条 2 項)=給料日に効いている規則の表の版。版が無ければ床なし
+            floor, floor_src = terms.floor()
+            wage_now = self.monthly_wage[agents]
+            floored, raised, below, shortfall = _WG.floor_with_shortfall(wage_now, self.wage_hours[agents], terms)
+            raised_amount = int((floored - wage_now)[raised].sum())
             gross = np.maximum(floored, 0)
         else:
             gross = AN.monthly_wage_amounts(self.monthly_hours[agents], hourly=rate)
+            # 2-1 の道(月の時間 × 時給)には床の式が無い=数えるだけ(床に当たる体は 0・時給は既定で最低賃金)
+            _paid, raised, below, shortfall = _WG.floor_with_shortfall(gross, self.monthly_hours[agents], terms)
+            raised = np.zeros(gross.size, dtype=bool)
+        self._count_min_wage_shortfall(asof.isoformat(), terms, int(agents.size), below, shortfall, raised,
+                                       floored - wage_now if occupation else None)
         if self.law is not None:  # 〔第 4 期 4-2〕給与の天引き(規則の表の 6 行)と雇用主の分
             return self._payroll_law(ledger, step, asof, agents, sectors, idx, gross,
                                      floor_info=(floor, floor_src, raised, raised_amount) if occupation else None)
@@ -867,7 +948,7 @@ class MoneyStage2:
 
     def growth_declaration(self, *, employers: int) -> Any:
         """腕のランの成長の宣言(体あたりの定常バイト・ATM の表と雇用主の口は定数・伸びない=D-R2-6 の 5 欄)。"""
-        from shibuya.core.growth import GrowthDeclaration, Retention
+        from shibuya.foundation.growth import GrowthDeclaration, Retention
 
         n_atm = int(getattr(self.atms, "n", 0) or 0)
         fixed = n_atm * ATM_ROW_BYTES + int(employers) * EMPLOYER_ROW_BYTES

@@ -17,11 +17,13 @@ from datetime import timedelta
 import numpy as np
 import pytest
 
-from shibuya.agents.state import INTEROCEPTION_FIELDS, IntentKind
-from shibuya.perception import facts as F
-from shibuya.perception import normalize as N
-from shibuya.perception import renderer as R
-from shibuya.perception import templates as T
+# 〔割る段 7 の G0〕内受容の閾値 INTERO_UP_EDGES は agent_codes から名で読む(割ると renderer の再輸出が外れる)
+from shibuya.foundation.vocab.agent_codes import INTERO_UP_EDGES, INTEROCEPTION_FIELDS, IntentKind
+from shibuya.foundation.ports import percept as F
+from shibuya.foundation.text import normalize as N
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.mind.percept.draw import Renderer
+from shibuya.foundation.text import templates as T
 from tests.perception.facts.scenes import build
 
 #: 欄の名と並び(凍結。足したら ``PERCEPT_SCHEMA`` を上げて記録に書く)。
@@ -38,7 +40,7 @@ EMPTY = ("eye_dir", "mind_dir", "belongings", "tool_state", "watched_by", "heard
 
 def _render_some(n_ticks: int = 3):
     w, a = build(n_agents=80, seed=3)
-    r = R.Renderer(w, a, seed=5)
+    r = Renderer(w, a, seed=5)
     outs = []
     for t in (480, 750, 1140)[:n_ticks]:
         r.prepare_tick(t)
@@ -132,7 +134,7 @@ def test_facts_match_the_state():
         for nm in INTEROCEPTION_FIELDS:
             v = int(getattr(a, nm)[i])
             assert getattr(p.body, nm) == v
-            assert getattr(p.body, f"{nm}_stage") == sum(1 for e in R.INTERO_UP_EDGES if v >= e)
+            assert getattr(p.body, f"{nm}_stage") == sum(1 for e in INTERO_UP_EDGES if v >= e)
         for sp in p.seen_people:
             assert sp.action == int(a.activity[sp.id]) and int(a.cell[sp.id]) == p.cell
         when = r.clock_fn(p.step)
@@ -151,8 +153,8 @@ def test_facts_match_the_state():
 
 def test_day_kind_comes_from_the_calendar_hook_and_does_not_touch_bytes():
     w, a = build(n_agents=30, seed=4)
-    plain = R.Renderer(w, a, seed=1)
-    hooked = R.Renderer(w, a, seed=1, day_kind_fn=lambda T_: "saturday" if T_ >= 1_440 else "weekday")
+    plain = Renderer(w, a, seed=1)
+    hooked = Renderer(w, a, seed=1, day_kind_fn=lambda T_: "saturday" if T_ >= 1_440 else "weekday")
     for t in (700, 1_500):
         x, y = plain.render(0, tick=t), hooked.render(0, tick=t)
         assert x.text == y.text
@@ -162,7 +164,7 @@ def test_day_kind_comes_from_the_calendar_hook_and_does_not_touch_bytes():
 def test_intent_wake_and_memories_are_carried():
     w, a = build(n_agents=40, seed=6)
     a2 = a
-    r = R.Renderer(w, a2, seed=1)
+    r = Renderer(w, a2, seed=1)
     r.memory_recall = lambda i, t, c, inv: []  # 想起の口あり・0 件
     with a2.writable():
         a2.intent_action[0] = 3
@@ -180,7 +182,7 @@ def test_intent_wake_and_memories_are_carried():
 
 # ---------------------------------------------------------------- (d)
 def test_event_ref_has_the_shape_of_the_event_id():
-    from shibuya.engine.events.log import EventId
+    from shibuya.foundation.journal.log import EventId
 
     assert F.EventRef == EventId == tuple[int, int]
     hint = typing.get_type_hints(F.Percept, globalns=vars(F))["heard_speech"]
@@ -213,7 +215,7 @@ def test_manifest_instrument():
 
 
 def test_run_manifest_has_the_percept_section():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=2, ticks=90, n_cells=9, processes=False)
     m = res.run_manifest_fields()
@@ -222,6 +224,9 @@ def test_run_manifest_has_the_percept_section():
     # 末尾=T0 の TM9 → 1-4 の欄 → 1-9 の economy → 1-2 → 1-5 の rights → 1-8 J0 の decision_port → 1-7 の tools
     # → 1-8b の speech_port → 2-2 の proximity → 3-3 の experiment → 〔第 3 期 3-2〕batching → 〔第 3 期 3-5〕body → 〔第 3 期 3-1〕calendar_shadow(列追加のみ)
     # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space
-    assert keys[-12:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
-                          "experiment", "batching", "body", "calendar_shadow", "space"]
+    # 〔第340・11-01 段 2 の 4〕その後ろに rate_rules(率の形の規則を外した小さな版上げの計器)
+    # 〔11-02r §1 #7〕その後ろ(末尾)に absent_processes(「無い」の過程 5 件を止めた小さな版上げの計器)
+    assert keys[-15:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
+                          "experiment", "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes",
+                          "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103
     assert np.isfinite(m["percept"]["n_fields"])

@@ -8,10 +8,10 @@
 
 from __future__ import annotations
 
-from shibuya.engine.decision import layer as DL
-from shibuya.engine.decision import port as P
-from shibuya.engine.decision import ports as PS
-from shibuya.engine.run import run_day
+from shibuya.mind.judge.decision import layer as DL
+from shibuya.foundation.ports import decision as P
+from shibuya.mind.judge.decision import ports as PS
+from shibuya.runtime.run import run_day
 
 from tests.engine.decision._j0 import SMALL, FakeBridge, FakePolicy, ctx_of, decision_arm, vocab_candidates
 

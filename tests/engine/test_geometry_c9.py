@@ -22,13 +22,18 @@ import pytest
 
 from tests import _time_gates as TG
 
-from shibuya.agents.state import Activity, AgentState, RESULT_TEXT, ResultCode
-from shibuya.core.budget import budget_by_id, load_budget_table
-from shibuya.engine import commit as C
-from shibuya.engine import geometry as G
-from shibuya.engine import resolve as R
-from shibuya.engine.run import run_day
-from shibuya.world.state import DENSITY_STAGE_EDGES, DENSITY_STAGE_EDGES_PER_M2, World
+from shibuya.foundation.vocab.agent_codes import Activity, RESULT_TEXT, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.budget import budget_by_id, load_budget_table
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+from shibuya.world.model import geometry as G
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/gate・R_APPLY=act/apply。割る前は全部 resolve)
+from shibuya.act import gate as R
+from shibuya.act import apply as R_APPLY
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import DENSITY_STAGE_EDGES, DENSITY_STAGE_EDGES_PER_M2, World
 
 #: 600 tick = 世界内 10:00 まで回す。**体が実際に歩き出すまで回さないと edge の腕が
 #: 「欄が 2 本増えただけ」の検査になる**(120 tick では移動が 1 件も出ない)。
@@ -81,7 +86,7 @@ def test_kladek_curve_reproduces_the_recomputed_values():
 
 def test_density_stage_edges_are_the_fruin_los_boundaries():
     """edge 幾何の段は **Fruin LOS**(人/m²)。``perception`` 側の表と 1 対 1(二重定義の検査)。"""
-    from shibuya.perception import templates as T
+    from shibuya.foundation.text import templates as T
 
     assert DENSITY_STAGE_EDGES_PER_M2 == T.DENSITY_LOS_EDGES_PER_M2
     assert len(DENSITY_STAGE_EDGES_PER_M2) == len(T.DENSITY_LOS_LETTERS) - 1
@@ -91,7 +96,7 @@ def test_density_stage_edges_are_the_fruin_los_boundaries():
 
 def test_mix64_matches_the_presence_definition():
     """``geometry._mix64`` は ``presence``/``build.sched`` と**同じ式**(三重定義の機械検査)。"""
-    from shibuya.engine.presence import _mix64 as presence_mix64
+    from shibuya.world.laws.presence_plan import _mix64 as presence_mix64
 
     x = np.arange(64, dtype=np.uint64) * np.uint64(2_654_435_761)
     assert np.array_equal(G._mix64(x), presence_mix64(x))
@@ -253,13 +258,13 @@ def test_engine_step_writes_unreachable_end_to_end_in_edge_mode():
     g = G.EdgeGeometry(w.assets, seed=1, n_agents=4)
     batch = C.IntentBatch(
         agent_id=np.arange(4, dtype=np.int64),
-        action_code=np.full(4, C.ENGINE_STEP, dtype=np.int8),
+        action_code=np.full(4, CV.ENGINE_STEP, dtype=np.int8),
         target_id=np.full(4, dst, dtype=np.int32),
         resource_id=np.full(4, -1, dtype=np.int32),
         t_notice_ns=np.zeros(4, dtype=np.int64),
     )
     empty = C.IntentBatch.empty()
-    out = R.apply(batch, empty, agents, w, 1, geometry=g)
+    out = R_APPLY.apply(batch, empty, agents, w, 1, geometry=g)
     assert out.per_result[int(ResultCode.UNREACHABLE)] == 4
     assert list(agents.registry.activity) == [int(Activity.IDLE)] * 4
 
@@ -385,7 +390,7 @@ def _p2_edge_bench(n_agents: int, world: World, ticks: int = 60, walkable=None):
 
 
 def _walkable_of(world: World):
-    from shibuya.perception.renderer import (
+    from shibuya.world.model.percept_scene import (
         CELL_SIZE_M,
         WALKABLE_FRACTION_SYNTHETIC,
     )
@@ -420,8 +425,8 @@ def test_p2_edge_geometry_under_300ms_at_400k_agents():
     """
     from pathlib import Path
 
-    from shibuya.perception.renderer import PerceptionAssets
-    from shibuya.world.assets import assets_available
+    from shibuya.world.model.percept_scene import PerceptionAssets
+    from shibuya.world.model.assets import assets_available
 
     path = Path("data/world/v2")
     has_assets = assets_available(path)

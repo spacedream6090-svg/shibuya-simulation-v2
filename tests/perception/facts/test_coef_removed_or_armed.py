@@ -17,20 +17,33 @@ from __future__ import annotations
 
 import ast
 import dataclasses
+import importlib
 import inspect
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from shibuya.perception import facts as F
-from shibuya.perception import p_notice as P
-from shibuya.perception import renderer as R
+from shibuya.foundation.ports import percept as F
+from shibuya.world.model import notice_reach as P
+# 〔割る段 7 の G0・親の決め事 9〕別名を名の import にした(消した名の確かめは removed_renderer_names_left で割り先の全部を見る)
+from shibuya.mind.percept.draw import Renderer
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
 #: 消した値(数のリテラル)。src に 1 つも残らない(定数・既定値・例のどれにも)。
 REMOVED_VALUES = (0.46, 0.49, 1.39)
+
+
+def removed_renderer_names_left(names: tuple[str, ...]) -> list[str]:
+    """消した名が残っている所(``モジュール.名``)。〔割る段 7 の G0・親の決め事 9〕renderer の元の名を定義する今のモジュールの
+    全部で見る(割る前は renderer の 1 本・割った後は割り先。1 つの割り先だけを見て黙って通る形にしない)。表の鍵
+    ``"perception/renderer.py"`` は字面で書く(割る道具は表の鍵を書き換えない=割った後も同じ鍵で割り先を引く)。"""
+    from tests import _places as PL
+
+    mods = sorted(PL.split_module_names("perception/renderer.py").leaves)
+    assert mods, "見るモジュールが無い"
+    return [f"{m}.{n}" for m in mods for n in names if hasattr(importlib.import_module(m), n)]
 
 
 # ---------------------------------------------------------------- (a)
@@ -47,14 +60,26 @@ def test_names_are_gone():
     assert not hasattr(P, "M_LOAD")
     assert "m_load" not in {f.name for f in dataclasses.fields(P.PNoticeParams)}
     assert "m_load" not in inspect.signature(P.p1_primary).parameters
-    for name in ("P_SEE_BY_ACTIVITY", "check_p_see_activity"):
-        assert not hasattr(R, name), name
-    assert "p_see_activity" not in inspect.signature(R.Renderer).parameters
+    assert removed_renderer_names_left(("P_SEE_BY_ACTIVITY", "check_p_see_activity")) == []
+    assert "p_see_activity" not in inspect.signature(Renderer).parameters
     for name in ("percept_coefs", "set_percept_coefs", "coefs_on", "PERCEPT_COEFS_ENV", "PERCEPT_COEFS_MODES"):
         assert not hasattr(F, name), name
-    cli_src = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    cli_src = PL.split_source("cli.py")
     assert "--p-see-activity" not in cli_src and "--percept-coefs" not in cli_src
     assert "SHIBUYA_PERCEPT_COEFS" not in "".join(p.read_text(encoding="utf-8") for p in SRC.rglob("*.py"))
+
+
+def test_negative_a_removed_name_left_in_one_module_is_caught(monkeypatch):
+    """〔割る段 7 の G0・親の決め事 9〕負の対照: 消したはずの名を、見るモジュールの 1 つ(``Renderer`` の定義の置き場)に一時に
+    置くと、上の確かめが見つける(見る範囲に描く側のモジュールが入っている)。"""
+    mod = importlib.import_module(Renderer.__module__)
+    monkeypatch.setattr(mod, "P_SEE_BY_ACTIVITY", {}, raising=False)
+    assert removed_renderer_names_left(("P_SEE_BY_ACTIVITY", "check_p_see_activity")) == [
+        f"{mod.__name__}.P_SEE_BY_ACTIVITY"]
 
 
 # ---------------------------------------------------------------- (b)
@@ -74,10 +99,10 @@ def test_signage_gate_is_one_p_for_every_activity():
     w, a = build(n_agents=60, seed=31, activity_columns=True)
     with a.writable():
         a.activity_kind[:] = np.arange(a.n) % 5
-    r = R.Renderer(w, a, seed=5, signage_p_see=0.4)
+    r = Renderer(w, a, seed=5, signage_p_see=0.4)
     cell = next(c for c in range(w.n_cells) if r._signage_poi(c) >= 0)
     poi = r._signage_poi(cell)
-    from shibuya.perception.attention import gate_stage1
+    from shibuya.mind.percept.attention import gate_stage1
 
     got = [r._signage_seen(i, cell, 700) for i in range(a.n)]
     want = [bool(gate_stage1(1, 0.4, seed=5, domain_counters=(700, i, poi))[0]) for i in range(a.n)]
@@ -86,7 +111,7 @@ def test_signage_gate_is_one_p_for_every_activity():
 
 # ---------------------------------------------------------------- (d)
 def test_manifest_fields():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     res = run_day(n_agents=60, seed=2, ticks=120, n_cells=9, vocab_version="v3")
     m = res.run_manifest_fields()

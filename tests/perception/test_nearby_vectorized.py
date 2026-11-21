@@ -13,11 +13,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
-from shibuya.perception import channels as ch
-from shibuya.perception.facts import SeenPerson
-from shibuya.perception.renderer import Renderer, person_word
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.text import channels as ch
+from shibuya.foundation.ports.percept import SeenPerson
+from shibuya.mind.percept.draw import Renderer
+from shibuya.foundation.text.percept_words import person_word
+from shibuya.world.model.state import World
 
 
 def _reference_nearby_items(self, i: int, cell: int, tc) -> list[tuple[str, float]]:
@@ -148,12 +150,12 @@ def test_rendered_bytes_are_unchanged_in_both_modes(mode):
         calls["n"] += 1
         return _reference_nearby_people(self, i, cell, tc_)
 
-    Renderer._nearby_people, saved = ref, Renderer._nearby_people
-    try:
+    # 〔割る段 7 の G0・親の裁定 P3〕手の代入でなく monkeypatch で差し替える(割ると定義が基底へ移る=手で戻すと Renderer の
+    # 辞書に影が残る。monkeypatch は「無かった」と覚えて戻すときに消す)
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(Renderer, "_nearby_people", ref)
         r2, a2 = crowd(n=300, mode=mode, friends=True)
         hashes_old = [r2.render(i, tick=600, wake_reason=3).prompt_hash for i in range(0, 300, 3)]
-    finally:
-        Renderer._nearby_people = saved
     assert calls["n"] == len(hashes_old)  # 差し替えた口を描画が実際に通った
     assert hashes_new == hashes_old
     assert tc.cell_x.size == a.n
@@ -179,10 +181,8 @@ def test_negative_control_a_changed_reference_is_caught():
         got = _reference_nearby_people(self, i, cell, tc_)
         return [SeenPerson(sp.id, sp.direction, sp.action, sp.distance_m, not sp.acquainted) for sp in got]
 
-    Renderer._nearby_people, saved = flipped, Renderer._nearby_people
-    try:
+    with pytest.MonkeyPatch.context() as mp:  # 〔割る段 7 の G0・親の裁定 P3〕上と同じ
+        mp.setattr(Renderer, "_nearby_people", flipped)
         r2, _a2 = crowd(n=300, mode="fixed", friends=True)
         other = [r2.render(i, tick=600, wake_reason=3).prompt_hash for i in range(0, 300, 3)]
-    finally:
-        Renderer._nearby_people = saved
     assert base != other

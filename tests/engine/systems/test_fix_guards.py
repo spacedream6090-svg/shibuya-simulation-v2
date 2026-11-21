@@ -15,33 +15,41 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine import state_ledger_ast as A
-from shibuya.engine.systems import allow as AL
-from shibuya.engine.systems import static_check as SC
-from shibuya.engine.systems.table import SPECS, SYSTEMS
+from shibuya.runtime.state import ledger_ast as A
+from shibuya.runtime.systems import allow as AL
+from shibuya.foundation import write_permit as _WP_MOD
+from shibuya.foundation import write_guard as _G_MOD
+from shibuya.validation.static import system_static_check as SC
+from shibuya.runtime.systems.table import SPECS, SYSTEMS
 
 SRC = Path("src/shibuya")
+#: 許可の口のモジュールの名と、その包み・包みの中の名(〔段 4 の下ごしらえ〕字面で持たず、モジュールの ``__name__`` から
+#: 作る。段 4 で write_permit と guard は別の包みへ動き、guard は名も変わる)。
+WP_MODULE = _WP_MOD.__name__
+WP_PKG, _, WP_LEAF = WP_MODULE.rpartition(".")
+G_MODULE = _G_MOD.__name__
+G_PKG, _, G_LEAF = G_MODULE.rpartition(".")
 HERE = Path(__file__).resolve().parent
 
 # ================================================================= 3: 書きの許可を外す口
-STATE_MODULES = {"agents/state.py", "world/state.py", "perception/state.py"}
+STATE_MODULES = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py"}
 #: write_permit の関数 → 呼んでよい置き場(試験と記録の道具は src の外=ここに出ない)。
-WP_CALLS = {"allows": STATE_MODULES, "scope": {"engine/systems/guard.py"}, "enabled": {"engine/systems/guard.py"},
+WP_CALLS = {"allows": STATE_MODULES, "scope": {"foundation/write_guard.py"}, "enabled": {"foundation/write_guard.py"},
             "set_enabled": set(), "current": set()}
-WP_IMPORTERS = STATE_MODULES | {"engine/systems/guard.py", "core/write_permit.py"}
+WP_IMPORTERS = STATE_MODULES | {"foundation/write_guard.py", "foundation/write_permit.py"}
 #: guard の口 → 呼んでよい置き場。
-GUARD_CALLS = {"system_scope": {"engine/systems/conductor.py"}}
+GUARD_CALLS = {"system_scope": {"runtime/systems/conductor.py"}}
 #: 属性 ``_WP``(状態のモジュールと guard が持つ write_permit の再輸出の名)を読んでよい置き場(段 FIX2・再検収 R1)。
 #: 試験は src の外=ここに出ない。conductor は今は読まないが、指示書どおり置き場に入れておく。
-WP_ATTR_PLACES = WP_IMPORTERS | {"engine/systems/conductor.py"}
+WP_ATTR_PLACES = WP_IMPORTERS | {"runtime/systems/conductor.py"}
 #: 許可を持つモジュール(別名に ``setattr(X, 変数, …)`` をすると許可の大域に届く)。
-PERMIT_MODULES = {"shibuya.core.write_permit", "shibuya.engine.systems.guard", "shibuya.agents.state",
-                  "shibuya.world.state", "shibuya.perception.state"}
+PERMIT_MODULES = {"shibuya.foundation.write_permit", "shibuya.foundation.write_guard", "shibuya.world.model.agent_table",
+                  "shibuya.world.model.state", "shibuya.world.model.percept_state"}
 
 #: 書き換えてはいけない許可の大域(その置き場の外で代入しない)。
-PERMIT_GLOBALS = {"_PERMIT": "core/write_permit.py", "_ENABLED": "core/write_permit.py",
-                  "SCRATCH_PERMIT": "engine/systems/guard.py", "BUFFERS_PERMIT": "engine/systems/guard.py",
-                  "CURRENT": "engine/systems/guard.py"}
+PERMIT_GLOBALS = {"_PERMIT": "foundation/write_permit.py", "_ENABLED": "foundation/write_permit.py",
+                  "SCRATCH_PERMIT": "foundation/write_guard.py", "BUFFERS_PERMIT": "foundation/write_guard.py",
+                  "CURRENT": "foundation/write_guard.py"}
 
 
 def _chain(expr: ast.AST) -> list[str]:
@@ -65,13 +73,13 @@ def permit_offenders(rel: str, tree: ast.AST) -> list[str]:
                 full = f"{n.module}.{a.name}"
                 if full in PERMIT_MODULES:
                     mod_alias.add(a.asname or a.name)
-                if n.module == "shibuya.core" and a.name == "write_permit":
+                if n.module == WP_PKG and a.name == WP_LEAF:
                     wp_alias.add(a.asname or a.name)
-                elif n.module == "shibuya.core.write_permit":
+                elif n.module == WP_MODULE:
                     wp_direct[a.asname or a.name] = a.name
-                elif n.module == "shibuya.engine.systems" and a.name == "guard":
+                elif n.module == G_PKG and a.name == G_LEAF:
                     g_alias.add(a.asname or a.name)
-                elif n.module == "shibuya.engine.systems.guard":
+                elif n.module == G_MODULE:
                     g_direct[a.asname or a.name] = a.name
                 if a.name == "_WP":  # 再輸出の名の輸入(段 FIX2・R1')
                     wp_alias.add(a.asname or a.name)
@@ -81,9 +89,9 @@ def permit_offenders(rel: str, tree: ast.AST) -> list[str]:
             for a in n.names:
                 if a.name in PERMIT_MODULES:
                     mod_alias.add(a.asname or a.name.split(".")[0])
-                if a.name == "shibuya.core.write_permit":
+                if a.name == WP_MODULE:
                     wp_alias.add(a.asname or a.name)
-                if a.name == "shibuya.engine.systems.guard":
+                if a.name == G_MODULE:
                     g_alias.add(a.asname or a.name)
     if (wp_alias or wp_direct) and rel not in WP_IMPORTERS:
         out.append(f"{rel}: write_permit を import してよい置き場の外")
@@ -146,10 +154,12 @@ def test_permit_switches_are_called_only_from_known_places():
 
 def test_permit_check_catches_planted_switches():
     """負の対照(検収 L2・L11): 系と層から許可を外す口を呼ぶ・大域を書き換えると見つかる。"""
+    # 差し込むコードの import の文は、今の口の置き場から組み立てる(〔段 4 の下ごしらえ〕前は字面で、移す道具が一部だけを
+    # 書き換えて検査の側と食い違った)
     planted = ast.parse(
-        "from shibuya.core import write_permit as WP\n"
-        "from shibuya.core.write_permit import set_enabled\n"
-        "from shibuya.engine.systems import guard as G\n"
+        f"from {WP_PKG} import {WP_LEAF} as WP\n"
+        f"from {WP_MODULE} import set_enabled\n"
+        f"from {G_PKG} import {G_LEAF} as G\n"
         "def sys_x(ctx, b):\n"
         "    with WP.scope(None):\n        pass\n"
         "    set_enabled(False)\n"
@@ -163,19 +173,21 @@ def test_permit_check_catches_planted_switches():
 
 
 @pytest.mark.parametrize("src,words", [
-    # 再検収 R1・R1' の 4 行(検収役の形)
-    ("from shibuya.engine.systems import guard as G\n"
+    # 再検収 R1・R1' の 4 行(検収役の形)。〔段 4 の下ごしらえ・親の裁定 L-7〕guard の包みと名は __name__ から組み立てる
+    (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b):\n    with G._WP.scope(None):\n        pass\n", ("_WP を読む", "G._WP.scope")),
-    ("from shibuya.agents.state import _WP as X\n"
+    ("from shibuya.world.model.agent_table import _WP as X\n"
      "def sys_x(ctx, b):\n    X.set_enabled(False)\n", ("_WP を輸入", "set_enabled を呼んでよい")),
-    ("import shibuya.agents.state as ST\n"
+    ("import shibuya.world.model.agent_table as ST\n"
      "def sys_x(ctx, b):\n    with ST._WP.scope(None):\n        pass\n", ("_WP を読む", "ST._WP.scope")),
-    ("from shibuya.engine.systems import guard as G\n"
+    (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b, name):\n    setattr(G, name, None)\n", ("setattr(変数の名)",)),
     # 同じ型の変種
-    ("import shibuya.agents.state\n"
-     "def sys_x(ctx, b):\n    shibuya.agents.state._WP.set_enabled(False)\n", ("_WP を読む", "set_enabled")),
-    ("from shibuya.engine.systems import guard as G\n"
+    # 〔割る段 5b の G0・検収の高-2 の洗い直し〕import の行は、前は元の置き場の名 ``shibuya.agents.state`` のまま残っていた(移す道具が
+    # コードの文字列の import を書き換えず、下の行の点の道だけを書き換えた)。読むモジュールを下の行と同じ今の名にそろえた
+    ("import shibuya.world.model.agent_table\n"
+     "def sys_x(ctx, b):\n    shibuya.world.model.agent_table._WP.set_enabled(False)\n", ("_WP を読む", "set_enabled")),
+    (f"from {G_PKG} import {G_LEAF} as G\n"
      "def sys_x(ctx, b):\n    wp = getattr(G, '_WP')\n", ("getattr で _WP",)),
 ])
 def test_permit_check_catches_reexported_names(src, words):
@@ -187,12 +199,14 @@ def test_permit_check_catches_reexported_names(src, words):
 
 # ================================================================= 5: D⑥ の別名の形を広げる
 _SOA_TAILS = {"registry", "agents", "cells", "pois", "pstate"}
-_EXEMPT_D6 = {"agents/state.py", "world/state.py", "perception/state.py", "engine/resolve.py", "core/soa.py"}
+#: 〔割る段 6 の S6-G0・親の裁定 R1〕resolve の書き手のファイルは書き手の一覧から足す(割る前は前と同じ 1 本)。
+_EXEMPT_D6 = {"world/model/agent_table.py", "world/model/state.py", "world/model/percept_state.py",
+              "foundation/soa.py"} | set(AL.RESOLVE_FILES)
 D6_ALLOW = {
-    ("engine/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
-    ("engine/store_choice.py", "self.poi_cell"): "同上",
-    ("engine/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
-    ("engine/processes/civic.py", "self.bed_cell[got]"):
+    ("act/intent.py", "self._poi_cell"): "POI のセル(静的な列)を int64 の写しで持つ(dtype が違う=写し・凍結の後)",
+    ("mind/judge/store_choice.py", "self.poi_cell"): "同上",
+    ("mind/judge/store_choice.py", "self.price"): "POI の値段(静的な列)の int64 の写し",
+    ("world/laws/civic.py", "self.bed_cell[got]"):
         "層の ndarray の要素への代入(値の写し=別名にならない。AST では的が配列か辞書か分からないので見つける側)",
 }
 _UNWRAP_CALLS = {"asarray", "asanyarray", "ascontiguousarray"}
@@ -377,14 +391,14 @@ def test_d1_sees_plain_imports_and_other_aliases(tmp_path):
 
     p = tmp_path / "fake_d1.py"
     p.write_text(
-        "from shibuya.engine.resolve import revert_conversation\n"
-        "import shibuya.engine.resolve as RV\n"
-        "from shibuya.engine import resolve as R2\n"
+        "from shibuya.act.ops.talk import revert_conversation\n"
+        "import shibuya.act.ops.intent_writes as RV\n"
+        "from shibuya.act.ops import intent_writes as R2\n"
         "def sys_fake(ctx, b):\n"
         "    revert_conversation(b.soa.agents, [0])\n"
         "    RV.set_activity(b.soa.agents, [0], [0])\n"
         "    R2.clear_intent(b.soa.agents, [0])\n"
-        "    from shibuya.engine.resolve import set_intent as si\n"
+        "    from shibuya.act.ops.intent_writes import set_intent as si\n"
         "    si(b.soa.agents, [0])\n", encoding="utf-8")
     spec = importlib.util.spec_from_file_location("fake_d1", p)
     mod = importlib.util.module_from_spec(spec)
@@ -414,10 +428,17 @@ def bypass_setattr_sites(rel: str, tree: ast.AST) -> list[str]:
 
 def test_systems_modules_do_not_bypass_the_box_setattr():
     """系のモジュール(箱の定義 ``boxes.py`` の外)は ``object.__setattr__`` を使わない(段 C を素通りしない)。"""
-    root = SRC / "engine" / "systems"
+    from shibuya.runtime.systems import boxes as BOXES
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の直下(と名の boxes.py)。元の置き場が系の包みの直下の
+    # ファイルを対応表で引き、箱の定義はモジュールの __file__ で外す(段 4 で系の包みは 3 つの包みへ分かれる)
+    files = PL.files_from(BOXES, recursive=False)
+    assert len(files) > 20
     hits = []
-    for fp in sorted(root.glob("*.py")):
-        if fp.name == "boxes.py":
+    for fp in files:
+        if fp.resolve() == Path(BOXES.__file__).resolve():
             continue
         hits += bypass_setattr_sites(fp.name, ast.parse(fp.read_text(encoding="utf-8")))
     assert not hits, hits

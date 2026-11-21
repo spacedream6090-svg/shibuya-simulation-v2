@@ -22,17 +22,17 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya import cli
-from shibuya.core.time_consts import CLOCK_KIND, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import regional_clock as RC
-from shibuya.engine import resume as RS
-from shibuya.engine import speech_clock as TC
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CO
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
-from shibuya.world.state import World
+from shibuya.interfaces.cli import main as cli
+from shibuya.foundation.time_consts import CLOCK_KIND, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.clocks import regional as RC
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.clocks import speech as TC
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import conductor as CO
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
+from shibuya.world.model.state import World
 
 ROOT = Path(__file__).resolve().parents[3]
 real_data = pytest.mark.requires_data("world_v2:w17_schedule.parquet")
@@ -161,7 +161,7 @@ def test_lateness_from_the_plan_tables():
 
 
 def test_mixed_is_a_port_only():
-    from shibuya.engine.systems import build as BLD
+    from shibuya.runtime.systems import assemble as BLD
 
     with arms(clock="mixed"):
         with pytest.raises(NotImplementedError, match="口だけ") as exc:
@@ -233,7 +233,7 @@ def test_negative_control_stage_b_catches_the_missing_declaration(monkeypatch):
     """負の対照: decide の宣言から行 BW を外すと、発言のある構成の段 B が宣言の外の書きを捕まえる。"""
     import dataclasses as dc
 
-    from shibuya.engine.systems import spec as SPM
+    from shibuya.runtime.systems import spec as SPM
 
     sp = SPECS["decide"]
     paths = frozenset(x for x in sp.writes.paths if not x.startswith("BW:"))
@@ -279,7 +279,7 @@ def test_regional_with_talk_clock_matches_global_on_world_assets():
 
 # ================================================================= CLI・TM4 の道具
 _ARGS = ["--agents", "20", "--seed", "1", "--world", "__no_such_dir__", "--cells", "9", "--ticks", "30"]
-_CODE = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+_CODE = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
 
 
 def test_cli_clock_regional(tmp_path):

@@ -433,7 +433,7 @@ def test_cli_end_to_end(dy, anchors_file, tmp_path, capsys):
 
 def test_vocabulary_not_duplicated(dy):
     """語彙はツール側で二重定義していない(``agents.weekly`` と ``build.sched.vocab`` が一致)。"""
-    from shibuya.agents import weekly as W
+    from shibuya.world.facts import weekly_reader as W
     from shibuya.build.sched import vocab as V
 
     assert W.ACTIVITY_WORDS == V.ACTIVITY_WORDS

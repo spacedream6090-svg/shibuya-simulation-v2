@@ -10,18 +10,18 @@ import dataclasses
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import resume as RS
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.contact import habit as HB
-from shibuya.engine.contact import layer as LY
-from shibuya.engine.contact import port as P
-from shibuya.engine.contact import tools as TL
-from shibuya.engine.events import log as EV
-from shibuya.engine.run import run_day
-from shibuya.engine.tools import record as TR
-from shibuya.engine.tools.groups import GroupList
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
+from shibuya.runtime.state import resume as RS
+from shibuya.runtime.state import ledger as SL
+from shibuya.mind.plan import contact_habit as HB
+from shibuya.interim_bundles.contact import layer as LY
+from shibuya.mind.plan import contact_port as P
+from shibuya.society.contact import tools as TL
+from shibuya.foundation.journal import log as EV
+from shibuya.runtime.run import run_day
+from shibuya.society.tools import record as TR
+from shibuya.society.tools.groups import GroupList
 
 from tests.engine.contact._c1 import KW, STEP_NS, by_kind, c1, choose
 from tests.engine.contact._c2 import Harness2, habit_arm, loud

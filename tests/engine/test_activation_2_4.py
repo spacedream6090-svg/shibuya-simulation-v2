@@ -17,8 +17,8 @@ from pathlib import Path
 import pytest
 
 from shibuya.build.vis import w9_shadow as W9
-from shibuya.engine.processes import environment as ENV
-from shibuya.world.assets import SHADOW_GLOB
+from shibuya.world.laws import environment as ENV
+from shibuya.world.model.assets import SHADOW_GLOB
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORLD = REPO_ROOT / "data" / "world" / "v2"

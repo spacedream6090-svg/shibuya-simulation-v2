@@ -12,11 +12,11 @@ from types import MappingProxyType
 
 import pytest
 
-from shibuya.engine.bridging import ledger as BR
-from shibuya.engine.run import run_day
-from shibuya.engine.tools import places as PL
-from shibuya.engine.tools.places import PhoneTable, osm_phone_of
-from shibuya.engine.tools.registry import PHONE, PHONE_BRIDGE, default_registry
+from shibuya.foundation.decl import bridging as BR
+from shibuya.runtime.run import run_day
+from shibuya.society.tools import places as PL
+from shibuya.society.tools.places import PhoneTable, osm_phone_of
+from shibuya.society.tools.registry import PHONE, PHONE_BRIDGE, default_registry
 
 ROOT = Path(__file__).resolve().parents[3]
 COUNT_JSON = ROOT / "docs" / "bench" / "analysis" / "wallbounce-1012" / "c0" / "osm_phone_count.json"
@@ -56,7 +56,13 @@ def test_the_blank_is_declared_in_the_bridging_ledger():
     # 〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7(W6 の POI の欄を足す段が計画に無い)
     assert row.remove_at == "7" and row.conf == "expedient" and row.status == "active"
     assert row.declared_in.startswith("docs/design/v2-foundation-contracts-2026-10-13.md")
-    assert "src/shibuya/engine/tools/places.py" in row.code_at
+    from shibuya.foundation.decl import ledger_paths as LP
+
+    from tests import _places as PLACES
+
+    # 〔段 4 の下ごしらえ・親の決定 1〕台帳の道は台帳に書いてある道のまま=今の道へは ledger_paths で引く。今の道は電話の表の
+    # モジュールのファイルから作る(前は字面の道=移す道具が書き換え、台帳の道と食い違った)
+    assert f"src/{PLACES.PKG.name}/{PLACES.rel_of(PL)}" in {LP.current_path(p) for p in row.code_at}
     assert default_registry().get(PHONE).bridge == PHONE_BRIDGE
 
 
@@ -86,5 +92,7 @@ def test_manifest_reports_the_empty_table():
     # 〔第 1 期 1-8b〕その後ろに speech_port・〔第 2 期 2-2 段 11a〕その後ろに proximity・〔第 3 期 3-3〕その後ろに experiment・
     # 〔第 3 期 3-2〕その後ろに batching・〔第 3 期 3-5〕その後ろに body・〔第 3 期 3-1〕その後ろ(末尾)に calendar_shadow
     # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space
-    assert list(res.run_manifest_fields())[-8:] == ["tools", "speech_port", "proximity", "experiment", "batching", "body",
-                                                    "calendar_shadow", "space"]
+    # 〔11-01 段 2 の 4〕その後ろに rate_rules・〔11-02r §1 #7〕その後ろ(末尾)に absent_processes
+    assert list(res.run_manifest_fields())[-11:] == ["tools", "speech_port", "proximity", "experiment", "batching", "body",
+                                                     "calendar_shadow", "space", "rate_rules", "absent_processes",
+                                                     "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103

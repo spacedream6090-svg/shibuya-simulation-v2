@@ -1,9 +1,11 @@
-"""第 4 期 4-2 のランの形(合成の世界の 2 日=給料日 2026-08-25 をまたぐ・腕 SHIBUYA_RULES_42 の on/off)。
+"""第 4 期 4-2 のランの形(合成の世界の 2 日=給料日 2026-08-25 をまたぐ)。
 
-- on(既定): レジの税は店の預かり金に積まれる(期限は 2027-03-31=2 日のランでは政府へ移らない)・給料日に世帯の口座 → 政府の
+- 既定: レジの税は店の預かり金に積まれる(期限は 2027-03-31=2 日のランでは政府へ移らない)・給料日に世帯の口座 → 政府の
   本人の分が動く(合成の世界は母集団が無い=加入の判定の材料なし=源泉と住民税だけ)・保存則と預かり金の検算は毎日 残差 0・
   ``RunResult.conserved`` が成り立つ・manifest に腕と預かり金。
-- off: 4-2 の前の値(レジの税は店 → 政府・天引き 0・預かり金の持ち主なし=状態台帳の腕の行 TXD が入らない)。
+- 〔第346〕4-2 の前の値の切替口 ``SHIBUYA_RULES_42=off`` は消した: 環境変数を与えると読み込みで止まる・見出しに
+  ``rules_42=on`` の無い状態のファイルからは再開できない(旧値の再現は安定版のタグ)。4-2 の前の値の部品の口(``law`` の無い
+  ``Stage2Plan``)は ``test_rules42_ledger.py`` が見る。
 - 再開(日の境目と給料日の昼)=通しと同じ(預かり金の状態は腕の行 TXD で戻る・slow・data)。
 """
 
@@ -16,11 +18,11 @@ from shibuya.economy import census as CS
 from shibuya.economy.accounts import AccountCode, BalanceLine, Sector
 from shibuya.economy.goods import GoodsLedger
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import economy_rules as ER
-from shibuya.engine import economy_stage2 as ES2
-from shibuya.engine.ledger_api import LedgerBundle
-from shibuya.engine.run import run_day
-from shibuya.world.state import World
+from shibuya.economy import rules_bind as ER
+from shibuya.economy import stage2_bind as ES2
+from shibuya.foundation.ports.ledger import LedgerBundle
+from shibuya.runtime.run import run_day
+from shibuya.world.model.state import World
 
 H, S, E, B, G, W = (int(s) for s in Sector)
 N = 300
@@ -28,21 +30,18 @@ N = 300
 
 @pytest.fixture
 def law(monkeypatch):
-    monkeypatch.setattr(ES2, "_ARM", ES2.ARM_ON)
     monkeypatch.setattr(ES2, "_PARTS", ES2.PARTS)
     monkeypatch.setattr(ES2, "_ATM_OVERRIDE", None)
-    monkeypatch.setattr(ER, "_ARM", ER.ARM_ON)
-    return ER.set_arm
 
 
-def _run(sim_days: int = 2):
+def _run(sim_days: int = 2, **kw):
     world = World.synthetic(n_cells=64, seed=2)
     led = Ledger(N, world.n_poi)
     goods = GoodsLedger.from_pois(np.arange(world.n_poi) % 3, np.asarray(world.pois.stock),
                                   np.asarray(world.pois.price), n_agents=N)
     bundle = LedgerBundle(money=led, goods=goods, census=lambda d: CS.daily_census(led, goods, day=d))
     res = run_day(n_agents=N, seed=2, world=world, ticks=1_440, sim_days=sim_days, checkpoint_every=720,
-                  ledger=bundle, start_sim_datetime="2026-08-24")
+                  ledger=bundle, start_sim_datetime="2026-08-24", **kw)
     return res, led
 
 
@@ -79,31 +78,27 @@ def test_on_keeps_the_register_tax_in_the_deposit_and_deducts_on_payday(law):
     assert st["rules"]["invoice_rounding"]["method"] == "切り捨て"
 
 
-def test_off_is_the_value_before_4_2(law):
-    law(ER.ARM_OFF)
-    res, led = _run()
-    s2 = led.stage2
-    run = s2.s2_meter["run"]
-    assert s2.law is None and s2.tax_deposit is None
-    assert _flow(led, AccountCode.TAX, S, G) == run["tax"]["amount"] > 0
-    assert _flow(led, AccountCode.TAX, H, G) == 0 and run["wages"]["employee_amount"] == 0
-    assert "rules_42" not in res.run_manifest_fields()["economy"]["stage2"]["plan"]
-    assert res.conserved
+def test_removed_rules_42_switch_env_stops():
+    """〔第346〕消した切替口: 環境変数 SHIBUYA_RULES_42 を与えると読み込みで止まる・腕を選ぶ口は無い。"""
+    import os
+    import subprocess
+    import sys
 
-
-def test_on_and_off_differ_only_in_money(law):
-    """腕は金の流れ(税の時期と天引き)だけを変える: 1 日目(給料日の前)の行動の件数は同じ。"""
-    a, _ = _run(sim_days=1)
-    law(ER.ARM_OFF)
-    b, _ = _run(sim_days=1)
-    assert a.llm_calls == b.llm_calls and dict(a.action_usage) == dict(b.action_usage)
+    assert ER.ENV_42_REMOVED == "SHIBUYA_RULES_42"
+    for name in ("arm", "set_arm", "ARMS", "DEFAULT_ARM", "_ARM"):
+        assert not hasattr(ER, name), name
+    for value in ("off", "on"):
+        env = {**os.environ, "SHIBUYA_RULES_42": value, "PYTHONIOENCODING": "utf-8"}
+        r = subprocess.run([sys.executable, "-c", "import shibuya.economy.rules_bind"], env=env, capture_output=True,
+                           text=True, encoding="utf-8")
+        assert r.returncode != 0 and "消した切替口" in r.stderr and ER.REMOVED_SWITCH_TAG in r.stderr
 
 
 @pytest.mark.slow
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet", "osm:poi_tags_overpass_20260928.json", "calendar")
 @pytest.mark.parametrize("stop", [1_440, 2_190])
 def test_resume_equals_straight_with_the_deposit(tmp_path, law, stop):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir="data/world/v2", sim_days=2, vocab_version="v3",
               start_sim_datetime="2026-08-24", checkpoint_every=360)
@@ -119,19 +114,41 @@ def test_resume_equals_straight_with_the_deposit(tmp_path, law, stop):
                                   np.asarray(straight.ledger.money.balance(line, s))), (line, s)
 
 
-def test_resume_refuses_a_different_rules_42_arm(law):
-    """見出しの ``rules_42``(腕 on のランだけ書く)と今の腕が違えば再開を止める(天引きは状態を持たない=見出しで見る)。"""
+def test_resume_refuses_a_header_without_rules_42(law):
+    """見出しの ``rules_42`` が無い状態のファイル(4-2 の前のラン)からは再開できない(〔第346〕切替口は消した・天引きは状態を
+    持たない=見出しで見る)。"""
     import types
 
     plan = types.SimpleNamespace(parts=ES2.PARTS, wage_model=ES2.wage_arm(), law=object())
     head = ES2.header_fields(plan)
     assert head["rules_42"] == "on"
     ES2.check_resume(head)
-    law(ER.ARM_OFF)
-    with pytest.raises(ValueError, match="規則の表の中身の腕"):
-        ES2.check_resume(head)
     off = {k: v for k, v in head.items() if k != "rules_42"}
-    ES2.check_resume(off)
+    with pytest.raises(ValueError, match="規則の表の中身の腕.*消した.*stable-v2-before-switch-removal-346"):
+        ES2.check_resume(off)
+    assert ES2.header_fields(types.SimpleNamespace(parts=ES2.PARTS, wage_model=ES2.wage_arm(), law=None)).get(
+        "rules_42") is None  # law の無い部品の口は見出しに書かない
+
+
+@pytest.mark.parametrize("key,match", [("rules_42", "規則の表の中身の腕"), ("rules_42b", "空欄 3 件の腕")])
+def test_resume_from_a_state_without_the_rules_key_is_refused(tmp_path, law, key, match):
+    """〔第346〕見出しの ``economy_stage2`` に ``rules_42``(4-2 の前のラン)か ``rules_42b``(4-2 の値のラン)の無い状態の
+    ファイルは再開で止まる: 保存の間だけ見出しからその鍵を外し、戻してから再開する(検収 M3)。"""
+    from shibuya.runtime.state import resume as RS
+
+    orig = ES2.header_fields
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(ES2, "header_fields", lambda plan: {k: v for k, v in (orig(plan) or {}).items() if k != key})
+        a, _ = _run(sim_days=1, state_out=tmp_path / "st", stop_at_tick=120)
+    f = tmp_path / "st" / a.resume["state_files"][-1]["file"]
+    head = RS.read_state(f).header["economy_stage2"]
+    assert key not in head and head["arm"] == "on"
+    with pytest.raises(ValueError, match=f"{match}.*消した.*stable-v2-before-switch-removal-346"):
+        _run(sim_days=1, resume_from=f)
+    b, _ = _run(sim_days=1, state_out=tmp_path / "ok", stop_at_tick=120)  # 正の対照: 鍵のある保存は通る
+    g = tmp_path / "ok" / b.resume["state_files"][-1]["file"]
+    assert RS.read_state(g).header["economy_stage2"][key] == "on"
+    _run(sim_days=1, resume_from=g)
 
 
 def test_conserved_fails_when_the_deposit_check_breaks(law):

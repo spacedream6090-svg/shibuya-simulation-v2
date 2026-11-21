@@ -16,22 +16,25 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState, ResultCode
-from shibuya.core import write_permit as WP
-from shibuya.engine import memory as M
-from shibuya.engine import relations as RL
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.run import run_day
-from shibuya.engine.systems import conductor as CD
-from shibuya.engine.systems import overrides as OV
-from shibuya.engine.systems import probe as PR
-from shibuya.engine.systems.table import SPECS
-from shibuya.engine.tools import contacts as CT
+from shibuya.world.model.agent_table import AgentState
+from shibuya.foundation.vocab.agent_codes import ResultCode
+from shibuya.foundation import write_permit as WP
+from shibuya.mind.memory import memory as M
+# 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+from shibuya.mind.relations import layer as RL
+from shibuya.foundation.vocab import relations as RV
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.run import run_day
+from shibuya.runtime.systems import conductor as CD
+from shibuya.validation.static import system_overrides as OV
+from shibuya.runtime.systems import probe as PR
+from shibuya.runtime.systems.table import SPECS
+from shibuya.foundation.vocab import contact_flags as CT
 from tests.engine.tools import contacts_writers as CW
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "shibuya"
-REL_PATH = (SRC / "engine" / "relations.py").as_posix()
+REL_PATH = (SRC / "mind" / "relations" / "layer.py").as_posix()
 OK = int(ResultCode.OK)
 FAM, WORK = CT.ALL_PERSONAL, CT.ALL_PERSONAL | CT.WORK
 KW = dict(n_agents=80, seed=1, n_cells=9, ticks=720, budget=80.0, sleep_suppression=False, vocab_version="v3",
@@ -45,8 +48,8 @@ WORLD_KW = dict(n_agents=2_000, seed=1, world_dir="data/world/v2", ticks=300, vo
 
 # ================================================================= 写しと台帳の行
 def test_copies_of_the_relation_kinds():
-    assert CT.KIND_HOUSEHOLD == RL.REL_KINDS["household"] and CT.KIND_WORK == RL.REL_KINDS["work"]
-    assert dict(CT.KIND_NAMES) == dict(RL.REL_KIND_NAMES)
+    assert CT.KIND_HOUSEHOLD == RV.REL_KINDS["household"] and CT.KIND_WORK == RV.REL_KINDS["work"]
+    assert dict(CT.KIND_NAMES) == dict(RV.REL_KIND_NAMES)
     assert CT.MEANS == ("通話", "メッセージ", "メール", "職場の連絡")
     assert [CT.MEANS_BITS[m] for m in CT.MEANS] == [1, 2, 4, 8]
     assert dict(CT.INITIAL_FLAGS_BY_KIND) == {1: FAM, 2: WORK}
@@ -128,7 +131,7 @@ def _ep(lay, a, tick, agent, partner):  # noqa: ANN001
 def _init(u, v, kind, n=None, first=None):  # noqa: ANN001
     u, v, kind = (np.asarray(x, dtype=np.int64) for x in (u, v, kind))
     m = u.size
-    return RL.InitialEdges(u=u, v=v, kind=kind, n=np.asarray(n if n is not None else [1] * m, dtype=np.int64),
+    return RV.InitialEdges(u=u, v=v, kind=kind, n=np.asarray(n if n is not None else [1] * m, dtype=np.int64),
                            first=np.asarray(first if first is not None else [0] * m, dtype=np.int64),
                            last=np.zeros(m, dtype=np.int64), minutes=np.zeros(m, dtype=np.int64), audit={})
 
@@ -284,7 +287,7 @@ def test_memory_declares_the_contact_writes_in_stage_b(monkeypatch):
 
 @world
 def test_world_run_family_and_work_flags_and_rel_columns_unchanged(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     made = _capture(monkeypatch)
     res = cli.run(**WORLD_KW)
@@ -304,7 +307,7 @@ def test_world_run_family_and_work_flags_and_rel_columns_unchanged(monkeypatch):
 
 @world
 def test_resume_rebuilds_the_same_flags(monkeypatch, tmp_path):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     made = _capture(monkeypatch)
     straight = cli.run(**WORLD_KW)

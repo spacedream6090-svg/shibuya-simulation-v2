@@ -1,0 +1,32 @@
+{
+  "base": "0716cc5328eea16f53066979f427c61d33899ecf",
+  "counts": {
+    "structure": 3
+  },
+  "doc_readers": 0,
+  "files": [
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/economy/pricing.py",
+      "status": "M",
+      "verdict": "structure"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/perception/attention.py",
+      "status": "M",
+      "verdict": "structure"
+    },
+    {
+      "doc_readers": 0,
+      "path": "src/shibuya/world/laws/crowd.py",
+      "status": "M",
+      "verdict": "structure"
+    }
+  ],
+  "head": "作業木",
+  "paths": [
+    "src"
+  ],
+  "schema": "shibuya.tools/bytecheck/astsame/1"
+}

@@ -19,13 +19,13 @@ from pathlib import Path
 
 import pytest
 
-from shibuya import cli
-from shibuya.core.time_consts import STEPS_PER_DAY
-from shibuya.engine import manifest_sections as MS
-from shibuya.engine import run_kind as RK
-from shibuya.engine.bridging import ledger as BR
-from shibuya.engine.rules import table as RT
-from shibuya.engine.run import run_day
+from shibuya.interfaces.cli import main as cli
+from shibuya.foundation.time_consts import STEPS_PER_DAY
+from shibuya.foundation.manifest import sections as MS
+from shibuya.experiments.port import run_kind as RK
+from shibuya.foundation.decl import bridging as BR
+from shibuya.world.facts.rules import table as RT
+from shibuya.runtime.run import run_day
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -49,10 +49,13 @@ def test_the_fields_are_at_the_end_and_frozen(two_days):
     # 〔第 3 期 3-2〕その後ろに batching(計算のまとめの窓)・〔第 3 期 3-5〕その後ろに body(本人の体の層)を足した=1-4 の 3 欄は
     # 末尾の 10 前まで
     # 〔第 3 期 3-1〕その後ろ(末尾)に calendar_shadow を足した=1-4 の 3 欄は末尾の 11 前まで
-    assert keys == TOP and keys[-15:-12] == R14 and keys[-16] == "bridges_count"  # 〔第 5 期 段 1〕space の分 1 つずれた
-    # 〔第 5 期 空間の段 1〕その後ろ(末尾)に space=末尾の 12
-    assert keys[-12:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
-                          "experiment", "batching", "body", "calendar_shadow", "space"]
+    # 〔11-01 段 2 の 4〕その後ろ(末尾)に rate_rules を足した=1-4 の 3 欄は末尾の 13 前まで
+    # 〔11-02r §1 #7〕その後ろ(末尾)に absent_processes を足した=1-4 の 3 欄は末尾の 14 前まで
+    assert keys == TOP and keys[-18:-15] == R14 and keys[-19] == "bridges_count"  # 〔11-02r〕absent_processes・〔11-03〕defect_fixes_1103 の分ずれた
+    # 〔第 5 期 空間の段 1〕その後ろに space・〔11-01 段 2 の 4〕rate_rules・〔11-02r §1 #7〕その後ろ(末尾)に absent_processes
+    assert keys[-15:] == ["economy", "percept", "rights", "decision_port", "tools", "speech_port", "proximity",
+                          "experiment", "batching", "body", "calendar_shadow", "space", "rate_rules", "absent_processes",
+                          "defect_fixes_1103"]  # 〔11-03 §3〕その後ろ(末尾)に defect_fixes_1103
 
 
 def test_values_match_the_ledger_and_the_table(two_days):
@@ -171,7 +174,7 @@ def test_tool_configs_that_call_cli_run_are_arms():
     assert cli.run_arms(_cli_run_view({"vocab_version": "v3", "stop_at_tick": 100, "state_out": "x",
                                        "resume_from": "y", "sim_days": 2})) == ()
     assert cli.run_arms(_cli_run_view({"vocab_version": "v3", "memory": "on"})) == ("memory",)
-    assert cli.run_arms(_cli_run_view({})) == ("vocab_version",)  # ライブラリの既定 v1=CLI の既定 v3 と違う
+    assert cli.run_arms(_cli_run_view({})) == ()  # 〔Q13・第347〕ライブラリの既定=CLI の既定(v3)=腕でない(前は v1 で腕)
 
 
 def test_cli_main_and_cli_run_decide_the_kind(monkeypatch):

@@ -7,7 +7,7 @@ import time
 import numpy as np
 import pytest
 
-from shibuya.perception import p_notice as P
+from shibuya.world.model import notice_reach as P
 
 #: §3.1 の検算表(d50=40 m・前方・昼・疎・手空き)。
 CONTRACT_TABLE = {

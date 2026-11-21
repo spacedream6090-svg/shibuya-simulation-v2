@@ -24,7 +24,7 @@ import pytest
 
 from shibuya.economy.accounts import BalanceLine, Sector
 from shibuya.economy.ledger import Ledger
-from shibuya.engine import ledger_api as API
+from shibuya.foundation.ports import ledger as API
 
 from tests.economy.cp2 import money_writers as MW
 
@@ -34,6 +34,13 @@ DECLARED = {(w["path"], w["func"]): set(w["attrs"])
             for w in json.loads((HERE / "money_writers_frozen.json").read_text(encoding="utf-8"))["writers"]}
 WINDOW_NAMES = frozenset({"_unlocked", "unlocked"})
 ALLOWED = {("economy/ops.py", "transfer")}
+# 負の対照の合成のコード片に付ける名札(照合に使うだけ・ファイルは読まない)。〔割る段 6 の S6-G0〕元はどちらも割る行の
+# resolve の道。どの割る段・移す段にも当たらない字面にした。
+# 負の対照 1(窓): ALLOWED との照合だけ=どの名札でも「transfer の外」。木に無い道の形の字面。
+NEG_LABEL_WINDOW = "synthetic/negative_control.py"
+# 負の対照 2(書き): 凍結の表に書き手を持つ置き場の名札=宣言に無い関数の書きが違反になることを確かめる
+# (置き場だけで見る形の壊れにも気づく)。map.toml では keep の行(割る道具も移す道具も書き換えない)。
+NEG_LABEL_WRITER = "economy/ledger.py"
 
 
 class _WindowScan(ast.NodeVisitor):
@@ -124,11 +131,11 @@ def test_negative_window_and_balance_write():
         "_open": "def f(led):\n    with led.money._open():\n        pass\n",
     }
     for name, code in forms.items():
-        assert _outside(window_refs(code, "engine/resolve.py")), name
+        assert _outside(window_refs(code, NEG_LABEL_WINDOW)), name
     # ops.py でも transfer の外なら落ちる
     assert _outside(window_refs("def helper(led):\n    with led._unlocked():\n        pass\n", "economy/ops.py"))
     # 自分の _open(self)は窓の参照ではない(会話の管理の _open など)
-    assert window_refs("class C:\n    def g(self):\n        return self._open()\n", "engine/conversation.py") == []
+    assert window_refs("class C:\n    def g(self):\n        return self._open()\n", "society/conversation.py") == []
 
 
 def test_negative_setattr_and_named_writes():
@@ -139,7 +146,7 @@ def test_negative_setattr_and_named_writes():
             "    vars(led)['_lines'] = {}\n"
             "    a.__dict__['money'] = 0\n"
             "    setattr(led, 'not_money', 1)\n")
-    bad = MW.violations(MW.scan_source(code, "engine/resolve.py"), DECLARED)
+    bad = MW.violations(MW.scan_source(code, NEG_LABEL_WRITER), DECLARED)
     assert [(w.attr, w.form) for w in bad] == [("_raw_pos", "setattr"), ("_flow", "setattr"),
                                               ("_lines", "vars/__dict__ の名前の書き"),
                                               ("money", "vars/__dict__ の名前の書き")], bad

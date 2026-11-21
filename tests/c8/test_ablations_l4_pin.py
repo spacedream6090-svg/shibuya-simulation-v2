@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya.engine.arbiter import call_budget_per_tick
+from shibuya.runtime.arbiter import call_budget_per_tick
 
 PINNED = [
     "AB1-BUDGET-MODE", "AB2-PNOTICE-D50", "AB3-REFRACTORY-PROX", "AB6-AD-ZERO",

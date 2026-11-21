@@ -17,11 +17,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.engine.geometry import kladek_speed_factor
-from shibuya.engine.space import nav1 as N
-from shibuya.world import navmesh as NV
-from shibuya.world.navmesh import navmesh_available
-from shibuya.world.state import DENSITY_STAGE_EDGES_PER_M2
+from shibuya.world.model.geometry import kladek_speed_factor
+from shibuya.world.model.space import nav1 as N
+from shibuya.world.model import navmesh as NV
+from shibuya.world.model.navmesh import navmesh_available
+from shibuya.world.model.state import DENSITY_STAGE_EDGES_PER_M2
 from tests.build_space import synth as SY
 
 SCALE = 0.01
@@ -186,11 +186,20 @@ KW = dict(n_agents=150, seed=1, ticks=240, vocab_version="v3", activity=True)
 
 @needs_stage
 def test_arm_reaches_the_run_and_does_not_move_legacy(monkeypatch):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
+
+    from tests.engine.space._legacy import legacy_space
 
     monkeypatch.delenv("SHIBUYA_NAV1_DENSITY", raising=False)
-    monkeypatch.delenv("SHIBUYA_SPACE", raising=False)
-    base_legacy = cli.run(world_dir=str(STAGE), space="legacy", **KW)
+
+    def _legacy():  # 〔第347〕前は space="legacy"(切替口)=試験の中だけの口で旧のセルの移動にする
+        with pytest.MonkeyPatch.context() as mp:
+            legacy_space(mp)
+            res = cli.run(world_dir=str(STAGE), **KW)
+        assert res.run_manifest_fields()["space"]["effective"] == "legacy"
+        return res
+
+    base_legacy = _legacy()
     base = cli.run(world_dir=str(STAGE), **KW)
     m = base.run_manifest_fields()
     assert m["space"]["effective"] == "nav1" and m["space"]["navmesh"]["density_mode"] == "neighborhood"
@@ -198,7 +207,7 @@ def test_arm_reaches_the_run_and_does_not_move_legacy(monkeypatch):
     for mode in ("cell", "unscaled"):
         monkeypatch.setenv("SHIBUYA_NAV1_DENSITY", mode)
         # 旧値の再現(legacy)のランは腕で動かない
-        assert cli.run(world_dir=str(STAGE), space="legacy", **KW).final_hash == base_legacy.final_hash, mode
+        assert _legacy().final_hash == base_legacy.final_hash, mode
         res = cli.run(world_dir=str(STAGE), **KW)
         nm = res.run_manifest_fields()["space"]["navmesh"]
         assert nm["density_mode"] == mode and nm["density_neighborhood"] is None
@@ -210,13 +219,15 @@ def test_b4_density_stage_comes_from_the_nav_stage_only_when_asked():
     """変化検出の B4 の密度の段: los_stage を渡せばそれ(nav1)・渡さなければ density ÷ 歩ける面積(legacy)。"""
     from types import SimpleNamespace
 
-    from shibuya.engine import change_detect as CD
+    from shibuya.mind.system1 import change_detect as CD
+    # 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+    from shibuya.world.model.scene_hash import b4_block_raw
 
     dens = np.array([0.0, 50.0, 400.0])
     world = SimpleNamespace(n_cells=3, cells=SimpleNamespace(density=dens),
                             noise_stage_for_tick=lambda t: np.zeros(3, dtype=np.uint8))
-    legacy = CD.b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]))
-    nav = CD.b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]),
+    legacy = b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]))
+    nav = b4_block_raw(world, 0, walkable_area_m2=np.array([100.0, 100.0, 100.0]),
                           los_stage=np.array([5, 0, 1], dtype=np.uint8))
     assert legacy[:, 0].tolist() == [0, 2, 5] and nav[:, 0].tolist() == [5, 0, 1]
     assert np.array_equal(legacy[:, 1:], nav[:, 1:])

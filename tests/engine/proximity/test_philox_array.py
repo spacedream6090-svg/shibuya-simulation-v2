@@ -12,7 +12,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core import rng as R
+from shibuya.foundation import rng as R
 
 N = 10_000
 

@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import pytest
 
-from shibuya import cli
-from shibuya.engine.arbiter import call_budget_per_tick
-from shibuya.engine.run import run_day
-from shibuya.llm.fleet import FleetConfig, l4_calls_per_day, l6_in_flight_per_gpu
+from shibuya.interfaces.cli import main as cli
+from shibuya.runtime.arbiter import call_budget_per_tick
+from shibuya.runtime.run import run_day
+from shibuya.runtime.inference.fleet import FleetConfig, l4_calls_per_day, l6_in_flight_per_gpu
 
 from .conftest import WORLD_DIR, real_data
 
@@ -28,7 +28,8 @@ def test_l4_and_l6_are_read_from_the_budget_table():
 
 def test_l4_cap_holds_for_a_5000_agent_day_on_the_synthetic_world(capsys):
     n, ticks = 5_000, 1_440
-    res = run_day(n_agents=n, seed=1, ticks=ticks, checkpoint_every=720, n_cells=139)
+    # 〔Q13 commit ①〕L4 の按分(倍率 1.0)を明示(前のライブラリの既定)
+    res = run_day(n_agents=n, seed=1, ticks=ticks, checkpoint_every=720, n_cells=139, l4_scale=1.0)
     cap = int(call_budget_per_tick(n) * ticks)
     with capsys.disabled():
         print(
@@ -184,8 +185,8 @@ def test_fleet_smoke_unlimited_defaults_the_queue_to_the_agent_count(tmp_path):
     (1 体 1 本)の既存の穴。旧値の腕では 24 刻みの中で誰も跨がなかった偶然で通っていた(240 刻みでは validation 39,563・
     w17 31,787)。穴は台帳 ``DOC-fleet-resend-while-waiting`` に宣言・直しは判断待ち(記録 meal_w17/README.md §12)。
     """
-    from shibuya.llm.fleet import FleetClient
-    from shibuya.manifest.schema import Mode
+    from shibuya.runtime.inference.fleet import FleetClient
+    from shibuya.foundation.manifest.schema import Mode
 
     from ._fake_vllm import FakeVLLM
 

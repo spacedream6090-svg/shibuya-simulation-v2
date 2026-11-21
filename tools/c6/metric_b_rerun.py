@@ -44,7 +44,7 @@ import c6lib  # noqa: E402
 
 def collect_scenes(args) -> tuple[list, Path, dict]:
     """mock ランを回して ``scenes.jsonl``(プロンプト全文)を作る。"""
-    from shibuya.llm.mock import MockLLM
+    from shibuya.runtime.inference.mock import MockLLM
 
     rec = c6lib.RecordingLLM(MockLLM(master_seed=args.seed))
     res, route = c6lib.run_smoke(
@@ -54,11 +54,13 @@ def collect_scenes(args) -> tuple[list, Path, dict]:
         world_dir=c6lib.world_dir_of(args),
         llm=rec,
         checkpoint_every=max(1, args.ticks),
+        extra={"vocab_version": "v1"},  # 〔第347・Q13〕前と同じラン=語彙 v1 を明示(cli.run の既定は v3 になった)
     )
     path = rec.dump(Path(args.out) / "scenes.jsonl")
     scenes = [c6lib.scene_from_record(r) for r in rec.records]
     meta = {
         "route": route,
+        "vocab_version": str(res.vocab_version),
         "llm_calls": int(res.llm_calls),
         "n_records": len(rec.records),
         "final_hash": res.final_hash,

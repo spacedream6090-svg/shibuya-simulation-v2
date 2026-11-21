@@ -15,10 +15,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import STORE_MEMORY_FIELDS, AgentState, ResultCode
-from shibuya.engine import memory as M
-from shibuya.engine import store_memory as SM
-from shibuya.engine import wom as W
+from shibuya.foundation.vocab.agent_codes import STORE_MEMORY_FIELDS, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import store_memory as SM
+from shibuya.mind.memory import wom as W
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -248,7 +249,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_default_has_no_wom_and_mock_extracts_nothing():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3")  # 会話の起きる規模(mock)・10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = cli.run(**kw)
@@ -270,8 +271,8 @@ def test_default_has_no_wom_and_mock_extracts_nothing():
 @real_world
 def test_a_reason_writing_llm_leaks_nothing_by_default():
     """第2波 §2A 項 1 (i): 理由欄に店名と評価語を書く LLM でも、既定(utterance)は抽出 0・伝聞の行 0。"""
-    from shibuya import cli
-    from shibuya.engine.run import _default_mock
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on", store_memory="on")
     on = cli.run(llm=_TalkingLLM(_default_mock(1, "v3"), "スターバックス"), **kw)
@@ -286,8 +287,8 @@ def test_a_reason_writing_llm_leaks_nothing_by_default():
 @real_world
 def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     """旧の源(``wom_source="reason-target"``)で第297 の挙動を再現する(第2波 §2A 項 1 (ii))。"""
-    from shibuya import cli
-    from shibuya.engine.run import _default_mock
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.runtime.run import _default_mock
 
     kw = dict(n_agents=300, seed=1, world_dir=WORLD, vocab_version="v3", memory="on",
               wom_source="reason-target")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
@@ -305,7 +306,7 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
     assert w["counts"]["wom_valence+1"] == w["counts"]["wom_extracted"]
     assert set(w["top_pois"]) == {"スターバックス"} and w["store_rows_with_wom"] > 0
     r = on.agents.registry
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     names = World.load_or_synthetic(WORLD).assets.poi_name
     wom_rows = (r.sm_source & SM.STORE_SOURCE_BIT["wom"]) > 0
@@ -317,16 +318,20 @@ def test_a_talking_llm_writes_word_of_mouth_rows_for_listeners_only():
 
 def test_extraction_is_per_call_string_work():
     """P4: 抽出は呼ごとの文字列処理(体数に比例するループを書かない)=宣言が本文にある。"""
-    src = (SRC / "engine/wom.py").read_text(encoding="utf-8")
+    src = (SRC / "mind/memory/wom.py").read_text(encoding="utf-8")
     assert "逐次ループ宣言" in src and "呼数比例" in src
 
 
 def test_wom_source_switch_is_checked_and_on_the_cli():
     """第2波 §2A 項 1: ``--wom-source {utterance,reason-target}``(既定 utterance)・誤りは ValueError。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, memory="on", store_memory="on", wom_source="reason")
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     assert '"--wom-source"' in text and 'choices=("utterance", "reason-target")' in text
     assert W.DEFAULT_WOM_SOURCE == "utterance" and W.WOM_SOURCES == ("utterance", "reason-target")

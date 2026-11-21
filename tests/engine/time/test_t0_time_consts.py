@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.core import time_consts as TC
-from shibuya.core import types as TY
+from shibuya.foundation import time_consts as TC
+from shibuya.foundation import types as TY
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -56,19 +56,22 @@ def test_old_names_are_the_same_values():
 
 def test_module_level_aliases_elsewhere_are_the_same_value():
     """置き換えで再輸出にした各モジュールの ``MINUTES_PER_DAY`` ほか(読み手が名で引く)は同じ値。"""
-    import importlib
-
-    weekly, growth, activity, growth_decl, scheduler, civic, goods_flow, logistics, opening, actual_log = (
-        importlib.import_module(f"shibuya.{m}") for m in (
-            "agents.weekly", "core.growth", "engine.activity", "engine.growth_decl", "engine.scheduler",
-            "engine.processes.civic", "engine.processes.goods_flow", "engine.processes.logistics",
-            "engine.processes.opening", "world.processes.actual_log"))
+    # 〔段 4 の下ごしらえ〕モジュールは import の文で読む(移す道具が import の文を新しい置き場へ書き換える。
+    # 前は ``shibuya.`` の無い点の名の文字列から import していた=道具が触らない形)
+    from shibuya.world.facts import weekly_reader as weekly
+    from shibuya.foundation import growth
+    from shibuya.act import activity
+    from shibuya.runtime.state import growth_decl
+    from shibuya.world.laws import civic, goods_flow, logistics, opening
+    # scheduler は包みの頭が同じ名の関数を再輸出している(``from shibuya.engine import scheduler`` は関数)=名を直に読む
+    from shibuya.foundation.queues.scheduler import HORIZON_TICKS
+    from shibuya.world.ledger import actual_log
 
     for mod in (weekly, activity, civic, goods_flow, logistics, opening):
         assert mod.MINUTES_PER_DAY == TC.MINUTES_PER_DAY, mod.__name__
     assert growth.MINUTES_PER_SIM_DAY == TC.MINUTES_PER_DAY
     assert growth_decl.TICKS_PER_DAY == actual_log.TICKS_PER_DAY == TC.STEPS_PER_DAY
-    assert scheduler.HORIZON_TICKS == TC.STEPS_PER_DAY
+    assert HORIZON_TICKS == TC.STEPS_PER_DAY
 
 
 def test_seconds_to_steps_rounding_rule():
@@ -114,7 +117,7 @@ def test_doctests():
 
 def test_time_consts_imports_only_the_standard_library():
     """層契約: 標準ライブラリだけ(core の最下層=誰からでも import できる)。"""
-    tree = ast.parse((ROOT / "src" / "shibuya" / "core" / "time_consts.py").read_text(encoding="utf-8"))
+    tree = ast.parse((ROOT / "src" / "shibuya" / "foundation" / "time_consts.py").read_text(encoding="utf-8"))
     mods = set()
     for n in ast.walk(tree):
         if isinstance(n, ast.Import):

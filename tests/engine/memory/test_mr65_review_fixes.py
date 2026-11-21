@@ -19,11 +19,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_SECOND
-from shibuya.engine import memory_m1 as M1
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.memory_store import LegacyEvent, MemoryStore
-from shibuya.engine.run import run_day
+from shibuya.foundation.time_consts import NS_PER_SECOND
+from shibuya.mind.memory import memory_m1 as M1
+from shibuya.runtime.state import ledger as SL
+from shibuya.mind.memory.memory_store import LegacyEvent, MemoryStore
+from shibuya.runtime.run import run_day
 
 from tests.engine.memory._mr65 import KW, arms
 
@@ -37,7 +37,7 @@ def _head(d: Path) -> dict:
 
 
 def test_arms_enter_the_config_section_and_the_fingerprint(tmp_path):
-    from shibuya.engine import manifest_sections as MSEC
+    from shibuya.foundation.manifest import sections as MSEC
 
     kw = dict(KW, ticks=240)
     with arms("events", model="m1", cue="embed", embed_model="ngram-test"):
@@ -87,7 +87,7 @@ def test_resume_refuses_another_embed_model_or_another_arm(tmp_path):
 
 # ---------------------------------------------------------------- L3
 def _people_store() -> MemoryStore:
-    import shibuya.engine.memory_store as MS
+    import shibuya.mind.memory.memory_store as MS
 
     ms = MS.MemoryStore(4, 4, step_seconds=60, minutes_per_step=1.0)
     ms.enable_arms(m1=M1.M1State(4, 16, tau=M1.tau_from_m0(-2.0), seed=1), uncapped=True)
@@ -97,7 +97,7 @@ def _people_store() -> MemoryStore:
 
 
 def test_people_readers_compute_each_strength_once(monkeypatch):
-    from shibuya.engine.relations_people import PeopleRelationLayer
+    from shibuya.mind.relations.people import PeopleRelationLayer
 
     ms = _people_store()
     layer = PeopleRelationLayer(4, 50, store=ms)
@@ -138,7 +138,7 @@ def test_params_tables_are_read_only_and_the_summary_is_a_plain_copy():
 
 # ---------------------------------------------------------------- CueState の守り(検収 低)
 def test_cue_state_guards():
-    from shibuya.engine.memory_embed import CueState, NgramEmbedder
+    from shibuya.mind.memory.memory_embed import CueState, NgramEmbedder
 
     cs = CueState(NgramEmbedder())
     for name, val in (("_heard", {}), ("_own", {}), ("_vec", {}), ("_qcache", {}), ("embedder", NgramEmbedder()),
@@ -184,6 +184,16 @@ def test_bridge_ids_use_the_stage_names_of_answer_6_2():
     # 発注の名(M4=思い浮かぶ/見覚え・M5=人も記憶)は why に書く
     assert "発注の M4" in rows["DOC-mr65-m1-recognition"]["why"]
     assert "発注の M5" in rows["DOC-mr65-m1-people-initial"]["why"]
+    from shibuya.foundation.decl import ledger_paths as LP
+    from shibuya.runtime.systems import assemble as SYS_BUILD
+
+    from tests import _places as PL
+
+    # 〔段 4 の下ごしらえ・親の決定 1〕台帳の道は台帳に書いてある道のまま=今の道へは ledger_paths で引く。今の道は組み立ての
+    # モジュールと cli のファイルから作る(前は字面の道=移す道具が書き換え、台帳の道と食い違った)
     seed_row = rows["DOC-mr65-m4-rate-variation"]
-    assert "母集団の seed" in seed_row["what"] and "src/shibuya/engine/systems/build.py" in seed_row["code_at"]
-    assert "src/shibuya/cli.py" not in seed_row["code_at"]
+    code_now = {LP.current_path(p) for p in seed_row["code_at"]}
+    assert "母集団の seed" in seed_row["what"] and f"src/{PL.PKG.name}/{PL.rel_of(SYS_BUILD)}" in code_now
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルのどれも台帳の道に無い(割った後に入口の転送の道だけを見て空回り
+    # しない。割る前は cli.py=前と同じ範囲)
+    assert not {f"src/{PL.PKG.name}/{r}" for r in PL.split_files("cli.py")} & code_now

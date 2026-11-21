@@ -17,12 +17,15 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.agents.state import RELATION_FIELDS, AgentState, ResultCode
-from shibuya.agents.weekly import WeeklySchedule
-from shibuya.engine import memory as M
-from shibuya.engine import relations as RL
-from shibuya.engine.conversation import ConversationManager
-from shibuya.perception import templates as T
+from shibuya.foundation.vocab.agent_codes import RELATION_FIELDS, ResultCode
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.facts.weekly_reader import WeeklySchedule
+from shibuya.mind.memory import memory as M
+# 〔割る段 5a の G5〕別名 RL を割り先ごとに分けた(RL=mind.relations.layer・RT=world.facts.initial_ties・RV=foundation.vocab.relations の名)
+from shibuya.world.facts import initial_ties as RT
+from shibuya.foundation.vocab import relations as RV
+from shibuya.society.conversation import ConversationManager
+from shibuya.foundation.text import templates as T
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -79,10 +82,10 @@ def test_relation_columns_only_in_the_arm_16_bytes_per_edge():
     base = AgentState(4, memory_columns=True)
     assert not any(f in base.registry for f in RELATION_FIELDS)
     a = AgentState(4, memory_columns=True, relation_columns=True)
-    assert a.rel_partner.shape == (4, RL.REL_K) == (4, 15) and (a.rel_partner == -1).all()
+    assert a.rel_partner.shape == (4, RV.REL_K) == (4, 15) and (a.rel_partner == -1).all()
     assert a.declared_bytes_per_agent - base.declared_bytes_per_agent == 15 * 16 == 240
     assert (a.bytes_total() - base.bytes_total()) // 4 == 240
-    assert RL.REL_ROW_BYTES_ACTUAL == RL.REL_ROW_BYTES_DECLARED == 16
+    assert RV.REL_ROW_BYTES_ACTUAL == RV.REL_ROW_BYTES_DECLARED == 16
     with pytest.raises(ValueError):
         AgentState(2, relation_columns=True, rel_k=0)
 
@@ -90,8 +93,8 @@ def test_relation_columns_only_in_the_arm_16_bytes_per_edge():
 # ================================================================= (b)(c) 共在と初期化
 def test_copresence_minutes_and_blocks():
     w = weekly([[(540, 1020, 7)], [(600, 720, 7), (780, 900, 7)], [(540, 1020, 8)]])
-    sl = RL.slot_cells(w, np.arange(3))
-    mins, blocks = RL.copresence(sl)
+    sl = RT.slot_cells(w, np.arange(3))
+    mins, blocks = RT.copresence(sl)
     assert mins[0, 1] == 240 and blocks[0, 1] == 2      # 10:00〜12:00 と 13:00〜15:00=2 塊
     assert mins[0, 2] == 0 and blocks[0, 2] == 0         # 別のセル
     assert mins[1, 0] == mins[0, 1] and mins[0, 0] == 0
@@ -103,10 +106,10 @@ def test_initial_edges_household_work_school_and_cap():
     w = weekly(rows)
     p = pop([1, 1, -1, -1, -1, -1, -1, -1, -1, -1], [-1, -1, 4, 4, 4, 4, 4, 4, -1, -1],
             [-1] * 8 + [9, 9])
-    init = RL.initial_edges(p, w, 10, k=3, tau=None, tiebreak="id")
+    init = RT.initial_edges(p, w, 10, k=3, tau=None, tiebreak="id")
     got = {(int(u), int(v)): int(kd) for u, v, kd in zip(init.u, init.v, init.kind)}
-    assert got[(0, 1)] == got[(1, 0)] == RL.REL_KINDS["household"]
-    assert got[(8, 9)] == RL.REL_KINDS["school"]
+    assert got[(0, 1)] == got[(1, 0)] == RV.REL_KINDS["household"]
+    assert got[(8, 9)] == RV.REL_KINDS["school"]
     # 体 2 の職場の辺は共在の長い順に 3 本(体 7 が最長=体 2 と 60 分・…同点は相手の行番号)
     assert sorted(v for (u, v) in got if u == 2) == [3, 4, 5]
     assert sorted(v for (u, v) in got if u == 7) == [4, 5, 6]            # 体 7 から見て共在が長い 3 人
@@ -114,11 +117,11 @@ def test_initial_edges_household_work_school_and_cap():
     assert init.audit["candidate_pairs"] < init.audit["candidate_pairs_all"]      # 組の中で k に切った
     # 第299 Q89/Q90: 在職期間 T_uv(組の hash・1〜13 週)・n=枠/週 × T・first=−T
     def tw(u_: int, v_: int) -> float:
-        return float(RL._tenure_weeks(np.asarray([u_]), np.asarray([v_]), RL.REL_TENURE_WEEKS)[0])
+        return float(RT._tenure_weeks(np.asarray([u_]), np.asarray([v_]), RV.REL_TENURE_WEEKS)[0])
 
     # 第300 訂正(8b′): n=共在のあった日数/週 × T(1 日 1 本=ラン中と同じ単位)
     j = [i for i, (u, v) in enumerate(zip(init.u, init.v)) if (u, v) == (0, 1)][0]
-    assert int(init.n[j]) == round(RL.HOUSEHOLD_MIN_DAYS_PER_WEEK * tw(0, 1))    # 共在なしの世帯=毎日
+    assert int(init.n[j]) == round(RT.HOUSEHOLD_MIN_DAYS_PER_WEEK * tw(0, 1))    # 共在なしの世帯=毎日
     assert int(init.first[j]) == -round(tw(0, 1) * 7 * 1440)
     j = [i for i, (u, v) in enumerate(zip(init.u, init.v)) if (u, v) == (8, 9)][0]
     assert int(init.n[j]) == round(5 * tw(8, 9))                          # 代表日に共在 → 週 5 日 × T(共在の長さは効かない)
@@ -126,13 +129,13 @@ def test_initial_edges_household_work_school_and_cap():
     assert int(init.last[j]) == 600 - 1440                               # 前日の 10:00 に終わる
     assert tw(8, 9) == tw(9, 8) and 1.0 <= tw(8, 9) < 13.0                # 向きのない組・1〜13 週
     # 既定(hash): 同点の 5 人(体 3〜7 は体 2 とどれも 60 分)から 3 人=行番号の順ではない選び方でも本数と種別は同じ
-    h = RL.initial_edges(p, w, 10, k=3, tau=None)
+    h = RT.initial_edges(p, w, 10, k=3, tau=None)
     got_h = {(int(u), int(v)): int(kd) for u, v, kd in zip(h.u, h.v, h.kind)}
     assert len([1 for (u, _v) in got_h if u == 2]) == 3 and {v for (u, v) in got_h if u == 2} <= {3, 4, 5, 6, 7}
     assert sorted(v for (u, v) in got_h if u == 7) == [4, 5, 6]          # 同点の無い体は同じ
     assert h.audit["tiebreak"] == "hash" and init.audit["tiebreak"] == "id"
     with pytest.raises(ValueError):
-        RL.initial_edges(p, w, 10, tiebreak="random")
+        RT.initial_edges(p, w, 10, tiebreak="random")
 
 
 def test_initial_edges_hash_tiebreak_spreads_in_degree():
@@ -140,14 +143,14 @@ def test_initial_edges_hash_tiebreak_spreads_in_degree():
     g = 40
     w = weekly([[(540, 1080, 5)] for _ in range(g)])
     p = pop([-1] * g, [3] * g, [-1] * g)
-    by_id = RL.initial_edges(p, w, g, tau=None, tiebreak="id")
-    by_hash = RL.initial_edges(p, w, g, tau=None)
+    by_id = RT.initial_edges(p, w, g, tau=None, tiebreak="id")
+    by_hash = RT.initial_edges(p, w, g, tau=None)
     in_id = np.bincount(by_id.v, minlength=g)
     in_hash = np.bincount(by_hash.v, minlength=g)
     assert by_id.u.size == by_hash.u.size == g * 15                        # 出次数は同じ(k=15)
     assert int(in_id.max()) >= g - 2 and int((in_id == 0).sum()) >= g - 16    # 行番号の小さい体に集中
     assert int(in_hash.max()) < int(in_id.max()) and int((in_hash == 0).sum()) < int((in_id == 0).sum())
-    again = RL.initial_edges(p, w, g, tau=None)
+    again = RT.initial_edges(p, w, g, tau=None)
     assert np.array_equal(again.v, by_hash.v)                                # 決定論(seed に依らない)
 
 
@@ -155,26 +158,26 @@ def test_initial_edges_tau_and_density_arms():
     rows = [[(540, 1020, 5)], [(540, 600, 5)], [(540, 1020, 5)], [(900, 1020, 6)]]
     w = weekly(rows)
     p = pop([-1] * 4, [2, 2, 2, 2], [-1] * 4)
-    base = RL.initial_edges(p, w, 4, tau=None)
+    base = RT.initial_edges(p, w, 4, tau=None)
     assert base.audit["candidate_pairs_copresent"] < base.audit["candidate_pairs_all"]   # 体 3 は共在 0
     assert not any(3 in (int(u), int(v)) for u, v in zip(base.u, base.v))
-    dense = RL.initial_edges(p, w, 4, density=2.0, tau=None)
+    dense = RT.initial_edges(p, w, 4, density=2.0, tau=None)
     assert any(3 in (int(u), int(v)) for u, v in zip(dense.u, dense.v))
-    sparse = RL.initial_edges(p, w, 4, density=0.5, tau=None)
+    sparse = RT.initial_edges(p, w, 4, density=0.5, tau=None)
     assert sparse.u.size < base.u.size
-    high = RL.initial_edges(p, w, 4, tau=10.0)
+    high = RT.initial_edges(p, w, 4, tau=10.0)
     assert high.u.size == 0 and high.audit["dropped_by_tau"] == base.u.size
     with pytest.raises(ValueError):
-        RL.initial_edges(p, w, 4, density=3.0)
+        RT.initial_edges(p, w, 4, density=3.0)
 
 
 def test_tau_is_the_median_of_the_kth_edge():
     u = np.array([0, 0, 0, 1, 1, 1, 2])
     A = np.array([-1.0, -2.0, -0.5, -3.0, -1.5, -2.5, 0.0])
-    r = RL.tau_from_edges(u, A, 4, k=3)
+    r = RT.tau_from_edges(u, A, 4, k=3)
     # 体 0 の 3 番目=−2.0・体 1=−3.0・体 2,3 は 3 本無い=−∞ → 中央値=(−3.0 と −∞ の間)=−∞
     assert r["agents_with_k_edges"] == 2 and r["tau"] == -math.inf
-    r2 = RL.tau_from_edges(u, A, 2, k=3)
+    r2 = RT.tau_from_edges(u, A, 2, k=3)
     assert r2["tau"] == pytest.approx(-2.5)
 
 
@@ -253,9 +256,9 @@ def test_readers_live_edges_strength_same_cell_and_invite_weights():
 
 # ================================================================= (g) 知人の結線
 def build_renderer(n: int = 8):
-    from shibuya.agents.state import AgentKind
-    from shibuya.perception.renderer import Renderer
-    from shibuya.world.state import World
+    from shibuya.foundation.vocab.agent_codes import AgentKind
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.world.model.state import World
 
     w = World.synthetic(n_cells=9, seed=1)
     a = AgentState(n)
@@ -318,7 +321,7 @@ real_world = pytest.mark.requires_data("world_v2")
 
 @real_world
 def test_run_default_is_off_and_relations_on_keeps_behavior():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(n_agents=2000, seed=1, world_dir=WORLD, vocab_version="v3", memory="on")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     mem = cli.run(**kw)
@@ -335,38 +338,56 @@ def test_run_default_is_off_and_relations_on_keeps_behavior():
     assert GE.soa_combined(on.checkpoints[-1]) == GE.soa_combined(mem.checkpoints[-1]) and on.llm_calls == mem.llm_calls     # 書くだけ(mock は描画を読まない)
     s = on.run_manifest_fields()["relations"]
     assert s["counts"]["init_edges"] > 0 and s["degree_regular"] is False
-    assert s["init"]["w17_single_day"] is True and s["tau"] == RL.REL_TAU
+    assert s["init"]["w17_single_day"] is True and s["tau"] == RV.REL_TAU
     for key in ("edges_live_per_agent", "degree_histogram", "kinds", "signs", "A", "P", "dunbar_layers"):
         assert key in s
 
 
 def test_arm_checks_and_cli_flags():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     for bad in (dict(relations="on"), dict(memory="on", relations="maybe"),
                 dict(memory="on", relations="on", rel_init_density=3.0),
                 dict(memory="on", conv_max_participants=4), dict(memory="on", relations="on", rel_d=1.5)):
         with pytest.raises(ValueError):
             run_day(n_agents=10, ticks=2, **bad)
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     for flag in ('"--relations"', '"--rel-k"', '"--rel-tau"', '"--rel-d"', '"--rel-init-density"',
                  '"--conv-max-participants"'):
         assert flag in text
 
 
 def test_readers_and_writer_rounds_are_array_ops():
-    """P4: 読み口と 1 回の書き込みに for/while を書かない(体数比例の逐次ループなし)。"""
-    tree = ast.parse((SRC / "engine/relations.py").read_text(encoding="utf-8"))
+    """P4: 読み口と 1 回の書き込みに for/while を書かない(体数比例の逐次ループなし)。
+
+    〔割る段 5a の G5〕読み口と書き込み(``RelationLayer``)は ``mind/relations/layer.py`` へ、共在(``copresence``・
+    ``slot_cells``・``_last_copresence_many``)は ``world/facts/initial_ties.py`` へ割れた=両方の割り先を見る(割り先のファイルは
+    名の定義の置き場から引く。割る前は同じ 1 本)。見る関数が全部見つかることも確かめる(空回りしない)。"""
+    import inspect
+
+    from shibuya.mind.relations.layer import RelationLayer
+
+    files = sorted({Path(inspect.getsourcefile(RelationLayer)).resolve(),
+                    Path(inspect.getsourcefile(RT.copresence)).resolve()})
     names = {"activation", "strength", "edges", "acquaintances", "partners_in_cell", "_write_round",
              "copresence", "slot_cells", "_last_copresence_many"}
     def allowed(s: ast.AST, fn: str) -> bool:  # 宣言済み: 組の中のセルの数ぶん・種別の数ぶん(Counter)
         it = ast.unparse(s.iter) if isinstance(s, ast.For) else ""
         return fn == "copresence" or ".items()" in it
 
-    bad = [f"{n.name}:{s.lineno}" for n in ast.walk(tree)
-           if isinstance(n, ast.FunctionDef) and n.name in names
-           for s in ast.walk(n) if isinstance(s, ast.While)
-           or (isinstance(s, ast.For) and not allowed(s, n.name))]
+    found: set[str] = set()
+    bad: list[str] = []
+    for f in files:
+        for n in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            if isinstance(n, ast.FunctionDef) and n.name in names:
+                found.add(n.name)
+                bad += [f"{n.name}:{s.lineno}" for s in ast.walk(n) if isinstance(s, ast.While)
+                        or (isinstance(s, ast.For) and not allowed(s, n.name))]
+    assert found == names, sorted(names - found)
     assert not bad, bad
 
 
@@ -374,14 +395,14 @@ def test_last_copresence_many_matches_scalar():
     """性能修正(挙動不変): 直近の共在の配列版は 1 辺ずつの版と同じ値(代表日・週の両方・共在なしの辺も)。"""
     rng = np.random.default_rng(7)
     for daily in (True, False):
-        su = rng.integers(-1, 4, size=(300, RL._SLOTS)).astype(np.int32)
-        sv = rng.integers(-1, 4, size=(300, RL._SLOTS)).astype(np.int32)
+        su = rng.integers(-1, 4, size=(300, RT._SLOTS)).astype(np.int32)
+        sv = rng.integers(-1, 4, size=(300, RT._SLOTS)).astype(np.int32)
         if daily:
-            su[:, RL._SLOTS_PER_DAY:] = -1
+            su[:, RT._SLOTS_PER_DAY:] = -1
         sv[:40] = -1  # 共在なし
         for day_index in (0, 3, 6):
-            got = RL._last_copresence_many(su, sv, day_index, daily)
-            want = np.array([RL._last_copresence(su[j], sv[j], day_index, daily) for j in range(su.shape[0])])
+            got = RT._last_copresence_many(su, sv, day_index, daily)
+            want = np.array([RT._last_copresence(su[j], sv[j], day_index, daily) for j in range(su.shape[0])])
             assert np.array_equal(got, want), (daily, day_index)
 
 
@@ -407,13 +428,13 @@ def test_tenure_spreads_activation_and_arm_26_weeks():
     g = 30
     w = weekly([[(540, 1080, 5)] for _ in range(g)])
     p = pop([-1] * g, [3] * g, [-1] * g)
-    base = RL.initial_edges(p, w, g, tau=None)
-    A = RL._activation(base.n, base.first, 0, 1.0, RL.REL_D)
+    base = RT.initial_edges(p, w, g, tau=None)
+    A = RV._activation(base.n, base.first, 0, 1.0, RV.REL_D)
     assert np.unique(np.round(A, 4)).size > 50                          # 階段でない(8a の初版は 1 段)
     t13 = -base.first / (7 * 1440)
     assert t13.min() >= 1.0 - 1e-9 and t13.max() <= 13.0 + 1e-9
-    long = RL.initial_edges(p, w, g, tau=None, tenure_weeks=26.0)
+    long = RT.initial_edges(p, w, g, tau=None, tenure_weeks=26.0)
     t26 = -long.first / (7 * 1440)
     assert t26.max() > 13.0 and long.audit["tenure_weeks"] == 26.0
     with pytest.raises(ValueError):
-        RL.initial_edges(p, w, g, tenure_weeks=0.5)
+        RT.initial_edges(p, w, g, tenure_weeks=0.5)

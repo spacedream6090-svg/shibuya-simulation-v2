@@ -15,13 +15,15 @@ import inspect
 
 import pytest
 
-from shibuya.engine import state_ledger as SL
-from shibuya.engine.events import vocab as V
-from shibuya.engine.events.log import EventLog
-from shibuya.engine.speech import layer as SPL
-from shibuya.engine.speech import port as P
-from shibuya.llm import contract as C
-from shibuya.perception import renderer as R
+from shibuya.runtime.state import ledger as SL
+from shibuya.foundation.vocab import events as V
+from shibuya.foundation.journal.log import EventLog
+from shibuya.society.speech import layer as SPL
+# 〔割る段 6 の M0〕別名 P を割り先ごとに分けた(P=society/speech/port・P_MORA=foundation/text/mora の名。割る前は全部 port)
+from shibuya.society.speech import port as P
+from shibuya.foundation.text import mora as P_MORA
+from shibuya.foundation.vocab import actions as C
+from shibuya.mind.percept import draw as R
 
 FIELDS = ("speaker", "t_ns", "text", "addressees", "via", "mora", "event_id", "modality")
 
@@ -79,7 +81,7 @@ def test_via_is_the_1_3_vocabulary_and_three_participants_are_allowed():
     ("また後で", 5),  # 仮名 3 拍+漢字 1 字=2 拍(expedient の数え方)
 ])
 def test_mora_count_is_the_declared_kana_approximation(text, mora):
-    assert P.mora_count(text) == mora
+    assert P_MORA.mora_count(text) == mora
     assert _u(text=text).mora == mora
 
 
@@ -175,7 +177,7 @@ def test_ledger_arm_rows_and_arm_items():
     port = P.SpeechPort()
     assert SL.arm_items({"speech": port}, behavior=True) == (("S8", "speech.inbox"),)
     assert SL.arm_items({"speech": port}, behavior=False) == (("S8", "speech.inbox"), ("S8E", "speech._mark_event_of"))
-    assert SL.OWNER_CLASSES["speech"] == ("engine/speech/port.py", "SpeechPort")
+    assert SL.OWNER_CLASSES["speech"] == ("society/speech/port.py", "SpeechPort")
     # 検収 低7: 持ち主の腕の名(LEDGER_ARM)を行の arm と照合する=別の腕の物を同じ根の名に挿すと落ちる
     assert P.SpeechPort.LEDGER_ARM == s8.arm
 

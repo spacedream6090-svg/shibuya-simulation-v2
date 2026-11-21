@@ -37,8 +37,9 @@
 〔第 4 期 4-2b〕規則の表の空欄 3 件を埋めた値(R-118 §10-2=親の一次確認): 住民税の基礎控除・調整控除・非課税(扶養 0 の
 世界)/厚年 70 歳・健保 75 歳の年齢の上限(75 歳以上の後期高齢者医療の保険料は天引きしない=空欄の宣言
 ``DOC-rules42b-late-elderly-medical-blank``)/子ども・子育て拠出金(事業主だけ・厚年の被保険者の標準報酬 × 0.36%)。
-:func:`payroll_tables` の ``r42b``(腕 ``SHIBUYA_RULES_42B``=``engine.economy_rules.PayrollInputs.rules_42b``・既定 真)が
-偽なら 4-2 の値の再現(旧道=次の版上げで消す・台帳 ``DOC-rules42b-legacy-switch``)。
+:func:`payroll_tables` の ``r42b``(``engine.economy_rules.PayrollInputs.rules_42b``・既定 真=組み立ては常に真)が偽なら
+4-2 の値(部品の単体試験の基準の口=手計算の試験が使う)。〔第346〕ランの切替口 ``SHIBUYA_RULES_42B`` は消した(台帳
+``DOC-rules42b-legacy-switch`` は removed・旧値の再現は安定版のタグ ``stable-v2-before-switch-removal-346``)。
 
 〔検収 L5〕下限の印(``asof_basis=lower_bound``)の行を下限より前の日に引いたとき・``valid_until`` の後の日は、黙って
 「規則なし」にせず ``RuleNotInForce`` で止める(施行の初日が分からない=効いていたかどうか分からない)。
@@ -100,12 +101,12 @@ EMPLOYEE_ITEMS: Final[tuple[str, ...]] = ("health", "child_support", "pension", 
                                           "resident_tax")
 #: 雇用主の分の項目(〔第 4 期 4-2b〕子ども・子育て拠出金=事業主だけ を末尾に足した)。
 EMPLOYER_ITEMS: Final[tuple[str, ...]] = ("health", "child_support", "pension", "employment", "child_care_contribution")
-#: 〔第 4 期 4-2b〕4-2 の雇用主の分の項目(腕 ``SHIBUYA_RULES_42B=off``=4-2 の値の再現=次の版上げで消す)。
+#: 〔第 4 期 4-2b〕4-2 の雇用主の分の項目(``r42b`` 偽=4-2 の値=部品の単体試験の基準の口・〔第346〕ランの切替口は消した)。
 EMPLOYER_ITEMS_42: Final[tuple[str, ...]] = EMPLOYER_ITEMS[:4]
 
 
 def _rules(rules: Any) -> Any:
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     return _RT.default_rules() if rules is None else rules
 
@@ -113,7 +114,7 @@ def _rules(rules: Any) -> Any:
 def _get(rule_id: str, asof: "str | _dt.date", rules: Any) -> Any:
     """``asof`` の日に効いている行。施行の前は ``None``(表の無い写し・行の無い表も ``None``)。〔検収 L5〕最初の版の asof が
     下限の印(読んだ版の施行日を下限に置いた)の行を下限より前に引いたときは ``RuleNotInForce`` で止める。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     try:
         rt = _rules(rules)
@@ -130,7 +131,7 @@ def _get(rule_id: str, asof: "str | _dt.date", rules: Any) -> Any:
 
 def _row(rule_id: str, asof: "str | _dt.date", rules: Any = None) -> Any:
     """``asof`` の日に効いている machine の行(施行の前・表の無い写し・行の無い表は ``None``)。machine でない行は止める。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     row = _get(rule_id, asof, rules)
     if row is not None and str(row.kind) != _RT.KIND_MACHINE:
@@ -140,13 +141,19 @@ def _row(rule_id: str, asof: "str | _dt.date", rules: Any = None) -> Any:
 
 def _bridge_row(rule_id: str, asof: "str | _dt.date", rules: Any = None) -> Any:
     """〔検収 L1〕つなぎの読み口: :data:`BRIDGE_READ_RULES` の human の行だけを読む(ほかの id は止める)。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     if rule_id not in BRIDGE_READ_RULES:
         raise ValueError(f"{rule_id} はつなぎで読む行の一覧に無い")
     row = _get(rule_id, asof, rules)
     if row is not None and str(row.kind) != _RT.KIND_HUMAN:
         raise ValueError(f"{rule_id} は human の行であること(いま {row.kind!r})")
+    if row is not None:  # 〔段 2 の 5・検収 M1〕つなぎの書き方は行の params.bridge の 1 つ(machine のつなぎであること)
+        from shibuya.economy import anchors as _AN
+
+        b = _AN.rule_bridge(row)
+        if b is None or b["kind"] != _RT.KIND_MACHINE:
+            raise ValueError(f"{rule_id} は machine のつなぎ(params.bridge)を持つ行であること")
     return row
 
 
@@ -161,7 +168,7 @@ def _frac(x: Any) -> Fraction:
 def _valid(row: Any, asof: "str | _dt.date") -> Any:
     """行の ``valid_until``(適用期間の終わり=雇用保険の率の年度など)。〔検収 L5〕過ぎた日は黙って 0 にせず
     ``RuleNotInForce`` で止める(次の年度の率は表に無い=足すまでランを止める)。"""
-    from shibuya.engine.rules import table as _RT
+    from shibuya.world.facts.rules import table as _RT
 
     if row is None:
         return None
@@ -203,7 +210,7 @@ class PayrollTables:
     health_grades: Any = None
     pension_grades: Any = None
     sources: Mapping[str, str] = field(default_factory=dict)
-    #: 〔第 4 期 4-2b〕空欄 3 件を埋めた値か(偽=4-2 の値の再現=旧道)と、その行(無い項目は ``None``=0)・年齢の上限
+    #: 〔第 4 期 4-2b〕空欄 3 件を埋めた値か(偽=4-2 の値=部品の単体試験の基準の口)と、その行(無い項目は ``None``=0)・年齢の上限
     #: (``age_max_exclusive``・``None``=上限なし)。
     r42b: bool = False
     basic_deduction: Any = None
@@ -367,7 +374,7 @@ def resident_tax_monthly(gross: np.ndarray, tables: PayrollTables, social: np.nd
     前年の収入=今の月の賃金 × 12(Q4=未リサーチ(expedient)・台帳 ``DOC-rules42-resident-tax-base``)。〔検収 M1・親の判断〕
     合計所得=前年の収入 − 給与所得控除(源泉の別表第一を月の額面に当てた額 × 12)。
 
-    - 4-2 の値(``tables.r42b`` 偽=旧道): 所得割=(合計所得 − 社会保険料控除(``social``=本人の社会保険料等の月の額 × 12))×
+    - 4-2 の値(``tables.r42b`` 偽=部品の単体試験の基準の口): 所得割=(合計所得 − 社会保険料控除(``social``=本人の社会保険料等の月の額 × 12))×
       (都民税 4%+区民税 6%)。
     - 〔第 4 期 4-2b〕課税所得=合計所得 − 社会保険料控除 − 基礎控除(:func:`_basic_deduction`)・所得割=課税所得 × 10% −
       調整控除(:func:`_adjustment_credit`・0 を下回らない)・非課税(:func:`resident_non_taxable`=``age``=今の年齢)の行は均等割も
@@ -391,7 +398,7 @@ def _resident_tax(gross: np.ndarray, tables: PayrollTables, social: np.ndarray |
            if tables.income_tax is not None else np.zeros(g.shape, dtype=np.int64))
     si = np.zeros(g.shape, dtype=np.int64) if social is None else np.asarray(social, dtype=np.int64)
     per_capita = int(p["per_capita_metro_yen"]) + int(p["per_capita_ward_yen"]) + int(p["forest_environment_tax_yen"])
-    if not tables.r42b:  # 4-2 の値の再現(旧道=次の版上げで消す)
+    if not tables.r42b:  # 4-2 の値(部品の単体試験の基準の口・〔第346〕ランの切替口は消した)
         base = np.maximum(g - eid - si, 0) * 12
         income = (base * int(rate.numerator)) // int(rate.denominator)
         annual = np.where(g > 0, income + per_capita, 0)

@@ -15,8 +15,8 @@ from __future__ import annotations
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.engine.contact.layer import W_DIAL, W_RING, W_VIDEO_DIAL, audit_causes
-from shibuya.perception import contact_view as CV
+from shibuya.interim_bundles.contact.layer import W_DIAL, W_RING, W_VIDEO_DIAL, audit_causes
+from shibuya.foundation.ports import percept_contact as CV
 
 from tests.engine.contact._c1 import STEP_NS, WORLD, c1
 
@@ -27,7 +27,7 @@ KW5 = dict(n_agents=5000, seed=1, world_dir=str(WORLD), vocab_version="v3")
 
 @pytest.fixture(scope="module")
 def world_runs(tmp_path_factory):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     base = tmp_path_factory.mktemp("c1w")
     out = {}
@@ -107,7 +107,7 @@ def test_world_unnoticed_three_arms_are_counted(world_runs):
 
 
 def test_world_resume_mid_day_is_the_straight_run(world_runs, tmp_path):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     straight = world_runs["i"]
     with c1(unnoticed="i"):

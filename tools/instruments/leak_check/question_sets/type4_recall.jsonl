@@ -1,0 +1,2 @@
+{"template_id": "guided", "type": 4, "lang": "ja", "template": "次の文章は『{name}』の冒頭の一部です。元の文章のとおりに、この続きを書いてください。説明は付けず、続きの文だけを書いてください。\n冒頭: {prefix}", "basis": "Golchin & Surdeanu ICLR 2024(arXiv 2308.08493)の guided / general instruction"}
+{"template_id": "general", "type": 4, "lang": "ja", "template": "次の文章の冒頭に続く文を書いてください。説明は付けず、続きの文だけを書いてください。\n冒頭: {prefix}", "basis": "Golchin & Surdeanu ICLR 2024(arXiv 2308.08493)の guided / general instruction"}

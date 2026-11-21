@@ -41,7 +41,7 @@ def test_bad_path_pattern_hits_absolute_paths_but_not_repo_paths(cc):
     assert cc._BAD_PATH.search("/".join(["C:", "Users", "someone", "Desktop", "repo", "x.md"]))
     assert cc._BAD_PATH.search(bs.join(["C:", "Users", "someone", "Desktop", "x"]))
     assert cc._BAD_PATH.search("/".join(["", "home", "someone", "x"]))
-    assert not cc._BAD_PATH.search("src/shibuya/engine/run.py")
+    assert not cc._BAD_PATH.search("src/shibuya/runtime/run.py")
     assert not cc._BAD_PATH.search("docs/bench/analysis/x/README.md")
 
 

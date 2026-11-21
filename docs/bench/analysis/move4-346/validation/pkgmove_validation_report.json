@@ -1,0 +1,123 @@
+{
+ "stages": [
+  "validation"
+ ],
+ "rows_applied": 6,
+ "rows_applied_by_kind": {
+  "move": 6
+ },
+ "rows_already": [],
+ "refused_held": [],
+ "file_moves": 6,
+ "created_heads": [
+  "src/shibuya/validation/__init__.py",
+  "src/shibuya/validation/static/__init__.py"
+ ],
+ "emptied_heads": [],
+ "deleted": [
+  "src/shibuya/engine/bridging/__init__.py",
+  "src/shibuya/engine/systems/__init__.py",
+  "src/shibuya/world/processes/__init__.py"
+ ],
+ "import_statements": {
+  "src": 0,
+  "build": 0,
+  "tests": 24,
+  "tools": 0,
+  "docs": 0
+ },
+ "import_files": {
+  "src": 0,
+  "build": 0,
+  "tests": 21,
+  "tools": 0
+ },
+ "import_via_head": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_split_statements": {
+  "src": 0,
+  "build": 0,
+  "tests": 0,
+  "tools": 0
+ },
+ "import_via_package": {
+  "src": 0,
+  "build": 0,
+  "tests": 23,
+  "tools": 0
+ },
+ "plan_estimate_stage4": {
+  "statements": {
+   "src": 855,
+   "build": 38,
+   "tests": 1378,
+   "tools": 52
+  },
+  "files": {
+   "src": 179,
+   "build": 30,
+   "tests": 349,
+   "tools": 28
+  },
+  "via_head": {
+   "src": 10,
+   "build": 14,
+   "tests": 40,
+   "tools": 3
+  }
+ },
+ "path_strings": {
+  "slash": 3
+ },
+ "path_string_sites": 1,
+ "path_string_sites_by_file": [
+  "tools/bytecheck/tree.py::ROOT_READERS"
+ ],
+ "dropped_reexports": {},
+ "dropped_all": {},
+ "package_data_keys": [],
+ "ledger_paths_added": 6,
+ "class_id_keys": 10,
+ "class_ids_resorted": true,
+ "changed_files": 24,
+ "untouched_count": {},
+ "untouched_broad_constants": {
+  "docs": 12,
+  "src": 215,
+  "build": 15,
+  "tests": 281,
+  "tools": 14
+ },
+ "skipped_in_allowlist": [
+  {
+   "file": "tools/bytecheck/tree.py",
+   "symbol": "TRACKED_READS",
+   "kind": "slash",
+   "token": "world/processes/circularity.py",
+   "reason": "ASCII の外の字を含む文(記録の文)=書き換えない"
+  }
+ ],
+ "bridging_ledger": {
+  "rows_total": 794,
+  "rows_src": 398,
+  "rows_moving": 0,
+  "rows_moving_active": 0
+ },
+ "bridging_ledger_moving": [],
+ "guards": {
+  "names_frozen": "同じ",
+  "class_ids": "同じ",
+  "shaped_74": "同じ(74 種・前の出てくる数の和 452)",
+  "ledger_paths": "同じ(台帳の道は全部、表を通して今のファイルに届く)",
+  "outside_allowlist": "同じ",
+  "import_names": "同じ(import の文が結ぶ名)",
+  "head_all": "同じ(頭の __all__ は結ばれた名だけ・除いた名 0)",
+  "package_data": "同じ(鍵は木に在る包み・glob が当たる・書き換えた鍵 0)"
+ },
+ "warnings": [],
+ "untouched": []
+}

@@ -1,0 +1,1654 @@
+{
+ "a": {
+  "tool": "tools/bytecheck/2",
+  "label": "base_05be3f1",
+  "set": "all19",
+  "kw": {},
+  "src": "写し",
+  "commit": "05be3f1fdabd7275bbd2ac9bb5a65368ca9a12ef",
+  "world": "data/world/v2",
+  "agents": 5000,
+  "seed": 1,
+  "pythonhashseed": "0",
+  "env": {},
+  "env_hidden": [],
+  "extra_paths": [],
+  "drop_behavior_item": "",
+  "multiset_items": ""
+ },
+ "b": {
+  "tool": "tools/bytecheck/2",
+  "label": "work",
+  "set": "all19",
+  "kw": {},
+  "src": "写し",
+  "commit": "",
+  "world": "data/world/v2",
+  "agents": 5000,
+  "seed": 1,
+  "pythonhashseed": "0",
+  "env": {},
+  "env_hidden": [],
+  "extra_paths": [],
+  "drop_behavior_item": "",
+  "multiset_items": ""
+ },
+ "note": "tools/bytecheck run: 基準 05be3f1 の写し vs work・組 all19",
+ "keys": [
+  "final",
+  "calls",
+  "blocks_rows",
+  "blocks_sha",
+  "calls_rows",
+  "calls_column_names",
+  "calls_columns_sha",
+  "action_usage_total",
+  "action_usage_sha",
+  "calls_by_condition",
+  "salient_events",
+  "collapse",
+  "noticed",
+  "dispatches",
+  "arrived",
+  "mean_delay_min",
+  "meals",
+  "behavior_last",
+  "full_last",
+  "end_of_day",
+  "start_sim_datetime",
+  "replay_date",
+  "calendar_weekday",
+  "rng_scheme",
+  "frozen_sources",
+  "tape_files",
+  "tape_sha256",
+  "calls_schema",
+  "blocks_schema",
+  "manifest_sha",
+  "manifest_fields_sha",
+  "manifest_skipped",
+  "run_meta_sha",
+  "run_meta_fields_sha",
+  "run_meta_skipped",
+  "checkpoints",
+  "n_checkpoints"
+ ],
+ "keys_new": [
+  "tape_files",
+  "tape_sha256",
+  "calls_schema",
+  "blocks_schema",
+  "manifest_sha",
+  "manifest_fields_sha",
+  "manifest_skipped",
+  "run_meta_sha",
+  "run_meta_fields_sha",
+  "run_meta_skipped",
+  "checkpoints",
+  "n_checkpoints"
+ ],
+ "not_compared_fields": {
+  "manifest": {
+   "env_id": "環境の ID(environment の code=git の commit・dirty・差分の sha を含めて作る=写しの木は git の外で空の値・比べる側は作業木の HEAD)",
+   "environment.code": "git の commit・dirty・差分の sha256(両側で違って当然)",
+   "environment.env_id": "env_id と同じ値",
+   "resume.read_seconds": "壁時計の秒(状態を読んだ時間)",
+   "resume.restore_seconds": "壁時計の秒(状態を戻した時間)"
+  },
+  "run_meta": {
+   "env_id": "環境の ID(environment の code=git の commit・dirty・差分の sha を含めて作る=写しの木は git の外で空の値・比べる側は作業木の HEAD)",
+   "environment.code": "git の commit・dirty・差分の sha256(両側で違って当然)",
+   "environment.env_id": "env_id と同じ値"
+  },
+  "suffixes": [
+   "_nondeterministic"
+  ],
+  "suffix_exempt": {
+   "manifest_sections": "manifest の欄を節に分ける表(鍵は欄の道筋・値は節の名=壁時計でない。``manifest_sections.paths.relations.wall_seconds_nondeterministic`` などの行がある)"
+  },
+  "tape_fieldwise": [
+   "run_meta.json"
+  ]
+ },
+ "summary": {
+  "configs": 19,
+  "all_same": 0,
+  "same_partial": 0,
+  "moved": 19,
+  "errors": 0,
+  "final_same": 19,
+  "not_compared": {},
+  "conditions_not_compared": [],
+  "result": "動いた",
+  "exit_code": 1
+ },
+ "checks": {
+  "a": [],
+  "b": [],
+  "conditions": [],
+  "compare": [],
+  "run": []
+ },
+ "rows": {
+  "w6_v3_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "6b1daee727fe012cd22f7a6abfc8eb7cb1066e20799f0d615da567ca48cd1295",
+     "b": "9e81457513241be072d9f376cd497b6df2bd04ad1db084b1430bed783ab0c442"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "a7ec42cfdc189939",
+       "b": "054ebfd1f582902d"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "a7ec42cfdc189939",
+     "b": "054ebfd1f582902d"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_v3_activity_off": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "48ab177aff8b4a819635b4c9c4afae4c6c40ecd4714592c02c8c80711446989a",
+     "b": "bfc2bc799fc8a4b3909f7b059cea786291ec28d7dc3a789d2ddef04b8534325b"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "375cbb2fba1d5f86",
+       "b": "10a2e8608ff3b7be"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "375cbb2fba1d5f86",
+     "b": "10a2e8608ff3b7be"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "da247637da0d3eff936b37b1cdce8f093400a3387e0f57737e5e79b16ee954aa",
+     "b": "4e536eb5d7616b578a2dff4067a194b7b40abdaeda200c4e959462a34713f0ee"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "45c6d3a430caed71",
+       "b": "e8adbaee38291201"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "45c6d3a430caed71",
+     "b": "e8adbaee38291201"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "dc7d1bcf0e32e5becdf018fe62cb30d763f0c5c88e0b3f0f53454b15ad29ed9b",
+     "b": "af4945ec7ecdc7155ee6b063a60e92ad9b7ce57d92c0972d2dd55f9c345d2777"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "cabd505e0b0bffe7",
+       "b": "d5ffaa0f1b1f4ae7"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "cabd505e0b0bffe7",
+     "b": "d5ffaa0f1b1f4ae7"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "fcc851c0e3a22386b9d178c1c5e5ff5b61294f023dc0e1be69c1d57d68e66054",
+     "b": "6280acba131b2f84a25473f9d0b9a37fb42259ad84f1d9abdfad82d1353ef9f7"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "c77f62796276f055",
+       "b": "18324a9c7427028a"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "c77f62796276f055",
+     "b": "18324a9c7427028a"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "2a6e62b7e461e52103bc48bdca381fb46252ce4d3d2fca9d30f481b7305f2a91",
+     "b": "8c2b5eb9e63bc2427f5dacb44d892da2cfc13c0545e587aaf2679ac5fcd3cb4c"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "680352312a0b733a",
+       "b": "7f088089c6d58c1c"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "680352312a0b733a",
+     "b": "7f088089c6d58c1c"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "ff6b7c13d710efa2b76f5b0fcab7c6122dc0100c92492a50f90007b80bbc0d22",
+     "b": "a382a42391755d8bfc28ec0386ca99788920bd1d6684d58cc6e0fde7d11a13ea"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "dc8ce6ca9756a749",
+       "b": "1b740f982d14403e"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "dc8ce6ca9756a749",
+     "b": "1b740f982d14403e"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "5d04c4836a83d4f3da916f066d20a2e6259db9df86255b0837bdec19cf3eaa03",
+     "b": "e51690e82d98ee7aaac330a113229c8b4995faa83f9a536bce289c9b4fc2825c"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "680352312a0b733a",
+       "b": "7f088089c6d58c1c"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "680352312a0b733a",
+     "b": "7f088089c6d58c1c"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_old_v1_default": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "adf51c78522afa5d572a6a8c3168c2ba99b8eaa6b052f17314d5c1746c163cf9",
+     "b": "bbf2d31a65eb4e86890be6495610e51c68cb201b2c4ade79e5b23855eb811f52"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "4bd995544cf655a9",
+       "b": "522a953c72e0bcf6"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "4bd995544cf655a9",
+     "b": "522a953c72e0bcf6"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_old_v1_derive_v2_1": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "4d41ed9a78435244ad9befbf83af0ed47b8b811a72a6e9c682b8b4b673256268",
+     "b": "cae353bd9be97326d0bd290a4b2af7742b325bba83d1e7565555e486279f0eb0"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "25757764a8ff936e",
+       "b": "09328a04fd146405"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "25757764a8ff936e",
+     "b": "09328a04fd146405"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_old_v2": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "46e59d5ff01fe8f36fd6916c7eedaec7f66644fbe5ab12879fa1128d1bf547e1",
+     "b": "0a568c6a16ed3f814c6366bb820bf6904abff520b613fb1d53e46126fa10880e"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "754033d308cbb614",
+       "b": "264867818d36c450"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "754033d308cbb614",
+     "b": "264867818d36c450"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_old_v1_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "7e238d14ea3d3f810ba6dca6e6d24e4df27bc4864cee5b12596c21b67f41218f",
+     "b": "af7ce86d74d553c1df46d8ebfd7de8cf38e99ed5cf4e5fc3210aa51a200c336e"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "0b6045c4a39607ee",
+       "b": "863534bcf4a68dd7"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "0b6045c4a39607ee",
+     "b": "863534bcf4a68dd7"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_old_v2_edge": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "c2dcb215677b29325d6f9ce93ca9bfabf961c6600a6e9c1d92fb87bfa8d677fc",
+     "b": "bbec1c715fc02db80b26fd91123a360fa5c0b7032dacaf321e8c678af3a12dee"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "c9087525884fe21f",
+       "b": "8c1ceb4c78611cb8"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "c9087525884fe21f",
+     "b": "8c1ceb4c78611cb8"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_old_v1_edge_plateau": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "dcf8eaa3c62a30346928b771a4c6bb86649599dbd36740898a670e11ec991f99",
+     "b": "41963a00423e8f540e018bb96cd971d5dffbb559916b76bc248c68e3d989ef0d"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "0b6045c4a39607ee",
+       "b": "863534bcf4a68dd7"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "0b6045c4a39607ee",
+     "b": "863534bcf4a68dd7"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "w6_golden_null_arm": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "5012156cf4da475e2a2075117c87e1fd55c43c3545c9f325ad1a01b94edcb32b",
+     "b": "1c102ff93b3d4d517230ffde1b141ef4883bce39b5492feb50849098b7a7620e"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "77cc4a25cabbff92",
+       "b": "efc0cfa8bf8a5139"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "77cc4a25cabbff92",
+     "b": "efc0cfa8bf8a5139"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "v3_mem_store": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "a0bcb11ebf1dc6c8c5d47b2643f420eb302e025ff4f2b8f3ef7c9d4814fe941d",
+     "b": "3828f68238e733190331653aee769e15bc1f82a447e3f7bcf8a158bd94d944c2"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "e613844bf16482f9",
+       "b": "bc8fdf5a8c226645"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "e613844bf16482f9",
+     "b": "bc8fdf5a8c226645"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "v3_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "a9082ef8b0454c835dd2aeafc44f75046e4fb827e3876d3e5a01bffd4523003f",
+     "b": "8d1a9fc824243855cd95b140426f71d0f0619a12a157438500b652ea52151205"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "77b1ecfef78fc7a3",
+       "b": "9229f8646cb67a04"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "77b1ecfef78fc7a3",
+     "b": "9229f8646cb67a04"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "v3_classical": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "d54cb4b3b342cc57a514e058087d3677d742818f90439b35e9c6bb4e03daec13",
+     "b": "bdf074da2baf0c466541b04ef035798e190b4c5a9e0f631b3dcdc7c71f6c1f1d"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "04b807dee7b5e386",
+       "b": "86cc52765b31f9af"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "04b807dee7b5e386",
+     "b": "86cc52765b31f9af"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  },
+  "v3_classical_mem_rel": {
+   "same": [
+    "final",
+    "calls",
+    "blocks_rows",
+    "blocks_sha",
+    "calls_rows",
+    "calls_column_names",
+    "calls_columns_sha",
+    "action_usage_total",
+    "action_usage_sha",
+    "calls_by_condition",
+    "salient_events",
+    "collapse",
+    "noticed",
+    "dispatches",
+    "arrived",
+    "mean_delay_min",
+    "meals",
+    "behavior_last",
+    "full_last",
+    "end_of_day",
+    "start_sim_datetime",
+    "replay_date",
+    "calendar_weekday",
+    "rng_scheme",
+    "frozen_sources",
+    "tape_files",
+    "tape_sha256",
+    "calls_schema",
+    "blocks_schema",
+    "manifest_skipped",
+    "run_meta_sha",
+    "run_meta_fields_sha",
+    "run_meta_skipped",
+    "checkpoints",
+    "n_checkpoints"
+   ],
+   "moved": {
+    "manifest_sha": {
+     "a": "bd6adaac3e8e305cda797cf01e92eaf854ac3de96f6d8b5cf6ba3a0f4953cbfc",
+     "b": "2d58fcbc22228e364a1de5bd1d8965f4e5e578423039c4ac064885af26176008"
+    },
+    "manifest_fields_sha": {
+     "keys": {
+      "daily": {
+       "a": "d67116d67a7f9e2b",
+       "b": "27f68a75887ee3c8"
+      },
+      "bridges_count": {
+       "a": "df56bc061e91023b",
+       "b": "f15223dcc0da9020"
+      },
+      "bridges_version": {
+       "a": "a06ca4995d667238",
+       "b": "22aae5d91c647997"
+      }
+     }
+    }
+   },
+   "not_compared": [],
+   "calls_delta": 0,
+   "blocks_rows_delta": 0,
+   "action_usage_delta": 0,
+   "noticed_delta": 0,
+   "manifest_moved": {
+    "daily": {
+     "a": "d67116d67a7f9e2b",
+     "b": "27f68a75887ee3c8"
+    },
+    "bridges_count": {
+     "a": 763,
+     "b": 758
+    },
+    "bridges_version": {
+     "a": "f863a81abc920fb7",
+     "b": "f3124555db1edc23"
+    }
+   }
+  }
+ }
+}

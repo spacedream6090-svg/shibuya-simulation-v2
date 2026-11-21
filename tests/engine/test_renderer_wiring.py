@@ -17,15 +17,21 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import LAST_ACTION_NONE, Activity, AgentState
-from shibuya.engine import change_detect as CD
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.llm_bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
-from shibuya.engine.run import run_day
-from shibuya.perception import templates as PT
-from shibuya.perception.renderer import PerceptionAssets, Renderer as PerceptionRenderer
-from shibuya.world.state import World
+from shibuya.world.model.agent_table import LAST_ACTION_NONE, AgentState
+from shibuya.foundation.vocab.agent_codes import Activity
+from shibuya.mind.system1 import change_detect as CD
+# 〔割る段 5a の G5〕主でない割り先(foundation.vocab.agent_codes・world.model.scene_hash)へ行く名は名で読む(別名では割り先が 1 つに決まらない)
+from shibuya.world.model.scene_hash import b4_block_raw
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+from shibuya.act import apply as R
+from shibuya.runtime.inference.bridge import ACTION_WORD_BY_CODE, PerceptionRendererAdapter
+from shibuya.runtime.run import run_day
+from shibuya.foundation.text import templates as PT
+from shibuya.world.model.percept_scene import PerceptionAssets
+from shibuya.mind.percept.draw import Renderer as PerceptionRenderer
+from shibuya.world.model.state import World
 
 WORLD_DIR = Path("data/world/v2")
 #: ``PerceptionAssets.available(WORLD_DIR)`` と同じ判定(読み込みに要るファイルが全部ある)。
@@ -63,7 +69,7 @@ class RecordingAdapter(PerceptionRendererAdapter):
 def recording(monkeypatch):
     """``run_day`` が作るアダプタを記録つきに差し替える。"""
     _BUILT.clear()
-    monkeypatch.setattr("shibuya.engine.systems.build.PerceptionRendererAdapter", RecordingAdapter)  # 1-0
+    monkeypatch.setattr("shibuya.runtime.systems.assemble.PerceptionRendererAdapter", RecordingAdapter)  # 1-0
     yield _BUILT
     _BUILT.clear()
 
@@ -177,7 +183,7 @@ def test_the_detector_hashes_exactly_the_rows_the_renderer_renders():
         rows = r.b4_field_rows
         # 検出器が独立に world から作った欄と一致する(=同じ 1 本を見ている)
         assert np.array_equal(
-            rows, CD.b4_block_raw(world, tick, walkable_area_m2=assets.walkable_area_m2)
+            rows, b4_block_raw(world, tick, walkable_area_m2=assets.walkable_area_m2)
         )
         res = det.detect(world, agents, tick, field_rows=rows)
         body = [r._b4(c, r._tickc, []) for c in range(world.n_cells)]
@@ -220,11 +226,11 @@ def test_resolve_records_the_attempted_action_not_the_resulting_state():
     agents.freeze()
     world.freeze()
     R.apply(
-        _intents([0, 1], [C.ACT_BUY, C.ACT_REST], [0, -1]),
+        _intents([0, 1], [CV.ACT_BUY, CV.ACT_REST], [0, -1]),
         C.IntentBatch.empty(), agents, world, 700,
     )
-    assert int(agents.last_action[0]) == C.ACT_BUY  # 失敗しても「試みた行動」が残る
-    assert int(agents.last_action[1]) == C.ACT_REST
+    assert int(agents.last_action[0]) == CV.ACT_BUY  # 失敗しても「試みた行動」が残る
+    assert int(agents.last_action[1]) == CV.ACT_REST
     assert int(agents.last_action[2]) == LAST_ACTION_NONE  # 動いていない個体は触らない
     assert int(agents.activity[0]) != int(Activity.SHOPPING)  # 状態には残らない
 
@@ -238,9 +244,9 @@ def test_losers_also_get_their_attempted_action():
     agents.freeze()
     world.freeze()
     R.apply(
-        C.IntentBatch.empty(), _intents([1], [C.ACT_BUY], [0]), agents, world, 700
+        C.IntentBatch.empty(), _intents([1], [CV.ACT_BUY], [0]), agents, world, 700
     )
-    assert int(agents.last_action[1]) == C.ACT_BUY
+    assert int(agents.last_action[1]) == CV.ACT_BUY
     assert int(agents.last_action[0]) == LAST_ACTION_NONE
 
 
@@ -252,10 +258,10 @@ def test_engine_continuation_does_not_overwrite_the_attempted_action():
     agents.node[:] = 0
     agents.freeze()
     world.freeze()
-    R.apply(_intents([0], [C.ACT_MOVE], [8]), C.IntentBatch.empty(), agents, world, 10)
-    assert int(agents.last_action[0]) == C.ACT_MOVE
-    R.apply(_intents([0], [C.ENGINE_STEP], [8]), C.IntentBatch.empty(), agents, world, 11)
-    assert int(agents.last_action[0]) == C.ACT_MOVE
+    R.apply(_intents([0], [CV.ACT_MOVE], [8]), C.IntentBatch.empty(), agents, world, 10)
+    assert int(agents.last_action[0]) == CV.ACT_MOVE
+    R.apply(_intents([0], [CV.ENGINE_STEP], [8]), C.IntentBatch.empty(), agents, world, 11)
+    assert int(agents.last_action[0]) == CV.ACT_MOVE
 
 
 def test_b6_names_the_attempted_action_in_a_real_run(recording, capsys):

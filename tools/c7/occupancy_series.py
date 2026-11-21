@@ -169,7 +169,7 @@ class OccupancyRecorder:
     # -- 取り付け/取り外し --
     def attach(self, module: Any | None = None) -> "OccupancyRecorder":
         if module is None:
-            from shibuya.engine import resolve as module  # type: ignore
+            from shibuya.act import apply as module  # type: ignore
         self._module = module
         self._orig = module.apply
         rec = self
@@ -404,19 +404,26 @@ def main(argv: list[str] | None = None) -> int:
     if args.journal:
         series = load_journal(args.journal, amap)
     elif args.record:
-        from shibuya.engine.run import run_day
-        from shibuya.world.state import World
+        from shibuya.runtime.run import run_day
+        from shibuya.world.model.state import World
 
         world = World.load_or_synthetic(Path(args.world), n_cells=139, seed=args.seed)
         rec = OccupancyRecorder(every=args.every)
         with rec:
+            # 〔第347・Q13-8〕ランの既定が CLI にそろった=前の run_day の既定(語彙 v1・呼数 L4 の按分=倍率 1.0)を明示する。
+            # 空腹の旧規則 v1 は試験の中だけの口になった=空腹は energy(前のランの空腹とは違う)
             res = run_day(n_agents=args.agents, seed=args.seed, world=world, ticks=args.ticks,
-                          checkpoint_every=args.checkpoint_every, world_dir=args.world)
+                          checkpoint_every=args.checkpoint_every, world_dir=args.world,
+                          vocab_version="v1", l4_scale=1.0)
+        # 〔第347・Q13〕どの空腹のモデルで回したかを出力から分かるように(前の値=空腹 v1 は安定版のタグ
+        # stable-v2-before-library-defaults-q13・c7_checkpoints.json は前から run_manifest_fields に持つ)
         series = rec.series(amap, meta={"agents": args.agents, "seed": args.seed,
-                                        "ticks": args.ticks, "every": args.every})
+                                        "ticks": args.ticks, "every": args.every,
+                                        "hunger_model": str(res.hunger_model)})
         write_journal(out_dir / "c7_occupancy.npz", rec.ticks, rec.cell_counts(),
                       rec.kind_cell_counts(), tick_seconds=60, start_hour=0,
-                      world_dir=str(args.world), agents=args.agents, seed=args.seed)
+                      world_dir=str(args.world), agents=args.agents, seed=args.seed,
+                      hunger_model=str(res.hunger_model))
         (out_dir / "c7_checkpoints.json").write_text(
             json.dumps(checkpoints_json(res, agents=args.agents, seed=args.seed,
                                         ticks=args.ticks,

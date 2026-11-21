@@ -1,0 +1,562 @@
+"""agents.state — 個体状態の SoA(``core.soa.Registry`` の上)+起床条件表+結果コード。
+
+正典
+- 実装計画書 §3: 「agents: 状態SoA/T0習慣/記憶/関係」「SoA: 1フィールド=1本の NumPy 配列+
+  dtype レジストリ(M9)。**個体オブジェクトを作らない**」。
+- 予算宣言表 M1 ≤30KB/体(内訳 M2 位置・運動・身体 ≤128B/体・M12 p_notice用2B+
+  invocation distance 2B)。本モジュールが確保するのは M2+M12 相当の**コア欄のみ**
+  (T0習慣 M3・記憶 M4・関係 M5・プロフィール M6 は C3 以降の別レジストリ)。
+- 知覚契約書 §6 不応期表(11 行)= ``WakeCondition`` と ``REFRACTORY_MINUTES``。
+  「タイマーは**体×条件ごと**」→ ``refractory_until`` は ``(n, 11)`` の int32(tick)。
+- 行動契約書 §2.1 失敗の意味論 = ``ResultCode``(§6「直前の結果」に載る値)。
+- 運用設計書 §2.2 Phase C:「engine.resolve が確定分だけ適用」=**世界状態への書き込み口は1本**。
+  本モジュールは ``freeze()`` / ``writable()`` でそれを**機械強制**する(numpy の
+  ``writeable=False``)。``.writable(`` を呼んでよいのは ``engine/resolve.py`` だけ
+  (``tests/engine/test_two_phase.py`` の静的検査で強制)。
+
+逐次ループ宣言(P4)
+- ``freeze`` / ``thaw``: **フィールド数**ぶんのループ(20 本前後)。個体数に比例しない。
+
+expedient(本モジュール分)
+- フィールドの選定と dtype(設計書はバイト上限しか与えていない)。特に
+  ``holdings`` を uint8 の**個数**にしたのは C2 の範囲で物の種別を持たないため
+  (U-Goods の品目別在庫は C4)。
+- ``refractory_until`` を「条件ごとに次に起床してよい tick」で持つ形(表は分で与えられている)。
+  「同一相手60分」「同一話者30分」の**相手別**不応期は C2 では持たない(相手表が C3 の
+  関係辺・傍受ゲートに依存するため)。持たないことを本書の未実装として登録。
+- ``last_action``(1 byte)は「直前に**試みた**行動」。``activity``(現在の状態)では
+  B6「直前の結果」の主語を復元できない(失敗した行動は状態に残らない)ので追加した
+  (C3 結線・書き手は ``engine.resolve`` のみ)。**エンジン継続(``ENGINE_STEP``)は書かない**
+  ——「移動の続き」は新しく試みた行動ではないので、直前の 移動 が主語のまま残るのが正しい。
+- ``board_line`` / ``board_since``(5 B/体・D-51 乗車の意図保持)。「乗車を選んだがホームに
+  居ない」体を世界がホームまで運び、着いたら待ち行列に並べるための 2 欄。**待ちは
+  ``transit_state=0``(在圏)の中の状態**で、3 値(乗客の保存則の分母)は増やさない。
+  待ちの打ち切り時間は ``engine.resolve.BOARD_WAIT_LIMIT_TICKS``(expedient)。
+- ``sleep_pending``(1 B/体・D-62 就寝の意図保持)。週次表(W17)の**就寝境界**に達したが
+  就寝地(自宅セル)に居ない体の印。着いたら ``engine.resolve._apply_engine_step`` が
+  ``SLEEPING`` にする(乗車の意図保持と同じ「判断1回・実行は世界」の形)。**就寝を
+  「計画の実行」にしたので、この境界では LLM を呼ばない**(登録簿 §8 D-62)。
+- ``last_result`` を 1 byte のコードにし、失敗の詳細(残高・次回開店時刻)は**持たない**
+  (行動契約書 §6 は「残高/価格・次回開店時刻」を返せと言う=C3 のプロンプト側で
+  現在値から再構成する。C2 は「どの失敗か」だけを保持)。
+- ``ResultCode.NOT_IN_EATERY``(19)は**語彙 v2**(行動語「食事」・D-71 §3 E)で足した
+  失敗コード。既存コードに「その種類の店にいない」に当たる行が無い(``BAD_TARGET`` は
+  「対象を特定できない」)。**値は末尾に足すだけ**なので v1 の配列も描画も動かない。
+- ``ResultCode.TARGET_GONE``(20)は **C9 G11**(2026-09-17 ユーザー決定)で足した失敗コード。
+  「対象(人・物)が最後に見た位置から居なくなった」= **猶予つき**(最後に見た位置へ向かい、
+  着いてもまだ居なければ失敗)。``PARTNER_GONE``(12・会話相手が去った)とは別で、
+  こちらは**移動・接近の対象**。``UNREACHABLE``(1・経路が無い)は既存の行をそのまま使う。
+  C9a では**コードを足すだけ**(対象=人への接近そのものは C9b の領分)。
+- ``edge_id`` / ``edge_s``(**C9 G1 (b)**・``geometry="edge"`` のランだけ確保・+8 B/体)。
+  体は「辺 ``edge_id`` の上・``node`` から ``edge_s``[m]・向き ``node``→``path_next_node``」に
+  居る。**向きの欄を新設せず、宣言済みだが誰も書いていなかった ``path_next_node``
+  (4 B・「次ホップのノード」)を向きの担い手に使う**(欄を 1 本減らす選択)。既定の
+  ``geometry="node"`` では**欄を確保しない**=``Registry.state_hash`` は 1 バイトも動かない
+  (``plan_columns``=D-66 と同じ形)。
+- 書き込み禁止ガード(``freeze``/``writable``)は agents と world に**同じ実装を二重に置く**。
+  層契約(``world | agents`` は同層=相互 import 禁止)のため共有モジュールを作れない。
+- **行為と活動の二層(段 2・第276・D-116)**: ``WakeCondition.ACTIVITY_EXPIRY``(列番号 11)は
+  **§6 不応期表の外**に置く。満了は体ごとに 1 回きりの予定事象で不応期が要らず、表に足すと
+  ``refractory_until``(checkpoint に混ざる配列)の幅が変わって v1 の checkpoint が動くため。
+  ``N_WAKE_CONDITIONS``(=不応期表の行数=``refractory_until`` の列数)は **11 のまま**で、
+  起床条件の総数は ``N_WAKE_CONDITIONS_ALL``(12)。``activity_until``/``activity_kind``
+  (+5 B/体)は ``activity_columns`` のランだけ確保する(``plan_columns`` と同じ形)。
+- **意図の保持(段 2c・D-112 ①・D-114 案 A)**: ``intent_action`` / ``intent_target`` /
+  ``intent_kind`` / ``intent_since``(+10 B/体)は**既定で確保する**(D-112 ② で既定 checkpoint は
+  動くと決まっている=腕にしない)。購入/食事/並ぶ/会話/就寝の対象が現在セルに無く解決できるとき、
+  エンジンは行為をここに保存して目的地つき移動を始め、着いたら LLM を呼ばずに実行する
+  (乗車の意図 ``board_line``・就寝の意図 ``sleep_pending`` と同じ「判断 1 回・実行は世界」の形)。
+  値を決めるのは ``engine.intent``・書き手は ``engine.resolve`` だけ。
+- **親しみの表(4 段目・M13 訪問+M17 露出・第290)**: ``fam_thing`` / ``fam_first`` / ``fam_last`` /
+  ``fam_visits`` / ``fam_exposures``(体 × K 行・1 行 16 B → K=64 で 1,024 B/体)は
+  ``familiarity_columns`` のランだけ確保する(``--familiarity on``・既定 off=既定 checkpoint 不変)。
+  ``fam_thing`` の符号化は ``engine.familiarity``(POI 索引 ≥ 0・場所 −(cell+2)・人 1<<30|id・空行 −1)。
+- **店の評価の記憶(D-120 7a・N1 (a)・第296)**: ``sm_poi`` / ``sm_valence`` / ``sm_precision`` /
+  ``sm_first`` / ``sm_last`` / ``sm_n`` / ``sm_source``(体 × 32 行・実 23 B/行・宣言 24 B/行 → 768 B/体)は
+  ``store_memory_columns`` のランだけ確保する(``--store-memory on``・既定 off=既定 checkpoint 不変)。
+  値を決めるのは ``engine.memory``・書き手は ``engine.resolve.write_store_memory`` だけ。
+- **体のエネルギー収支(5 段目 5a・D-118 K1〜K9・第291)**: ``weight_kg`` / ``eer_kcal`` /
+  ``since_meal_kcal`` / ``energy_balance``(float32 × 4 = +16 B/体)は ``energy_columns`` のランだけ
+  確保する。``engine.run`` は ``hunger_model="energy"``(CLI の既定)のときだけ True にする
+  =``--hunger-model v1`` の checkpoint は 1 バイトも動かない(旧 checkpoint の再現)。
+  値を決めるのは ``engine.energy``・書き手は ``engine.resolve`` だけ。``hunger`` はこのランでは
+  **語の段の写し**(満腹 1 / ふつう 5 / 空腹 8 / とても空腹 10)。
+- ``ResultCode.TOO_FAR``(21)は**段 2c** で足した失敗コード(D-122 P6 の先取り)。「経路は在るが
+  ``INTENT_MAX_TICKS`` のうちに着かなかった」= 時間予算超え。経路が無い ``UNREACHABLE``(1)と
+  分ける。**値は末尾に足すだけ**なので既存の配列も描画も動かない。
+"""
+
+from __future__ import annotations
+
+from contextlib import contextmanager
+from typing import Final, Iterator
+import numpy as np
+from shibuya.foundation import write_permit as _WP
+from shibuya.foundation.soa import Registry
+from shibuya.foundation.vocab.agent_codes import (
+    ACTIVITY_UNTIL_NONE,
+    FAMILIARITY_EMPTY,
+    FOCUS_NONE,
+    INTENT_NONE,
+    N_WAKE_CONDITIONS,
+    REL_EMPTY,
+    STORE_MEMORY_EMPTY,
+)
+
+__all__ = [
+    "LAST_ACTION_NONE", "AgentState",
+]
+
+
+#: ``last_action`` の「まだ何も試みていない」値(**行動コードと衝突しない負値**)。
+#: ``engine.commit.ENGINE_STEP`` も −1 だが、エンジン継続は「直前に試みた行動」ではない
+#: (移動の続き)ので ``resolve`` は ENGINE_STEP を ``last_action`` に**書かない**。
+LAST_ACTION_NONE: Final[int] = -1
+
+
+class AgentState:
+    """個体状態 SoA。``core.soa.Registry`` を1本持ち、フィールドは全て**宣言つき**(M9)。
+
+    Example:
+        >>> st = AgentState(4)
+        >>> st.money[:] = 3_000
+        >>> st.freeze()
+        >>> st.money.flags.writeable
+        False
+    """
+
+    def __init__(
+        self,
+        n: int,
+        cap_bytes: int | None | str = "auto",
+        *,
+        plan_columns: bool = False,
+        edge_columns: bool = False,
+        attention_columns: bool = False,
+        activity_columns: bool = False,
+        familiarity_columns: bool = False,
+        familiarity_k: int = 64,
+        energy_columns: bool = False,
+        memory_columns: bool = False,
+        memory_n: int = 128,
+        store_memory_columns: bool = False,
+        store_memory_n: int = 32,
+        relation_columns: bool = False,
+        rel_k: int = 15,
+        nav_columns: bool = False,
+    ) -> None:
+        """
+        Args:
+            n: 個体数。
+            cap_bytes: 個体あたりバイト上限。``"auto"`` = 予算行 M1(30,000 B)を読む。
+            plan_columns: **D-66 計画実行層**(``engine.presence``)の欄 ``plan_flags``(+1 B/体・〔第330・RET〕
+                死蔵の ``plan_activity`` は K15 で消した)を確保するか。既定 ``False``=
+                **帰無腕(``--no-plan-executor``)の ``state_hash`` を 1 バイトも動かさない**
+                (欄を足すと宣言順の全配列を混ぜる ``Registry.state_hash`` が変わるため。
+                設計書 §2 は常設を想定しているが、退化検査の要=親指示を優先した
+                =登録簿 §8「D-66/計画実行層(第1段)」に差分として登録)。
+            edge_columns: **C9 G1 (b) 辺上の連続位置**(``edge_id`` / ``edge_s``・+8 B/体)を
+                確保するか。既定 ``False``=``geometry="node"``(現行の 1 tick=1 ノード)で
+                **checkpoint を 1 バイトも動かさない**。``geometry="edge"`` のランだけ True。
+            attention_columns: **C9b G3/G4 対象と注意の焦点**(``focus_target`` /
+                ``focus_ttl``・+5 B/体)を確保するか。既定 ``False``。焦点には
+                「取得距離 ≤20 m・喪失距離 >30 m」(UE AI Perception の Sight/Lose Sight 型)
+                が要るので**辺上の連続位置(距離が定義できる)が前提**で、対象を運ぶのは
+                段0 辞書 v4(語彙 v2)なので、``engine.run`` は
+                ``geometry="edge" かつ vocab_version="v2"`` のときだけ True にする
+                = **既定の 4 腕(node/v1・derive v2.1・v2・edge)は 1 バイトも動かない**。
+            activity_columns: **行為と活動の二層**(段 2・D-116)の 2 欄(``activity_until`` /
+                ``activity_kind``・+5 B/体)を確保するか。``engine.run`` は
+                ``vocab_version="v3"`` かつ ``activity=True`` のときだけ True にする
+                = **v1/v2 と ``--activity off`` の checkpoint は 1 バイトも動かない**。
+            energy_columns: **体のエネルギー収支**(5 段目 5a・D-118)の 4 欄(``weight_kg`` /
+                ``eer_kcal`` / ``since_meal_kcal`` / ``energy_balance``・+16 B/体)を確保するか。
+                ``engine.run`` は ``hunger_model="energy"`` のときだけ True にする
+                = **``--hunger-model v1`` の checkpoint は 1 バイトも動かない**。
+            memory_columns / memory_n: **記憶 第 1 段の記録**(6 段目 6a・``engine.memory``)の表
+                (体 × N 行 × 9 欄・実 25 B/行・宣言 32 B/行)を確保するか・行数 N(既定 128)。
+                ``--memory on`` のランだけ True=**既定 checkpoint は 1 バイトも動かない**。
+            store_memory_columns / store_memory_n: **店の評価の記憶**(D-120 7a・N1 (a)・
+                ``engine.memory``)の表(体 × M 行 × 7 欄・実 23 B/行・宣言 24 B/行)を確保するか・
+                行数 M(既定 32)。``--store-memory on`` のランだけ True=**既定 checkpoint は動かない**。
+            nav_columns: **第 5 期 空間の段 1 ナビメッシュの位置と経路**(``engine.space.nav1``)の 8 欄(``nav_ox``・
+                ``nav_oy``・``nav_of``・``nav_tgt``・``nav_t``・``nav_fi``・``nav_wait``・``nav_node``・+26 B/体)を確保するか。
+                ``engine.run`` は ``space="nav1"`` で資産があるランだけ True=**``--space legacy`` の checkpoint は 1 バイトも
+                動かない**。
+            relation_columns / rel_k: **関係辺**(C10 8a・R1 (a)・``engine.relations``)の表(体 × k 辺 × 6 欄・
+                実=宣言 16 B/辺)を確保するか・辺の数 k(既定 15)。``--relations on`` のランだけ True。
+        """
+        self.n = int(n)
+        self.plan_columns = bool(plan_columns)
+        self.edge_columns = bool(edge_columns)
+        self.attention_columns = bool(attention_columns)
+        self.activity_columns = bool(activity_columns)
+        #: 4 段目(M13+M17): 親しみの表を確保するか・行数 K(``engine.familiarity.FAMILIARITY_K``)。
+        self.familiarity_columns = bool(familiarity_columns)
+        self.familiarity_k = int(familiarity_k)
+        #: 5 段目 5a(D-118): 体のエネルギー収支の 4 欄を確保するか。
+        self.energy_columns = bool(energy_columns)
+        #: 6 段目 6a(記憶 第 1 段の記録): 記憶の表を確保するか・行数 N(``engine.memory.MEMORY_N``)。
+        self.memory_columns = bool(memory_columns)
+        self.memory_n = int(memory_n)
+        if self.memory_columns and self.memory_n < 1:
+            raise ValueError(f"memory_n は 1 以上(いま {memory_n})")
+        #: D-120 7a: 店の評価の記憶の表を確保するか・行数 M(``engine.memory.STORE_MEMORY_N``)。
+        self.store_memory_columns = bool(store_memory_columns)
+        self.store_memory_n = int(store_memory_n)
+        if self.store_memory_columns and self.store_memory_n < 1:
+            raise ValueError(f"store_memory_n は 1 以上(いま {store_memory_n})")
+        #: C10 8a: 関係辺の表を確保するか・辺の数 k(``engine.relations.REL_K``)。
+        self.relation_columns = bool(relation_columns)
+        self.rel_k = int(rel_k)
+        #: 第 5 期 空間の段 1: ナビメッシュの位置と経路の 8 欄を確保するか。
+        self.nav_columns = bool(nav_columns)
+        if self.relation_columns and self.rel_k < 1:
+            raise ValueError(f"rel_k は 1 以上(いま {rel_k})")
+        if self.familiarity_columns and self.familiarity_k < 1:
+            raise ValueError(f"familiarity_k は 1 以上(いま {familiarity_k})")
+        self.registry = Registry.for_agents(self.n, per_entity_byte_cap=cap_bytes)
+        r = self.registry
+        # ---- 位置・運動(M2 位置・運動・身体 ≤128B/体 の内数) ----
+        r.declare("cell", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="所属セル(place_id 索引・M2)。-1=場外")
+        r.declare("node", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="現在の歩行グラフノード(W1 node_idx・M2)")
+        r.declare("band", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="層 UG=-1 / GL=0 / DECK=1(W2 band・M2)")
+        r.declare("xy", np.float32, (2,), byte_budget_per_agent=8, mechanism=True,
+                  doc="平面座標[m](W0 CRS・M2)")
+        r.declare("path_next_node", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="次ホップのノード(next-hop 表の結果・M2)。-1=経路なし")
+        r.declare("target_node", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="移動の目的ノード(行動語「移動」の対象・M2)。-1=目的なし")
+        # ---- 辺上の連続位置(C9 G1 (b)・geometry="edge" のランだけ・+8 B/体) ----
+        if self.edge_columns:
+            r.declare("edge_id", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いま乗っている W1 辺の索引(-1=辺上に居ない=ノード上・M2)。"
+                          "向きは ``node``→``path_next_node``(既存欄を使う)")
+            r.declare("edge_s", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="辺上の距離[m](``node`` からの街路長。``xy`` は両端ノードの"
+                          "線形補間=engine.geometry.EdgeGeometry.positions・M2)")
+        # ---- 注意の焦点(C9b G3/G4・attention_columns のランだけ・+5 B/体) ----
+        if self.attention_columns:
+            r.declare("focus_target", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="注意の焦点(「見る」の対象・「近づく」の相手)。**符号で型を分ける**: "
+                          "≥0=個体 id / ≤-2=POI 索引(``-2-poi_id``) / -1=焦点なし。"
+                          "知覚は次 tick 以降この対象を B ブロックの先頭に置く(M2)")
+            r.declare("focus_ttl", np.uint8, byte_budget_per_agent=1, mechanism=False,
+                      doc="焦点の残り寿命[tick](UE AI Perception の Max Age 型・"
+                          "0=焦点なし。既定 FOCUS_TTL_TICKS・expedient=値の出所は無い)")
+        # ---- 身体・内受容(知覚契約書 §4 内受容第1陣3変数) ----
+        r.declare("kind", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="AgentKind(通勤者/来街者/従業者/居住者/指令/通学者/定期来街/訪日/乗務・M2)")
+        # ---- プロフィール(M6 ≤3KB/体・W16 母集団合成が入れる素性) ----
+        r.declare("age", np.uint8, byte_budget_per_agent=1, mechanism=True,
+                  doc="年齢[歳](W16・国勢調査/経済センサスへ raking 済み・M6)")
+        r.declare("sex", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="性別 0=男 / 1=女 / -1=不明(W16・M6)")
+        r.declare("hunger", np.uint8, byte_budget_per_agent=1, mechanism=True,
+                  doc="空腹 0-10(内受容3変数・M2)")
+        r.declare("fatigue", np.uint8, byte_budget_per_agent=1, mechanism=True,
+                  doc="疲労 0-10(内受容3変数・M2)")
+        r.declare("thermal", np.uint8, byte_budget_per_agent=1, mechanism=True,
+                  doc="体感温度 0-10(内受容3変数・M2)")
+        # 内受容の閾値段は**1変数=1本の連続配列**で持つ((n,3) にすると
+        # ブロードキャスト比較が遅く P6 の 2 ms を食う=実測 0.6 ms/op vs 0.008 ms/op)
+        r.declare("hunger_stage", np.int8, byte_budget_per_agent=1, mechanism=False,
+                  doc="空腹の閾値段(ヒステリシス用の前回段・expedient=段の刻みは自前)")
+        r.declare("fatigue_stage", np.int8, byte_budget_per_agent=1, mechanism=False,
+                  doc="疲労の閾値段(同上)")
+        r.declare("thermal_stage", np.int8, byte_budget_per_agent=1, mechanism=False,
+                  doc="体感温度の閾値段(同上)")
+        # ---- 体のエネルギー収支(5 段目 5a・D-118・energy_columns のランだけ・+16 B/体) ----
+        if self.energy_columns:
+            r.declare("weight_kg", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="体重[kg](国民健康・栄養調査 第14表 性×年齢の平均±SD から抽選・ラン開始時に固定)")
+            r.declare("eer_kcal", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="推定エネルギー必要量[kcal/日](食事摂取基準 2025 表3×体重×表4 ふつう+個人差)")
+            r.declare("since_meal_kcal", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="食後の消費[kcal](食事で 0・軽食/飲料で差し引く)=空腹の語の源(K8)")
+            r.declare("energy_balance", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="当日の 摂取 − 消費[kcal](日次センサスの源・K8・翌日持ち越しなし)")
+        # ---- 経済(行動契約書 §2.1 購入・保存則) ----
+        r.declare("money", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="所持金[円](保存則 U11 の個体側・M2)")
+        r.declare("holdings", np.uint8, byte_budget_per_agent=1, mechanism=False,
+                  doc="所持品の個数(品目別在庫は C4 の U-Goods・expedient)")
+        # ---- 行動・計画 ----
+        r.declare("activity", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="Activity(idle/moving/…/riding・M2)")
+        # 10e(E1・Q9): 死蔵の ``plan_cursor``(i2)はここにあった=消した(旧い final の再現は下の retire)
+        r.declare("talk_partner", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="会話中の相手 agent_id(-1=なし・行動契約書 §3)")
+        # 10e(E1・Q9): 死蔵の ``invocation_distance``(u2・M12)はここにあった=消した
+        # ---- 交通(C4 鉄道運行・行動契約書 §2.1 乗車/降車・運用設計書 §2.6) ----
+        r.declare("transit_state", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="0=bbox 内 / 1=乗車中 / 2=域外ノード滞在(U10 §1.1)。"
+                      "**乗客の保存則の分母**: 3 値の件数和 = 個体数")
+        r.declare("transit_ref", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="乗車中=列車索引 / 域外滞在=外界ノード索引(路線索引)。-1=なし")
+        # ---- 乗車の意図保持(D-51・2026-09-10 ユーザー決定 (c)) ----
+        # **``transit_state`` を増やさない**(3 値は乗客の保存則の分母)。待ちは在圏(0)の中の状態。
+        r.declare("board_line", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="乗ろうとしている路線索引(=そのホーム。-1=乗車の意図なし)。"
+                      "ホーム以外で乗車を選ぶと世界が最寄りホームへ運ぶ(登録簿 §8 D-51)")
+        r.declare("board_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="ホームで待ち始めた tick(-1=まだ待っていない=移動中)。"
+                      "打ち切り BOARD_WAIT_LIMIT_TICKS の判定に使う・expedient")
+        # ---- 就寝の意図保持(D-62・2026-09-10 ユーザー決定 (a)) ----
+        r.declare("sleep_pending", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="計画(W17)の就寝境界に達したが就寝地に居ない=1 / 0=なし。"
+                      "着いた時点で世界が寝かせる(登録簿 §8 D-62・乗車の意図保持と同じ形)")
+        # ---- 意図の保持(段 2c・D-112 ①・D-114 案 A・**既定で確保**・+10 B/体) ----
+        r.declare("intent_action", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="保持している行為コード(購入/食事/並ぶ/会話/就寝・-1=意図なし)。"
+                      "対象が現在セルに無く解決できるとき、エンジンが保存して目的地へ歩かせ、"
+                      "着いたら LLM を呼ばずに実行する(段 2c)")
+        r.declare("intent_target", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="意図の対象(intent_kind で意味が決まる: POI 索引 / 個体 id / セル・-1=なし)")
+        r.declare("intent_kind", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="IntentKind(0 なし / 1 名指しの店 / 2 カテゴリの店 / 3 人 / 4 寝床)")
+        r.declare("intent_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="意図を立てた tick(-1=なし)。INTENT_MAX_TICKS 超過で TOO_FAR・expedient")
+        # ---- 屋内占有・待ち行列(C4 混雑場・16行表 行2) ----
+        r.declare("poi_ref", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="在席中の POI 索引(-1=なし)。屋内占有の集約に使う(席数換算は expedient)")
+        r.declare("poi_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="在席を始めた tick(回転率=滞在上限の判定・expedient)")
+        r.declare("queue_poi", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="並んでいる POI 索引(-1=並んでいない)。M/M/c 近似の待ち行列")
+        r.declare("queue_since", np.int32, byte_budget_per_agent=4, mechanism=False,
+                  doc="並び始めた tick(離脱閾値の判定・expedient)")
+        # ---- 計画実行層(D-66・engine.presence が読み書きする欄・+1 B/体) ----
+        # 〔第330・RET〕K15(10-06): 書くだけで誰も読まない ``plan_activity``(i1)はここにあった=消した(軸 1 no=final は動かない)
+        if self.plan_columns:
+            r.declare("plan_flags", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="bit0 域外居住 / bit1 当日在圏予定あり / bit2 退出繰り延べ中 / "
+                          "bit3 当日到着済(engine.presence の FLAG_* ・設計書 §2)")
+        # ---- 行為と活動の二層(段 2・D-116・activity_columns のランだけ・+5 B/体) ----
+        if self.activity_columns:
+            r.declare("activity_until", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="活動の持続の上限 tick(「まで」を解決した値・-1=活動なし)。"
+                          "この tick に満了入口(WakeCondition.ACTIVITY_EXPIRY)で起きる")
+            r.declare("activity_kind", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="ActivityKind(0 なし / 1 目的地つき移動 / 2 あたり / 3 在店 / 4 その場)")
+        # ---- 親しみの表(4 段目・M13 訪問+M17 露出・familiarity_columns のランだけ・16 B/行) ----
+        if self.familiarity_columns:
+            k = self.familiarity_k
+            r.declare("fam_thing", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
+                      doc="もの(POI 索引 ≥0 / 場所 −(cell+2) / 人 1<<30|id / 空行 −1)")
+            r.declare("fam_first", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=True,
+                      doc="最初の接触の tick(A の寿命 L の起点)")
+            r.declare("fam_last", np.int32, (k,), byte_budget_per_agent=4 * k, mechanism=False,
+                      doc="最後の接触の tick(診断・読み口の補助)")
+            r.declare("fam_visits", np.uint16, (k,), byte_budget_per_agent=2 * k, mechanism=True,
+                      doc="訪問の回数(購入/食事/並ぶの成立・M13)")
+            r.declare("fam_exposures", np.uint16, (k,), byte_budget_per_agent=2 * k,
+                      mechanism=True, doc="露出の回数(看板が B2 に載った/セルに入った・M17)")
+        # ---- 記憶の表(6 段目 6a・memory_columns のランだけ・実 25 B/行・宣言 32 B/行) ----
+        if self.memory_columns:
+            m = self.memory_n
+            r.declare("mem_kind", np.uint8, (m,), byte_budget_per_agent=m, mechanism=True,
+                      doc="事象の種類(engine.memory.EVENT_KINDS・0=空行)")
+            r.declare("mem_tick", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="最初の tick(A の寿命 L の起点)")
+            r.declare("mem_last", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=False,
+                      doc="最後の tick(統合で更新・読み口の補助)")
+            r.declare("mem_cell", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="起きたセル(−1=範囲外)")
+            r.declare("mem_partner", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="相手の体 id(−1=なし)")
+            r.declare("mem_object", np.int32, (m,), byte_budget_per_agent=4 * m, mechanism=True,
+                      doc="対象(POI ≥0 / 場所 −(cell+2) / 人 1<<30|id / −1=なし・会話の行は店 ID)")
+            r.declare("mem_result", np.uint8, (m,), byte_budget_per_agent=m, mechanism=True,
+                      doc="ResultCode(0=成功)")
+            r.declare("mem_importance", np.uint8, (m,), byte_budget_per_agent=m, mechanism=False,
+                      doc="importance(固定表・M3 (b)・expedient)")
+            r.declare("mem_n", np.uint16, (m,), byte_budget_per_agent=(2 + 7) * m, mechanism=True,
+                      doc="同じ鍵の反復回数(A の n)。予算は詰め物 7 B/行を含む=32 B/行に揃える宣言")
+        # ---- 店の評価の記憶(D-120 7a・store_memory_columns のランだけ・実 23 B/行・宣言 24 B/行) ----
+        if self.store_memory_columns:
+            s = self.store_memory_n
+            r.declare("sm_poi", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="店(POI 索引・−1=空行)。同じ POI は 1 行に統合")
+            r.declare("sm_valence", np.float32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="Σ 精度 × 向き(向き −1/0/+1・読むときは sign)")
+            r.declare("sm_precision", np.float32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="Σ 1/σ²(出どころ別の雑音 σ・N4 (a)・確からしさ)")
+            r.declare("sm_first", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=True,
+                      doc="最初の tick(A の寿命 L の起点)")
+            r.declare("sm_last", np.int32, (s,), byte_budget_per_agent=4 * s, mechanism=False,
+                      doc="最後の tick(統合で更新・減衰の腕の補助)")
+            r.declare("sm_n", np.uint16, (s,), byte_budget_per_agent=2 * s, mechanism=True,
+                      doc="更新回数(A の n)")
+            r.declare("sm_source", np.uint8, (s,), byte_budget_per_agent=(1 + 1) * s,
+                      mechanism=True,
+                      doc="出どころのビットの和(1 自分/2 伝聞/4 看板/8 ネット)。予算は詰め物 1 B/行を含む"
+                          "=24 B/行に揃える宣言")
+        # ---- 関係辺(C10 8a・relation_columns のランだけ・実=宣言 16 B/辺・M5 の内) ----
+        if self.relation_columns:
+            q = self.rel_k
+            r.declare("rel_partner", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=True,
+                      doc="相手の体 id(−1=空)")
+            r.declare("rel_kind", np.uint8, (q,), byte_budget_per_agent=q, mechanism=True,
+                      doc="種別(世帯 1/職場 2/学校 3/常連 4/知人 5)")
+            r.declare("rel_sign", np.int8, (q,), byte_budget_per_agent=q, mechanism=True,
+                      doc="Σ 符号(ResultCode 由来・±127 で止める・読むときは sign)")
+            r.declare("rel_first", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=True,
+                      doc="最初の相互作用の tick(A の寿命 L の起点・初期辺は過去の負の tick)")
+            r.declare("rel_last", np.int32, (q,), byte_budget_per_agent=4 * q, mechanism=False,
+                      doc="最後の相互作用の tick(初期辺は W17 の直近の共在)")
+            r.declare("rel_n", np.uint16, (q,), byte_budget_per_agent=2 * q, mechanism=True,
+                      doc="相互作用の回数(A の n)")
+        # ---- 起床機構(知覚契約書 §6) ----
+        r.declare("refractory_until", np.int32, (N_WAKE_CONDITIONS,),
+                  byte_budget_per_agent=4 * N_WAKE_CONDITIONS, mechanism=True,
+                  doc="体×条件ごとの「次に起床してよい tick」(§6 運用規定②)")
+        # 10e(E1・Q9): 死蔵の ``wake_pending_class``(i1・初期値 -1)はここにあった=消した
+        # ---- 直前の結果(行動契約書 §6) ----
+        r.declare("last_action", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="直前に**試みた**行動コード(llm.contract.ACTION_CODES・§6「直前の結果」の"
+                      "主語。-1=まだ何も試みていない=LAST_ACTION_NONE)")
+        r.declare("last_result", np.int8, byte_budget_per_agent=1, mechanism=True,
+                  doc="ResultCode(直前の行動の成否・§6 の 50 tok 欄の素材)")
+        r.declare("last_result_tick", np.int32, byte_budget_per_agent=4, mechanism=True,
+                  doc="last_result を書いた tick(古い失敗を出さないため)")
+        # 〔第330・RET〕K15(10-06): 書くだけで誰も読まない ``fail_streak``(u1)はここにあった=消した(軸 1 no=final は動かない)
+        # ---- 第 5 期 空間の段 1: ナビメッシュの位置と経路(nav_columns のランだけ・+26 B/体) ----
+        if self.nav_columns:
+            r.declare("nav_ox", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いまの経路を引いた出発の点の x[m](経路は (出発の点・階・行き先・人ごとの重み) の純関数="
+                          "再開で引き直せる・engine.space.nav1)")
+            r.declare("nav_oy", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いまの経路を引いた出発の点の y[m]")
+            r.declare("nav_of", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="いまの経路を引いた出発の点の階(ナビメッシュの階の添字)")
+            r.declare("nav_tgt", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="いまの経路の行き先の W1 の節(-1=経路なし)。target_node と違えば経路を引き直す")
+            r.declare("nav_t", np.float32, byte_budget_per_agent=4, mechanism=True,
+                      doc="経路の上で進んだ時間[s](歩く区間は自由な速さの時間・接続口は所要時間)")
+            r.declare("nav_fi", np.int8, byte_budget_per_agent=1, mechanism=True,
+                      doc="いまの位置の階(ナビメッシュの階の添字・-1=面の上に居ない=域外・車内)。位置=(xy, 階)")
+            r.declare("nav_wait", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="接続口の前で待ち始めた刻み(-1=待っていない・容量を超えた分は前で待つ=SR11 (a)・先着順の鍵)")
+            r.declare("nav_node", np.int32, byte_budget_per_agent=4, mechanism=True,
+                      doc="前の刻みの終わりの node(移動の外で node が書き換わった体=乗車・降車・外界・初期配置を見つけて"
+                          "面の上の節の点へ置く)")
+
+
+        # 既定値(0 では意味が壊れる欄だけ)
+        self.registry.cell[:] = -1
+        self.registry.node[:] = -1
+        self.registry.path_next_node[:] = -1
+        self.registry.target_node[:] = -1
+        self.registry.talk_partner[:] = -1
+        self.registry.last_result_tick[:] = -1
+        self.registry.last_action[:] = LAST_ACTION_NONE
+        self.registry.transit_ref[:] = -1
+        self.registry.board_line[:] = -1
+        self.registry.board_since[:] = -1
+        self.registry.intent_action[:] = INTENT_NONE
+        self.registry.intent_target[:] = -1
+        self.registry.intent_since[:] = -1
+        self.registry.poi_ref[:] = -1
+        self.registry.poi_since[:] = -1
+        self.registry.queue_poi[:] = -1
+        self.registry.queue_since[:] = -1
+        self.registry.sex[:] = -1
+        if self.edge_columns:
+            self.registry.edge_id[:] = -1
+        if self.attention_columns:
+            self.registry.focus_target[:] = FOCUS_NONE
+        if self.activity_columns:
+            self.registry.activity_until[:] = ACTIVITY_UNTIL_NONE
+        if self.familiarity_columns:
+            self.registry.fam_thing[:] = FAMILIARITY_EMPTY
+            self.registry.fam_first[:] = -1
+            self.registry.fam_last[:] = -1
+        if self.store_memory_columns:
+            self.registry.sm_poi[:] = STORE_MEMORY_EMPTY
+            self.registry.sm_first[:] = -1
+            self.registry.sm_last[:] = -1
+        if self.relation_columns:
+            self.registry.rel_partner[:] = REL_EMPTY
+        if self.nav_columns:
+            self.registry.nav_tgt[:] = -1
+            self.registry.nav_fi[:] = -1
+            self.registry.nav_wait[:] = -1
+            self.registry.nav_node[:] = -1
+        self._frozen = False
+
+    # ---- フィールドの素通し(``st.money`` で配列を引く) ----
+    def __getattr__(self, name: str) -> np.ndarray:
+        """宣言フィールドを属性で引く。
+
+        Note:
+            ``Registry`` 自身の属性(``kind``・``arrays``・``field`` 等)と**同名のフィールド**が
+            ありうるので、``registry.field(name)`` を使う(``getattr(registry, name)`` だと
+            ``Registry.kind``(= ``"agent"`` の文字列)が勝ってしまう)。
+            同じ理由で ``agents.registry.kind`` は**使ってはいけない**——
+            ``agents.kind`` か ``agents.registry.field("kind")`` を使う。
+        """
+        if name.startswith("_"):
+            raise AttributeError(name)
+        try:
+            return self.__dict__["registry"].field(name)
+        except (KeyError, AttributeError):
+            raise AttributeError(f"未宣言のフィールド: {name!r}") from None
+
+    def __len__(self) -> int:
+        return self.n
+
+    # ---- 書き込みガード(resolve 単一書き手の機械強制) ----
+    @property
+    def frozen(self) -> bool:
+        return self._frozen
+
+    def freeze(self) -> None:
+        """全配列を読み取り専用にする(初期化が終わったら一度だけ呼ぶ)。
+
+        逐次ループ宣言(P4): フィールド数ぶん(20 本前後)。
+        """
+        for arr in self.registry.arrays.values():
+            arr.flags.writeable = False
+        self._frozen = True
+
+    def thaw(self) -> None:
+        """全配列を書き込み可能に戻す(``writable`` 以外から呼ばない)。
+
+        1-0 段 A: 進行役が系の許可(``core.write_permit``)を置いているときは、許可の列だけを解く(ほかは読み取り専用の
+        まま=宣言の外の列への書きは numpy が ``ValueError`` で止める)。許可が無ければ今までどおり全部。
+        """
+        for name, arr in self.registry.arrays.items():
+            arr.flags.writeable = _WP.allows("agents", name)
+        self._frozen = False
+
+    @contextmanager
+    def writable(self) -> Iterator["AgentState"]:
+        """``with st.writable():`` の間だけ書ける。**呼んでよいのは engine/resolve.py だけ**。"""
+        was_frozen = self._frozen
+        if was_frozen:
+            self.thaw()
+        try:
+            yield self
+        finally:
+            if was_frozen:
+                self.freeze()
+
+    # ---- 監査 ----
+    def state_hash(self) -> str:
+        """全フィールドの blake3(checkpoint 一致判定 T1/T2)。"""
+        return self.registry.state_hash()
+
+    def bytes_total(self) -> int:
+        return self.registry.bytes_total()
+
+    def budget_report(self):  # type: ignore[no-untyped-def]
+        """M9 の宣言 vs 実バイト報告。"""
+        return self.registry.budget_report()
+
+    @property
+    def declared_bytes_per_agent(self) -> int:
+        return self.registry.declared_bytes_per_entity

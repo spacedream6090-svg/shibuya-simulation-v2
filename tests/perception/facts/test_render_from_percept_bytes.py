@@ -1,7 +1,7 @@
 """第 1 期 1-2 知覚の分離: 「状態 → Percept → 文」の描画が 1-2 の前の描画とバイト一致(口の約束 1-2 の約束 (1))。
 
-比べる相手は本体 HEAD ``136fdbb`` の ``renderer.py`` のバイトそのままの写し(``head_renderer_136fdbb.py``・sha256 は
-``scenes.HEAD_RENDERER_SHA256``)。同じ世界・個体・資産・設定・口を持つ「双子」を作り、同じ刻みの同じ前計算の材料
+比べる相手は本体 HEAD ``136fdbb`` の ``renderer.py`` のバイトそのままの写し(``head_renderer_136fdbb.py``・固定は
+``scenes`` の ``HEAD_RENDERER_TEXT_SHA256``・``HEAD_RENDERER_ORDER``・``HEAD_RENDERER_REFS``=``tests/_head_copy_pin.py``)。同じ世界・個体・資産・設定・口を持つ「双子」を作り、同じ刻みの同じ前計算の材料
 (``prepare_tick`` の引数)と同じ描画の引数で描かせて、本文・ブロック・指紋・トークン・切り詰め・想起の列・知人の列を比べる。
 
 (A) 合成の場面 13 種(固定枠・単一ランキング・看板の注視 p_see(1-2 で活動の乗数は消した=HEAD の双子は乗数の表が既定の
@@ -11,7 +11,10 @@
     切り詰め・意図・想起・閉店・注視の抽選・近接の同点)も双子と同じ。
 (B) byte-check の 19 構成(``wave2_bytecheck.configs()``)× 代表の刻み(朝・昼・夕の 3 つの窓=各構成 3 刻み以上で描画が
     ある)で、ランの中の描画を全部双子と比べる(世界資産が要る=``requires_data("world_v2")``)。5,000 体・1 日の全部の
-    呼の一致は byte-check(テープの ``prompt_hash`` の列の sha)が見る(記録 p12/README.md)。
+    呼の一致は byte-check(テープの ``prompt_hash`` の列の sha)が見る(記録 p12/README.md)。〔第346〕近接の切替口 cell
+    は消した=ランは常に近接の規則を作る。比べる相手(HEAD 136fdbb の双子)は B5 の近接行の distance の道を持たないので、
+    この試験の中だけ ``engine.proximity.rule_from`` を None を返す物に差し替え、組み立ての「規則の無い」枝(同じセル=
+    2-2 までの判定)で回す(ランの口からは選べない・検収 M2)。
 
 〔段 5-1b 検収 L5〕nav1 のランは前計算に ``los_stage``(密度の段)を渡す。HEAD の双子の口には無いので、双子には同じ段を写して B4 の欄と
 指紋を今の ``perception.hashes`` で作り直す=この 2 欄(``b4_field_rows``・``b4_field_hash``)は双子と独立には比べていない(文・ブロック・
@@ -28,9 +31,10 @@ from typing import Any
 import numpy as np
 import pytest
 
-from shibuya.agents.state import Activity, ActivityKind, IntentKind, ResultCode, WakeCondition
-from shibuya.engine.memory import RecallItem
-from shibuya.perception import renderer as R
+from shibuya.foundation.vocab.agent_codes import Activity, ActivityKind, IntentKind, ResultCode, WakeCondition
+from shibuya.mind.memory.memory import RecallItem
+# 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+from shibuya.mind.percept.draw import Renderer
 from tests.perception.facts.scenes import build, head_module, twin
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -76,7 +80,7 @@ def _memories(i: int, t: int, c: int, inv: int) -> list[RecallItem]:
     ][: 1 + i % 3]
 
 
-def _setup_rich(r: R.Renderer, a: Any) -> None:
+def _setup_rich(r: Renderer, a: Any) -> None:
     r.memory_recall = _memories
     r.acquaintance_fn = lambda i, t: [(i + 1) % a.n, (i + 2) % a.n, -5, a.n + 3]
     r.session_partner_fn = lambda i: [(i + 3) % a.n] if i % 2 else []
@@ -92,19 +96,19 @@ def _setup_rich(r: R.Renderer, a: Any) -> None:
         a.last_result[0:40:5] = int(ResultCode.CLOSED)
 
 
-def _setup_v3(r: R.Renderer, a: Any) -> None:
+def _setup_v3(r: Renderer, a: Any) -> None:
     with a.writable():
         a.activity_kind[:] = np.arange(a.n) % 5
         a.activity[a.activity_kind == int(ActivityKind.IN_PLACE)] = int(Activity.CONVERSING)
 
 
-def _setup_focus(r: R.Renderer, a: Any) -> None:
+def _setup_focus(r: Renderer, a: Any) -> None:
     with a.writable():
         a.focus_target[:] = (np.arange(a.n) + 1) % a.n
         a.focus_target[::4] = -1
 
 
-def _setup_weather(r: R.Renderer, a: Any) -> None:
+def _setup_weather(r: Renderer, a: Any) -> None:
     r.weather_date_fn = lambda: "2026-07-29"
 
 
@@ -155,7 +159,7 @@ def _calls(i: int, t: int):
 def test_synthetic_scenes_render_the_same_bytes_as_head(name):
     rkw, akw, setup = SCENES[name]
     w, a = build(n_agents=120, n_cells=9, seed=11, **akw)
-    r = R.Renderer(w, a, seed=7, **rkw)
+    r = Renderer(w, a, seed=7, **rkw)
     if setup is not None:
         setup(r, a)
     h = twin(r)
@@ -182,7 +186,7 @@ def test_counters_match_head(name):
     """描画の計数(診断の行 O84)も 1-2 の前と同じ(draw を呼ばずに比べる)。"""
     rkw, akw, setup = SCENES[name]
     w, a = build(n_agents=120, n_cells=9, seed=12, **akw)
-    r = R.Renderer(w, a, seed=7, **rkw)
+    r = Renderer(w, a, seed=7, **rkw)
     if setup is not None:
         setup(r, a)
     h = twin(r)
@@ -205,10 +209,15 @@ def test_counters_match_head(name):
 def test_negative_control_one_byte_change_is_caught(monkeypatch):
     """負の対照: 描き方を 1 文字だけ変えると双子との比べで落ちる(比べが恒真でない)。"""
     w, a = build(n_agents=60, seed=15)
-    r = R.Renderer(w, a, seed=7)
+    r = Renderer(w, a, seed=7)
     h = twin(r)
-    orig = R.near_person_text
-    monkeypatch.setattr(R, "near_person_text", lambda sp: orig(sp).replace("P-", "Q-"))
+    # 〔割る段 7 の G0・親の裁定 P2〕near_person_text は、呼ぶ時に名を引く関数のモジュールの両方へ差し替える(描く側の _b5・
+    # _b5_ranked と、場面の側の _nearby_items。割る前は同じ 1 つのモジュール)。定義のモジュールへは届かせない
+    assert Renderer._b5_ranked.__module__ == Renderer._b5.__module__
+    mods = list(dict.fromkeys(sys.modules[f.__module__] for f in (Renderer._b5, Renderer._nearby_items)))
+    orig = mods[0].near_person_text
+    for m in mods:
+        monkeypatch.setattr(m, "near_person_text", lambda sp: orig(sp).replace("P-", "Q-"))
     r.prepare_tick(750)
     h.prepare_tick(750)
     bad = [same_rendered(r.render(i, tick=750), h.render(i, tick=750)) for i in range(a.n)]
@@ -222,7 +231,7 @@ def test_render_without_prepare_and_out_of_area_cells():
         a.cell[5] = -1
         a.cell[6] = w.n_cells + 4
     for mode in ("fixed", "ranking"):
-        r = R.Renderer(w, a, seed=3, budget_mode=mode)
+        r = Renderer(w, a, seed=3, budget_mode=mode)
         h = twin(r)
         for t in (100, 101, 900):
             for i in (0, 5, 6, 7):
@@ -235,7 +244,7 @@ def test_render_without_prepare_and_out_of_area_cells():
 def test_a_percept_from_another_step_is_refused():
     """刻みの外で残らない(1-2 の約束 (3)): 前の刻みの Percept は描かない。"""
     w, a = build(n_agents=20, seed=14)
-    r = R.Renderer(w, a, seed=3)
+    r = Renderer(w, a, seed=3)
     p = r.render(0, tick=600).percept
     assert r.draw(p) == r.render(0, tick=600).text
     r.prepare_tick(601)
@@ -265,7 +274,7 @@ def _shadow(monkeypatch: pytest.MonkeyPatch) -> dict:
     head_module()
     twins: dict[int, Any] = {}
     stats: dict[str, Any] = {"n": 0, "ticks": set(), "bad": [], "pairs": []}
-    orig_prep, orig_render = R.Renderer.prepare_tick, R.Renderer.render
+    orig_prep, orig_render = Renderer.prepare_tick, Renderer.render
 
     def prep(self, tick, **kw):  # noqa: ANN001
         orig_prep(self, tick, **kw)
@@ -280,7 +289,7 @@ def _shadow(monkeypatch: pytest.MonkeyPatch) -> dict:
         if los is not None:
             import dataclasses as _dc
 
-            from shibuya.perception import hashes as _H
+            from shibuya.foundation.text import hashes as _H
 
             tc = h._tickc
             ls = np.asarray(los, dtype=np.uint8).copy()
@@ -301,8 +310,8 @@ def _shadow(monkeypatch: pytest.MonkeyPatch) -> dict:
         stats["ticks"].add(int(tick))
         return out
 
-    monkeypatch.setattr(R.Renderer, "prepare_tick", prep)
-    monkeypatch.setattr(R.Renderer, "render", render)
+    monkeypatch.setattr(Renderer, "prepare_tick", prep)
+    monkeypatch.setattr(Renderer, "render", render)
     return stats
 
 
@@ -322,15 +331,16 @@ def test_the_19_configs_are_the_byte_check_set():
 @pytest.mark.requires_data("world_v2")
 @pytest.mark.parametrize("config", CONFIG_NAMES)
 def test_19_configs_render_the_same_bytes_as_head(config, monkeypatch, tmp_path):
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
-    from shibuya.engine import proximity as P
+    from shibuya.world.model import proximity as P
 
     kw = dict(_wave2_configs()[config])
     stats = _shadow(monkeypatch)
     # 〔第 2 期 2-4 V2〕近接の既定は distance になった。比べる相手(HEAD 136fdbb の描画の写し)は B5 の近接行の
-    # distance の道(2-2 の _nearby_people_distance)を持たない=1-2 の分離の一致は切替口 cell の道で見る(前と同じ比べ)
-    monkeypatch.setattr(P, "_ARM", P.MODE_CELL)
+    # distance の道(2-2 の _nearby_people_distance)を持たない=1-2 の分離の一致は規則の無い道(同じセル)で見る。
+    # 〔第346〕切替口 cell は消した=試験の中だけ組み立ての規則を None にする(build の _px_rule is None の枝)
+    monkeypatch.setattr(P, "rule_from", lambda **kw: None)
     cli.run(n_agents=N_AGENTS, seed=1, world_dir=str(ROOT / "data" / "world" / "v2"), ticks=WINDOWS[-1][1],
             tape_path=tmp_path / "tape", **kw)
     assert stats["bad"] == [], stats["bad"][:5]

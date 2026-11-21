@@ -22,16 +22,20 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState
-from shibuya.engine import resolve as R
-from shibuya.world.state import World
+from shibuya.world.model.agent_table import AgentState
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=foundation/write_guard・R_MIND=mind/ops。割る前は全部 resolve)
+from shibuya.foundation import write_guard as R
+from shibuya.mind import ops as R_MIND
+from shibuya.runtime.systems import allow as AL
+from shibuya.world.model.state import World
+from tests import _places as PL
 
 SRC = Path("src/shibuya")
 #: ``ufunc.at`` の第1引数が「世界状態」だと判断する根(``self.`` 経由も見る)。
 STATE_ROOTS = ("world", "agents", "self.world", "self.agents",
                # 1-0 段 FIX(検収 L1): 系の箱の形(``b.soa.agents…``・``box.soa.world…``)も世界状態
                "b.soa", "box.soa")
-#: 台帳の私物(独自検査を持つ)と実行時に import されない工程は対象外。
+#: 台帳の私物(独自検査を持つ)と実行時に import されない工程は対象外(元の置き場のディレクトリ=:func:`_scanned_files`)。
 OUT_OF_SCOPE = ("economy/", "build/")
 
 
@@ -110,53 +114,89 @@ def _ufunc_at_targets(path: Path) -> list[str]:
 
 
 def _scanned_files() -> list[Path]:
-    return [
-        p
-        for p in SRC.rglob("*.py")
-        if not any(seg in p.as_posix() for seg in OUT_OF_SCOPE)
-    ]
+    """対象のファイル。〔段 4 の下ごしらえ・親の裁定 L-7〕対象外は元の置き場で決める(前は字面のディレクトリ
+    :data:`OUT_OF_SCOPE` を道の中に含むファイル。段 4 で engine と core から economy の包みへ移るファイルは前と同じく対象)。"""
+    import shibuya.build as BUILD
+    from shibuya.economy import ledger as ECONOMY
+
+    out = set(PL.rels_from(ECONOMY, BUILD))
+    assert {PL.origin_dir(m) for m in (ECONOMY, BUILD)} == set(OUT_OF_SCOPE)  # 元の置き場は前の字面と同じ
+    return [SRC / rel for rel in sorted(PL.origins()) if rel not in out]
 
 
 # ================================================================= 静的
+def _writer_files() -> list[Path]:
+    """〔割る段 6 の S6-G0・親の裁定 R1〕書き手の範囲=``allow.RESOLVE_FILES``(割る前は ``engine/resolve.py`` の 1 本・割った後は
+    書き手の割り先の全部)。前は字面の 1 本(割る道具が主な割り先へだけ書き換え、ほかの割り先が黙って外れる)。"""
+    out = [SRC / rel for rel in AL.RESOLVE_FILES]
+    assert out and all(p.is_file() for p in out), out
+    return out
+
+
 def test_ufunc_at_on_world_or_agent_arrays_lives_only_in_resolve():
-    """``np.add.at``(等)で世界状態を書けるのは resolve.py だけ。"""
+    """``np.add.at``(等)で世界状態を書けるのは resolve の書き手のファイルだけ(空でない)。"""
     offenders = {
         p.as_posix(): _ufunc_at_targets(p)
         for p in _scanned_files()
         if _ufunc_at_targets(p)
     }
-    assert set(offenders) == {"src/shibuya/engine/resolve.py"}, offenders
+    assert offenders and set(offenders) <= {p.as_posix() for p in _writer_files()}, offenders
 
 
 def test_resolve_actually_uses_ufunc_at_on_state():
-    """検査が空振り(=検出ロジックの故障)でないことの陽性対照。"""
-    hits = _ufunc_at_targets(SRC / "engine" / "resolve.py")
+    """検査が空振り(=検出ロジックの故障)でないことの陽性対照(書き手のファイルの全部で 3 以上)。"""
+    hits = [h for p in _writer_files() for h in _ufunc_at_targets(p)]
     assert len(hits) >= 3, hits
 
 
 def test_arbiter_diagnostic_counters_are_not_flagged():
     """診断カウンタ(局所配列)への ``np.add.at`` は世界状態ではない=対象外。"""
-    assert _ufunc_at_targets(SRC / "engine" / "arbiter.py") == []
+    assert _ufunc_at_targets(SRC / "runtime" / "arbiter.py") == []
 
 
 def test_every_ufunc_at_in_resolve_is_preceded_by_the_frozen_check():
-    """resolve の中でも、状態への ``ufunc.at`` の**直前**に ``_require_thawed`` がある。"""
-    text = (SRC / "engine" / "resolve.py").read_text(encoding="utf-8").splitlines()
-    for hit in _ufunc_at_targets(SRC / "engine" / "resolve.py"):
-        lineno = int(hit.split(":")[1])
-        window = "\n".join(text[max(0, lineno - 4) : lineno])
-        assert "_require_thawed" in window, hit
+    """resolve の中でも、状態への ``ufunc.at`` の**直前**に ``_require_thawed`` がある(書き手のファイルの全部・見た数が 3 以上)。"""
+    seen = 0
+    for p in _writer_files():
+        text = p.read_text(encoding="utf-8").splitlines()
+        for hit in _ufunc_at_targets(p):
+            lineno = int(hit.split(":")[1])
+            window = "\n".join(text[max(0, lineno - 4) : lineno])
+            assert "_require_thawed" in window, hit
+            seen += 1
+    assert seen >= 3, seen
 
 
 # ================================================================= 動的
+def _ufunc_at_ignores_readonly() -> bool:
+    """numpy の ``ufunc.at`` が読み取り専用の旗を素通りする版か。
+
+    〔第347〕numpy 2.5.5 から、読み取り専用の配列への ``ufunc.at`` は numpy 自身が ValueError で止める
+    (CI が 2.5.5 を入れて、穴の実在を記録する試験 4 本が落ちた)。穴のある版と塞がった版の両方で通るように、
+    試験はこの見分けで枝を分ける。静的な検査(D⑦)と配列単位の守りは、穴のある版のために残す。
+    """
+    probe = np.zeros(1, dtype=np.int32)
+    probe.flags.writeable = False
+    try:
+        np.add.at(probe, [0], 1)
+    except ValueError:
+        return False
+    return True
+
+
 def test_numpy_ufunc_at_really_ignores_the_writeable_flag():
     """**穴の実在**を記録する(この振る舞いが変わったら静的検査を緩めてよい)。"""
     a = np.zeros(4, dtype=np.int32)
     a.flags.writeable = False
     with pytest.raises(ValueError):
         a[0] = 1  # 通常の代入は止まる
-    np.add.at(a, [0], 1)  # ufunc.at は**素通りする**
-    assert a[0] == 1
+    if _ufunc_at_ignores_readonly():
+        np.add.at(a, [0], 1)  # ufunc.at は**素通りする**
+        assert a[0] == 1
+    else:  # 〔第347〕numpy 2.5.5 から: numpy 自身が止める(穴は塞がった)
+        with pytest.raises(ValueError):
+            np.add.at(a, [0], 1)
+        assert a[0] == 0
 
 
 def test_frozen_flag_is_recorded_by_freeze_and_checked_by_resolve():
@@ -181,7 +221,7 @@ def test_set_refractory_is_blocked_when_someone_forgets_the_window(monkeypatch):
     # writable() を無力化して「窓を開け忘れた」状況を作る(穴の再現)
     monkeypatch.setattr(AgentState, "writable", lambda self: _noop_ctx())
     with pytest.raises(ValueError):
-        R.set_refractory(agents, np.array([0]), np.array([5]), 10)
+        R_MIND.set_refractory(agents, np.array([0]), np.array([5]), 10)
 
 
 class _noop_ctx:
@@ -209,6 +249,10 @@ def test_box_rooted_and_aliased_ufunc_at_outside_resolve_is_found(tmp_path):
 
 def test_systems_modules_have_no_state_ufunc_at():
     """系のモジュール(engine/systems)にも世界状態への ``ufunc.at`` は無い(書きは resolve の口だけ)。"""
-    files = sorted((SRC / "engine" / "systems").glob("*.py"))
-    assert files
+    from shibuya.runtime.systems import table as SYSTEMS
+
+    # 〔段 4 の下ごしらえ〕前は字面のディレクトリ engine/systems の直下。元の置き場が系の包みの直下のファイルを対応表で引く
+    # (段 4 で系の包みは 3 つの包みへ分かれる)
+    files = PL.files_from(SYSTEMS, recursive=False)
+    assert len(files) > 20
     assert not [h for p in files for h in _ufunc_at_targets(p)]

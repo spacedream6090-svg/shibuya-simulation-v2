@@ -1,0 +1,26 @@
+{
+ "name": "p1_noproc_default_date",
+ "kw": {
+  "vocab_version": "v3",
+  "processes": false
+ },
+ "world": "data/world/v2",
+ "agents": 200,
+ "ticks": 1440,
+ "replay_date": "",
+ "start_sim_datetime": "2026-07-13T00:00:00",
+ "weather_days": [],
+ "process_ids_n": 0,
+ "a48": {
+  "weather_calls_loaded": 228,
+  "weather_fallback_loaded": 0,
+  "weather_calls_synthetic": 0,
+  "weather_fallback_synthetic": 0,
+  "fallback_default_tuple": 0,
+  "fallback_keys": {},
+  "time_view_path": {
+   "calendar_date": 1754
+  }
+ },
+ "wall_s": 6.1
+}

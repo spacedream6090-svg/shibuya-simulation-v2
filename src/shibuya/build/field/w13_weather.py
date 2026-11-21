@@ -35,10 +35,10 @@ from typing import Any, Sequence
 
 import numpy as np
 
-from shibuya.core.rng import stream
+from shibuya.foundation.rng import stream
 
 from . import common as C
-from shibuya.core.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
+from shibuya.foundation.time_consts import HOURS_PER_DAY, MINUTES_PER_HOUR
 
 STAGE = "W13"
 #: 1.1.0(第330 B5): 年間化(窓 365 日・etrn の 10 分値が主・時別値で補完・内閣府の祝日 CSV)。

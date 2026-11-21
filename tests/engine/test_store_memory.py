@@ -15,15 +15,17 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import (
+from shibuya.foundation.vocab.agent_codes import (
     MEMORY_FIELDS,
     STORE_MEMORY_FIELDS,
-    AgentState,
     ResultCode,
 )
-from shibuya.engine import memory as M
-from shibuya.engine import store_memory as SM
-from shibuya.engine.familiarity import place_thing
+from shibuya.world.model.agent_table import (
+    AgentState,
+)
+from shibuya.mind.memory import memory as M
+from shibuya.mind.memory import store_memory as SM
+from shibuya.mind.memory.familiarity import place_thing
 from tests import golden_env as GE
 
 SRC = Path("src/shibuya")
@@ -211,7 +213,7 @@ def test_decay_modes():
 # ================================================================= (g) ラン
 @pytest.fixture(scope="module")
 def runs():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     kw = dict(n_agents=100, seed=2, ticks=1440, vocab_version="v3")  # 10e(E1)・〔第330・RET〕AgentState.state_hash の差し替えで欄を除く比べ方は GE.soa_combined(旧い final の式)で見る
     off = run_day(**kw)
@@ -257,7 +259,7 @@ def test_store_summary_in_the_manifest(runs):
 
 
 def test_store_memory_needs_memory_and_checks_its_knobs():
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
 
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, store_memory="on")
@@ -267,14 +269,18 @@ def test_store_memory_needs_memory_and_checks_its_knobs():
         run_day(n_agents=10, ticks=2, memory="on", store_memory="on", store_decay="linear")
     with pytest.raises(ValueError):
         run_day(n_agents=10, ticks=2, memory="on", store_memory="on", store_sigma='{"x": 1}')
-    text = (SRC / "cli.py").read_text(encoding="utf-8")
+    from tests import _places as PL
+
+    # 〔割る段 5b の G0〕cli の元の名を定義する今のファイルの全部で見る(割った後に入口の転送や割り先の 1 本だけを見て
+    # 空回りしない。割る前は cli.py の字面=前と同じ範囲)
+    text = PL.split_source("cli.py")
     for flag in ('"--store-memory"', '"--store-memory-n"', '"--store-sigma"', '"--store-decay"'):
         assert flag in text
 
 
 def test_store_readers_and_writer_rounds_are_array_ops():
     """P4: 読み口と 1 回の書き込みに for/while を書かない(体数比例の逐次ループなし)。"""
-    tree = ast.parse((SRC / "engine/store_memory.py").read_text(encoding="utf-8"))
+    tree = ast.parse((SRC / "mind/memory/store_memory.py").read_text(encoding="utf-8"))
     names = {"activation", "valence_now", "scores", "rows", "known", "_write_round", "valence_of_result"}
     bad = [f"{n.name}:{s.lineno}" for n in ast.walk(tree)
            if isinstance(n, ast.FunctionDef) and n.name in names

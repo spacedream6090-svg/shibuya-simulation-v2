@@ -19,8 +19,8 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.engine.experiment import ensemble as EN
-from shibuya.engine.experiment.form import ExperimentForm
+from shibuya.experiments.port import ensemble as EN
+from shibuya.experiments.port.form import ExperimentForm
 
 from tests.engine.experiment._x33 import form, form_dict
 

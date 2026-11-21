@@ -15,15 +15,15 @@ import ast
 import json
 from pathlib import Path
 
-from shibuya.engine.systems import allow as AL
-from shibuya.engine.systems.table import SYSTEMS
+from shibuya.runtime.systems import allow as AL
+from shibuya.runtime.systems.table import SYSTEMS
 from tests.economy.cp2 import money_writers as MW
 
 HERE = Path(__file__).resolve().parent
 SRC = HERE.parents[2] / "src" / "shibuya"
 FROZEN = json.loads((HERE.parent / "cp2" / "money_writers_frozen.json").read_text(encoding="utf-8"))
 DECLARED = {(w["path"], w["func"]): set(w["attrs"]) for w in FROZEN["writers"]}
-NEW_MODULES = ("economy/stage2.py", "economy/credit.py", "engine/economy_stage2.py")
+NEW_MODULES = ("economy/stage2.py", "economy/credit.py", "economy/stage2_bind.py")
 STAGE2_PORTS = ("withdraw_many", "can_pay_many", "pay_fares_many")
 
 
@@ -42,9 +42,12 @@ def test_new_modules_do_not_open_the_ledger_window_or_touch_the_balance_arrays()
 
 
 def _callers_in_resolve(names: tuple[str, ...]) -> set[str]:
-    tree = ast.parse((SRC / "engine" / "resolve.py").read_text(encoding="utf-8"))
+    """resolve の書き手のファイルの全部(``allow.RESOLVE_FILES``・割る前は 1 本=〔割る段 6 の S6-G0・親の裁定 R1〕)の関数。"""
     out: set[str] = set()
-    for fn in (n for n in tree.body if isinstance(n, ast.FunctionDef)):
+    fns = [n for rel in AL.RESOLVE_FILES for n in ast.parse((SRC / rel).read_text(encoding="utf-8")).body
+           if isinstance(n, ast.FunctionDef)]
+    assert fns
+    for fn in fns:
         for node in ast.walk(fn):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr in names:
                 out.add(fn.name)

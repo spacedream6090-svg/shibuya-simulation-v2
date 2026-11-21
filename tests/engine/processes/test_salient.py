@@ -8,26 +8,32 @@ from __future__ import annotations
 
 import numpy as np
 
-from shibuya.agents.state import WakeCondition
-from shibuya.core.types import EventClass
-from shibuya.engine.processes.civic import PressProcess, PublicServiceDispatchProcess
-from shibuya.engine.processes.salient import (
+from shibuya.foundation.vocab.agent_codes import WakeCondition
+from shibuya.foundation.types import EventClass
+from shibuya.world.laws.civic import PressProcess, PublicServiceDispatchProcess
+from shibuya.world.laws.salient import (
     ABLATION_IDS,
     SalientEvent,
     SalientProcess,
     _as_ablation,
     _cross_neighbours,
 )
-from shibuya.perception import attention as AT
-from shibuya.perception import p_notice as PN
+from shibuya.foundation.text import salience as AT
+from shibuya.world.model import notice_reach as PN
 
 from .conftest import make_agents, make_world
+
+
+#: 〔11-01 段 2 の 3・4・検収 L3〕倒れる率の試験の口は旧道でだけ効く=旧道で回す。〔11-02r §1 #7〕出動の経路も旧道でだけ
+#: 動く。〔第347 止めた切替口の削除〕前はモジュールの autouse で切替口(``--rate-rules``・``--absent-processes`` の腕)を
+#: legacy にしていた=過程の部品の口(``rate_rules="legacy"``・``absent_processes="legacy"``)を明示する形に替えた(同じ過程を回す)。
+LEGACY = "legacy"
 
 
 def _proc(n_agents: int = 60, n_cells: int = 25, **kw):
     world = make_world(n_cells)
     agents, _ = make_agents(world, n_agents)
-    return world, agents, SalientProcess(world, agents, master_seed=1, **kw)
+    return world, agents, SalientProcess(world, agents, master_seed=1, rate_rules=LEGACY, **kw)
 
 
 # ================================================================= 近傍(80m の代用)
@@ -130,9 +136,9 @@ def test_broadcasts_do_not_consume_the_salient_event_budget():
 # ================================================================= 出動との連結
 def test_a_collapse_triggers_a_dispatch_and_the_arrival_is_salient():
     world, agents, _ = _proc()
-    d = PublicServiceDispatchProcess(world, master_seed=5)
+    d = PublicServiceDispatchProcess(world, master_seed=5, absent_processes=LEGACY)
     sp = SalientProcess(
-        world, agents, master_seed=1, dispatch=d, rate_per_10k_per_day=100_000.0
+        world, agents, master_seed=1, dispatch=d, rate_per_10k_per_day=100_000.0, rate_rules=LEGACY
     )
     kinds: set[str] = set()
     for t in range(120):

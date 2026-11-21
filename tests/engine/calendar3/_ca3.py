@@ -9,12 +9,12 @@ from typing import Any, Iterator
 
 import numpy as np
 
-from shibuya.core.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine.calendar2 import arm as A2
-from shibuya.engine.calendar3 import arm as A3
-from shibuya.engine.calendar3 import port as P3
-from shibuya.engine.calendar3 import roster as R3
-from shibuya.engine.contact import arm as AC
+from shibuya.foundation.time_consts import NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.arms import calendar2 as A2
+from shibuya.foundation.arms import calendar3 as A3
+from shibuya.mind.plan import calendar3_port as P3
+from shibuya.interim_bundles.calendar3 import roster as R3
+from shibuya.foundation.arms import contact as AC
 
 STEP_NS = STEP_SECONDS * NS_PER_SECOND
 TPD = int(STEPS_PER_DAY)
@@ -76,8 +76,8 @@ def synthetic_roster(n: int) -> R3.Roster:
 
 def roster_fixture(monkeypatch: Any) -> None:
     """合成の世界(母集団が無い=W20 と雇用の行が無い)に、合成の雇い主の口の表とグループの一覧(家族 2 人・職場 10 人)を入れる。"""
-    from shibuya.engine.tools import record as TR
-    from shibuya.engine.tools.groups import GroupList
+    from shibuya.society.tools import record as TR
+    from shibuya.society.tools.groups import GroupList
 
     monkeypatch.setattr(R3, "roster_for_run", lambda table, pop, runner, n: synthetic_roster(int(n)))
     real = TR.build_fixture

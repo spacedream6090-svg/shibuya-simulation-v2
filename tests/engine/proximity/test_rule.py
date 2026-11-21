@@ -20,8 +20,10 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from shibuya.engine import proximity as P
-from shibuya.engine import resolve as R
+from shibuya.world.model import proximity as P
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/ops/talk・R_ACT_CODES=foundation/vocab/act_codes。割る前は全部 resolve)
+from shibuya.act.ops import talk as R
+from shibuya.foundation.vocab import act_codes as R_ACT_CODES
 
 
 def agents(xy, cell, band=None, unit=None):
@@ -96,8 +98,8 @@ def test_sensitivity_arms(d, want):
 
 
 def test_d_default_is_the_talk_open_constant():
-    assert P.D_DEFAULT == R.TALK_OPEN_METERS == 2.0
-    assert P.LEAVE_MARGIN_M == R.TALK_LEAVE_METERS - R.TALK_OPEN_METERS
+    assert P.D_DEFAULT == R_ACT_CODES.TALK_OPEN_METERS == 2.0
+    assert P.LEAVE_MARGIN_M == R_ACT_CODES.TALK_LEAVE_METERS - R_ACT_CODES.TALK_OPEN_METERS
 
 
 # ================================================================= 気づく確率(B4・R-62)
@@ -115,7 +117,7 @@ def test_notice_curve_passes_r62_two_points():
 
 def test_notice_draws_are_counter_streams_stateless_and_uniform():
     """検収・親の判断 A1: 気づく抽選は 10c の counter の流れ(用途名 proximity.notice・k19 の並べ方=時刻の鍵・体・相手)。"""
-    from shibuya.core.rng import k19_counters, run_tick_key, stream
+    from shibuya.foundation.rng import k19_counters, run_tick_key, stream
 
     rule = P.ProximityRule(seed=11, day_key0=3, step_seconds=60)
     a = np.arange(4_000) % 500
@@ -140,7 +142,7 @@ def test_notice_draws_are_counter_streams_stateless_and_uniform():
 
 def test_notice_streams_pass_the_k19_overlap_check():
     """K19 の重なりの検査の控え(StreamRecorder)に載り、重なりも作り直しも無い。"""
-    from shibuya.engine import rng_audit as RA
+    from shibuya.validation.static import rng_audit as RA
 
     rule = P.ProximityRule(seed=5)
     with RA.StreamRecorder() as rec:
@@ -166,22 +168,18 @@ def test_edge_view_reach_equals_reach():
 
 
 def test_resume_arm_check():
-    """検収 M1: 再開の腕の検査(見出しの proximity が無ければ cell)。"""
-    prev = (P.arm(), P.d())
+    """検収 M1: 再開の腕の検査(見出しの proximity が無ければ cell=〔第346〕cell の切替口は消した=再開できない)。"""
+    prev = P.d()
     try:
-        P.set_arm("cell")
-        P.check_resume(None)
-        with pytest.raises(ValueError, match="近接の腕"):
-            P.check_resume({"mode": "distance", "d_m": 2.0})
-        P.set_arm("distance")
         P.set_d(2.0)
         P.check_resume({"mode": "distance", "d_m": 2.0})
-        for saved in (None, {"mode": "cell", "d_m": None}, {"mode": "distance", "d_m": 2.5}):
-            with pytest.raises(ValueError, match="近接の腕"):
+        for saved in (None, {"mode": "cell", "d_m": None}):
+            with pytest.raises(ValueError, match="近接の腕.*消した.*stable-v2-before-switch-removal-346"):
                 P.check_resume(saved)
+        with pytest.raises(ValueError, match="近接の腕.*--proximity-d"):
+            P.check_resume({"mode": "distance", "d_m": 2.5})
     finally:
-        P.set_arm(prev[0])
-        P.set_d(prev[1])
+        P.set_d(prev)
     assert P.header_fields(None) is None
     assert P.header_fields(P.ProximityLayer(P.ProximityRule(d=2.5))) == {"mode": "distance", "d_m": 2.5}
 
@@ -212,22 +210,30 @@ def test_noticed_needs_same_band_stage_and_cutoff():
 
 
 # ================================================================= 切替口
-def test_arm_and_d_switches_are_checked():
-    prev_arm, prev_d = P.arm(), P.d()
+def test_d_switch_is_checked_and_the_cell_switch_is_removed():
+    """``--proximity-d`` は感度の腕として残す。〔第346〕``--proximity cell`` の切替口(腕を選ぶ口・環境変数)は消した。"""
+    import os
+    import subprocess
+    import sys
+
+    prev_d = P.d()
     try:
-        P.set_arm("distance")
-        assert P.arm() == "distance"
         P.set_d("2.5")
         assert P.d() == 2.5
-        with pytest.raises(ValueError):
-            P.set_arm("grid")
         with pytest.raises(ValueError):
             P.set_d(3.0)
         with pytest.raises(ValueError):
             P.set_d("x")
     finally:
-        P.set_arm(prev_arm)
         P.set_d(prev_d)
+    for name in ("arm", "set_arm", "_ARM"):
+        assert not hasattr(P, name), name
+    assert P.DEFAULT_MODE == P.MODE_DISTANCE and P.ENV_REMOVED == "SHIBUYA_PROXIMITY"
+    for value in ("cell", "distance"):
+        env = {**os.environ, "SHIBUYA_PROXIMITY": value, "PYTHONIOENCODING": "utf-8"}
+        r = subprocess.run([sys.executable, "-c", "import shibuya.world.model.proximity"], env=env, capture_output=True,
+                           text=True, encoding="utf-8")
+        assert r.returncode != 0 and "消した切替口" in r.stderr
     assert P.ProximityRule().is_distance and not P.ProximityRule(mode="cell").is_distance
     with pytest.raises(ValueError):
         P.ProximityRule(mode="grid")

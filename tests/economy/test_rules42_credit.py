@@ -36,7 +36,7 @@ def test_income_document_rule_is_a_field():
 
 def test_before_the_lower_bound_the_check_stops():
     """〔検収 L5〕総量規制の行の asof は下限の印=それより前の日は「規則なし」にせず止まる。"""
-    from shibuya.engine.rules import table as RT
+    from shibuya.world.facts.rules import table as RT
 
     with pytest.raises(RT.RuleNotInForce):
         CR.total_volume_check(np.array([0]), np.array([0]), np.array([0]), np.array([1]), "2020-01-01")

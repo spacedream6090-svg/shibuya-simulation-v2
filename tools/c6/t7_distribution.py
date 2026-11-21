@@ -46,7 +46,7 @@ def result_code_counts(agents: object) -> dict[str, int]:
     """個体 SoA の ``last_result`` → ``ResultCode`` 名の度数。"""
     import numpy as np
 
-    from shibuya.agents.state import ResultCode
+    from shibuya.foundation.vocab.agent_codes import ResultCode
 
     arr = np.asarray(getattr(agents, "registry").field("last_result")).ravel()
     names = {int(c): c.name for c in ResultCode}
@@ -56,7 +56,7 @@ def result_code_counts(agents: object) -> dict[str, int]:
 
 def action_counts_from_tape(tape_dir: Path) -> dict[str, int]:
     """テープの応答本文 → 行動語の度数(``llm.parser`` で解釈)。"""
-    from shibuya.engine.tape import Tape
+    from shibuya.runtime.inference.tape import Tape
 
     texts = [str(r.response) for r in Tape(tape_dir).rows()]
     return {k: int(v) for k, v in c6lib.score_texts(texts)["action_counts"].items()}
@@ -118,6 +118,7 @@ def main(argv: list[str] | None = None) -> int:
                 world_dir=c6lib.world_dir_of(args),
                 tape_path=tape_root / tag,
                 fleet=client,
+                extra={"vocab_version": "v1"},  # 〔第347・Q13〕前と同じラン=語彙 v1 を明示(cli.run の既定は v3 になった)
             )
         finally:
             if client is not None:
@@ -127,6 +128,7 @@ def main(argv: list[str] | None = None) -> int:
                 "tag": tag,
                 "seed": seed,
                 "route": route,
+                "vocab_version": str(res.vocab_version),
                 "llm_calls": int(res.llm_calls),
                 "actions": action_counts_from_tape(tape_root / tag),
                 "result_codes": result_code_counts(res.agents),

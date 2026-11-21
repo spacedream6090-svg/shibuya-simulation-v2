@@ -19,11 +19,11 @@ from pathlib import Path
 
 import pytest
 
-from shibuya import cli
-from shibuya.engine import rng_audit as RA
-from shibuya.engine import state_ledger as SL
-from shibuya.engine import state_ledger_ast as SA
-from shibuya.engine.run import run_day
+from shibuya.interfaces.cli import main as cli
+from shibuya.validation.static import rng_audit as RA
+from shibuya.runtime.state import ledger as SL
+from shibuya.runtime.state import ledger_ast as SA
+from shibuya.runtime.run import run_day
 from tests.engine import discard_probe as DP
 from tests.engine.test_sim_time_T import ALL_ARMS
 
@@ -35,7 +35,7 @@ TPD = 1_440
 #: 10e(E4): 既定 v3・5,000 体・seed 1・1 日の final(乱数 counter・K19 の鍵の並べ方)。
 #: 〔改訂(第330)〕10e 構築側(第330 B3 丸め・B4 W10 ON+Q7・B5 W13 の年間化)で世界の資産が動いた。E5 の値は 4fbf61616af1e3d2。
 #: 〔改訂(第330・ACT)〕版上げ 1 回目の活性化(暦の一本化・開始日 2026-07-13・影 6 日)で動いた。B6build の値は 0483d1165e245bed。
-K19_V3_FINAL_COUNTER = "7bfe215641b792ac"  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
+K19_V3_FINAL_COUNTER = "c8d68704b7b0760d"  # 〔11-03 §3〕棚卸し B の欠陥 4 件の直しで動いた(前 73aa01d9afb206d0=SHIBUYA_DEFECT_FIXES_1103=legacy で戻る・記録 fix4-1103)  # 〔11-01 段 2 の 4〕率の形の規則を外して動いた(前 7bfe215641b792ac=SHIBUYA_RATE_RULES=legacy で戻る・記録 s2-rates-1101)  # 〔段 5-1b・版上げ 4 回目〕既定 nav1+密度の推定 neighborhood で動いた(前 bb86f89855172717=--space legacy で戻る・段 1 の nav1(cell)は d8b2d497eef28887・記録 spatial-2026-10/sp1b)  # 〔第 4 期 4-3 段 10・版上げ 3 回目〕差し替えの世界で動いた(前 333b1820f7849b00=記録 pop43)  # 〔小さな版上げ・meal_w17〕前 b8eadcb51e8705e7(--meal-default validation で戻る)  # 〔第 4 期 4-2〕給与の天引きと預かり消費税で動いた(前 eb759bb4e5be37ec=SHIBUYA_RULES_42=off で戻る・記録 rules42)
 # 〔第 4 期 4-3 版上げ 3 回目の第 2 部〕旧値の腕 --meal-default validation の final の定数 _K19_PRE_MEAL_W17(最後の値 5b080133301bf13d=差し替えの世界・前 b8eadcb51e8705e7=W16 の世界)は切替口と一緒に消した(再現は安定版のタグ stable-v2-before-meal-default-w17)
 
 
@@ -80,10 +80,14 @@ def test_t4_axis1_reading_a_no_attribute_in_a_behavior_place_fails(tmp_path, ext
     """T4 軸 1: 実物の src に「挙動の場所で no/diag の属性を読む」断片を 1 つ足すと落ちる。"""
     import shutil
 
+    from shibuya.world.laws import opening as PROC
+
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    # O66 の act_layer.n_wander_bad(diag・計数)を、挙動の分岐(歩き先を選ぶ関数)で読む
-    p = root / "engine" / "processes" / "fake_behavior.py"
+    # O66 の act_layer.n_wander_bad(diag・計数)を、挙動の分岐(歩き先を選ぶ関数)で読む。置き場は世界の過程のモジュールの
+    # ディレクトリ(〔段 4 の下ごしらえ〕前は字面の engine/processes=段 4 で過程の包みが移るとディレクトリが消える)
+    fake_rel = (Path(PROC.__file__).resolve().parent.relative_to(SRC.resolve()) / "fake_behavior.py").as_posix()
+    p = root / fake_rel
     p.write_text(textwrap.dedent('''
         def choose_next(act_layer, agents):
             if act_layer.n_wander_bad > 3:
@@ -103,7 +107,7 @@ def test_t4_axis1_reading_a_no_attribute_in_a_behavior_place_fails(tmp_path, ext
     sc2 = SA.scan_external(root)
     assert any("fake_behavior.py" in str(s) for s in sc2.sites["n_wander_bad"])
     assert len(SA.check_external(sc2)) == 1  # 結果の組み立ての置き場(RESULT_FILES)の外の result.… は出口ではない
-    assert "engine/processes/fake_behavior.py" not in SA.RESULT_FILES
+    assert fake_rel not in SA.RESULT_FILES
 
 
 def test_t4_axis1_collision_needs_the_owner_receiver(tmp_path):
@@ -112,7 +116,8 @@ def test_t4_axis1_collision_needs_the_owner_receiver(tmp_path):
 
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    p = root / "engine" / "fake_collision.py"
+    # 〔割る段 6 の S6-G1〕包み engine が木から消えたので、偽のファイルの置き場を act に替えた。走査の確かめる中身は同じ
+    p = root / "act" / "fake_collision.py"
     # n_calls は ArbiterDecision・MockLLM も持つ=受け手が decision なら衝突として許す・arbiter なら落とす
     p.write_text("def f(decision, arbiter):\n    a = decision.n_calls\n    return arbiter.n_calls_total + a\n",
                  encoding="utf-8")
@@ -134,7 +139,7 @@ def test_u5_allow_entries_have_a_fixed_hit_count(tmp_path, ext_scan):
     assert any("当たる数が 1(宣言は 2)" in x for x in SA.check_external(ext_scan, allow=wrong))
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    run_py = root / "engine" / "systems" / "body.py"  # 1-0: 層別の起床の数えは系 presence(engine/systems/body.py)
+    run_py = root / "runtime" / "systems" / "body.py"  # 1-0: 層別の起床の数えは系 presence(engine/systems/body.py)
     text = run_py.read_text(encoding="utf-8")
     # 許可した行(層別の起床の数えの基準)と同じ文字列の行を、同じファイルの別の関数に足す
     run_py.write_text(text + "\n\ndef _copied(presence):\n    _pres0 = int(presence.n_arrivals) + 1\n    return _pres0\n",
@@ -153,7 +158,7 @@ def test_v3_allow_entries_pin_the_function_of_the_line(tmp_path, ext_scan):
     assert any("当たる行の関数" in x and "seconds" in x for x in SA.check_external(ext_scan, allow=wrong))
     root = tmp_path / "src" / "shibuya"
     shutil.copytree(SRC, root, ignore=shutil.ignore_patterns("build", "__pycache__"))
-    clock = root / "engine" / "clock.py"
+    clock = root / "runtime" / "clock.py"
     text = clock.read_text(encoding="utf-8")
     assert text.count("delta.seconds") == 1
     # 許可した行(timedelta.seconds)の式を元の関数から消し、同じ式を別の関数(挙動の場所のつもり)へ移す
@@ -164,7 +169,7 @@ def test_v3_allow_entries_pin_the_function_of_the_line(tmp_path, ext_scan):
 
 
 def test_axis1_stale_allow_and_collision_entries_fail(ext_scan):
-    stale = SA.EXT_AST_ALLOW + (SA.ExtAllow("n_set", 1, SL.AstAllow("engine/run.py", "no such text", "古い")),)
+    stale = SA.EXT_AST_ALLOW + (SA.ExtAllow("n_set", 1, SL.AstAllow("runtime/run.py", "no such text", "古い")),)
     assert any("古い許可" in x for x in SA.check_external(ext_scan, allow=stale))
     coll = dict(SA.EXT_NAME_COLLISIONS, n_set="衝突は無い")
     assert any("衝突が無い" in x for x in SA.check_external(ext_scan, collisions_allow=coll))
@@ -260,7 +265,7 @@ def test_u7_ipf_cache_with_a_multiplier_is_caught(monkeypatch):
     軸 1 が behavior の行なので、属性そのもののハッシュで捕まる)。"""
     import numpy as np
 
-    from shibuya.engine import classical as CL
+    from shibuya.mind.judge import classical as CL
 
     orig_bind = CL.ClassicalPolicy.bind
 
@@ -322,16 +327,28 @@ def test_k19_static_sites_are_frozen():
     # 〔第 6 期 6-6 ② 第 1 部〕店の仕事の判断の仮のモデルの選び(DutiesPort._draw)を足して 24 → 25・候補の提示の並べ替え
     # (DutiesPort.choose=permutation)を決まらない呼び手に 16 → 17
     # 〔第 6 期 6-4 C2〕習慣で答えられるときに判断の口へ戻すか(habit_recheck_u=用途名 contact.habit)を足して 24 → 25
-    assert len(RA.SAFE_SITES) == 26 and len(RA.UNDETERMINED_SITES) == 17
-    # httpx の client.stream(llm/fleet.py)は乱数ではない=一覧に入らない
-    assert all(s.path != "llm/fleet.py" for s in sites)
+    # 〔第346 死んだ道の削除〕会話の応答率 0.8 の抽選(ConversationManager._accepts)を消して 26 → 25
+    assert len(RA.SAFE_SITES) == 25 and len(RA.UNDETERMINED_SITES) == 17
+    # httpx の client.stream(艦隊のクライアント)は乱数ではない=一覧に入らない。〔割る段 5a の G0〕前は字面の
+    # "llm/fleet.py"=割る段で道が無くなると何も確かめずに通る。クラスの定義のファイルから作る
+    import inspect
+
+    from shibuya.runtime.inference.fleet import FleetClient
+
+    fleet_path = Path(inspect.getsourcefile(FleetClient)).resolve().relative_to(SRC.resolve()).as_posix()
+    assert (SRC / fleet_path).is_file() and "client.stream" in (SRC / fleet_path).read_text(encoding="utf-8")
+    assert all(s.path != fleet_path for s in sites)
 
 
 def test_t5_static_fifth_word_caller_fails(tmp_path):
+    # 〔第 2 回〕植える import は rng のモジュールの名(RA.RNG_MODULE=__name__)から作る。字面の
+    # 「from shibuya.core import rng」は移す道具が書き換えない(包みの名だけの文字列=L-7)ので、
+    # 段 4 の後に植えた 2 本目の import が今の置き場を指さなくなり、R.stream の呼び手が数えられなくなる。
+    rng_pkg, _, rng_leaf = RA.RNG_MODULE.rpartition(".")
     root, files = _fake_tree(tmp_path, {
-        "engine/fake.py": '''
-            from shibuya.core.rng import stream
-            from shibuya.core import rng as R
+        "engine/fake.py": f'''
+            from {RA.RNG_MODULE} import stream
+            from {rng_pkg} import {rng_leaf} as R
 
             def five(seed, agent, tick):
                 return stream(seed, "test.fifth_word", agent, tick).random(5)
@@ -363,16 +380,28 @@ def _record(kw, runner=run_day, extra=None):
 
 
 SYN1000 = dict(n_agents=200, seed=1, n_cells=25, ticks=TPD, sim_days=2, budget=100.0, checkpoint_every=360,
-               salient_rate_per_10k=3000.0, **ALL_ARMS)
+               **ALL_ARMS)
+#: 〔11-01 段 2 の 3・4・検収 L3〕倒れる率(×1000)は旧道でだけ効く=旧道で回す。〔第347 止めた切替口の削除〕前は
+#: ``run_day(salient_rate_per_10k=3000.0)`` と切替口 ``--rate-rules legacy`` の腕=試験の中だけで実行器に部品の口を挿す
+#: (``tests/engine/_legacy_world.py``・「無い」の過程は前と同じく既定=出動は止めたまま)。
+SYN1000_RATE = 3000.0
+
+
+def _syn1000_legacy(mp) -> None:
+    from tests.engine._legacy_world import legacy_world_rules
+
+    legacy_world_rules(mp, absent=False, salient_rate=SYN1000_RATE)
 
 
 @pytest.fixture(scope="module")
 def k19_runs():
     """合成世界・率 ×1000・2 日(counter)。〔改訂(第330・RET)〕前は stateful(旧値の再現の切替口)とも比べた(消した)。"""
-    return {"counter": _record(dict(SYN1000))}
+    with pytest.MonkeyPatch.context() as mp:
+        _syn1000_legacy(mp)
+        return {"counter": _record(dict(SYN1000))}
 
 
-def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs):
+def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs, monkeypatch):
     """10e(E4): counter では実際の重なりが 0(許可の表に ``overlap`` は無い)。〔改訂(第330・RET)〕扱い ``stateful`` の
     用途名(stateful のランでだけ重なりを許した 8 本)は切替口と一緒に消した=許可の表は空。"""
     st, res = k19_runs["counter"]
@@ -383,7 +412,8 @@ def test_k19_runtime_overlaps_only_in_the_allow_list(k19_runs):
     assert st["world.delivery_inbound"].keyed is False
     assert not ({"world.salient", "world.public_service_dispatch"} & set(st))  # 日の頭の Generator は作らない
     assert RA.K19_ALLOW == {} and not hasattr(RA, "STATEFUL_ONLY") and not hasattr(RA, "OVERLAP")
-    # 計器は結果を変えない(包まないランと同じ final)
+    # 計器は結果を変えない(包まないランと同じ final)。〔11-01 段 2 の 3・4・検収 L3〕率を渡すランは旧道(_record と同じ口)
+    _syn1000_legacy(monkeypatch)
     assert run_day(**dict(SYN1000)).final_hash == res.final_hash
 
 
@@ -396,8 +426,8 @@ def test_k19_empty_allow_list_reports_every_overlap(k19_runs):
 
 def test_t5_runtime_fifth_word_caller_fails(monkeypatch):
     """T5: 体ごとの流れ(1 語目=体)から 5 語引く呼び手を足すと、隣の体の流れと重なって落ちる。"""
-    from shibuya.core.rng import stream
-    from shibuya.engine import resolve as R
+    from shibuya.foundation.rng import stream
+    from shibuya.act.ops import body_writes as R
 
     orig = R.advance_body
 

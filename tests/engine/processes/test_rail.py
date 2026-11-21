@@ -6,11 +6,15 @@ import numpy as np
 import pyarrow.parquet as pq
 import pytest
 
-from shibuya.agents.state import Activity, ResultCode
+from shibuya.foundation.vocab.agent_codes import Activity, ResultCode
 from shibuya.economy.accounts import AccountCode
-from shibuya.engine import commit as C
-from shibuya.engine import resolve as R
-from shibuya.engine.processes.rail import (
+# 〔割る段 5b の G1〕別名 C を割り先ごとに分けた(C=act.commit・CW=act.intake.from_words・CV=foundation.vocab.act_codes の名)
+from shibuya.act import commit as C
+from shibuya.foundation.vocab import act_codes as CV
+# 〔割る段 6 の S6-G0〕別名 R を割り先ごとに分けた(R=act/apply・R_RAIL=act/ops/rail。割る前は全部 resolve)
+from shibuya.act import apply as R
+from shibuya.act.ops import rail as R_RAIL
+from shibuya.world.laws.rail import (
     ACCEPT_FULL_RATIO,
     ACCEPT_MAX_RATIO,
     ACCEPT_MIN_RATE,
@@ -23,7 +27,7 @@ from shibuya.engine.processes.rail import (
     MAX_DWELL_TICKS,
     RailProcess,
 )
-from shibuya.world.assets import load_process_assets
+from shibuya.world.model.assets import load_process_assets
 
 from .conftest import WORLD_DIR, fake_timetable_assets, make_agents, make_world, real_data
 
@@ -57,7 +61,7 @@ def _intents(agent_ids, code):
 
 def _put_on_platform(agents, world, ids, cell: int) -> None:
     """個体をホームのセルへ置く(``resolve`` の口を通す)。"""
-    R.rail_arrive(agents, world, np.asarray(ids, dtype=np.int64),
+    R_RAIL.rail_arrive(agents, world, np.asarray(ids, dtype=np.int64),
                   np.full(len(ids), cell, dtype=np.int64))
 
 
@@ -109,7 +113,7 @@ def test_dwell_is_a_per_line_table_terminal_is_two_ticks():
 def test_daily_train_count_matches_the_real_timetable_rows_for_that_calendar():
     """ゲート: 路線別の便数が W12 のその暦の行数と一致する。"""
     world = make_world(9)
-    from shibuya.world.state import World
+    from shibuya.world.model.state import World
 
     real = World.load(WORLD_DIR)
     agents, schedule = make_agents(real, 30)
@@ -197,7 +201,7 @@ def test_boarding_succeeds_on_the_platform_and_pays_the_fare():
     ids = np.arange(3, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
     money0 = agents.money[ids].copy()
-    out = R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert out.n_boarded == 3
     assert np.all(agents.registry.transit_state[ids] == 1)
     assert np.all(agents.activity[ids] == int(Activity.RIDING))
@@ -211,7 +215,7 @@ def test_boarding_without_a_train_waits_on_the_platform():
     world, agents, rail = _rail(departures=(100,))
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    out = R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, 5, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, 5, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.OK))
     assert np.all(agents.activity[ids] == int(Activity.WAITING))
     assert np.all(agents.registry.board_line[ids] >= 0)
@@ -226,7 +230,7 @@ def test_boarding_in_another_cell_walks_to_the_nearest_platform():
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 3)  # ホームでないセル
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.OK))
     assert np.all(agents.activity[ids] == int(Activity.MOVING))
     assert np.all(agents.target_node[ids] == world.assets.cell_rep_node[0])
@@ -241,7 +245,7 @@ def test_boarding_without_the_fare_returns_fare_short():
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
     rail.fare_yen = 10**9
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.FARE_SHORT))
     assert np.all(agents.registry.transit_state[ids] == 0)
 
@@ -253,7 +257,7 @@ def test_boarding_over_the_congestion_cap_returns_train_full():
     _put_on_platform(agents, world, ids, 0)
     rail.capacity100[:] = 2.0
     rail.occupancy[0] = 4  # = 200% → 乗り残し
-    out = R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert out.n_boarded == 0
     assert np.all(agents.last_result[ids] == int(ResultCode.TRAIN_FULL))
 
@@ -264,9 +268,9 @@ def test_alight_succeeds_only_while_the_train_is_at_the_platform():
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep - 1, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep - 1, rail=rail)
     assert np.all(agents.registry.transit_state[ids] == 1)
-    out = R.apply(_intents(ids, C.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    out = R.apply(_intents(ids, CV.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     assert out.n_alighted == 2
     assert np.all(agents.registry.transit_state[ids] == 0)
     assert np.all(agents.cell[ids] == 0)
@@ -278,17 +282,17 @@ def test_alight_when_the_train_does_not_stop_returns_no_stop():
     dep = int(rail.dep_tick[0])
     ids = np.arange(2, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
-    R.apply(_intents(ids, C.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep + 5, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, dep + 5, rail=rail)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_STOP))
 
 
 def test_alight_without_rail_is_no_stop_c2_compatible():
     world, agents, _ = _rail()
     ids = np.arange(2, dtype=np.int64)
-    R.apply(_intents(ids, C.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, 10)
+    R.apply(_intents(ids, CV.ACT_ALIGHT), C.IntentBatch.empty(), agents, world, 10)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_STOP))
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, 10)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, 10)
     assert np.all(agents.last_result[ids] == int(ResultCode.NO_TRAIN))
 
 
@@ -297,13 +301,13 @@ def test_riders_are_never_lost():
     world, agents, rail = _rail(n_agents=40, departures=(100, 200))
     ext = rail.external_home_agents()
     if ext.size:
-        R.place_at_external(agents, ext, rail.external_line[ext])
+        R_RAIL.place_at_external(agents, ext, rail.external_line[ext])
     for t in range(0, 400):
         rail.step(t)
         if t == int(rail.dep_tick[0]):
             here = np.flatnonzero(agents.cell == 0)[:5]
             if here.size:
-                R.apply(_intents(here, C.ACT_BOARD), C.IntentBatch.empty(),
+                R.apply(_intents(here, CV.ACT_BOARD), C.IntentBatch.empty(),
                         agents, world, t, rail=rail)
         inb, riding, outside = rail.rider_census()
         assert inb + riding + outside == agents.n, (t, inb, riding, outside)
@@ -314,7 +318,7 @@ def test_departure_moves_riders_to_the_external_node():
     dep = int(rail.dep_tick[0])
     ids = np.arange(3, dtype=np.int64)
     _put_on_platform(agents, world, ids, 0)
-    R.apply(_intents(ids, C.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
+    R.apply(_intents(ids, CV.ACT_BOARD), C.IntentBatch.empty(), agents, world, dep, rail=rail)
     rail.step(dep + 1)
     assert np.all(agents.registry.transit_state[ids] == 2)
     assert np.all(agents.cell[ids] == -1)
@@ -322,7 +326,7 @@ def test_departure_moves_riders_to_the_external_node():
 
 
 def test_departures_are_logged_as_scheduled():
-    from shibuya.world.processes.actual_log import ActualLog
+    from shibuya.world.ledger.actual_log import ActualLog
 
     world = make_world(9)
     agents, schedule = make_agents(world, 10)

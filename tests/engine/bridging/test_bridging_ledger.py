@@ -21,9 +21,10 @@ from pathlib import Path
 
 import pytest
 
-from shibuya.agents.state import REFRACTORY_MINUTES, WakeCondition
-from shibuya.engine.bridging import ledger as L
-from shibuya.engine.bridging import scan as S
+from shibuya.foundation.vocab.agent_codes import REFRACTORY_MINUTES, WakeCondition
+from shibuya.foundation.decl import bridging as L
+from shibuya.foundation.decl import ledger_paths as LP
+from shibuya.validation.static import bridging_scan as S
 
 ROOT = Path(__file__).resolve().parents[3]
 C8 = (ROOT / "docs" / "bench" / "c8" / "sensitivity_v1.md").read_text(encoding="utf-8")
@@ -62,10 +63,11 @@ def test_every_row_has_remove_at_declared_in_and_conf(ledger):
 
 def test_rule_ids_point_to_the_rules_table(ledger):
     """検収 L7: 直書きの係数の行は規則の表の行に結ぶ(``rule_id`` は表にある id)。"""
-    from shibuya.engine.rules import table as RT
+    from shibuya.world.facts.rules import table as RT
 
     linked = [r for r in ledger if r.rule_id]
-    assert [r.id for r in linked] == ["BR-MIN-WAGE-HOURLY-1226"]
+    # 〔段 2 の 5〕最低賃金の床のつなぎ(規則の表の params.bridge・道具 docs/bench/analysis/s2-rules-1101/tools/add_bridges_s2rules.py)
+    assert [r.id for r in linked] == ["BR-MIN-WAGE-HOURLY-1226", "DOC-s2rules-min-wage-floor-bridge"]
     for r in linked:
         # 〔第 4 期 4-2・親の判断(問い 8)〕外す段 4-2 → 7(直書きは表に版の無い日の戻り道だけ=外す段が計画に無い)
         assert r.rule_id in RT.default_rules().ids() and r.remove_at == "7"
@@ -74,10 +76,11 @@ def test_rule_ids_point_to_the_rules_table(ledger):
 
 
 def test_declared_places_exist(ledger):
+    """台帳の道(〔移す段 4 の下ごしらえ〕移したファイルは ``ledger_paths`` の表で今の道へ引く)にファイルがある。"""
     for r in ledger:
-        assert (ROOT / r.declared_path).is_file(), (r.id, r.declared_path)
+        assert (ROOT / LP.current_path(r.declared_path)).is_file(), (r.id, r.declared_path)
         for c in r.code_at:
-            assert (ROOT / c).is_file(), (r.id, c)
+            assert (ROOT / LP.current_path(c)).is_file(), (r.id, c)
 
 
 def test_the_first_contents(ledger):
@@ -160,12 +163,58 @@ def test_the_counts_by_form(decls):
     # 〔第 2 期 2-2 段 11a〕engine/proximity.py(項 5)=79 → 80・357 → 362(記録 prox22/README.md)
     # 〔第 3 期 3-5〕environment.py の項 3(体感温度)と salient.py の項 1(倒れる率)を本人の体の層の表へ移した=362 → 358
     # 〔第 3 期 3-1〕build/sched/w20_calendar_1a.py(項 8)=80 → 81・358 → 366(本体の後に・記録 ca31/README.md)
-    assert len({d.path for d in heads}) == 81 and sum(d.items for d in heads) == 366
+    # 〔第342〕presence.py の docstring を実装に合わせて書き直し E12・E13 を登録簿に足した(#134・95c4ced)=項 9 → 11・366 → 368
+    # (記録 presence-docstring-1102/README.md・見出しは足していない)
+    # 〔第346 死んだ道の削除〕conversation.py の項 7 → 6(応答確率 0.8 の項=抽選ごと消した)=368 → 367
+    # 〔割る段 6 の S6-G1〕resolve の見出し 4 つが 3 つの割り先(act/apply・mind/ops・act/ops/plan_writes)へ分かれた=今のファイル
+    # の数は 81 → 83。台帳の道(ledger_path=前向きの表を通す)で数えると 81 のまま。項 367 と見出し 84 は同じ
+    # 〔割る段 6 の M1〕mora_count の docstring の宣言(段落 1)が foundation/text/mora.py へ動いた(前向きの表の 3 行目)。見出しは
+    # 元の society/speech/port.py に残るので、数は全部同じ(今のファイル 83・台帳の道 81・項 367・見出し 84・docstring 6)
+    assert len({d.path for d in heads}) == 83 and sum(d.items for d in heads) == 367
+    assert len(_heading_ledger_paths(heads)) == 81
+
+
+def _heading_ledger_paths(heads: list[S.Declaration]) -> set[str]:
+    """見出しの宣言を持つファイルを、台帳の道(:func:`LP.ledger_path`=主な表 → 前向きの表)で数えた集合。"""
+    return {LP.ledger_path(d.path) for d in heads}
+
+
+def _ledger_keys(decls: list[S.Declaration]) -> set[tuple[str, str, str]]:
+    """全部の形の宣言を、台帳の道(:func:`LP.ledger_path`)で作った (台帳の道, ``#`` の後, 形) の集合。"""
+    return {(LP.ledger_path(d.path), d.declared_in.split("#", 1)[1], d.form) for d in decls}
+
+
+def test_negative_a_dropped_forward_row_changes_the_heading_ledger_count(decls, monkeypatch):
+    """〔割る段 6 の S6-G1〕負の対照: 前向きの表から行を 1 つ落とすと(試験の中で一時に)、台帳の道で数えた見出しのファイルの数が
+    81 → 82 になる=上の確かめは前向きの表の行の抜けに気づく。
+    〔割る段 6 の M1・親の裁定〕落とす行を、宣言の走査から 2 つに分けて確かめる(行の名を書かない=行が増えても空回りしない):
+    (i) 見出しの宣言を持つファイルの行=落とすと 81 → 82(段 6 の 2 行・前の確かめのまま)。(ii) 見出しの宣言を持たないファイルの
+    行(M1 の ``foundation/text/mora.py``=docstring の宣言だけ)=落としても見出しの数えは 81 のままで、代わりに、そのファイルの
+    宣言の台帳の道が元の道(前向きの表の値)に解けなくなり、全部の形の宣言を台帳の道で数えた集合が変わる。(i) も (ii) も 1 行以上。"""
+    heads = [d for d in decls if d.form == S.FORM_HEADING]
+    assert len(_heading_ledger_paths(heads)) == 81
+    rows = dict(LP.LEDGER_PATHS_SPLIT)
+    assert rows
+    head_files = {d.path for d in heads}
+    with_head = sorted(k for k in rows if k in head_files)
+    without_head = sorted(k for k in rows if k not in head_files)
+    assert with_head and without_head, (with_head, without_head)
+    keys = _ledger_keys(decls)
+    for drop in with_head:  # (i)
+        monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {k: v for k, v in rows.items() if k != drop})
+        assert len(_heading_ledger_paths(heads)) == 82, drop
+    for drop in without_head:  # (ii)
+        mine = [d for d in decls if d.path == drop]
+        assert mine, drop  # 前向きの表の行のファイルには宣言が在る(条件 ③)
+        monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {k: v for k, v in rows.items() if k != drop})
+        assert len(_heading_ledger_paths(heads)) == 81, drop
+        assert all(LP.ledger_path(d.path) != rows[drop] for d in mine), drop
+        assert _ledger_keys(decls) != keys, drop
 
 
 def test_process_and_fallback_rows(ledger, decls):
     """第 5 形(世界過程 16+PlanSpec 2)と第 6 形(フォールバック台帳 5 行)=検収 M1。外す段は返済期限から。"""
-    from shibuya.world.processes import first_batch as FB
+    from shibuya.world.ledger import first_batch as FB
 
     reg = FB.build_registry()
     by_key = {r.declared_in: r for r in ledger}
@@ -202,7 +251,7 @@ def test_heading_rows_carry_the_heading_and_the_item_count(ledger, decls):
     by_key = {r.declared_in: r for r in ledger}
     for d in (d for d in decls if d.form == S.FORM_HEADING):
         r = by_key[d.declared_in]
-        rel = d.path.removeprefix("src/shibuya/")
+        rel = LP.ledger_path(d.path).removeprefix("src/shibuya/")  # 〔移す段 4〕id は台帳の道で作った(ファイルを動かしても変えない)
         key = d.declared_in.rsplit(":", 1)[-1]
         assert r.id == f"HD-{rel.removesuffix('.py').replace('/', '.')}-{key}", (r.id, d.path)
         assert f"「{d.text}」" in r.what and f"項 {d.items} 個" in r.what, r.id
@@ -320,11 +369,11 @@ def test_negative_a_new_heading_fails(ledger):
 
 def test_negative_a_changed_item_count_is_caught(ledger, decls):
     """見出しの下の項が増えると、同定(見出しの文)は同じでも台帳の ``what`` の項数と合わなくなる(試験が落ちる)。"""
-    path = ROOT / "src" / "shibuya" / "engine" / "processes" / "logistics.py"
+    path = ROOT / "src" / "shibuya" / "world" / "laws" / "logistics.py"
     text = path.read_text(encoding="utf-8")
     anchor = "- 宅配: 区按分"
     assert text.count(anchor) == 1
-    rel = "src/shibuya/engine/processes/logistics.py"
+    rel = "src/shibuya/world/laws/logistics.py"
     d0 = next(d for d in S.scan_source(text, rel) if d.form == S.FORM_HEADING)
     d1 = next(d for d in S.scan_source(text.replace(anchor, "- 仮の項(負の対照)。\n" + anchor), rel)
               if d.form == S.FORM_HEADING)
@@ -348,12 +397,13 @@ def test_doc_rows_need_no_code_declaration(ledger, decls):
     led = L.BridgeLedger([*ledger, extra])
     assert L.code_mismatch(led, [d.declared_in for d in decls]) == ([], [])
     # 検収 M1 (c): コードが「繋ぎ」と明記した 3 か所は文書の行(関わるコードの場所つき)
-    for rid, path in (("BR-START-CELL-OUTSIDE-HOME", "src/shibuya/agents/population.py"),
-                      ("BR-MOCK-SCHEDULE-POPULATION", "src/shibuya/engine/run.py"),
-                      ("BR-MOCK-ACTION-ANCHOR", "src/shibuya/llm/mock.py")):
+    for rid, path in (("BR-START-CELL-OUTSIDE-HOME", "src/shibuya/world/facts/population_reader.py"),
+                      ("BR-MOCK-SCHEDULE-POPULATION", "src/shibuya/runtime/run.py"),
+                      ("BR-MOCK-ACTION-ANCHOR", "src/shibuya/runtime/inference/mock.py")):
         r = ledger.get(rid)
-        assert not r.declared_in_code and r.code_at == (path,)
-        assert "繋ぎ" in (ROOT / path).read_text(encoding="utf-8")
+        # 〔移す段 4〕台帳の道で比べ、今の道で読む(ファイルを動かしても台帳は書き換えない)
+        assert not r.declared_in_code and r.code_at == (LP.ledger_path(path),)
+        assert "繋ぎ" in (ROOT / LP.current_path(LP.ledger_path(path))).read_text(encoding="utf-8")
 
 
 def test_negative_removed_rows(ledger, decls):
@@ -385,8 +435,8 @@ def test_negative_a_new_process_declaration_fails(ledger):
 
 def test_negative_a_new_fallback_row_fails(ledger):
     """第 6 形: フォールバック台帳に行が増えると、台帳に行が無いので落ちる。"""
-    from shibuya.world.processes import first_batch as FB
-    from shibuya.world.processes.relations import FallbackRow
+    from shibuya.world.ledger import first_batch as FB
+    from shibuya.world.ledger.relations import FallbackRow
 
     rows = list(FB.build_registry().fallback_ledger())
     fake = dataclasses.replace(rows[0], subject_id="fake_engine_rule", plan_spec_id="")
@@ -458,7 +508,8 @@ def test_the_ledger_sha_is_canonical(tmp_path):
 
 def test_a_broken_ledger_stops_the_run_at_the_start(monkeypatch, tmp_path):
     """検収 L10: 壊れた台帳は組み立て(ランの始め)で落ちる=1 日回した後の日の締めまで待たない。"""
-    from shibuya.engine.run import run_day
+    from shibuya.runtime.run import run_day
+    from shibuya.runtime.systems import assemble as _ASSEMBLE  # 組み立て(移す段 4 で置き場と名が変わる=名は __file__ から)
 
     p = tmp_path / "broken.json"
     p.write_text('{"schema": "shibuya.bridging-ledger/1", "bridges": [{"id": "x"}]}', encoding="utf-8")
@@ -467,7 +518,7 @@ def test_a_broken_ledger_stops_the_run_at_the_start(monkeypatch, tmp_path):
     try:
         with pytest.raises(ValueError) as exc:
             run_day(n_agents=10, seed=1, n_cells=9, ticks=5, checkpoint_every=5, processes=False, renderer="stub")
-        assert any(Path(str(e.path)).name == "build.py" for e in exc.traceback)  # 組み立ての中で落ちた
+        assert any(Path(str(e.path)).name == Path(_ASSEMBLE.__file__).name for e in exc.traceback)  # 組み立ての中で落ちた
     finally:
         L.default_ledger.cache_clear()
 
@@ -476,3 +527,124 @@ def test_counts_by_remove_at_add_up(ledger):
     by = ledger.by_remove_at()
     assert sum(by.values()) == ledger.count()
     assert set(by) <= L.PLAN_STAGES
+
+
+# ================================================================= 移した後の台帳の道(移す段 4 の下ごしらえ・親の決定 1=案 (b))
+def test_ledger_paths_table_is_one_to_one_and_points_to_files(ledger):
+    """表の今の道は全部ファイルがあり、台帳の道は重ならない。台帳のコードの行の道は、表を通して全部今のファイルに届く。"""
+    olds = list(LP.LEDGER_PATHS.values())
+    assert len(olds) == len(set(olds))
+    for now in LP.LEDGER_PATHS:
+        assert (ROOT / now).is_file(), now
+    for r in ledger:
+        if r.declared_in_code and r.declared_path.startswith("src/"):
+            assert (ROOT / LP.current_path(r.declared_path)).is_file(), (r.id, r.declared_path)
+
+
+def test_negative_a_new_declaration_in_a_moved_file_is_missing_under_the_ledger_key(ledger, monkeypatch):
+    """ファイルを動かしたふり(表に 1 行足す)でも、宣言の同定は台帳の道で作られ、台帳の行と同じ鍵になる。移したファイルに
+    宣言を 1 つ足すと、台帳の道の鍵で「台帳に行が無い」に出る(``code_mismatch`` の意味が移した後も同じ)。"""
+    row = next(r for r in ledger.active() if r.declared_in_code and r.declared_path.startswith("src/shibuya/")
+               and "#heading:" in r.declared_in)
+    led = row.declared_path
+    now = LP.current_path(led)
+    text = (ROOT / now).read_text(encoding="utf-8")
+    fake_now = "src/shibuya/_moved_for_test/" + led.rsplit("/", 1)[1]
+    table = {k: v for k, v in LP.LEDGER_PATHS.items() if v != led}
+    table[fake_now] = led
+    monkeypatch.setattr(LP, "LEDGER_PATHS", dict(table))
+    assert LP.current_path(led) == fake_now and LP.ledger_path(fake_now) == led
+    keys = {d.declared_in for d in S.scan_source(text, fake_now)}
+    assert row.declared_in in keys
+    assert all(k.startswith(led + "#") for k in keys)
+    assert {r.declared_in for r in ledger.active() if r.declared_path == led and "#fallback:" not in r.declared_in} <= keys
+    extra = S.scan_source(text + FAKE_CONF, fake_now)
+    added = sorted({d.declared_in for d in extra} - keys)
+    assert len(added) == 1 and added[0].startswith(led + "#conf:")
+    others = [d.declared_in for d in S.scan_package() if d.path != now]
+    missing, orphan = L.code_mismatch(ledger, others + [d.declared_in for d in extra])
+    assert missing == added and orphan == []
+
+
+# ================================================================= 前向きだけの表(割る段 6 の S6-A・親の裁定 Q1 の (ii)・決め事 7)
+def _all_paths(ledger) -> list[str]:  # noqa: ANN001
+    """比べる道の全部: 表の今の道と台帳の道・src の .py の全部・台帳のコードの行の道。"""
+    paths = set(LP.LEDGER_PATHS) | set(LP.LEDGER_PATHS.values())
+    paths |= {p.relative_to(ROOT).as_posix() for p in (ROOT / "src" / "shibuya").rglob("*.py")}
+    paths |= {r.declared_path for r in ledger if r.declared_in_code}
+    paths |= set(LP.LEDGER_PATHS_SPLIT) | set(LP.LEDGER_PATHS_SPLIT.values())
+    return sorted(paths)
+
+
+def _check_both_directions(paths: list[str]) -> None:
+    """表の中身が何行でも成り立つ形(〔S6-G0 の道具の検収 低-2〕前は「前向きの表が空」に頼っていた=段 6 で行が入ると落ちる):
+    前向きの表に載っていない道は ``ledger_path()`` が前(``LEDGER_PATHS.get(道, 道)``)と同じ値・載っている道は前向きの表の値
+    (台帳の道)・``current_path()`` は前向きの表を引かない(主な表の逆向きと同じ)。"""
+    split = dict(LP.LEDGER_PATHS_SPLIT)
+    want = [split[p] if p in split and p not in LP.LEDGER_PATHS else LP.LEDGER_PATHS.get(p, p) for p in paths]
+    assert [LP.ledger_path(p) for p in paths] == want
+    assert all(LP.ledger_path(p) == v for p, v in split.items() if p not in LP.LEDGER_PATHS)
+    inv = {v: k for k, v in LP.LEDGER_PATHS.items()}
+    assert [LP.current_path(p) for p in paths] == [inv.get(p, p) for p in paths]
+
+
+def test_ledger_path_follows_the_main_table_then_the_forward_table(ledger):
+    """``ledger_path()`` は主な表 → 前向きの表 → そのまま、``current_path()`` は主な表だけ(全部の道で)。前向きの表が空の今は、
+    全部の道で前(``LEDGER_PATHS.get(道, 道)``)と同じ=前の確かめと同じ強さ。"""
+    paths = _all_paths(ledger)
+    assert len(paths) > len(LP.LEDGER_PATHS)
+    _check_both_directions(paths)
+
+
+def test_a_forward_row_maps_to_the_ledger_path_and_current_path_is_unchanged(ledger, monkeypatch):
+    """前向きの表に行を 1 つ足すと(試験の中で一時に)、その道が台帳の道へ引ける。値は ``LEDGER_PATHS`` の値と重なってよい
+    (N 対 1)。``current_path()``(逆向き)は全部の道で変わらない=前向きの表を引かない。"""
+    paths = _all_paths(ledger)
+    before = {p: LP.current_path(p) for p in paths}
+    main_now, led = next(iter(LP.LEDGER_PATHS.items()))
+    second = "src/shibuya/_split_second_for_test.py"
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {second: led})
+    assert LP.ledger_path(second) == led and LP.ledger_path(main_now) == led
+    assert {p: LP.current_path(p) for p in paths} == before
+    assert LP.current_path(led) == main_now and LP.current_path(second) == second
+    _check_both_directions([*paths, second])  # 前向きの表に行が在っても同じ確かめが成り立つ
+
+
+def _keys_in_both() -> set[str]:
+    return set(LP.LEDGER_PATHS) & set(LP.LEDGER_PATHS_SPLIT)
+
+
+def test_no_path_is_in_both_tables(monkeypatch):
+    """同じ今の道が 2 つの表の両方に在ってはならない(引く順で黙って片方が負ける)。負の対照: 一時に足すと見つかる。"""
+    assert _keys_in_both() == set()
+    now, led = next(iter(LP.LEDGER_PATHS.items()))
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {now: led})
+    assert _keys_in_both() == {now}
+
+
+def _forward_rows_without_declarations() -> list[str]:
+    """前向きの表に載った道のうち、そのファイルにつなぎの台帳の宣言が 1 つも無いもの(台帳の道で走査する)。"""
+    out: list[str] = []
+    for now, led in sorted(LP.LEDGER_PATHS_SPLIT.items()):
+        p = ROOT / now
+        if not p.is_file() or not S.scan_source(p.read_text(encoding="utf-8"), led):
+            out.append(now)
+    return out
+
+
+def test_forward_rows_point_to_files_with_declarations(monkeypatch):
+    """〔割る段 6 の S6-G0・親の裁定 Q1 の条件 ③〕前向きの表に載った道のファイルには、つなぎの台帳の宣言が 1 つ以上在る(割る道具が
+    宣言の入る 2 つ目以降の割り先だけを載せる)。今は表が空なので、試験の中で一時に行を足して両方の向きを確かめる: 宣言の在るファイル
+    =通る・宣言の無いファイル=落ちる。"""
+    assert _forward_rows_without_declarations() == []
+    decls = S.scan_package()
+    with_decl = sorted({d.path for d in decls if d.form != S.FORM_FALLBACK and d.path not in LP.LEDGER_PATHS})
+    have = {d.path for d in decls}
+    without = sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / "src" / "shibuya").rglob("*.py")
+                     if p.relative_to(ROOT).as_posix() not in have and p.read_text(encoding="utf-8").strip())
+    assert with_decl and without
+    led = next(iter(LP.LEDGER_PATHS.values()))
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {with_decl[0]: LP.ledger_path(with_decl[0])})
+    assert _forward_rows_without_declarations() == []
+    monkeypatch.setattr(LP, "LEDGER_PATHS_SPLIT", {without[0]: led})
+    assert _forward_rows_without_declarations() == [without[0]]

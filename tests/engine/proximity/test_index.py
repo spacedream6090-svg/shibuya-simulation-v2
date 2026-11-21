@@ -12,7 +12,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.engine.spatial_index import SpatialIndex
+from shibuya.world.model.spatial_index import SpatialIndex
 
 
 def _points() -> np.ndarray:

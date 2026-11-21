@@ -72,7 +72,7 @@ def cmd_one(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     import shibuya
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     kw = dict(configs()[args.config])
     kw.update(json.loads(args.old or "{}"))

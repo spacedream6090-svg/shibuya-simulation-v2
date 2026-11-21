@@ -119,9 +119,9 @@ def summarize(rows_by_arm: Mapping[str, Sequence[Mapping[str, Any]]]) -> dict[st
 
 def read_arm(tape_dir: str | Path, vocab_version: str) -> list[dict[str, Any]]:
     """1 腕のテープ → 行の list(agent 昇順・tick 昇順・直前行動つき)。"""
-    from shibuya.engine.tape import Tape
-    from shibuya.llm.parser import parse_two_line
-    from shibuya.llm.undefined import map_synonym
+    from shibuya.runtime.inference.tape import Tape
+    from shibuya.act.intake.parser import parse_two_line
+    from shibuya.act.intake.undefined import map_synonym
 
     tape = Tape(Path(tape_dir))
     kind_cache: dict[str, str] = {}

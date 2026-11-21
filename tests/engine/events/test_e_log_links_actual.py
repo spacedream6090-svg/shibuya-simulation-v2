@@ -13,13 +13,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from shibuya.core.time_consts import NS_PER_STEP, STEPS_PER_DAY
-from shibuya.engine.events import log as EV
-from shibuya.engine.events.links import ActualLogLink
-from shibuya.engine.processes.runner import PROCESS_ORDER
-from shibuya.engine.run import run_day
-from shibuya.world.processes.actual_log import ActualLog
-from shibuya.world.processes.records import DeviationVocab
+from shibuya.foundation.time_consts import NS_PER_STEP, STEPS_PER_DAY
+from shibuya.foundation.journal import log as EV
+from shibuya.foundation.journal.links import ActualLogLink
+from shibuya.world.laws.runner import PROCESS_ORDER
+from shibuya.runtime.run import run_day
+from shibuya.world.ledger.actual_log import ActualLog
+from shibuya.world.ledger.records import DeviationVocab
 
 
 def _log_with_link(enabled=True):
@@ -99,7 +99,7 @@ def test_run_links_every_actual_log_row():
 
 @pytest.mark.requires_data("world_v2:w17_schedule.parquet")
 def test_real_world_run_links_every_actual_log_row():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(n_agents=200, seed=1, world_dir="data/world/v2", vocab_version="v3")
     _check_one_to_one(res)

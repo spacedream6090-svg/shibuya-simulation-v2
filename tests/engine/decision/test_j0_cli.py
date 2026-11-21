@@ -20,7 +20,7 @@ def _arm(tmp_path, name: str, env_arm: str, cli_arm: str | None) -> tuple[str, o
     out = tmp_path / f"{name}.json"
     argv = [*ARGS, "--checkpoints-out", str(out)] + ([] if cli_arm is None else ["--decision-port", cli_arm])
     env = dict(os.environ, SHIBUYA_DECISION_PORT=env_arm, PYTHONIOENCODING="utf-8")
-    code = "import sys; from shibuya import cli; sys.exit(cli.main(sys.argv[1:]))"
+    code = "import sys; from shibuya.interfaces.cli import main as cli; sys.exit(cli.main(sys.argv[1:]))"
     r = subprocess.run([sys.executable, "-c", code, *argv], capture_output=True, text=True, encoding="utf-8",
                        env=env, timeout=600)
     assert r.returncode == 0, r.stderr[-2000:]

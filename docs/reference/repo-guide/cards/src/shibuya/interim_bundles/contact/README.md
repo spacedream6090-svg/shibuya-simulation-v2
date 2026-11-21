@@ -1,0 +1,51 @@
+# src/shibuya/interim_bundles/contact
+
+自動生成(手で編集しない): `python tools/repo_guide/build.py`
+
+Python 3 本・その他 0 本(このディレクトリの直下)
+
+## [__init__.py](../../../../../../../../src/shibuya/interim_bundles/contact/__init__.py)
+
+(冒頭の説明なし)
+
+- 読む試験(道筋で): `tests/tools/test_pkgmove.py`
+
+## [book.py](../../../../../../../../src/shibuya/interim_bundles/contact/book.py)
+
+engine.contact.book — 宛先(連絡先とグループ)の持ち主(第 6 期 6-4 C1・C2・決定 10-12 §4-4 CT5・口の約束 1-7 の器)。
+
+- 公開の関数とクラス
+  - `ContactBook`(クラス): 宛先の持ち主(関係の層・グループの一覧を読む+〔C2〕本人が交換した連絡先・作ったグループ・招待・調べた店の番号)。
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.vocab.contact_flags`・`shibuya.mind.relations.people`・`shibuya.society.tools.groups`
+- 呼び手: `shibuya.interim_bundles.contact.layer`
+- 読む試験: `tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`
+- 状態台帳の行
+  - 持ち主 `contact.book`(`ContactBook`)
+    - `CT1B` ContactBook の本人の行動で動く帳(交換した連絡先・作ったグループ・招待・調べた店の番号・第 6 期 6-4 C2)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact.book._exchanged`・`contact.book._invites`・`contact.book._made`・`contact.book._made_next`・`contact.book._member_of`・`contact.book._places` 書ける系: calendar_3・contact
+    - `CT1M` 連絡の道具の計器(層・チャット・通話・通話の発話の口の計数と分布・通話の切った判断の控え・第 6 期 6-4 C1)(挙動 diag・復元 discardable・腕 contact-c1) 道筋 `contact.book.bodiless_dropped` 書ける系: calendar_3・contact
+- 決定の ID: 10-12/§4-4
+
+## [layer.py](../../../../../../../../src/shibuya/interim_bundles/contact/layer.py)
+
+engine.contact.layer — 連絡の道具 C1 の持ち主と系 ``contact`` の本体(第 6 期 6-4・腕 ``--contact c1``・既定 off)。
+
+- 公開の関数とクラス
+  - `ContactLayer`(クラス): 連絡の道具 C1 の持ち主(状態台帳の腕の行 ``CT1*``)。
+  - `GatedSalient`(クラス): 門を通した顕著行為の読み口の写し(記憶の系の (c) 気づきが読む ``cell``・``noticed`` だけ)。
+  - `audit_causes`(関数): 負の対照の監査: 族 ``連絡`` の出来事のうち、本人の判断の語の原因が判断の呼び(LlmCall・源と番号つき)で、その時刻が
+  - `issued_key`(関数)
+  - `manifest_fields`(関数): manifest の ``contact_c1``(腕 c1 のランだけ・ほかは ``None``=欄を出さない)。
+  - `sys_contact`(関数): 系 contact(刻みの中・腕 c1 のランだけ立つ)。
+- import している内部モジュール: `shibuya.foundation.arms.contact`・`shibuya.foundation.journal.log`・`shibuya.foundation.ports.decision`・`shibuya.foundation.ports.percept_contact`・`shibuya.foundation.queues.batching`・`shibuya.foundation.rng`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.foundation.vocab.contact_flags`・`shibuya.foundation.vocab.events`・`shibuya.interim_bundles.contact.book`・`shibuya.mind.plan.contact_attention`・`shibuya.mind.plan.contact_habit`・`shibuya.mind.plan.contact_port`・`shibuya.society.contact.calls`・`shibuya.society.contact.chat_state`・`shibuya.society.contact.deliver`・`shibuya.society.contact.tools`・`shibuya.society.conversation`・`shibuya.society.speech.port`・`shibuya.society.tools.groups`・`shibuya.world.body.reactions`・`shibuya.world.things.device`
+- 呼び手: `shibuya.runtime.result`・`shibuya.runtime.systems.assemble`・`shibuya.runtime.systems.table`
+- 読む試験: `tests/engine/calendar3/test_ca3_runs.py`・`tests/engine/calendar3/test_ca3_world.py`・`tests/engine/contact/_c1.py`・`tests/engine/contact/_c2.py`・`tests/engine/contact/test_c1_event_log_onoff.py`・`tests/engine/contact/test_c1_fixes.py`・`tests/engine/contact/test_c1_flow.py`・`tests/engine/contact/test_c1_runs.py`・`tests/engine/contact/test_c1_units.py`・`tests/engine/contact/test_c1_world.py`・`tests/engine/contact/test_c2_charge.py`・`tests/engine/contact/test_c2_exchange.py`・`tests/engine/contact/test_c2_habit.py`・`tests/engine/contact/test_c2_runs.py`・`tests/engine/contact/test_c2_video.py`・`tests/engine/time/test_v30a_key_sites.py`
+- 読む試験(道筋で): `tests/engine/time/test_t0_rng_key.py`・`tests/tools/test_pkgmove.py`
+- 状態台帳の行
+  - 持ち主 `contact`(`ContactLayer`)
+    - `CT1G` 連絡の層が系の間に渡す値(顕著行為の門を通った気づいた体・仲裁で回した判断・主の判断が選んだ「スマホを見る」・第 6 期 6-4 C1 検収 M1・M5)(挙動 behavior・復元 required・腕 contact-c1) 道筋 `contact._defer`・`contact._defer_charge`・`contact._defer_exchange`・`contact._face_turns`・`contact._look_main`・`contact._sal_noticed`・`contact._sal_step` 書ける系: calendar_3・contact・decide・llm_receive
+    - `CT1M` 連絡の道具の計器(層・チャット・通話・通話の発話の口の計数と分布・通話の切った判断の控え・第 6 期 6-4 C1)(挙動 diag・復元 discardable・腕 contact-c1) 道筋 `contact._ct_hist`・`contact._exposed_prev`・`contact._hangup`・`contact._meter` 書ける系: calendar_3・contact・decide
+    - `CT1Q` 発行した連絡の判断の呼びの控えと呼び数・出来事の id の診断の表(監査の突き合わせ・calls_by_model・原因の入力・第 6 期 6-4 C1 検収 M2・M5・1-3 の (1) の直し)(挙動 diag・復元 required・腕 contact-c1) 道筋 `contact._ct_event_of`・`contact._issued`・`contact._issued_n` 書ける系: calendar_3・contact
+- 書きの許可
+  - 系 `contact`(群 連絡・時 `tick`・立つ条件 `contact`・関数 `sys_contact`)
+    - 書いてよい外の道筋: `BW:batching.*`・`CA2G:calendar2._turns`・`CA3G:calendar3._reads`・`CT1*:contact.*`・`E:events.*`
+- 決定の ID: 10-12/§4-4

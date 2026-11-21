@@ -6,8 +6,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from shibuya.core.types import NS_PER_SECOND
-from shibuya.engine.clock import SimClock
+from shibuya.foundation.types import NS_PER_SECOND
+from shibuya.runtime.clock import SimClock
 
 START = datetime(2026, 9, 8, 5, 0, 0)
 

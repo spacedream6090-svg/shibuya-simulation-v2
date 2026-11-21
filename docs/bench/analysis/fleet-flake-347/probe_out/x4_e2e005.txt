@@ -1,0 +1,38 @@
+[  0.81] server_requests=[0, 0, 0] direct=['ok 0.032s', 'ok 0.000s', 'ok 0.015s'] in_flight=(0, 0, 0) outstanding=0
+         <AsyncConnectionPool [Requests: 0 active, 0 queued | Connections: 0 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 0 active, 0 queued | Connections: 0 active, 0 idle]>
+[  1.67] server_requests=[71, 69, 69] direct=['ok 0.000s', 'ok 0.000s', 'ok 0.000s'] in_flight=(40, 39, 40) outstanding=119
+         <AsyncConnectionPool [Requests: 16 active, 0 queued | Connections: 25 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 16 active, 0 queued | Connections: 26 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 16 active, 0 queued | Connections: 27 active, 0 idle]>
+[  2.48] server_requests=[105, 106, 104] direct=['ok 0.016s', 'ok 0.000s', 'ok 0.015s'] in_flight=(2, 4, 6) outstanding=12
+         <AsyncConnectionPool [Requests: 2 active, 0 queued | Connections: 33 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 4 active, 0 queued | Connections: 30 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 6 active, 0 queued | Connections: 39 active, 0 idle]>
+[  3.00] healed server_requests=[123, 122, 122]
+[  3.33] server_requests=[134, 134, 135] direct=['ok 0.000s', 'ok 0.016s', 'ok 0.000s'] in_flight=(42, 44, 42) outstanding=128
+         <AsyncConnectionPool [Requests: 15 active, 0 queued | Connections: 49 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 16 active, 0 queued | Connections: 45 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 16 active, 0 queued | Connections: 52 active, 0 idle]>
+[  4.16] server_requests=[150, 155, 154] direct=['ok 0.000s', 'ok 0.000s', 'ok 0.000s'] in_flight=(37, 35, 36) outstanding=108
+         <AsyncConnectionPool [Requests: 15 active, 0 queued | Connections: 51 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 15 active, 0 queued | Connections: 48 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 14 active, 0 queued | Connections: 53 active, 0 idle]>
+[  4.97] server_requests=[175, 179, 183] direct=['ok 0.000s', 'ok 0.000s', 'ok 0.000s'] in_flight=(13, 15, 15) outstanding=43
+         <AsyncConnectionPool [Requests: 13 active, 0 queued | Connections: 49 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 16 active, 0 queued | Connections: 49 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 15 active, 0 queued | Connections: 54 active, 0 idle]>
+[  5.78] server_requests=[188, 190, 197] direct=['ok 0.000s', 'ok 0.016s', 'ok 0.000s'] in_flight=(13, 9, 12) outstanding=34
+         <AsyncConnectionPool [Requests: 12 active, 0 queued | Connections: 59 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 10 active, 0 queued | Connections: 56 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 11 active, 0 queued | Connections: 61 active, 0 idle]>
+[  6.61] server_requests=[201, 238, 200] direct=['ok 0.000s', 'ok 0.000s', 'ok 0.000s'] in_flight=(0, 0, 1) outstanding=1
+         <AsyncConnectionPool [Requests: 6 active, 3 queued | Connections: 64 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 8 active, 0 queued | Connections: 63 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 1 active, 4 queued | Connections: 64 active, 0 idle]>
+[  7.42] server_requests=[201, 250, 200] direct=['ok 0.015s', 'ok 0.000s', 'ok 0.016s'] in_flight=(0, 0, 1) outstanding=1
+         <AsyncConnectionPool [Requests: 6 active, 0 queued | Connections: 64 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 8 active, 0 queued | Connections: 63 active, 0 idle]>
+         <AsyncConnectionPool [Requests: 1 active, 1 queued | Connections: 64 active, 0 idle]>
+[  8.28] server_requests=[201, 261, 200] direct=['ok 0.000s', 'ok 0.000s', 'ok 0.000s'] in_flight=(0, 0, 0) outstanding=0
+[  9.81] end fleet_calls=1972.0 fleet_ok=237.0 fleet_answered=241.0 fleet_deferred_timeout=1731.0 fleet_deferred_queue_full=0.0 fleet_error_other=0.0 fleet_conn_retry_same=36.0 fleet_conn_retry_other=9.0 server_requests=[201, 261, 200]

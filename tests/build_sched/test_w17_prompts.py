@@ -34,7 +34,7 @@ def test_activity_words_map_into_action_contract():
 
 def test_wake_conditions_match_perception_contract():
     """``ACTIVITY_TO_WAKE`` は知覚契約書 §6 の計画境界 4 行(``WakeCondition``)と一致。"""
-    from shibuya.agents.state import WakeCondition
+    from shibuya.foundation.vocab.agent_codes import WakeCondition
 
     assert V.WAKE_PLAN_SLEEPING == int(WakeCondition.PLAN_SLEEPING)
     assert V.WAKE_PLAN_WORKING == int(WakeCondition.PLAN_WORKING)

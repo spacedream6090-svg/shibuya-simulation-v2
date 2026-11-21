@@ -81,7 +81,8 @@
           "tag": "fixed_slots",
           "kwargs": {
             "l4_scale": 1.0,
-            "budget_mode": "fixed"
+            "budget_mode": "fixed",
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -89,7 +90,8 @@
           "tag": "single_ranking",
           "kwargs": {
             "l4_scale": 1.0,
-            "budget_mode": "ranking"
+            "budget_mode": "ranking",
+            "vocab_version": "v1"
           }
         }
       ],
@@ -136,7 +138,8 @@
           "tag": "d50_x1",
           "kwargs": {
             "l4_scale": 1.0,
-            "p_notice_d50_scale": 1.0
+            "p_notice_d50_scale": 1.0,
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -144,14 +147,16 @@
           "tag": "d50_x0.5",
           "kwargs": {
             "l4_scale": 1.0,
-            "p_notice_d50_scale": 0.5
+            "p_notice_d50_scale": 0.5,
+            "vocab_version": "v1"
           }
         },
         {
           "tag": "d50_x2",
           "kwargs": {
             "l4_scale": 1.0,
-            "p_notice_d50_scale": 2.0
+            "p_notice_d50_scale": 2.0,
+            "vocab_version": "v1"
           }
         }
       ],
@@ -197,7 +202,8 @@
             "l4_scale": 1.0,
             "refractory_scale": {
               "PROXIMITY_SWAP": 1.0
-            }
+            },
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -207,7 +213,8 @@
             "l4_scale": 1.0,
             "refractory_scale": {
               "PROXIMITY_SWAP": 0.5
-            }
+            },
+            "vocab_version": "v1"
           }
         },
         {
@@ -216,7 +223,8 @@
             "l4_scale": 1.0,
             "refractory_scale": {
               "PROXIMITY_SWAP": 1.5
-            }
+            },
+            "vocab_version": "v1"
           }
         }
       ],
@@ -320,7 +328,8 @@
           "tag": "signage_on",
           "kwargs": {
             "l4_scale": 1.0,
-            "signage": true
+            "signage": true,
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -328,7 +337,8 @@
           "tag": "signage_off",
           "kwargs": {
             "l4_scale": 1.0,
-            "signage": false
+            "signage": false,
+            "vocab_version": "v1"
           }
         }
       ],
@@ -370,7 +380,8 @@
           "tag": "vocab",
           "kwargs": {
             "l4_scale": 1.0,
-            "intent_mode": "vocab"
+            "intent_mode": "vocab",
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -378,7 +389,8 @@
           "tag": "open",
           "kwargs": {
             "l4_scale": 1.0,
-            "intent_mode": "open"
+            "intent_mode": "open",
+            "vocab_version": "v1"
           }
         }
       ],
@@ -426,7 +438,8 @@
           "tag": "vocab",
           "kwargs": {
             "l4_scale": 1.0,
-            "intent_mode": "vocab"
+            "intent_mode": "vocab",
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -434,7 +447,8 @@
           "tag": "hint",
           "kwargs": {
             "l4_scale": 1.0,
-            "intent_mode": "hint"
+            "intent_mode": "hint",
+            "vocab_version": "v1"
           }
         }
       ],
@@ -549,7 +563,8 @@
           "tag": "p_see_1_00",
           "kwargs": {
             "l4_scale": 1.0,
-            "signage_p_see": 1.0
+            "signage_p_see": 1.0,
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -557,21 +572,24 @@
           "tag": "ad_zero",
           "kwargs": {
             "l4_scale": 1.0,
-            "signage": false
+            "signage": false,
+            "vocab_version": "v1"
           }
         },
         {
           "tag": "p_see_0_30",
           "kwargs": {
             "l4_scale": 1.0,
-            "signage_p_see": 0.3
+            "signage_p_see": 0.3,
+            "vocab_version": "v1"
           }
         },
         {
           "tag": "p_see_0_14",
           "kwargs": {
             "l4_scale": 1.0,
-            "signage_p_see": 0.14
+            "signage_p_see": 0.14,
+            "vocab_version": "v1"
           }
         }
       ],
@@ -615,26 +633,30 @@
         {
           "tag": "l4_x1",
           "kwargs": {
-            "l4_scale": 1.0
+            "l4_scale": 1.0,
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
         {
           "tag": "l4_x0.5",
           "kwargs": {
-            "l4_scale": 0.5
+            "l4_scale": 0.5,
+            "vocab_version": "v1"
           }
         },
         {
           "tag": "l4_x2",
           "kwargs": {
-            "l4_scale": 2.0
+            "l4_scale": 2.0,
+            "vocab_version": "v1"
           }
         },
         {
           "tag": "l4_unlimited",
           "kwargs": {
-            "l4_scale": 0.0
+            "l4_scale": 0.0,
+            "vocab_version": "v1"
           }
         }
       ],
@@ -680,7 +702,8 @@
           "tag": "p_see_1_00",
           "kwargs": {
             "l4_scale": 0.0,
-            "signage_p_see": 1.0
+            "signage_p_see": 1.0,
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -688,21 +711,24 @@
           "tag": "ad_zero",
           "kwargs": {
             "l4_scale": 0.0,
-            "signage": false
+            "signage": false,
+            "vocab_version": "v1"
           }
         },
         {
           "tag": "p_see_0_30",
           "kwargs": {
             "l4_scale": 0.0,
-            "signage_p_see": 0.3
+            "signage_p_see": 0.3,
+            "vocab_version": "v1"
           }
         },
         {
           "tag": "p_see_0_14",
           "kwargs": {
             "l4_scale": 0.0,
-            "signage_p_see": 0.14
+            "signage_p_see": 0.14,
+            "vocab_version": "v1"
           }
         }
       ],
@@ -816,7 +842,8 @@
           "tag": "fixed_slots",
           "kwargs": {
             "l4_scale": 0.0,
-            "budget_mode": "fixed"
+            "budget_mode": "fixed",
+            "vocab_version": "v1"
           },
           "is_baseline": true
         },
@@ -824,7 +851,8 @@
           "tag": "single_ranking",
           "kwargs": {
             "l4_scale": 0.0,
-            "budget_mode": "ranking"
+            "budget_mode": "ranking",
+            "vocab_version": "v1"
           }
         }
       ],
@@ -888,5 +916,21 @@
       "AB6b-AD-NOTICE"
     ],
     "reason": "3 段目(第289・D-99 (a′)・D-110)で cli.run の既定が呼数無制限(l4_scale=0)になった。これらの腕は上限あり(旧既定=l4_scale 1.0=L4 按分+持ち越し 2 tick)で回した記録なので、回し直しても旧構成で回るよう各ランの kwargs に l4_scale 1.0 を明示した(無制限の版は AB6c・AB7d・AB1b)。表の md5 は aad666a78eb61c7a4c257a7e5fdb1247 から変わった。"
+  },
+  "vocab_version_pin": {
+    "since": "第347(Q13 ライブラリの既定をそろえる版上げ・返事その 8 §1-2)",
+    "arms": [
+      "AB1-BUDGET-MODE",
+      "AB2-PNOTICE-D50",
+      "AB3-REFRACTORY-PROX",
+      "AB6-AD-ZERO",
+      "AB7-OPEN-INTENT",
+      "AB7b-HINT-INTENT",
+      "AB6b-AD-NOTICE",
+      "AB8-L4-SCALE",
+      "AB6c-AD-NOTICE-UNCAPPED",
+      "AB1b-BUDGET-MODE-UNCAPPED"
+    ],
+    "reason": "Q13 で run_day・cli.run の語彙の既定が v1 から v3 になった(CLI の既定にそろえた)。語彙を渡さずに cli.run で回していた腕は旧の既定=語彙 v1 で回した記録なので、回し直しても旧構成で回るよう各ランの kwargs に vocab_version v1 を明示した(第290 の l4_scale_pin と同じ形)。空腹のモデル(cli.run の既定 energy)と倍率(全ランが明示)は前後で同じ。"
   }
 }

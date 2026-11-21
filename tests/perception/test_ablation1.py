@@ -21,12 +21,13 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentKind, AgentState
-from shibuya.engine.run import run_day
-from shibuya.perception import channels as ch
-from shibuya.perception import templates as T
-from shibuya.perception.renderer import RANKING_PRIOR_SCORES, Renderer
-from shibuya.world.state import World
+from shibuya.foundation.vocab.agent_codes import AgentKind
+from shibuya.world.model.agent_table import AgentState
+from shibuya.runtime.run import run_day
+from shibuya.foundation.text import channels as ch
+from shibuya.foundation.text import templates as T
+from shibuya.mind.percept.draw import RANKING_PRIOR_SCORES, Renderer
+from shibuya.world.model.state import World
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SHARED_BLOCKS = ("B0", "B1", "B2", "B3", "B4", "B4b")
@@ -276,7 +277,7 @@ def test_run_day_defaults_to_fixed_slots():
 
 
 def test_cli_run_passes_the_arm_through_kwargs():
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     res = cli.run(
         n_agents=32, seed=1, world_dir=None, n_cells=9, ticks=2, checkpoint_every=2,
@@ -288,7 +289,7 @@ def test_cli_run_passes_the_arm_through_kwargs():
 @pytest.mark.parametrize("argv,expected", [([], "fixed"), (["--budget-mode", "ranking"], "ranking")])
 def test_cli_main_has_the_budget_mode_flag(monkeypatch, capsys, argv, expected):
     """``--budget-mode {fixed,ranking}``(既定 fixed)が ``run`` まで届く。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     seen: dict = {}
 

@@ -27,12 +27,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from shibuya.agents.state import AgentState
-from shibuya.engine import solar as SOL
-from shibuya.engine.calendar import SEASON_OF_MONTH, SimCalendar, load_holidays
-from shibuya.engine.processes import environment as ENV
-from shibuya.world.assets import HEAT_STAGE_ORDER, ProcessAssets
-from shibuya.world.state import World
+from shibuya.world.model.agent_table import AgentState
+from shibuya.world.model import solar as SOL
+from shibuya.world.facts.calendar import SEASON_OF_MONTH, SimCalendar, load_holidays
+from shibuya.world.laws import environment as ENV
+from shibuya.world.model.assets import HEAT_STAGE_ORDER, ProcessAssets
+from shibuya.world.model.state import World
 
 REPO = Path(__file__).resolve().parents[2]
 WORLD_DIR = REPO / "data" / "world" / "v2"
@@ -116,7 +116,7 @@ def test_b6_solar_formulas_equal_the_build_stage():
 @needs_world
 def test_b6_recomputed_heat_and_sun_equal_w13_when_the_dates_match():
     """実資産の 35 日すべて: 暦の日付=再生日なら、計算し直した WBGT・暑さ段・日の出・日の入りが W13 の値と同じ。"""
-    from shibuya.world.assets import load_process_assets
+    from shibuya.world.model.assets import load_process_assets
 
     world = World.load_or_synthetic(WORLD_DIR, seed=1)
     pa = load_process_assets(WORLD_DIR, world.assets)
@@ -212,8 +212,8 @@ def test_b6_heat_uses_the_replay_weather_and_the_calendar_sun(tmp_path):
 
 
 def test_b6_days_advance_and_only_the_environment_seed_moves_the_draws(tmp_path):
-    from shibuya.agents.schedule import synthesize
-    from shibuya.engine.processes.runner import WorldProcessRunner
+    from shibuya.world.facts.mock_schedule import synthesize
+    from shibuya.world.laws.runner import WorldProcessRunner
 
     pa = _synthetic_w13(tmp_path)
     env = _env(pa, "2026-10-05")
@@ -274,7 +274,7 @@ def test_b6_known_answer_calendar_on_the_replay_day_equals_legacy_but_the_label(
     〔改訂(第330・RET)〕前は「暦の日付=legacy の再生日のランは legacy と O56 の層の名前のほか全行が同じ」(既知の答え)を
     見た(ACT の commit で通った。legacy を消した)。いまは開始日 2026-07-13(雨・窓の中・影あり・月曜)を明示したランと開始日を
     渡さないランが全 checkpoint の全行で同じ(既定の開始日=明示と同じラン)ことを見る。"""
-    from shibuya import cli
+    from shibuya.interfaces.cli import main as cli
 
     a = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, start_sim_datetime="2026-07-13", **SMALL)
     b = cli.run(world_dir=str(WORLD_DIR), checkpoint_detail=True, **SMALL)
@@ -294,18 +294,20 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
     〔改訂(第330・ACT)〕前は「実資産の 35 日は 07-13 を持たない=窓の外で層から引く(警告も出る)」で再生日と暦の日付を
     分けていた。W13 の年間化(B5)と影 6 日(ACT)の後は 07-13 が窓の中で影もあるので、既定のランは実際の天気
     (再生日=暦の日付・警告なし)。再生日と暦の日付を分けるのは ``weather_perturb=True``(同じ層から引く)で行う。"""
-    from shibuya import cli
-    from shibuya.perception import normalize as N
-    from shibuya.perception import renderer as REN
+    from shibuya.interfaces.cli import main as cli
+    from shibuya.foundation.text import normalize as N
+    # 〔割る段 7 の G0・親の裁定 Q13〕割り先が 2 つ以上の別名の読みを名の import にした(割る前は全部 renderer)
+    from shibuya.mind.percept.draw import Renderer
+    from shibuya.world.model.percept_scene import _TickCache
 
     made: list = []
-    _init = REN.Renderer.__init__
+    _init = Renderer.__init__
 
     def spy(self, *a, **k):
         _init(self, *a, **k)
         made.append(self)
 
-    monkeypatch.setattr(REN.Renderer, "__init__", spy)
+    monkeypatch.setattr(Renderer, "__init__", spy)
     # 既定(暦の規則・揺らさない): 07-13 は窓の中=その日の実際の天気・影も暦の日付の 07-13(警告なし)
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
@@ -338,7 +340,7 @@ def test_b6_b3_words_body_heat_and_sun_follow_one_rule(monkeypatch):
         assert daylight == SOL.daylight_phase(h * 60 + 30.0, sr, ss)               # (3) 日照=暦の日付
         stage, wbgt = env._heat_now(h * 60)                                        # (2) 体感温度と同じ暑さ段
         assert heat == (HEAT_STAGE_ORDER[stage] if np.isfinite(wbgt) else "")
-        tc = REN._TickCache(tick=h * 60, when=when, band5=N.time_band(when))
+        tc = _TickCache(tick=h * 60, when=when, band5=N.time_band(when))
         text = ren._b3(tc).decode("utf-8")
         assert weather in text and daylight in text and (heat in text)
     assert (env._sunrise, env._sunset) == SOL.sun_minutes(cal)                    # 体の昼夜も暦の日付

@@ -14,9 +14,9 @@ from typing import Any, Iterator
 
 import numpy as np
 
-from shibuya.core.time_consts import MINUTES_PER_HOUR, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
-from shibuya.engine.duties import arm as AD
-from shibuya.engine.duties import port as PD
+from shibuya.foundation.time_consts import MINUTES_PER_HOUR, NS_PER_SECOND, STEP_SECONDS, STEPS_PER_DAY
+from shibuya.foundation.arms import duties as AD
+from shibuya.mind.plan import duties_port as PD
 
 STEP_NS = STEP_SECONDS * NS_PER_SECOND
 TPD = int(STEPS_PER_DAY)
@@ -26,16 +26,17 @@ RULE_TO = 21 * MINUTES_PER_HOUR
 N = 80
 #: 担当の居る店・担当の居ない店(既定の世界)。
 ST, UN = 1, 0
-#: 合成の世界の小さなラン(活動層なし・記憶あり・関係なし)。
+#: 合成の世界の小さなラン(活動層なし・記憶あり・関係なし)。〔Q13 commit ①〕場面(担当が開店の時刻に店に居る)は空腹 v1 の
+#: 1 日で組んだ=空腹のモデルを明示する(前のライブラリの既定。energy では担当の着く時刻が開店の後になり、つなぎが開ける)。
 KW = dict(n_agents=N, seed=1, n_cells=1, ticks=TPD, budget=float(N), sleep_suppression=False, vocab_version="v3",
-          memory="on", relations="off", store_memory="off", activity="off", checkpoint_every=60)
+          memory="on", relations="off", store_memory="off", activity="off", checkpoint_every=60, hunger_model="v1")
 
 
 def plan_assets(n_poi: int, start: int = RULE_FROM, end: int = RULE_TO, *, per_poi: dict[int, tuple[int, int]] | None = None,
                 src: dict[int, str] | None = None):
     """店の決まり(W7 の形の営業時間の表)。曜日 0〜6 と祝日の行(7)に同じ区間。``per_poi`` で店ごとに替えられる。``src`` は
     〔検収 M3〕店ごとの出どころ(W7 の列 src の形=``ProcessAssets.plan_src_names``・``plan_poi_src``)。"""
-    from shibuya.world.assets import ProcessAssets
+    from shibuya.world.model.assets import ProcessAssets
 
     rows = []
     for p in range(int(n_poi)):
@@ -62,16 +63,16 @@ def world_fixture(monkeypatch: Any, *, n_cells: int = 1, unstaffed: int = UN,
     丸振りから、番号の偶奇が ``unstaffed``(1=奇数・0=偶数・−1=外さない)の店の担当を外す(担当の居ない店)。合成の SKU は
     店 0 の棚が廃棄率 0・店 1 の棚に廃棄率のある SKU(売れ残りの試験は店 1 に担当を置く)。``endow=False`` は再開に渡す台帳。
     ``w21c``=〔検収 M1〕差し替えの世界の初期の行の表の店の担当の組 ``[(体, 店), …]``(出どころ W21c・表の店は表の行の順)。"""
-    from shibuya import cli
-    from shibuya.engine.rights import initial as RI
-    from shibuya.engine.systems import build as B
-    from shibuya.world.state import World
+    from shibuya.interfaces.cli import wire_economy as cli
+    from shibuya.world.facts.rights import initial as RI
+    from shibuya.runtime.systems import assemble as B
+    from shibuya.world.model.state import World
 
     world = World.synthetic(n_cells=int(n_cells), seed=1)
     pa = plan_assets(world.n_poi, per_poi=per_poi, src=src)
     monkeypatch.setattr(B, "load_process_assets_or_synthetic", lambda world_dir, assets: pa)
     if w21c:
-        from shibuya.engine.rights.ledger import EMPLOY, STORE
+        from shibuya.world.facts.rights.ledger import EMPLOY, STORE
 
         rows = RI.InitialRows([a for a, _p in w21c], [STORE] * len(w21c), [p for _a, p in w21c], [EMPLOY] * len(w21c),
                               ["w21c:試験"] * len(w21c), ["store_staff"] * len(w21c), 0)
@@ -89,7 +90,10 @@ def world_fixture(monkeypatch: Any, *, n_cells: int = 1, unstaffed: int = UN,
 
 
 def fresh(monkeypatch: Any, **kw: Any) -> dict[str, Any]:
-    """毎回作り直す世界と台帳(ランごとに新しい物が要る)。"""
+    """毎回作り直す世界と台帳(ランごとに新しい物が要る)。〔Q13〕``KW`` の空腹 v1 は試験の中だけの口=印もここで立てる。"""
+    from tests.engine.body._hunger_v1 import hunger_v1
+
+    hunger_v1(monkeypatch)
     return world_fixture(monkeypatch, **kw)
 
 

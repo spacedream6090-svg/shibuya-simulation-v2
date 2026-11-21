@@ -10,14 +10,14 @@ import json
 import numpy as np
 import pytest
 
-from shibuya.engine.processes.traffic import (
+from shibuya.world.laws.traffic import (
     DAY12_HOURS,
     KLASS_Q12,
     KLASS_Q24,
     THROUGH_TRAFFIC_RATIO,
     TrafficProcess,
 )
-from shibuya.world.assets import ProcessAssets
+from shibuya.world.model.assets import ProcessAssets
 
 from .conftest import WORLD_DIR, make_world, real_data
 
