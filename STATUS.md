@@ -12,5 +12,5 @@
 - **受入報告**: [C5](docs/ops/build-report-C5.md)・[C6](docs/ops/build-report-C6.md)・[C7](docs/ops/build-report-C7.md)・[C8](docs/ops/build-report-C8.md)
 - **開発ログ**: [devlog.md](docs/log/devlog.md)・[devlog-compressed.md](docs/log/devlog-compressed.md)
 - **道具**: `tools/realworld_fetch/`(日次の現実データ・検証専用)・`tools/night5070/`(5070 の夜間ラン)・`tools/instruments/dm_eval/`(判断モデルの評価の器)・`tools/bytecheck/`(決定論の確かめ・版上げと整理の段で回す)・`requirements-lock.txt` と `tools/ci/`(版の固定と CI の組の確かめ)
-- **ブランチ**: main は PR #10(7e5c446)まで(第348 の PR #11・#12 は報告 348 の追記)。仕事ごとの短い枝を `main` から切る。
+- **ブランチ**: main は第 348 の PR #9〜#12 まで(#12 がこの台帳と報告を含む。取り込みの経緯は報告 348 の追記)。仕事ごとの短い枝を `main` から切る。
 - **最終更新**: 2026-11-21(第348)
