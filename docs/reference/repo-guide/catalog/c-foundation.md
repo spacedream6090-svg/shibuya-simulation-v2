@@ -13,7 +13,7 @@
 | 既定 | 既定のラン(引数なし・`SHIBUYA_*` なしの `python -m shibuya.cli`)で動く |
 | 腕 | 既定では動かず、切替口を立てると動く。ランの外で動かす道具は「腕(ランの外)」と書く |
 | 器だけ | 口や欄はあるが、既定のランの結果を変えない(呼び手が無い・値が空・行が 0) |
-| 無いと宣言 | [absent.py](../../../../src/shibuya/world/processes/absent.py) に宣言の行がある |
+| 無いと宣言 | [absent.py](../../../../src/shibuya/world/ledger/absent.py) に宣言の行がある |
 | 無い(宣言なし) | コードに無く、absent.py にも行が無い。発注の 4 区分の外なので別に書く |
 
 既定のランは [段 1](../day-flow.md) §0-2 と同じです。入口が違うと既定も違います。`shibuya.cli` は台帳つき・語彙 v3・空腹 energy・呼数の上限なしで、ライブラリの `run_day` は語彙 v1・空腹 v1・呼数の按分です(`cli.arm_baseline`)。`python -m shibuya.engine.run` は台帳なしの入口です(`cli.py` の docstring)。
@@ -98,13 +98,13 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 - [src/shibuya/economy/census.py](../../../../src/shibuya/economy/census.py) 日次センサス・月次 MER・ゲート判定
 - [src/shibuya/economy/goods.py](../../../../src/shibuya/economy/goods.py) 物の台帳
 - [src/shibuya/economy/stage2.py](../../../../src/shibuya/economy/stage2.py) 段階 2 の中身(賃金・引き出し・支払い・税・来街者)
-- [src/shibuya/economy/wages.py](../../../../src/shibuya/economy/wages.py)・[src/shibuya/core/wage_formula.py](../../../../src/shibuya/core/wage_formula.py) 職業 × 性 × 年齢 × 雇用形態の賃金
+- [src/shibuya/economy/wages.py](../../../../src/shibuya/economy/wages.py)・[src/shibuya/core/wage_formula.py](../../../../src/shibuya/economy/wage_formula.py) 職業 × 性 × 年齢 × 雇用形態の賃金
 - [src/shibuya/economy/taxes.py](../../../../src/shibuya/economy/taxes.py)・[src/shibuya/economy/tax_deposit.py](../../../../src/shibuya/economy/tax_deposit.py) 規則の表の読み手(天引きほか)・預かり消費税
 - [src/shibuya/economy/anchors.py](../../../../src/shibuya/economy/anchors.py)・[src/shibuya/economy/entry_capital.py](../../../../src/shibuya/economy/entry_capital.py) 金額の錨と初期の財布・参入資本
 - [src/shibuya/economy/credit.py](../../../../src/shibuya/economy/credit.py)・[src/shibuya/economy/pricing.py](../../../../src/shibuya/economy/pricing.py) 器
-- [src/shibuya/engine/ledger_api.py](../../../../src/shibuya/engine/ledger_api.py) engine から台帳を呼ぶ口の型(engine は economy を import できない)
-- [src/shibuya/engine/economy_stage2.py](../../../../src/shibuya/engine/economy_stage2.py)・[src/shibuya/engine/economy_rules.py](../../../../src/shibuya/engine/economy_rules.py) 腕・ATM の表・賃金と加入の判定の材料
-- [src/shibuya/engine/events/links.py](../../../../src/shibuya/engine/events/links.py) 金の移動から出来事を書く口(`MoneyEventLink`)
+- [src/shibuya/engine/ledger_api.py](../../../../src/shibuya/foundation/ports/ledger.py) engine から台帳を呼ぶ口の型(engine は economy を import できない)
+- [src/shibuya/engine/economy_stage2.py](../../../../src/shibuya/economy/stage2_bind.py)・[src/shibuya/engine/economy_rules.py](../../../../src/shibuya/economy/rules_bind.py) 腕・ATM の表・賃金と加入の判定の材料
+- [src/shibuya/engine/events/links.py](../../../../src/shibuya/foundation/journal/links.py) 金の移動から出来事を書く口(`MoneyEventLink`)
 - [src/shibuya/cli.py](../../../../src/shibuya/cli.py) 台帳の組み立て(`build_ledger_bundle`・`_HouseholdWalletLedger`)
 - [src/shibuya/census/\_\_init\_\_.py](../../../../src/shibuya/census/__init__.py) 中身なし(4 行)
 
@@ -160,11 +160,11 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/rights/ledger.py](../../../../src/shibuya/engine/rights/ledger.py) 台帳の器(`Right`・`Rights`・書く口 2 つ)
-- [src/shibuya/engine/rights/initial.py](../../../../src/shibuya/engine/rights/initial.py) 最初の中身・担当の丸振り・差し替えの世界の表
-- [src/shibuya/engine/rights/record.py](../../../../src/shibuya/engine/rights/record.py) 許可のない行動の記録・役割語の確かめ・manifest の欄
-- [src/shibuya/engine/processes/opening.py](../../../../src/shibuya/engine/processes/opening.py) 持ち主。開閉の権利を聞いて記録の口へ渡す
-- [src/shibuya/engine/processes/runner.py](../../../../src/shibuya/engine/processes/runner.py) `rights`・`role_act_check`・`rights_fields`
+- [src/shibuya/engine/rights/ledger.py](../../../../src/shibuya/world/facts/rights/ledger.py) 台帳の器(`Right`・`Rights`・書く口 2 つ)
+- [src/shibuya/engine/rights/initial.py](../../../../src/shibuya/world/facts/rights/initial.py) 最初の中身・担当の丸振り・差し替えの世界の表
+- [src/shibuya/engine/rights/record.py](../../../../src/shibuya/world/facts/rights/record.py) 許可のない行動の記録・役割語の確かめ・manifest の欄
+- [src/shibuya/engine/processes/opening.py](../../../../src/shibuya/world/laws/opening.py) 持ち主。開閉の権利を聞いて記録の口へ渡す
+- [src/shibuya/engine/processes/runner.py](../../../../src/shibuya/world/laws/runner.py) `rights`・`role_act_check`・`rights_fields`
 
 #### 元の決定
 
@@ -218,12 +218,12 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/systems/observe.py](../../../../src/shibuya/engine/systems/observe.py) 系 observe と checkpoint
-- [src/shibuya/engine/systems/report.py](../../../../src/shibuya/engine/systems/report.py) ランの結果の組み立て
-- [src/shibuya/engine/norm_meter.py](../../../../src/shibuya/engine/norm_meter.py) 群・規範の計器(同行・文脈別の行動エントロピー・役割語・伝播)
-- [src/shibuya/core/growth.py](../../../../src/shibuya/core/growth.py)・[src/shibuya/engine/growth_decl.py](../../../../src/shibuya/engine/growth_decl.py) 状態成長の宣言と外挿の検査
-- [src/shibuya/core/budget.py](../../../../src/shibuya/core/budget.py) 予算宣言表の読み取り
-- [src/shibuya/engine/systems/probe.py](../../../../src/shibuya/engine/systems/probe.py) 系ごとの差(試験のときだけ)
+- [src/shibuya/engine/systems/observe.py](../../../../src/shibuya/runtime/systems/observe.py) 系 observe と checkpoint
+- [src/shibuya/engine/systems/report.py](../../../../src/shibuya/runtime/systems/report.py) ランの結果の組み立て
+- [src/shibuya/engine/norm_meter.py](../../../../src/shibuya/society/norm_meter.py) 群・規範の計器(同行・文脈別の行動エントロピー・役割語・伝播)
+- [src/shibuya/core/growth.py](../../../../src/shibuya/foundation/growth.py)・[src/shibuya/engine/growth_decl.py](../../../../src/shibuya/runtime/state/growth_decl.py) 状態成長の宣言と外挿の検査
+- [src/shibuya/core/budget.py](../../../../src/shibuya/foundation/budget.py) 予算宣言表の読み取り
+- [src/shibuya/engine/systems/probe.py](../../../../src/shibuya/runtime/systems/probe.py) 系ごとの差(試験のときだけ)
 - [tools/c7/c7_accept.py](../../../../tools/c7/c7_accept.py) 受入表・[tools/c7/holdout_compare.py](../../../../tools/c7/holdout_compare.py) 封印の照合(`--open-seal` を明示しないと読まない)・[tools/c7/salt_runs.py](../../../../tools/c7/salt_runs.py) と [tools/c7/salt_compare.py](../../../../tools/c7/salt_compare.py) salt の比較・[tools/c7/seed_ensemble.py](../../../../tools/c7/seed_ensemble.py) seed の帰無参照
 - [tools/c8/dashboard.py](../../../../tools/c8/dashboard.py) 計器盤・[tools/c8/ablation_runner.py](../../../../tools/c8/ablation_runner.py)・[tools/c8/sensitivity.py](../../../../tools/c8/sensitivity.py)・[tools/c8/ensemble.py](../../../../tools/c8/ensemble.py)(ラン構成の生成だけ)
 - [tools/instruments/anchor_gauge.py](../../../../tools/instruments/anchor_gauge.py)・[tools/instruments/read_guard.py](../../../../tools/instruments/read_guard.py)・[tools/instruments/batch_width_gauge.py](../../../../tools/instruments/batch_width_gauge.py)・[tools/instruments/dm_eval/cli.py](../../../../tools/instruments/dm_eval/cli.py)・[tools/instruments/leak_check/cli.py](../../../../tools/instruments/leak_check/cli.py)
@@ -270,11 +270,11 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/run.py](../../../../src/shibuya/engine/run.py) `RunResult`・`run_manifest_fields`・`summary`・`run_day`・CLI の共通の引数
-- [src/shibuya/engine/manifest_sections.py](../../../../src/shibuya/engine/manifest_sections.py) 節の表
-- [src/shibuya/engine/run_kind.py](../../../../src/shibuya/engine/run_kind.py) ランの種類
+- [src/shibuya/engine/run.py](../../../../src/shibuya/runtime/run.py) `RunResult`・`run_manifest_fields`・`summary`・`run_day`・CLI の共通の引数
+- [src/shibuya/engine/manifest_sections.py](../../../../src/shibuya/foundation/manifest/sections.py) 節の表
+- [src/shibuya/engine/run_kind.py](../../../../src/shibuya/experiments/port/run_kind.py) ランの種類
 - [src/shibuya/cli.py](../../../../src/shibuya/cli.py) `run_arms`・`arm_baseline`・`checkpoints_payload`
-- [src/shibuya/manifest/schema.py](../../../../src/shibuya/manifest/schema.py)・[src/shibuya/manifest/canonical.py](../../../../src/shibuya/manifest/canonical.py)・[src/shibuya/manifest/world_catalog.py](../../../../src/shibuya/manifest/world_catalog.py) 型・正規化・分母
+- [src/shibuya/manifest/schema.py](../../../../src/shibuya/foundation/manifest/schema.py)・[src/shibuya/manifest/canonical.py](../../../../src/shibuya/foundation/manifest/canonical.py)・[src/shibuya/manifest/world_catalog.py](../../../../src/shibuya/world/ledger/world_catalog.py) 型・正規化・分母
 
 #### 元の決定
 
@@ -322,15 +322,15 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/experiment/form.py](../../../../src/shibuya/engine/experiment/form.py) 申込書と決定の表
-- [src/shibuya/engine/experiment/apply.py](../../../../src/shibuya/engine/experiment/apply.py) 改変を世界の表へ入れる唯一の口
-- [src/shibuya/engine/experiment/gate.py](../../../../src/shibuya/engine/experiment/gate.py) 実験が世界に入る口 `admit`
-- [src/shibuya/engine/experiment/layer.py](../../../../src/shibuya/engine/experiment/layer.py) 組み立て・系 `experiment`・manifest の節・再開の照合
-- [src/shibuya/engine/experiment/branch.py](../../../../src/shibuya/engine/experiment/branch.py) 分岐と 4 つの確認
-- [src/shibuya/engine/experiment/switch.py](../../../../src/shibuya/engine/experiment/switch.py) T からの切り替え
-- [src/shibuya/engine/experiment/ensemble.py](../../../../src/shibuya/engine/experiment/ensemble.py) 封印・事前登録・対の差の形・技量スコアの器
-- [src/shibuya/engine/experiment/checks.py](../../../../src/shibuya/engine/experiment/checks.py) 申込書の点検(拒まない)
-- [src/shibuya/engine/experiment/warmup.py](../../../../src/shibuya/engine/experiment/warmup.py) 慣らしの規則の事前登録
+- [src/shibuya/engine/experiment/form.py](../../../../src/shibuya/experiments/port/form.py) 申込書と決定の表
+- [src/shibuya/engine/experiment/apply.py](../../../../src/shibuya/experiments/port/apply.py) 改変を世界の表へ入れる唯一の口
+- [src/shibuya/engine/experiment/gate.py](../../../../src/shibuya/foundation/ports/experiment_gate.py) 実験が世界に入る口 `admit`
+- [src/shibuya/engine/experiment/layer.py](../../../../src/shibuya/experiments/port/layer.py) 組み立て・系 `experiment`・manifest の節・再開の照合
+- [src/shibuya/engine/experiment/branch.py](../../../../src/shibuya/experiments/drive/branch.py) 分岐と 4 つの確認
+- [src/shibuya/engine/experiment/switch.py](../../../../src/shibuya/experiments/drive/switch.py) T からの切り替え
+- [src/shibuya/engine/experiment/ensemble.py](../../../../src/shibuya/experiments/port/ensemble.py) 封印・事前登録・対の差の形・技量スコアの器
+- [src/shibuya/engine/experiment/checks.py](../../../../src/shibuya/experiments/port/checks.py) 申込書の点検(拒まない)
+- [src/shibuya/engine/experiment/warmup.py](../../../../src/shibuya/experiments/port/warmup.py) 慣らしの規則の事前登録
 
 #### 元の決定
 
@@ -375,11 +375,11 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/tape.py](../../../../src/shibuya/engine/tape.py) `TapeWriter`・`Tape`・`Replay`・`TapeRow`
-- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/engine/llm_bridge.py) 同期の道の録画と再生(`LLMBridge`)
-- [src/shibuya/llm/mock.py](../../../../src/shibuya/llm/mock.py) `TapeLLM`
-- [src/shibuya/llm/fleet.py](../../../../src/shibuya/llm/fleet.py) LLM サーバー群の道の録画(`TapeSink`)
-- [src/shibuya/engine/run.py](../../../../src/shibuya/engine/run.py) `check_replay_tape`
+- [src/shibuya/engine/tape.py](../../../../src/shibuya/runtime/inference/tape.py) `TapeWriter`・`Tape`・`Replay`・`TapeRow`
+- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/runtime/inference/bridge.py) 同期の道の録画と再生(`LLMBridge`)
+- [src/shibuya/llm/mock.py](../../../../src/shibuya/runtime/inference/mock.py) `TapeLLM`
+- [src/shibuya/llm/fleet.py](../../../../src/shibuya/runtime/inference/fleet.py) LLM サーバー群の道の録画(`TapeSink`)
+- [src/shibuya/engine/run.py](../../../../src/shibuya/runtime/run.py) `check_replay_tape`
 - [tools/vocab/registry_from_tape.py](../../../../tools/vocab/registry_from_tape.py)・[tools/c6/t6_bit_reproduce.py](../../../../tools/c6/t6_bit_reproduce.py) テープを読む道具の例
 
 #### 元の決定
@@ -419,11 +419,11 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/events/log.py](../../../../src/shibuya/engine/events/log.py) `Event`・`EventLog`・原因の 3 型
-- [src/shibuya/engine/events/vocab.py](../../../../src/shibuya/engine/events/vocab.py) 語彙の表
-- [src/shibuya/engine/events/links.py](../../../../src/shibuya/engine/events/links.py) ActualLog と金の行に目印を付ける口
-- [src/shibuya/engine/events/body.py](../../../../src/shibuya/engine/events/body.py) 体の出来事の口
-- [src/shibuya/world/processes/actual_log.py](../../../../src/shibuya/world/processes/actual_log.py) 過程の実績の記録(本体はグループ A の世界過程)
+- [src/shibuya/engine/events/log.py](../../../../src/shibuya/foundation/journal/log.py) `Event`・`EventLog`・原因の 3 型
+- [src/shibuya/engine/events/vocab.py](../../../../src/shibuya/foundation/vocab/events.py) 語彙の表
+- [src/shibuya/engine/events/links.py](../../../../src/shibuya/foundation/journal/links.py) ActualLog と金の行に目印を付ける口
+- [src/shibuya/engine/events/body.py](../../../../src/shibuya/mind/memory/body_events.py) 体の出来事の口
+- [src/shibuya/world/processes/actual_log.py](../../../../src/shibuya/world/ledger/actual_log.py) 過程の実績の記録(本体はグループ A の世界過程)
 
 #### 元の決定
 
@@ -462,14 +462,14 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/resume.py](../../../../src/shibuya/engine/resume.py) 状態の書き出しと読み込み・設定の指紋・環境の欄
-- [src/shibuya/engine/state_codec.py](../../../../src/shibuya/engine/state_codec.py) npz と JSON の直列化(許可したクラスだけ組み立てる)
-- [src/shibuya/engine/state_hashes.py](../../../../src/shibuya/engine/state_hashes.py) 2 つのハッシュ
-- [src/shibuya/engine/systems/state_io.py](../../../../src/shibuya/engine/systems/state_io.py) `save_state`・`ledger_close`・`close_day_midrun`・`rebuild_derived`
-- [src/shibuya/engine/systems/day.py](../../../../src/shibuya/engine/systems/day.py) 日の頭と日の終わりの条件
-- [src/shibuya/engine/systems/run_end.py](../../../../src/shibuya/engine/systems/run_end.py) `drain`・`close_final`
-- [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) `restore_soa`・`restore_items`
-- [src/shibuya/core/serialize.py](../../../../src/shibuya/core/serialize.py) 器
+- [src/shibuya/engine/resume.py](../../../../src/shibuya/runtime/state/resume.py) 状態の書き出しと読み込み・設定の指紋・環境の欄
+- [src/shibuya/engine/state_codec.py](../../../../src/shibuya/runtime/state/codec.py) npz と JSON の直列化(許可したクラスだけ組み立てる)
+- [src/shibuya/engine/state_hashes.py](../../../../src/shibuya/runtime/state/hashes.py) 2 つのハッシュ
+- [src/shibuya/engine/systems/state_io.py](../../../../src/shibuya/runtime/systems/state_io.py) `save_state`・`ledger_close`・`close_day_midrun`・`rebuild_derived`
+- [src/shibuya/engine/systems/day.py](../../../../src/shibuya/runtime/systems/day.py) 日の頭と日の終わりの条件
+- [src/shibuya/engine/systems/run_end.py](../../../../src/shibuya/runtime/systems/run_end.py) `drain`・`close_final`
+- [src/shibuya/engine/resolve.py](../../../../src/shibuya/runtime/state/restore.py) `restore_soa`・`restore_items`
+- [src/shibuya/core/serialize.py](../../../../src/shibuya/foundation/serialize.py) 器
 
 #### 元の決定
 
@@ -502,8 +502,8 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/state_ledger.py](../../../../src/shibuya/engine/state_ledger.py) 台帳の宣言
-- [src/shibuya/engine/state_ledger_ast.py](../../../../src/shibuya/engine/state_ledger_ast.py) AST の検査
+- [src/shibuya/engine/state_ledger.py](../../../../src/shibuya/runtime/state/ledger.py) 台帳の宣言
+- [src/shibuya/engine/state_ledger_ast.py](../../../../src/shibuya/runtime/state/ledger_ast.py) AST の検査
 
 #### 元の決定
 
@@ -548,11 +548,11 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/llm/fleet.py](../../../../src/shibuya/llm/fleet.py) クライアントと橋・`FleetConfig`・`plan_batch`・`fleet_auth_headers`
-- [src/shibuya/engine/systems/decide.py](../../../../src/shibuya/engine/systems/decide.py) LLM サーバー群の道の発射
-- [src/shibuya/engine/systems/llm_io.py](../../../../src/shibuya/engine/systems/llm_io.py) 到着の受け取り(系 `llm_receive`)
-- [src/shibuya/engine/systems/run_end.py](../../../../src/shibuya/engine/systems/run_end.py) 残りの吸い切り
-- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/engine/llm_bridge.py) 考える時間の表(`LANE_SECONDS`・`delta_think_ticks`)
+- [src/shibuya/llm/fleet.py](../../../../src/shibuya/runtime/inference/fleet.py) クライアントと橋・`FleetConfig`・`plan_batch`・`fleet_auth_headers`
+- [src/shibuya/engine/systems/decide.py](../../../../src/shibuya/runtime/systems/decide.py) LLM サーバー群の道の発射
+- [src/shibuya/engine/systems/llm_io.py](../../../../src/shibuya/runtime/systems/llm_io.py) 到着の受け取り(系 `llm_receive`)
+- [src/shibuya/engine/systems/run_end.py](../../../../src/shibuya/runtime/systems/run_end.py) 残りの吸い切り
+- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/runtime/inference/bridge.py) 考える時間の表(`LANE_SECONDS`・`delta_think_ticks`)
 - [tools/night5070/night_run.py](../../../../tools/night5070/night_run.py)・[tools/night5070/register_task.py](../../../../tools/night5070/register_task.py) 夜の実験とタスクの登録
 - [tools/gen/fleet_gen.py](../../../../tools/gen/fleet_gen.py) 生成の運搬役
 
@@ -605,14 +605,14 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/engine/decision/port.py](../../../../src/shibuya/engine/decision/port.py) 型と提示の仕組み
-- [src/shibuya/engine/decision/ports.py](../../../../src/shibuya/engine/decision/ports.py) 3 つの実装
-- [src/shibuya/engine/decision/sources.py](../../../../src/shibuya/engine/decision/sources.py) 候補の 5 つの源
-- [src/shibuya/engine/decision/layer.py](../../../../src/shibuya/engine/decision/layer.py) 腕・層・計器・判断の出来事
-- [src/shibuya/engine/decision/persona.py](../../../../src/shibuya/engine/decision/persona.py) 人物の欄(器)
-- [src/shibuya/llm/mock.py](../../../../src/shibuya/llm/mock.py) `MockLLM`
-- [src/shibuya/engine/classical.py](../../../../src/shibuya/engine/classical.py) 古典の方策
-- [src/shibuya/engine/systems/decide.py](../../../../src/shibuya/engine/systems/decide.py) 系 decide
+- [src/shibuya/engine/decision/port.py](../../../../src/shibuya/foundation/ports/decision.py) 型と提示の仕組み
+- [src/shibuya/engine/decision/ports.py](../../../../src/shibuya/mind/judge/decision/ports.py) 3 つの実装
+- [src/shibuya/engine/decision/sources.py](../../../../src/shibuya/mind/judge/decision/sources.py) 候補の 5 つの源
+- [src/shibuya/engine/decision/layer.py](../../../../src/shibuya/mind/judge/decision/layer.py) 腕・層・計器・判断の出来事
+- [src/shibuya/engine/decision/persona.py](../../../../src/shibuya/mind/judge/decision/persona.py) 人物の欄(器)
+- [src/shibuya/llm/mock.py](../../../../src/shibuya/runtime/inference/mock.py) `MockLLM`
+- [src/shibuya/engine/classical.py](../../../../src/shibuya/mind/judge/classical.py) 古典の方策
+- [src/shibuya/engine/systems/decide.py](../../../../src/shibuya/runtime/systems/decide.py) 系 decide
 - [tools/instruments/dm_eval/](../../../../tools/instruments/dm_eval/__init__.py) 評価の器
 
 #### 元の決定
@@ -657,11 +657,11 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/llm/contract.py](../../../../src/shibuya/llm/contract.py) 語彙・契約表・対象の型の正典
-- [src/shibuya/llm/parser.py](../../../../src/shibuya/llm/parser.py) 2 行形と 5 ラベルの読み取り
-- [src/shibuya/llm/undefined.py](../../../../src/shibuya/llm/undefined.py) 語彙外の 5 段階処理・同義語辞書・台帳
-- [src/shibuya/llm/\_\_init\_\_.py](../../../../src/shibuya/llm/__init__.py) クライアントの契約と再輸出
-- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/engine/llm_bridge.py) プロンプト → 答え → 行動コードの接点
+- [src/shibuya/llm/contract.py](../../../../src/shibuya/foundation/vocab/actions.py) 語彙・契約表・対象の型の正典
+- [src/shibuya/llm/parser.py](../../../../src/shibuya/act/intake/parser.py) 2 行形と 5 ラベルの読み取り
+- [src/shibuya/llm/undefined.py](../../../../src/shibuya/act/intake/undefined.py) 語彙外の 5 段階処理・同義語辞書・台帳
+- [src/shibuya/llm/\_\_init\_\_.py](../../../../src/shibuya/foundation/ports/inference.py) クライアントの契約と再輸出
+- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/runtime/inference/bridge.py) プロンプト → 答え → 行動コードの接点
 - [tools/vocab/adjudicate.py](../../../../tools/vocab/adjudicate.py)・[tools/vocab/registry_from_tape.py](../../../../tools/vocab/registry_from_tape.py) ラン後の語彙の判定
 
 #### 元の決定
@@ -710,18 +710,18 @@ C1〜C2・C3・C5・C6・C8・C10〜C11・C13〜C14 が発注の機能です。�
 
 #### ファイル
 
-- [src/shibuya/perception/renderer.py](../../../../src/shibuya/perception/renderer.py) 描画の本体・`PerceptionAssets`
-- [src/shibuya/perception/facts.py](../../../../src/shibuya/perception/facts.py) `Percept`
-- [src/shibuya/perception/templates.py](../../../../src/shibuya/perception/templates.py) 凍結の文面と段階の語
-- [src/shibuya/perception/channels.py](../../../../src/shibuya/perception/channels.py) トークンの上限と切り詰め
-- [src/shibuya/perception/normalize.py](../../../../src/shibuya/perception/normalize.py) バイト一致の規約 9 項
-- [src/shibuya/perception/hashes.py](../../../../src/shibuya/perception/hashes.py) 描画のハッシュと欄の行
-- [src/shibuya/perception/attention.py](../../../../src/shibuya/perception/attention.py) 看板を見る確率・顕著性・命令文の除去
-- [src/shibuya/perception/p_notice.py](../../../../src/shibuya/perception/p_notice.py) 気づく確率
-- [src/shibuya/perception/state.py](../../../../src/shibuya/perception/state.py) 向きと課題従事の SoA
-- [src/shibuya/perception/contact_view.py](../../../../src/shibuya/perception/contact_view.py) 連絡の腕の知覚
-- [src/shibuya/engine/systems/perceive.py](../../../../src/shibuya/engine/systems/perceive.py) 系 `perceive_prepare`・`detect`
-- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/engine/llm_bridge.py) `PerceptionRendererAdapter`・`StubRenderer`
+- [src/shibuya/perception/renderer.py](../../../../src/shibuya/world/model/percept_scene.py) 描画の本体・`PerceptionAssets`
+- [src/shibuya/perception/facts.py](../../../../src/shibuya/foundation/ports/percept.py) `Percept`
+- [src/shibuya/perception/templates.py](../../../../src/shibuya/foundation/text/templates.py) 凍結の文面と段階の語
+- [src/shibuya/perception/channels.py](../../../../src/shibuya/foundation/text/channels.py) トークンの上限と切り詰め
+- [src/shibuya/perception/normalize.py](../../../../src/shibuya/foundation/text/normalize.py) バイト一致の規約 9 項
+- [src/shibuya/perception/hashes.py](../../../../src/shibuya/foundation/text/hashes.py) 描画のハッシュと欄の行
+- [src/shibuya/perception/attention.py](../../../../src/shibuya/foundation/text/salience.py) 看板を見る確率・顕著性・命令文の除去
+- [src/shibuya/perception/p_notice.py](../../../../src/shibuya/world/model/notice_reach.py) 気づく確率
+- [src/shibuya/perception/state.py](../../../../src/shibuya/world/model/percept_state.py) 向きと課題従事の SoA
+- [src/shibuya/perception/contact_view.py](../../../../src/shibuya/foundation/ports/percept_contact.py) 連絡の腕の知覚
+- [src/shibuya/engine/systems/perceive.py](../../../../src/shibuya/runtime/systems/perceive.py) 系 `perceive_prepare`・`detect`
+- [src/shibuya/engine/llm_bridge.py](../../../../src/shibuya/runtime/inference/bridge.py) `PerceptionRendererAdapter`・`StubRenderer`
 
 #### 元の決定
 
@@ -782,14 +782,14 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### ファイル
 
-- [src/shibuya/engine/change_detect.py](../../../../src/shibuya/engine/change_detect.py) 変化の検出
-- [src/shibuya/engine/arbiter.py](../../../../src/shibuya/engine/arbiter.py) 割り当て
-- [src/shibuya/engine/scheduler.py](../../../../src/shibuya/engine/scheduler.py) 待ち行列の保管庫(`DeferralQueue`)と予約の輪(`Scheduler`)
-- [src/shibuya/agents/state.py](../../../../src/shibuya/agents/state.py) `WakeCondition`・`REFRACTORY_MINUTES`・`WAKE_CONDITION_CLASS`
-- [src/shibuya/engine/systems/judge.py](../../../../src/shibuya/engine/systems/judge.py) 系 `wake_sources`・`wake_filter`・`wake_assemble`・`arbiter`
-- [src/shibuya/engine/systems/perceive.py](../../../../src/shibuya/engine/systems/perceive.py) 系 `detect`
-- [src/shibuya/engine/systems/body.py](../../../../src/shibuya/engine/systems/body.py) 系 `plan_boundary`
-- [src/shibuya/engine/step_scope.py](../../../../src/shibuya/engine/step_scope.py) 腕 `changed`
+- [src/shibuya/engine/change_detect.py](../../../../src/shibuya/mind/system1/change_detect.py) 変化の検出
+- [src/shibuya/engine/arbiter.py](../../../../src/shibuya/runtime/arbiter.py) 割り当て
+- [src/shibuya/engine/scheduler.py](../../../../src/shibuya/foundation/queues/scheduler.py) 待ち行列の保管庫(`DeferralQueue`)と予約の輪(`Scheduler`)
+- [src/shibuya/agents/state.py](../../../../src/shibuya/foundation/vocab/agent_codes.py) `WakeCondition`・`REFRACTORY_MINUTES`・`WAKE_CONDITION_CLASS`
+- [src/shibuya/engine/systems/judge.py](../../../../src/shibuya/runtime/systems/judge.py) 系 `wake_sources`・`wake_filter`・`wake_assemble`・`arbiter`
+- [src/shibuya/engine/systems/perceive.py](../../../../src/shibuya/runtime/systems/perceive.py) 系 `detect`
+- [src/shibuya/engine/systems/body.py](../../../../src/shibuya/runtime/systems/body.py) 系 `plan_boundary`
+- [src/shibuya/engine/step_scope.py](../../../../src/shibuya/runtime/clocks/step_scope.py) 腕 `changed`
 
 #### 元の決定
 
@@ -829,10 +829,10 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### ファイル
 
-- [src/shibuya/engine/commit.py](../../../../src/shibuya/engine/commit.py) 意図の収集と資源ごとの決着
-- [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) 世界の状態への書き込み・再開の戻し
-- [src/shibuya/engine/systems/act.py](../../../../src/shibuya/engine/systems/act.py) 系 `phase_a`・`phase_b`・`phase_c`
-- [src/shibuya/engine/intent.py](../../../../src/shibuya/engine/intent.py) 意図の保持(歩いて着いたら呼ばずに実行)
+- [src/shibuya/engine/commit.py](../../../../src/shibuya/act/commit.py) 意図の収集と資源ごとの決着
+- [src/shibuya/engine/resolve.py](../../../../src/shibuya/act/apply.py) 世界の状態への書き込み・再開の戻し
+- [src/shibuya/engine/systems/act.py](../../../../src/shibuya/runtime/systems/act.py) 系 `phase_a`・`phase_b`・`phase_c`
+- [src/shibuya/engine/intent.py](../../../../src/shibuya/act/intent.py) 意図の保持(歩いて着いたら呼ばずに実行)
 
 #### 元の決定
 
@@ -878,16 +878,16 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### ファイル
 
-- [src/shibuya/engine/systems/conductor.py](../../../../src/shibuya/engine/systems/conductor.py) 進行役
-- [src/shibuya/engine/systems/table.py](../../../../src/shibuya/engine/systems/table.py) 系の表
-- [src/shibuya/engine/systems/build.py](../../../../src/shibuya/engine/systems/build.py) 組み立て
-- [src/shibuya/engine/systems/boxes.py](../../../../src/shibuya/engine/systems/boxes.py) 状態の箱
-- [src/shibuya/engine/systems/spec.py](../../../../src/shibuya/engine/systems/spec.py)・[src/shibuya/engine/systems/allow.py](../../../../src/shibuya/engine/systems/allow.py) 宣言の口と閉包
-- [src/shibuya/engine/systems/guard.py](../../../../src/shibuya/engine/systems/guard.py)・[src/shibuya/core/write_permit.py](../../../../src/shibuya/core/write_permit.py) 書きの許可
-- [src/shibuya/engine/systems/probe.py](../../../../src/shibuya/engine/systems/probe.py)・[src/shibuya/engine/systems/static_check.py](../../../../src/shibuya/engine/systems/static_check.py)・[src/shibuya/engine/systems/overrides.py](../../../../src/shibuya/engine/systems/overrides.py) 試験の口
-- [src/shibuya/engine/owner_guard.py](../../../../src/shibuya/engine/owner_guard.py) 外の状態の持ち主の守り
-- [src/shibuya/core/soa.py](../../../../src/shibuya/core/soa.py) SoA のレジストリとバイト予算
-- [src/shibuya/engine/run.py](../../../../src/shibuya/engine/run.py) `run_day` の入口
+- [src/shibuya/engine/systems/conductor.py](../../../../src/shibuya/runtime/systems/conductor.py) 進行役
+- [src/shibuya/engine/systems/table.py](../../../../src/shibuya/runtime/systems/table.py) 系の表
+- [src/shibuya/engine/systems/build.py](../../../../src/shibuya/runtime/systems/assemble.py) 組み立て
+- [src/shibuya/engine/systems/boxes.py](../../../../src/shibuya/runtime/systems/boxes.py) 状態の箱
+- [src/shibuya/engine/systems/spec.py](../../../../src/shibuya/runtime/systems/spec.py)・[src/shibuya/engine/systems/allow.py](../../../../src/shibuya/runtime/systems/allow.py) 宣言の口と閉包
+- [src/shibuya/engine/systems/guard.py](../../../../src/shibuya/foundation/write_guard.py)・[src/shibuya/core/write_permit.py](../../../../src/shibuya/foundation/write_permit.py) 書きの許可
+- [src/shibuya/engine/systems/probe.py](../../../../src/shibuya/runtime/systems/probe.py)・[src/shibuya/engine/systems/static_check.py](../../../../src/shibuya/validation/static/system_static_check.py)・[src/shibuya/engine/systems/overrides.py](../../../../src/shibuya/validation/static/system_overrides.py) 試験の口
+- [src/shibuya/engine/owner_guard.py](../../../../src/shibuya/runtime/clocks/owner_guard.py) 外の状態の持ち主の守り
+- [src/shibuya/core/soa.py](../../../../src/shibuya/foundation/soa.py) SoA のレジストリとバイト予算
+- [src/shibuya/engine/run.py](../../../../src/shibuya/runtime/run.py) `run_day` の入口
 
 #### 元の決定
 
@@ -931,12 +931,12 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### ファイル
 
-- [src/shibuya/engine/batching.py](../../../../src/shibuya/engine/batching.py) 窓の待ち行列
-- [src/shibuya/engine/calendar.py](../../../../src/shibuya/engine/calendar.py) 暦の口
-- [src/shibuya/core/time_consts.py](../../../../src/shibuya/core/time_consts.py)・[src/shibuya/core/types.py](../../../../src/shibuya/core/types.py) 時間の定数と時刻の型
-- [src/shibuya/engine/speech_clock.py](../../../../src/shibuya/engine/speech_clock.py)・[src/shibuya/engine/step_scope.py](../../../../src/shibuya/engine/step_scope.py)・[src/shibuya/engine/regional_clock.py](../../../../src/shibuya/engine/regional_clock.py) 時計の段 T2〜T4 の腕
-- [src/shibuya/engine/body/schedule.py](../../../../src/shibuya/engine/body/schedule.py) 体の予約の腕
-- [src/shibuya/engine/clock.py](../../../../src/shibuya/engine/clock.py) 器
+- [src/shibuya/engine/batching.py](../../../../src/shibuya/foundation/queues/batching.py) 窓の待ち行列
+- [src/shibuya/engine/calendar.py](../../../../src/shibuya/world/facts/calendar.py) 暦の口
+- [src/shibuya/core/time_consts.py](../../../../src/shibuya/foundation/time_consts.py)・[src/shibuya/core/types.py](../../../../src/shibuya/foundation/types.py) 時間の定数と時刻の型
+- [src/shibuya/engine/speech_clock.py](../../../../src/shibuya/runtime/clocks/speech.py)・[src/shibuya/engine/step_scope.py](../../../../src/shibuya/runtime/clocks/step_scope.py)・[src/shibuya/engine/regional_clock.py](../../../../src/shibuya/runtime/clocks/regional.py) 時計の段 T2〜T4 の腕
+- [src/shibuya/engine/body/schedule.py](../../../../src/shibuya/world/body/schedule.py) 体の予約の腕
+- [src/shibuya/engine/clock.py](../../../../src/shibuya/runtime/clock.py) 器
 
 #### 元の決定
 
@@ -976,10 +976,10 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 
 #### ファイル
 
-- [src/shibuya/core/rng.py](../../../../src/shibuya/core/rng.py) 乱数の口(`stream`・`philox`・`k19_counters`・`key_time_from_t_ns`)
-- [src/shibuya/core/hashing.py](../../../../src/shibuya/core/hashing.py) 優先度キーと決定論のハッシュ
-- [src/shibuya/engine/run.py](../../../../src/shibuya/engine/run.py) `run_salt_for`・`POPULATION_RNG_DOMAINS`・`ENVIRONMENT_RNG_DOMAINS`・`MOTION_RNG_DOMAINS`
-- [src/shibuya/engine/rng_audit.py](../../../../src/shibuya/engine/rng_audit.py) K19 の検査
+- [src/shibuya/core/rng.py](../../../../src/shibuya/foundation/rng.py) 乱数の口(`stream`・`philox`・`k19_counters`・`key_time_from_t_ns`)
+- [src/shibuya/core/hashing.py](../../../../src/shibuya/foundation/hashing.py) 優先度キーと決定論のハッシュ
+- [src/shibuya/engine/run.py](../../../../src/shibuya/runtime/run.py) `run_salt_for`・`POPULATION_RNG_DOMAINS`・`ENVIRONMENT_RNG_DOMAINS`・`MOTION_RNG_DOMAINS`
+- [src/shibuya/engine/rng_audit.py](../../../../src/shibuya/validation/static/rng_audit.py) K19 の検査
 
 #### 元の決定
 
@@ -1035,7 +1035,7 @@ W21(ペルソナと人口の作り直し)とナビメッシュ(`build/space/navm
 
 - [src/shibuya/build/run.py](../../../../src/shibuya/build/run.py) 通し実行と `build_manifest.json`
 - [src/shibuya/build/catalog_freeze.py](../../../../src/shibuya/build/catalog_freeze.py) 世界カタログの凍結
-- [src/shibuya/world/assets.py](../../../../src/shibuya/world/assets.py)・[src/shibuya/world/state.py](../../../../src/shibuya/world/state.py) 資産の読み込み・世界の SoA・合成世界
+- [src/shibuya/world/assets.py](../../../../src/shibuya/world/model/assets.py)・[src/shibuya/world/state.py](../../../../src/shibuya/world/model/state.py) 資産の読み込み・世界の SoA・合成世界
 - [tools/gen/fleet_gen.py](../../../../tools/gen/fleet_gen.py) 生成の運搬
 - [tools/world_data/estat_fetch.py](../../../../tools/world_data/estat_fetch.py)・`tools/realworld_fetch/`・`tools/build_geo/`・`tools/spatial/` 材料の取得と集計
 
@@ -1076,9 +1076,9 @@ W21(ペルソナと人口の作り直し)とナビメッシュ(`build/space/navm
 
 #### ファイル
 
-- [src/shibuya/agents/population.py](../../../../src/shibuya/agents/population.py) 読み込みと二層抽出
-- [src/shibuya/agents/state.py](../../../../src/shibuya/agents/state.py) 体の SoA
-- [src/shibuya/agents/schedule.py](../../../../src/shibuya/agents/schedule.py) mock 専用の合成日課
+- [src/shibuya/agents/population.py](../../../../src/shibuya/world/facts/population_reader.py) 読み込みと二層抽出
+- [src/shibuya/agents/state.py](../../../../src/shibuya/world/model/agent_table.py) 体の SoA
+- [src/shibuya/agents/schedule.py](../../../../src/shibuya/world/facts/mock_schedule.py) mock 専用の合成日課
 - [src/shibuya/build/pop/w16_population.py](../../../../src/shibuya/build/pop/w16_population.py)・[src/shibuya/build/pop/w21_build.py](../../../../src/shibuya/build/pop/w21_build.py)・[src/shibuya/build/pop/w21_apply.py](../../../../src/shibuya/build/pop/w21_apply.py) 構築の側
 
 #### 元の決定
@@ -1152,9 +1152,9 @@ W21(ペルソナと人口の作り直し)とナビメッシュ(`build/space/navm
 
 #### ファイル
 
-- [src/shibuya/engine/tools/registry.py](../../../../src/shibuya/engine/tools/registry.py) 道具の台帳
-- [src/shibuya/engine/tools/record.py](../../../../src/shibuya/engine/tools/record.py) 記録の欄と一式
-- [src/shibuya/engine/tools/groups.py](../../../../src/shibuya/engine/tools/groups.py)・[src/shibuya/engine/tools/contacts.py](../../../../src/shibuya/engine/tools/contacts.py)・[src/shibuya/engine/tools/places.py](../../../../src/shibuya/engine/tools/places.py) 一覧と印
+- [src/shibuya/engine/tools/registry.py](../../../../src/shibuya/society/tools/registry.py) 道具の台帳
+- [src/shibuya/engine/tools/record.py](../../../../src/shibuya/society/tools/record.py) 記録の欄と一式
+- [src/shibuya/engine/tools/groups.py](../../../../src/shibuya/society/tools/groups.py)・[src/shibuya/engine/tools/contacts.py](../../../../src/shibuya/foundation/vocab/contact_flags.py)・[src/shibuya/engine/tools/places.py](../../../../src/shibuya/society/tools/places.py) 一覧と印
 
 #### 元の決定
 
@@ -1178,7 +1178,7 @@ W21(ペルソナと人口の作り直し)とナビメッシュ(`build/space/navm
 
 #### 何をしているか
 
-expedient のつなぎを 1 行ずつ載せ、外す段を書く台帳です。正は [bridging-ledger.json](../../../design/bridging-ledger.json) で、読み出すと active 763 行・removed 31 行です。コードの宣言(6 形)と台帳の行を AST で 1 対 1 に突き合わせます。件数は manifest に載ります。[absent.py](../../../../src/shibuya/world/processes/absent.py) は「無い」の宣言を 26 行持ちます(主体が居ない 8・言い換え 2・口が無い 13・率を外した 2・補足 1)。どちらも読むだけで、挙動を変えません。
+expedient のつなぎを 1 行ずつ載せ、外す段を書く台帳です。正は [bridging-ledger.json](../../../design/bridging-ledger.json) で、読み出すと active 763 行・removed 31 行です。コードの宣言(6 形)と台帳の行を AST で 1 対 1 に突き合わせます。件数は manifest に載ります。[absent.py](../../../../src/shibuya/world/ledger/absent.py) は「無い」の宣言を 26 行持ちます(主体が居ない 8・言い換え 2・口が無い 13・率を外した 2・補足 1)。どちらも読むだけで、挙動を変えません。
 
 #### 状態
 
@@ -1186,9 +1186,9 @@ expedient のつなぎを 1 行ずつ載せ、外す段を書く台帳です。�
 
 #### ファイル
 
-- [src/shibuya/engine/bridging/ledger.py](../../../../src/shibuya/engine/bridging/ledger.py) 読み口と件数
-- [src/shibuya/engine/bridging/scan.py](../../../../src/shibuya/engine/bridging/scan.py) コードの宣言を数える(src に呼び手なし・試験が使う)
-- [src/shibuya/world/processes/absent.py](../../../../src/shibuya/world/processes/absent.py)・[src/shibuya/world/processes/inputs.py](../../../../src/shibuya/world/processes/inputs.py) 宣言と入力の宣言
+- [src/shibuya/engine/bridging/ledger.py](../../../../src/shibuya/foundation/decl/bridging.py) 読み口と件数
+- [src/shibuya/engine/bridging/scan.py](../../../../src/shibuya/validation/static/bridging_scan.py) コードの宣言を数える(src に呼び手なし・試験が使う)
+- [src/shibuya/world/processes/absent.py](../../../../src/shibuya/world/ledger/absent.py)・[src/shibuya/world/processes/inputs.py](../../../../src/shibuya/world/ledger/inputs.py) 宣言と入力の宣言
 - [tools/instruments/absent_declarations.py](../../../../tools/instruments/absent_declarations.py) 一覧の出力
 
 #### 元の決定

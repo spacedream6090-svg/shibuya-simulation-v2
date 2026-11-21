@@ -45,7 +45,7 @@ dm_eval.appeal — 「呼びかけへの反応のずれ」の列(第 347・返�
 - import している内部モジュール: `shibuya.foundation.ports.decision`・`tools/instruments/dm_eval/__init__.py`・`tools/instruments/dm_eval/judge.py`・`tools/instruments/dm_eval/situations.py`・`tools/instruments/dm_eval/table.py`
 - 呼び手: `tools/instruments/dm_eval/cli.py`
 - 読む試験: `tests/tools/test_dm_eval.py`
-- 決定の ID: R-149・第 347
+- 決定の ID: R-149・第 347・第 348
 
 ## [bias.py](../../../../../../../tools/instruments/dm_eval/bias.py)
 

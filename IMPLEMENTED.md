@@ -394,6 +394,42 @@
 - 動いた腕の値(新旧): 関係 on(mock 5,000)e4f84d1d/72,940 → 40409ebe/72,930・classical 60e72227/102,021 → 3390e3ec/97,563・classical+記憶+関係 4fa23d55/114,338 → 28ea8037/110,395。
 - テスト: 新規 3 ファイル+変更 4 ファイル・全体 **3,377 件(failed 0・skipped 1) exit 0**(親再実行)。CR 0・パス検査。
 
+### #183 実 LLM の道の語彙の欠陥 2 つの直し=書式の判定にランの語彙を結び、低い層の既定 v1 に頼る 8 か所を無くした(実 LLM の道だけが変わる小さな版上げ)(11-20 §1 の 19・§5-2 の 6)(第348・2026-11-21・実装役=Opus 5.5・親が検収)
+
+- 正典: [返事その 9](docs/design/prompt-2026-11-20-reply9.md) §1 の 19・§5-2 の 6。記録 [library-defaults-q13-347](docs/bench/analysis/library-defaults-q13-347/README.md) §5。commit= a38a26d。安定版のタグ `stable-v2-before-run-vocab-348`(bb36408)。戻し方= `git checkout stable-v2-before-run-vocab-348`。
+- **したこと**: 橋が、組み立てのときに自分の語彙で書式の判定を結ぶ(`FleetClient.bind_run_vocab`・`format_check_for`)。パーサと行為の読みの 8 か所にランの語彙を渡し、頼っていた既定を無くした。既定に頼っていた試験と道具の呼び手 140 か所には `"v1"` を明示(挙動は不変)。
+- **変わること(実 LLM のランだけ)**: 語彙 v3=「なし」「食事」を再生成しなくなり、活動・までを欠く応答と v1 の形の応答は再生成する。語彙 v2=「食事」の扱いが変わる(発注に無かった変化)。語彙 v1=前と同じ。
+- **確かめ**: 直す前に赤(25 本)。別の役の検収=条件つき受入(中 2・低 4)→ 中 2 と低 2 を直した。新しい試験 36 本・tests/llm 385 本・lint 10 kept。byte-check 20 構成 37 欄すべて同じ。範囲の全体の試験= 7,218 passed・1 failed(前からの 1 本)・22 skipped・41 分 34 秒。実 LLM での確かめは 5070 の後。
+- **残した物**: 語彙の既定を持つ関数 28(橋の既定 v1 を含む)。
+
+### #182 艦隊の口の接続の置き場が詰まって戻らない件の直し=時計に頼らない再現の試験・クライアントの作り直し・置き場の上限 2 倍(実 LLM の道だけが変わる小さな版上げ)(11-20 §1 の 24・§5-2)(第348・2026-11-21・実装役=Opus 5.5・親が検収)
+
+- 正典: [返事その 9](docs/design/prompt-2026-11-20-reply9.md) §1 の 24・§5-2 の 1〜5。記録 [fleet-flake-347](docs/bench/analysis/fleet-flake-347/README.md) §7。commit= 9b9ec39・bb36408(クラスの名の固定の表に 1 行)。安定版のタグ `stable-v2-before-fleet-pool-348`(90b9ca8)。戻し方= `git checkout stable-v2-before-fleet-pool-348`。
+- **したこと**: (f) 試験 4 本(`tests/llm/test_fleet_pool_orphans.py`)。(c) 置き場の時間切れが同じレプリカで 3 回続いたらクライアントを作り直す(進行中の呼は落とさない・回数は診断の欄 `fleet_client_rebuilt`)。(e) 置き場の上限と keepalive を同時実行の上限の 2 倍に。回数と倍率は expedient(未リサーチ)。`asyncio.wait_for`・再試行の順・繰り延べの決まりは不変。
+- **発注と違う所**: 詰まった置き場で待つ試行は、ほぼ PoolTimeout にならない(1 試行の締め切りが先に切れる)。httpcore の印を 1 つも受けないまま切れた時間切れも、置き場の時間切れに数えた(仮採用)。
+- **確かめ**: 直す前に段 B が赤。別の役の検収=条件つき受入(高 0・中 1・低 7)→ 中 1 と低 5 を直した。艦隊の口の試験 76 本・lint 10 kept。byte-check 20 構成 37 欄すべて同じ。本番の時間切れと実の vLLM での挙動は未確認(5070 の後)。
+- **親の手順の誤り**: 範囲の試験の前に push し、PR の CI で、足したクラスが固定の表に無いことが分かった(7 本が赤)。表に 1 行足した。
+
+### #181 byte-check を 20 構成に=話す時計が拍で数える構成を足した(src は変えていない)(11-20 §1 の 30)(第348・2026-11-21・実装役=Opus 5.5・親が検収)
+
+- 正典: [返事その 9](docs/design/prompt-2026-11-20-reply9.md) §1 の 30。記録 [bytecheck20-348](docs/bench/analysis/bytecheck20-348/README.md)。commit= 90b9ca8。
+- 構成 `v3_speech_talk_mora`(引数は既定の構成と同じ・ランの前に環境変数 2 つ)。既定の組は `all20`、前の 19 構成は `all19`。新しい道具で 20 構成 37 欄すべて同じ。足した構成の値は第 347 の記録と同じ(final `fc2246613b0e5695`・呼数 60,939)。CLAUDE.md §4 の行も 20 構成に。
+
+### #180 CI の単体と結合の段を 3 つの組に分けて同時に回す(src と試験の中身は変えていない)(11-20 §1 の 31・27)(第348・2026-11-21・実装役=Opus 5.5・親が検収)
+
+- 正典: [返事その 9](docs/design/prompt-2026-11-20-reply9.md) §1 の 31・27。commit= c17dab5。組の表 `tools/ci/test_shards.json`(g1=engine/g2=llm・tools・vocab・w17/g3=残り)。`tests/` の直下がちょうど 1 つの組に入っているかを ci-0 が確かめる(`tools/ci/check_test_shards.py`)。上限 120 分と並列の数 2 は不変。
+- 実測(PR #10): 組 g1 3,301 本・35 分/g2 1,333 本・5 分 24 秒/g3 2,743 本・5 分 27 秒。合計 7,377 本(分ける前 7,349+足した道具の試験 28)。data が無くて飛ばした数 297 は前と同じ。
+
+### #179 版の固定=依存の全部の版をロックのファイルで固定し、CI と手元で同じ版を入れる(src は変えていない)(11-20 §1 の 13)(第348・2026-11-21・実装役=Opus 5.5・親が検収)
+
+- 正典: [返事その 9](docs/design/prompt-2026-11-20-reply9.md) §1 の 13。記録 [lock-348](docs/bench/analysis/lock-348/README.md)。commit= 570f7f8・6d2aa13(CI の実行機を ubuntu-24.04 に固定=26.04 に Python 3.12.10 が無かった・仮採用)。
+- `requirements-lock.txt`=今の venv の 48 本(版は上げていない)・Python 3.12.10・pip 26.2.1。CI は「入った版がロックと同じ」を `tools/ci/check_lock.py` で確かめる。ロックだけから作った venv と今の venv で、byte-check の 19 構成 37 欄すべて同じ。Linux でも 47 本が入った。
+
+### #178 封印の語の表: まとめた語で 2 つの守りを空回しし、新しく当たる数だけを数える道具(src は変えていない)(11-20 §1 の 3・§5-5)(第348・2026-11-21・実装役=Opus 5.5・親が検収)
+
+- 正典: [返事その 9](docs/design/prompt-2026-11-20-reply9.md) §1 の 3・§5-5。記録 [sealed-tokens-348](docs/bench/analysis/sealed-tokens-348/README.md)。commit= 0a28da4。道具 `tools/instruments/sealed_tokens_dryrun.py`(数と真偽だけを出す)・試験 5 本。
+- 結果: 読みの守りは新しく当たる 0・構築の封の守りは新しく当たる ファイル 3・組 11 → **まとめずに止めた**(コードの表は変えていない)。
+
 ### #177 コードの区分の移動 段 7 の G-S=`perception/renderer.py` を道具で 4 つの割り先へ割った(1 バイト不変・`perception` の包みが消えた・割る段 25 本が全部済んだ)(11-16 §8 の 5・第347・2026-11-20・実装役 1・検収役 2=Opus 5.5・親が検収)
 
 - 正典: [返事その 8](docs/design/prompt-2026-11-16-reply8.md) §8 の 5。記録 [split7-347](docs/bench/analysis/split7-347/README.md) §11・§12。commit= 54d8c68。安定版のタグ `stable-v2-before-split7-S`(1e33d19=割る前)。戻し方= `git checkout stable-v2-before-split7-S`。

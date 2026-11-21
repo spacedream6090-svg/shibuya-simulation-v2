@@ -1,0 +1,85 @@
+{
+ "base": "HEAD",
+ "files": {
+  "docs/reference/repo-guide/can-say.md": {
+   "lines_before": 124,
+   "lines_after": 124,
+   "headings_before": 7,
+   "headings_after": 7,
+   "cr": false,
+   "changed_links": 1,
+   "changed_lines": 1,
+   "text_diff_lines": 0,
+   "existing_link_changed": 0,
+   "missing_after": 0
+  },
+  "docs/reference/repo-guide/catalog/a-body-and-town.md": {
+   "lines_before": 1192,
+   "lines_after": 1192,
+   "headings_before": 152,
+   "headings_after": 152,
+   "cr": false,
+   "changed_links": 134,
+   "changed_lines": 110,
+   "text_diff_lines": 0,
+   "existing_link_changed": 0,
+   "missing_after": 0
+  },
+  "docs/reference/repo-guide/catalog/b-people.md": {
+   "lines_before": 976,
+   "lines_after": 976,
+   "headings_before": 140,
+   "headings_after": 140,
+   "cr": false,
+   "changed_links": 100,
+   "changed_lines": 100,
+   "text_diff_lines": 0,
+   "existing_link_changed": 0,
+   "missing_after": 0
+  },
+  "docs/reference/repo-guide/catalog/c-foundation.md": {
+   "lines_before": 1260,
+   "lines_after": 1260,
+   "headings_before": 194,
+   "headings_after": 194,
+   "cr": false,
+   "changed_links": 137,
+   "changed_lines": 122,
+   "text_diff_lines": 0,
+   "existing_link_changed": 0,
+   "missing_after": 1
+  },
+  "docs/reference/repo-guide/day-flow.md": {
+   "lines_before": 355,
+   "lines_after": 355,
+   "headings_before": 28,
+   "headings_after": 28,
+   "cr": false,
+   "changed_links": 79,
+   "changed_lines": 55,
+   "text_diff_lines": 0,
+   "existing_link_changed": 0,
+   "missing_after": 0
+  },
+  "docs/reference/repo-guide/README.md": {
+   "lines_before": 25,
+   "lines_after": 25,
+   "headings_before": 3,
+   "headings_after": 3,
+   "cr": false,
+   "changed_links": 0,
+   "changed_lines": 0,
+   "text_diff_lines": 0,
+   "existing_link_changed": 0,
+   "missing_after": 0
+  }
+ },
+ "missing_after": [
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 109,
+   "target": "../../../../src/shibuya/census/__init__.py"
+  }
+ ],
+ "problems": []
+}

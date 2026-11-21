@@ -14,7 +14,7 @@
 
 ### 0-2 既定のランとは
 
-`python -m shibuya.cli` を引数なし・`SHIBUYA_*` の環境変数なしで起動したランを「既定のラン」と呼びます。5,000 体(`--agents`)・1 日(`--ticks 1440`)・seed(乱数の種)1・世界は `data/world/v2` です。開始日は 2026-07-13 の月曜です([calendar.py](../../../src/shibuya/engine/calendar.py) の `DEFAULT_WORLD_START`)。組み立ては毎ランで開始日の検査を走らせ、祝日でない月曜に始まり、2 日以上なら連続する平日に収まるランだけを回します(祝日の CSV が読めないときも止まる)。今の作りでは土日と祝日を回せません([カタログ A §16](catalog/a-body-and-town.md))。
+`python -m shibuya.cli` を引数なし・`SHIBUYA_*` の環境変数なしで起動したランを「既定のラン」と呼びます。5,000 体(`--agents`)・1 日(`--ticks 1440`)・seed(乱数の種)1・世界は `data/world/v2` です。開始日は 2026-07-13 の月曜です([calendar.py](../../../src/shibuya/world/facts/calendar.py) の `DEFAULT_WORLD_START`)。組み立ては毎ランで開始日の検査を走らせ、祝日でない月曜に始まり、2 日以上なら連続する平日に収まるランだけを回します(祝日の CSV が読めないときも止まる)。今の作りでは土日と祝日を回せません([カタログ A §16](catalog/a-body-and-town.md))。
 
 入口が違うと既定も違います。[cli.py](../../../src/shibuya/cli.py) の CLI の既定は語彙 v3・空腹 energy・呼数の上限なしで、ライブラリの `run_day` の既定は語彙 v1・空腹 v1・呼数の按分です(`cli.arm_baseline`)。世界の資産が無い場所(合成の小さな世界)では、日課の実行部が立たず、移動も旧道で回ります。
 
@@ -29,7 +29,7 @@
 | 既定 | 既定のランで動く |
 | 腕 | 既定では動かず、切替口を立てると動く(用語集の候補名は実験条件・実験スイッチ) |
 | 器 | 口や欄はあるが、既定のランの結果を変えない(値が空・誰も読まない・呼ばれない) |
-| 無い | 世界に無いと宣言している([absent.py](../../../src/shibuya/world/processes/absent.py) の一覧。文は同じファイルに原文があります) |
+| 無い | 世界に無いと宣言している([absent.py](../../../src/shibuya/world/ledger/absent.py) の一覧。文は同じファイルに原文があります) |
 
 旧値の再現のためだけに残る切替口は、既定が新しい道なので腕に入れず、§10 に分けました。
 
@@ -63,7 +63,7 @@
 ランの終わり drain → close_final → report
 ```
 
-正は [table.py](../../../src/shibuya/engine/systems/table.py) の `SYSTEMS`(36 個=組み立て 1・日の頭 1・刻みの中 30・日の終わり 1・ランの終わり 3)と、[conductor.py](../../../src/shibuya/engine/systems/conductor.py) の `conduct` です。進行役は「時刻の窓」で回しますが、既定の窓の幅は 60 秒で刻みと同じです(`--batch-width-s`)。1 日のランでは `day_head` も `day_close` も立ちません([day.py](../../../src/shibuya/engine/systems/day.py))。
+正は [table.py](../../../src/shibuya/runtime/systems/table.py) の `SYSTEMS`(36 個=組み立て 1・日の頭 1・刻みの中 30・日の終わり 1・ランの終わり 3)と、[conductor.py](../../../src/shibuya/runtime/systems/conductor.py) の `conduct` です。進行役は「時刻の窓」で回しますが、既定の窓の幅は 60 秒で刻みと同じです(`--batch-width-s`)。1 日のランでは `day_head` も `day_close` も立ちません([day.py](../../../src/shibuya/runtime/systems/day.py))。
 
 ### 1-2 刻みの中の 30 系
 
@@ -71,47 +71,47 @@
 
 | 順 | 系 | 何をする | ファイル | 既定で |
 |---:|---|---|---|---|
-| 1 | experiment | 申込書の改変を世界へ入れる | [experiment/layer.py](../../../src/shibuya/engine/experiment/layer.py) | 腕 `--experiment` |
-| 2 | body | 空腹と疲れを進める。舞台の外の体の食事 | [body.py](../../../src/shibuya/engine/systems/body.py) | 立つ |
-| 3 | world | 世界過程 18 本を順に回す(§9) | [world.py](../../../src/shibuya/engine/systems/world.py) | 立つ |
+| 1 | experiment | 申込書の改変を世界へ入れる | [experiment/layer.py](../../../src/shibuya/experiments/port/layer.py) | 腕 `--experiment` |
+| 2 | body | 空腹と疲れを進める。舞台の外の体の食事 | [body.py](../../../src/shibuya/runtime/systems/body.py) | 立つ |
+| 3 | world | 世界過程 18 本を順に回す(§9) | [world.py](../../../src/shibuya/runtime/systems/world.py) | 立つ |
 | 4 | presence | 日課の実行部が退出と到着を実行する | body.py | 立つ |
-| 5 | perceive_prepare | セルの様子を知覚の欄へ前計算する | [perceive.py](../../../src/shibuya/engine/systems/perceive.py) | 立つ |
-| 6 | llm_receive | LLM サーバー群(旧: 艦隊)と再生の到着を受け取る | [llm_io.py](../../../src/shibuya/engine/systems/llm_io.py) | 立つ(mock では何もしない) |
-| 7 | apply_responses | 前の刻みの答えを意図に直す。会話の返事を解決する | [judge.py](../../../src/shibuya/engine/systems/judge.py) | 立つ |
+| 5 | perceive_prepare | セルの様子を知覚の欄へ前計算する | [perceive.py](../../../src/shibuya/runtime/systems/perceive.py) | 立つ |
+| 6 | llm_receive | LLM サーバー群(旧: 艦隊)と再生の到着を受け取る | [llm_io.py](../../../src/shibuya/runtime/systems/llm_io.py) | 立つ(mock では何もしない) |
+| 7 | apply_responses | 前の刻みの答えを意図に直す。会話の返事を解決する | [judge.py](../../../src/shibuya/runtime/systems/judge.py) | 立つ |
 | 8 | detect | 体の段とセルの様子の変化を見つける | perceive.py | 立つ |
 | 9 | plan_boundary | 就寝と起床を実行し、計画の切れ目の呼び出し候補を作る | body.py | 立つ |
 | 10 | home_meal | 域内の家の食事 | body.py | 腕 `--home-meal plan` |
 | 11 | wake_sources | 会話の番と顕著行為の候補を作る | judge.py | 立つ |
 | 12 | wake_filter | 答えが返らなかった呼び出しを候補へ戻す | judge.py | 立つ |
-| 13 | relations_wake | 知人が近くに現れた候補を作る | [talk.py](../../../src/shibuya/engine/systems/talk.py) | 腕 `--relations on` |
+| 13 | relations_wake | 知人が近くに現れた候補を作る | [talk.py](../../../src/shibuya/runtime/systems/talk.py) | 腕 `--relations on` |
 | 14 | wake_assemble | 候補を 1 つの表にまとめる | judge.py | 立つ |
 | 15 | arbiter | 呼び出しの割り当て(旧: 繰り延べアービタ) | judge.py | 立つ |
-| 16 | decide | 選ばれた体の知覚を描いて答えを得る | [decide.py](../../../src/shibuya/engine/systems/decide.py) | 立つ |
-| 17 | phase_a | 意図を集める(答え・歩き続ける体・着いた体) | [act.py](../../../src/shibuya/engine/systems/act.py) | 立つ |
+| 16 | decide | 選ばれた体の知覚を描いて答えを得る | [decide.py](../../../src/shibuya/runtime/systems/decide.py) | 立つ |
+| 17 | phase_a | 意図を集める(答え・歩き続ける体・着いた体) | [act.py](../../../src/shibuya/runtime/systems/act.py) | 立つ |
 | 18 | phase_b | 席や棚の取り合いを決着させる | act.py | 立つ |
 | 19 | phase_c | 確定した意図を世界へ書く(移動・購入・食事ほか) | act.py | 立つ |
 | 20 | conversation | 招待・セッションの進行・終わり | talk.py | 立つ |
 | 21 | activity_intent | 活動の期限と意図を確定する | body.py | 立つ |
-| 22 | contact | メッセージと電話 | [contact/layer.py](../../../src/shibuya/engine/contact/layer.py) | 腕 `--contact c1` |
-| 23 | calendar_3 | 雇い主のシフトと祝日 | [calendar3/layer.py](../../../src/shibuya/engine/calendar3/layer.py) | 腕 `--calendar-3 arm` |
-| 24 | calendar_2 | 会話から生まれる約束 | [calendar2/layer.py](../../../src/shibuya/engine/calendar2/layer.py) | 腕 `--calendar-2 arm` |
-| 25 | duties | 店の仕事を働く人の判断へ | [duties/layer.py](../../../src/shibuya/engine/duties/layer.py) | 腕 `--duties arm` |
-| 26 | memory | 記憶を書く | [remember.py](../../../src/shibuya/engine/systems/remember.py) | 立つが何もしない(`--memory off`) |
+| 22 | contact | メッセージと電話 | [contact/layer.py](../../../src/shibuya/interim_bundles/contact/layer.py) | 腕 `--contact c1` |
+| 23 | calendar_3 | 雇い主のシフトと祝日 | [calendar3/layer.py](../../../src/shibuya/interim_bundles/calendar3/layer.py) | 腕 `--calendar-3 arm` |
+| 24 | calendar_2 | 会話から生まれる約束 | [calendar2/layer.py](../../../src/shibuya/interim_bundles/calendar2/layer.py) | 腕 `--calendar-2 arm` |
+| 25 | duties | 店の仕事を働く人の判断へ | [duties/layer.py](../../../src/shibuya/interim_bundles/duties/layer.py) | 腕 `--duties arm` |
+| 26 | memory | 記憶を書く | [remember.py](../../../src/shibuya/runtime/systems/remember.py) | 立つが何もしない(`--memory off`) |
 | 27 | familiarity | 親しみの表を書く | remember.py | 腕 `--familiarity on` |
 | 28 | energy_after | 空腹の計器を進める | body.py | 立つ |
-| 29 | observe | 診断の行と計器 | [observe.py](../../../src/shibuya/engine/systems/observe.py) | 立つ |
+| 29 | observe | 診断の行と計器 | [observe.py](../../../src/shibuya/runtime/systems/observe.py) | 立つ |
 | 30 | checkpoint | 360 刻みごとに状態のハッシュを取る | observe.py | 立つ |
 
 既定のランで立つのは 22 系で、腕の 8 系は立ちません。立つ条件は `conductor.WHEN` です。
 
-答えが世界に入るまでの順は次のとおりです。刻み T の `decide` で答えが出ると、T+1 の `apply_responses` で意図になり、同じ T+1 の `phase_c` で世界へ書かれます。考える時間は思考時間の段 L1 の 2.6 秒で、60 秒の刻みへ切り上げて 1 刻みです([llm_bridge.py](../../../src/shibuya/engine/llm_bridge.py))。
+答えが世界に入るまでの順は次のとおりです。刻み T の `decide` で答えが出ると、T+1 の `apply_responses` で意図になり、同じ T+1 の `phase_c` で世界へ書かれます。考える時間は思考時間の段 L1 の 2.6 秒で、60 秒の刻みへ切り上げて 1 刻みです([llm_bridge.py](../../../src/shibuya/runtime/inference/bridge.py))。
 
 ## 2. ランの前の準備
 
-`cli.run` が世界と金と物の台帳を用意し、`run_day` から [build.py](../../../src/shibuya/engine/systems/build.py) が層を組み立てます。
+`cli.run` が世界と金と物の台帳を用意し、`run_day` から [build.py](../../../src/shibuya/runtime/systems/assemble.py) が層を組み立てます。
 
-- 母集団 345,858 体([版上げ 3 回目](../../ops/version-history.md))から `--agents` 体を二層抽出します([population.py](../../../src/shibuya/agents/population.py))。
-- 日課表 W17 を読み([weekly.py](../../../src/shibuya/agents/weekly.py))、0 時の活動を立てます。LLM で作って凍結した資産で、ランのたびには作りません。
+- 母集団 345,858 体([版上げ 3 回目](../../ops/version-history.md))から `--agents` 体を二層抽出します([population.py](../../../src/shibuya/world/facts/population_reader.py))。
+- 日課表 W17 を読み([weekly.py](../../../src/shibuya/world/facts/weekly_reader.py))、0 時の活動を立てます。LLM で作って凍結した資産で、ランのたびには作りません。
 - 財布は対数正規で引き([anchors.py](../../../src/shibuya/economy/anchors.py))、来街者でない体には 30 日分の預金を入れ([stage2.py](../../../src/shibuya/economy/stage2.py))、店には経済センサスで按分した参入資本を入れます([entry_capital.py](../../../src/shibuya/economy/entry_capital.py))。
 - 0 時に域内に居ない体を舞台の外へ置きます(`PlanExecutor.initialize`)。
 
@@ -119,14 +119,14 @@
 
 系 `world` の中で鉄道が時刻表どおりに便を進め、次の系 `presence` で日課の実行部がその刻みの到着を実行します。舞台の外の体は駅の出口のセルへ現れます。出口の 25 セルへ通し番号で順に割り振るので、乗った線とは結び付きません。日課表の域内の行の連なりを在圏ブロックと呼び、到着の時刻はこの単位で決めます。鉄道の体は「ブロックの開始に間に合う最も遅い便」がホームへ入る刻み、徒歩や道路の体はブロックの開始の刻みです。ホームから出口までの所要時間は無く、運賃も動きません(日課由来の移動は所持金を動かさない=`resolve._board_riders` の注)。
 
-動くファイル: [presence.py](../../../src/shibuya/engine/presence.py)・[weekly.py](../../../src/shibuya/agents/weekly.py)・[rail.py](../../../src/shibuya/engine/processes/rail.py)・[resolve.py](../../../src/shibuya/engine/resolve.py) の `rail_arrive`。
+動くファイル: [presence.py](../../../src/shibuya/world/laws/presence.py)・[weekly.py](../../../src/shibuya/world/facts/weekly_reader.py)・[rail.py](../../../src/shibuya/world/laws/rail.py)・[resolve.py](../../../src/shibuya/act/ops/rail.py) の `rail_arrive`。
 
 | 区分 | 中身 |
 |---|---|
 | 既定 | 日課の実行部(日課の読み取り規則 v2)・鉄道の発着。全員が間に合う最も遅い便に乗る。混雑は 200% の上限だけで、それまでは全員乗る |
 | 腕 | `--derive-rule v2.1`(行の読み方)・`--calendar 1b`(勤務の出入りを本人の判断へ)・`--calendar-shadow 1a`(計器だけ) |
-| 器 | [rail_events.py](../../../src/shibuya/engine/processes/rail_events.py)(渋谷の発着の表を読む口。呼ばれない) |
-| 無い | 電車を見送る・催しの人の注入。来るかどうかの判断も無く全員出勤です([rate_rules.py](../../../src/shibuya/engine/rate_rules.py) の宣言) |
+| 器 | [rail_events.py](../../../src/shibuya/world/laws/rail_events.py)(渋谷の発着の表を読む口。呼ばれない) |
+| 無い | 電車を見送る・催しの人の注入。来るかどうかの判断も無く全員出勤です([rate_rules.py](../../../src/shibuya/world/laws/switch_rate.py) の宣言) |
 
 既知の穴は presence.py の冒頭に書かれています。到着の約 6/25 は表参道と明治神宮前の出口のセルに出ます。徒歩と道路の体も門でなく駅の出口に現れます。退出と到着が同じ刻みに重なる体は瞬間移動します。
 
@@ -138,22 +138,22 @@
 
 ### 4-2 呼び出しの候補
 
-候補の源は 6 つです。計画の切れ目・体の段やセルの様子の変化([change_detect.py](../../../src/shibuya/engine/change_detect.py))・会話の番・顕著行為(倒れるなどの目につく出来事)・答えが返らなかった呼び出し・活動の満了です。変化は、空腹と疲れと暑さの段を跨いだときと、セルの様子(密度の段・騒音の段・流れ・目につく出来事)が変わったときです。活動中の体と意図を持って歩いている体は、場所の変化では呼びません。
+候補の源は 6 つです。計画の切れ目・体の段やセルの様子の変化([change_detect.py](../../../src/shibuya/mind/system1/change_detect.py))・会話の番・顕著行為(倒れるなどの目につく出来事)・答えが返らなかった呼び出し・活動の満了です。変化は、空腹と疲れと暑さの段を跨いだときと、セルの様子(密度の段・騒音の段・流れ・目につく出来事)が変わったときです。活動中の体と意図を持って歩いている体は、場所の変化では呼びません。
 
 ### 4-3 割り当て
 
-[arbiter.py](../../../src/shibuya/engine/arbiter.py) が候補を絞ります。寝ている体は見送り(旧: 抑止)です。例外は計画の切れ目・顕著行為・会話の番です。舞台の外と乗車中の体は例外なく見送ります。再呼び出しの間隔(旧: 不応期)は表で決まっていて、値は会話の番 0 分・睡眠中の切れ目 360 分・勤務中の切れ目 150 分・一般の切れ目 60 分・移動中の切れ目 15 分・体の変化 45 分・セルの変化 30 分です(`agents/state.py` の `REFRACTORY_MINUTES`)。CLI の既定は呼数の上限なし(`--l4-scale 0`)で、1 刻みの枠は体の数です。10 呼/体/日は監査の線で、超えても絞りません(`cli.py`)。
+[arbiter.py](../../../src/shibuya/runtime/arbiter.py) が候補を絞ります。寝ている体は見送り(旧: 抑止)です。例外は計画の切れ目・顕著行為・会話の番です。舞台の外と乗車中の体は例外なく見送ります。再呼び出しの間隔(旧: 不応期)は表で決まっていて、値は会話の番 0 分・睡眠中の切れ目 360 分・勤務中の切れ目 150 分・一般の切れ目 60 分・移動中の切れ目 15 分・体の変化 45 分・セルの変化 30 分です(`agents/state.py` の `REFRACTORY_MINUTES`)。CLI の既定は呼数の上限なし(`--l4-scale 0`)で、1 刻みの枠は体の数です。10 呼/体/日は監査の線で、超えても絞りません(`cli.py`)。
 
 ### 4-4 考える担い手
 
 | 担い手 | 立て方 | 状態 | 中身 |
 |---|---|---|---|
-| mock | `--policy mock`・`--llm mock` | 既定 | [mock.py](../../../src/shibuya/llm/mock.py)。プロンプトを読まず、語彙 12 語から一様に行為を引く。理由・活動・期限も一様。対象は「なし」(移動の 1/3 は「あたり」)。同じファイルに「書式と決定論を通す配管で、振る舞いのモデルではない」と宣言がある |
+| mock | `--policy mock`・`--llm mock` | 既定 | [mock.py](../../../src/shibuya/runtime/inference/mock.py)。プロンプトを読まず、語彙 12 語から一様に行為を引く。理由・活動・期限も一様。対象は「なし」(移動の 1/3 は「あたり」)。同じファイルに「書式と決定論を通す配管で、振る舞いのモデルではない」と宣言がある |
 | コード(System 1) | 常に | 既定 | 出入り・就寝・起床・歩き続ける・着いた体の意図の実行・変化の検出。呼数 0 |
-| 古典モデル | `--policy classical` | 腕 | [classical.py](../../../src/shibuya/engine/classical.py)。LLM 0 呼。食事の門と社会生活基本調査の事前分布 |
-| LLM | `--llm fleet --endpoints …` | 腕 | [fleet.py](../../../src/shibuya/llm/fleet.py)。非同期の実 vLLM(推論サーバー)。温度 0.7・最大 96 トークン。既定は待たない(`--fleet-wait-s 0`。本番の運用値は 120) |
+| 古典モデル | `--policy classical` | 腕 | [classical.py](../../../src/shibuya/mind/judge/classical.py)。LLM 0 呼。食事の門と社会生活基本調査の事前分布 |
+| LLM | `--llm fleet --endpoints …` | 腕 | [fleet.py](../../../src/shibuya/runtime/inference/fleet.py)。非同期の実 vLLM(推論サーバー)。温度 0.7・最大 96 トークン。既定は待たない(`--fleet-wait-s 0`。本番の運用値は 120) |
 | 再生 | `--replay` | 腕 | 応答の記録(旧: テープ)から完全一致で引く |
-| 判断モデル | なし | 中身は未実装 | 判断モデルの中身は無い。主の判断の口の実装は llm・mock・classical の 3 つだけ([ports.py](../../../src/shibuya/engine/decision/ports.py))。腕(連絡 `--contact c1`・`--calendar-2 arm`・`--calendar-3 arm`・`--duties arm`)には判断モデルを呼ぶ口があり、仮のモデル(mock)が答える。`calls_by_model.judge_model` はその呼数(既定では 0)。評価の道具 `tools/instruments/dm_eval/` は src の外 |
+| 判断モデル | なし | 中身は未実装 | 判断モデルの中身は無い。主の判断の口の実装は llm・mock・classical の 3 つだけ([ports.py](../../../src/shibuya/mind/judge/decision/ports.py))。腕(連絡 `--contact c1`・`--calendar-2 arm`・`--calendar-3 arm`・`--duties arm`)には判断モデルを呼ぶ口があり、仮のモデル(mock)が答える。`calls_by_model.judge_model` はその呼数(既定では 0)。評価の道具 `tools/instruments/dm_eval/` は src の外 |
 
 腕の層の判断の口と文の口は、コードで仮のモデルに固定されています(`contact/layer.py`・`duties/layer.py`・`calendar2/layer.py`・`calendar3/layer.py`・`calendar_self.py`)。`--llm fleet` を選んでも、連絡・店の仕事・カレンダーの判断と文は艦隊へ行きません。艦隊へ行くのは主の判断の呼び(会話の番を含む)だけです。
 
@@ -161,47 +161,47 @@
 
 ### 4-5 プロンプト
 
-呼ばれた体ごとに [renderer.py](../../../src/shibuya/perception/renderer.py) が毎回プロンプトを描きます。mock は読みませんが描画は走ります。中身は、役割と規則と語彙(B0)・種別(B1)・場所と見えるものと看板(B2)・時刻と天候(B3)・密度と騒音と出来事(B4)・25 m 以内の様子(B4b)・内受容と所持金と近くの人(B5)・呼び出しの理由と直前の結果(B6)です。
+呼ばれた体ごとに [renderer.py](../../../src/shibuya/world/model/percept_scene.py) が毎回プロンプトを描きます。mock は読みませんが描画は走ります。中身は、役割と規則と語彙(B0)・種別(B1)・場所と見えるものと看板(B2)・時刻と天候(B3)・密度と騒音と出来事(B4)・25 m 以内の様子(B4b)・内受容と所持金と近くの人(B5)・呼び出しの理由と直前の結果(B6)です。
 
-載らないものは、人物像(年代・性別・職業)・日課表の中身・記憶です。[templates.py](../../../src/shibuya/perception/templates.py) と renderer.py に日課の行を描く文が無いことを grep で確かめました。
+載らないものは、人物像(年代・性別・職業)・日課表の中身・記憶です。[templates.py](../../../src/shibuya/foundation/text/templates.py) と renderer.py に日課の行を描く文が無いことを grep で確かめました。
 
-答えの形は語彙 v3 の 5 欄(理由・行動・対象・活動・まで)です。[parser.py](../../../src/shibuya/llm/parser.py) が読み、語彙の外の語は同義語辞書で語彙へ写し、写せなければ「なし」にします([undefined.py](../../../src/shibuya/llm/undefined.py))。語彙は移動・乗車・購入・食事・会話・退去・通報・手伝い・断る・就寝・並ぶ・なしの 12 語です([contract.py](../../../src/shibuya/llm/contract.py))。役割語 11 語も B0 に見せますが、既定では効果の先が無く「なし」として扱います。
+答えの形は語彙 v3 の 5 欄(理由・行動・対象・活動・まで)です。[parser.py](../../../src/shibuya/act/intake/parser.py) が読み、語彙の外の語は同義語辞書で語彙へ写し、写せなければ「なし」にします([undefined.py](../../../src/shibuya/act/intake/undefined.py))。語彙は移動・乗車・購入・食事・会話・退去・通報・手伝い・断る・就寝・並ぶ・なしの 12 語です([contract.py](../../../src/shibuya/foundation/vocab/actions.py))。役割語 11 語も B0 に見せますが、既定では効果の先が無く「なし」として扱います。
 
 | 区分 | 中身 |
 |---|---|
 | 既定 | 上の mock とコード・描画・変化の検出・割り当て・語彙 v3 |
 | 腕 | 上の古典・LLM・再生・`--decision-port port`(判断の候補の口。LLM サーバー群の道は通らず数えるだけ) |
-| 器 | [persona.py](../../../src/shibuya/engine/decision/persona.py)(人物の文。判断の入力に入れない)・判断の口の驚きと迷いと連続値の欄(どの実装も空)・起床の条件の表にある近接の入れ替わり・見られている・傍受の 3 行(検出しない) |
+| 器 | [persona.py](../../../src/shibuya/mind/judge/decision/persona.py)(人物の文。判断の入力に入れない)・判断の口の驚きと迷いと連続値の欄(どの実装も空)・起床の条件の表にある近接の入れ替わり・見られている・傍受の 3 行(検出しない) |
 | 無い | よく考える(全部の呼び出しが同じ段 L1 で、CLI に切替口なし)・予定を考え直す・予想と違って直す |
 
 ## 5. 歩く
 
-答えが「移動」なら行き先を決めます。対象が「なし」のときは職場か自宅のうち今いない方で([commit.py](../../../src/shibuya/engine/commit.py))、「あたり」のときは同じ層で格子 2 つ以内のセルです([activity.py](../../../src/shibuya/engine/activity.py))。行き先が決まれば、着くまで呼び出しなしで毎刻み進みます。店や人や寝床が別のセルにあるときは、行為を意図として持って歩き、着いたら呼ばずに実行します([intent.py](../../../src/shibuya/engine/intent.py)・上限 60 刻み)。
+答えが「移動」なら行き先を決めます。対象が「なし」のときは職場か自宅のうち今いない方で([commit.py](../../../src/shibuya/act/commit.py))、「あたり」のときは同じ層で格子 2 つ以内のセルです([activity.py](../../../src/shibuya/act/activity.py))。行き先が決まれば、着くまで呼び出しなしで毎刻み進みます。店や人や寝床が別のセルにあるときは、行為を意図として持って歩き、着いたら呼ばずに実行します([intent.py](../../../src/shibuya/act/intent.py)・上限 60 刻み)。
 
-歩き方は歩ける面(ナビメッシュ)の上の移動です([nav1.py](../../../src/shibuya/engine/space/nav1.py))。経路は通りの選び(曲がる 1 回=50 m・上り 1 m=3.8 m の重み)と面の上の線で作ります。速さは本人の歩く速さ(毎秒 1.00〜1.60 m の一様)に坂の係数と混み具合の係数を掛けます。階段・エスカレーター・エレベーターは所要時間と容量があり、容量を超えると前で待ちます。人どうしは衝突しません(同じファイルに、つなぎと宣言があります)。
+歩き方は歩ける面(ナビメッシュ)の上の移動です([nav1.py](../../../src/shibuya/world/model/space/nav1.py))。経路は通りの選び(曲がる 1 回=50 m・上り 1 m=3.8 m の重み)と面の上の線で作ります。速さは本人の歩く速さ(毎秒 1.00〜1.60 m の一様)に坂の係数と混み具合の係数を掛けます。階段・エスカレーター・エレベーターは所要時間と容量があり、容量を超えると前で待ちます。人どうしは衝突しません(同じファイルに、つなぎと宣言があります)。
 
-動くファイル: [act.py](../../../src/shibuya/engine/systems/act.py)・commit.py・resolve.py・nav1.py・[navmesh.py](../../../src/shibuya/world/navmesh.py)・[navmesh_route.py](../../../src/shibuya/world/navmesh_route.py)・[geometry.py](../../../src/shibuya/engine/geometry.py)・intent.py・activity.py。
+動くファイル: [act.py](../../../src/shibuya/runtime/systems/act.py)・commit.py・resolve.py・nav1.py・[navmesh.py](../../../src/shibuya/world/model/navmesh.py)・[navmesh_route.py](../../../src/shibuya/world/model/navmesh_route.py)・[geometry.py](../../../src/shibuya/world/model/geometry.py)・intent.py・activity.py。
 
 | 区分 | 中身 |
 |---|---|
 | 既定 | 歩ける面の上の移動(`--space` の既定 nav1。本番の世界で資産が無いと止まり、合成の世界では旧道)・活動層・意図の保持・坂は Wood 2023・曲がる重みは 50 m 固定・密度は近傍 1 段の推定 |
 | 腕 | `--slope tobler`・`--turn-weight person`・`SHIBUYA_NAV1_DENSITY`(cell か unscaled) |
-| 器 | [system1.py](../../../src/shibuya/engine/body/system1.py) の混雑の中の歩き方と避け方(値は空) |
+| 器 | [system1.py](../../../src/shibuya/world/body/reactions.py) の混雑の中の歩き方と避け方(値は空) |
 | 無い | absent.py に行はありません。経路の選びは本人の判断でなく既定の重みで、衝突と回避は nav1.py につなぎと宣言があります |
 
 ## 6. 店で買う・食べる
 
-答えが「購入」「食事」「並ぶ」なら、今のセルの営業中で意図に合う店を候補にし、最寄りの選び手で選びます([poi_target.py](../../../src/shibuya/engine/poi_target.py)・[chooser.py](../../../src/shibuya/engine/chooser.py))。選び手の規則は距離 → 可視 → 番号ですが、候補が今のセルの店だけなので距離は全部同じで、実際は今のセルで最も見える店(可視の降順 → 番号)になります([カタログ B](catalog/b-people.md) 2 節)。mock は対象が「なし」なので、今のセルに候補が無ければ失敗します。
+答えが「購入」「食事」「並ぶ」なら、今のセルの営業中で意図に合う店を候補にし、最寄りの選び手で選びます([poi_target.py](../../../src/shibuya/act/target.py)・[chooser.py](../../../src/shibuya/mind/judge/chooser.py))。選び手の規則は距離 → 可視 → 番号ですが、候補が今のセルの店だけなので距離は全部同じで、実際は今のセルで最も見える店(可視の降順 → 番号)になります([カタログ B](catalog/b-people.md) 2 節)。mock は対象が「なし」なので、今のセルに候補が無ければ失敗します。
 
-購入は、営業中・在庫あり・支払えるを確かめ、席があれば成立します。1 回 1 個で、棚が減り、所持が増えます。満席なら列に並び、席が空くと並んだ順に入ります。列で 15 刻み待っても入れなければ列を離れます(`WAIT_MAX_TICKS`)。在席は最大 30 刻みです(`DWELL_MAX_TICKS`・[crowd.py](../../../src/shibuya/engine/processes/crowd.py))。食事は飲食店だけで成立し、棚も所持も動きません。金は購入と同じ道で動き、空腹が戻ります。
+購入は、営業中・在庫あり・支払えるを確かめ、席があれば成立します。1 回 1 個で、棚が減り、所持が増えます。満席なら列に並び、席が空くと並んだ順に入ります。列で 15 刻み待っても入れなければ列を離れます(`WAIT_MAX_TICKS`)。在席は最大 30 刻みです(`DWELL_MAX_TICKS`・[crowd.py](../../../src/shibuya/world/laws/crowd.py))。食事は飲食店だけで成立し、棚も所持も動きません。金は購入と同じ道で動き、空腹が戻ります。
 
 支払いは財布が足りれば現金、足りなければ口座です。レジの消費税は 10% で店の預かり金に積みます。財布が 1 日の消費を下回った体が営業中の ATM のセルで判断すると、千円単位で下ろします。どれも規則で、[stage2.py](../../../src/shibuya/economy/stage2.py) に未リサーチ(expedient)と宣言があります。給料日は毎月 25 日(土休は前の営業日)の日の締めで、職業ごとの実データの賃金と天引きが動きます。既定の 1 日のラン(7 月 13 日)には来ません。
 
-空腹はエネルギー収支です([energy.py](../../../src/shibuya/engine/energy.py))。語は満腹・ふつう・空腹・とても空腹の 4 段です。舞台の外に居る体は日課の食事の行(無ければ分布から引いた時刻)で自動に食べ、金と物は動きません。
+空腹はエネルギー収支です([energy.py](../../../src/shibuya/world/body/energy.py))。語は満腹・ふつう・空腹・とても空腹の 4 段です。舞台の外に居る体は日課の食事の行(無ければ分布から引いた時刻)で自動に食べ、金と物は動きません。
 
-店の側はコードが動かします。開閉は営業時間の表 W7 を 5 分ごとに見て、担当が店に居ればその人の役割行動として記録し、居なければ代打です([opening.py](../../../src/shibuya/engine/processes/opening.py))。補充は棚が容量の 95% を割ったら 5 分ごとに、担当が居る店で行い、10 時に残りの店を代打します。納品は 5〜8 時に外から入ります([goods_flow.py](../../../src/shibuya/engine/processes/goods_flow.py))。
+店の側はコードが動かします。開閉は営業時間の表 W7 を 5 分ごとに見て、担当が店に居ればその人の役割行動として記録し、居なければ代打です([opening.py](../../../src/shibuya/world/laws/opening.py))。補充は棚が容量の 95% を割ったら 5 分ごとに、担当が居る店で行い、10 時に残りの店を代打します。納品は 5〜8 時に外から入ります([goods_flow.py](../../../src/shibuya/world/laws/goods_flow.py))。
 
-動くファイル: 上のほか、resolve.py の `_apply_buy`・`_apply_eat`・`_apply_queue`・`_serve_poi_queue`、[ledger.py](../../../src/shibuya/economy/ledger.py)・[goods.py](../../../src/shibuya/economy/goods.py)・[taxes.py](../../../src/shibuya/economy/taxes.py)・[economy_stage2.py](../../../src/shibuya/engine/economy_stage2.py)・[economy_rules.py](../../../src/shibuya/engine/economy_rules.py)・[rules/table.py](../../../src/shibuya/engine/rules/table.py)・[rights/ledger.py](../../../src/shibuya/engine/rights/ledger.py)。
+動くファイル: 上のほか、resolve.py の `_apply_buy`・`_apply_eat`・`_apply_queue`・`_serve_poi_queue`、[ledger.py](../../../src/shibuya/economy/ledger.py)・[goods.py](../../../src/shibuya/economy/goods.py)・[taxes.py](../../../src/shibuya/economy/taxes.py)・[economy_stage2.py](../../../src/shibuya/economy/stage2_bind.py)・[economy_rules.py](../../../src/shibuya/economy/rules_bind.py)・[rules/table.py](../../../src/shibuya/world/facts/rules/table.py)・[rights/ledger.py](../../../src/shibuya/world/facts/rights/ledger.py)。
 
 | 区分 | 中身 |
 |---|---|
@@ -212,21 +212,21 @@
 
 ## 7. 話す
 
-答えが「会話」なら相手を決めます。名指しがあればその人、無ければ同じ刻みに呼ばれて届く体です。届くとは、同じ層で 2.0 m 以内か、同じ店の中です([proximity.py](../../../src/shibuya/engine/proximity.py))。話しかけた体は返事を待ち、相手は次の刻みに招待を受けて呼ばれます。相手の答えが「会話」(名指しなしか招待者宛て)なら成立し、ほかの答えは断りです(`run._settle_pending_invites`)。返事の期限は 3 刻みです。
+答えが「会話」なら相手を決めます。名指しがあればその人、無ければ同じ刻みに呼ばれて届く体です。届くとは、同じ層で 2.0 m 以内か、同じ店の中です([proximity.py](../../../src/shibuya/world/model/proximity.py))。話しかけた体は返事を待ち、相手は次の刻みに招待を受けて呼ばれます。相手の答えが「会話」(名指しなしか招待者宛て)なら成立し、ほかの答えは断りです(`run._settle_pending_invites`)。返事の期限は 3 刻みです。
 
-成立すると話者が交替で呼ばれます。1 呼び出しが 1 発話ブロックで、1 体 3 回まで、2 人までです。終わりを決めるのはエンジンです。話題が尽きる・沈黙 5 刻み・退去・3 m より離れる・寿命 60 刻みで閉じます([conversation.py](../../../src/shibuya/engine/conversation.py))。
+成立すると話者が交替で呼ばれます。1 呼び出しが 1 発話ブロックで、1 体 3 回まで、2 人までです。終わりを決めるのはエンジンです。話題が尽きる・沈黙 5 刻み・退去・3 m より離れる・寿命 60 刻みで閉じます([conversation.py](../../../src/shibuya/society/conversation.py))。
 
 既定のランに言葉はありません。語彙 v3 に「ひと言」の欄が無く、発話の口も off なので、残るのはセッションと回数だけです。記憶も関係も off なので、終わった後に誰も覚えていません。
 
 実績は、招待 2,218 回のうち成立 155・断り 2,029・期限切れ 1・届かず不成立 32・帳尻の既知の穴 1 です([fix4-1103 §1-1](../../bench/analysis/fix4-1103/README.md))。mock は 12 語から一様に引くので、承諾は計算で約 1/12 になります。
 
-動くファイル: [talk.py](../../../src/shibuya/engine/systems/talk.py)・judge.py・[run.py](../../../src/shibuya/engine/run.py)・conversation.py・proximity.py・[spatial_index.py](../../../src/shibuya/engine/spatial_index.py)・llm_io.py の `utter`。
+動くファイル: [talk.py](../../../src/shibuya/runtime/systems/talk.py)・judge.py・[run.py](../../../src/shibuya/runtime/run.py)・conversation.py・proximity.py・[spatial_index.py](../../../src/shibuya/world/model/spatial_index.py)・llm_io.py の `utter`。
 
 | 区分 | 中身 |
 |---|---|
 | 既定 | 招待とセッション・実距離の判定(`--proximity` の既定 distance) |
 | 腕 | `--speech-port on`(ひと言)・`--memory on`・`--memory-store events`・`--memory-model m1`・`--memory-cue embed`・`--memory-people memory`・`--memory-grain day`・`--relations on`・`--rel-copresent on`・`--conv-max-participants 3`・`--familiarity on`・`--talk-clock mora`(計器だけ)・`--contact c1`・`--calendar-2 arm`・`--calendar-3 arm` |
-| 器 | system1.py のロンバード効果(値は空)・[道具の台帳](../../../src/shibuya/engine/tools/registry.py)(既定は誰も読まない)・[記憶の印象](../../../src/shibuya/engine/memory_impression.py)と[浅い痕跡](../../../src/shibuya/engine/memory_trace.py)(結線しない)・応答率 0.8 の抽選と重要度上位の +2 呼(死んだ道=11-05/§3-2 で消す) |
+| 器 | system1.py のロンバード効果(値は空)・[道具の台帳](../../../src/shibuya/society/tools/registry.py)(既定は誰も読まない)・[記憶の印象](../../../src/shibuya/mind/memory/memory_impression.py)と[浅い痕跡](../../../src/shibuya/mind/memory/memory_trace.py)(結線しない)・応答率 0.8 の抽選と重要度上位の +2 呼(死んだ道=11-05/§3-2 で消す) |
 | 無い | ひと言・3 人目として加わる・手伝いと断るの効果(手伝いはいつも失敗し、断るは記録だけ) |
 
 ## 8. 帰って寝る
@@ -239,7 +239,7 @@
 
 舞台の外の体は呼ばれません(`--no-outside-suppression` を立てない限り)。行為はなく、空腹と疲れが進み、食事は §6 のとおり自動です。
 
-動くファイル: presence.py・body.py・resolve.py・rail.py・[body/model.py](../../../src/shibuya/engine/body/model.py)・[body/rules.py](../../../src/shibuya/engine/body/rules.py)。
+動くファイル: presence.py・body.py・resolve.py・rail.py・[body/model.py](../../../src/shibuya/world/body/model.py)・[body/rules.py](../../../src/shibuya/world/body/rules.py)。
 
 | 区分 | 中身 |
 |---|---|
@@ -252,7 +252,7 @@
 
 ## 9. 世界過程 18 本の既定
 
-系 `world` の中で次の順に回ります([runner.py](../../../src/shibuya/engine/processes/runner.py) の `PROCESS_ORDER`)。名前は 18 本ありますが、5 本は既定で中身が止まっています。
+系 `world` の中で次の順に回ります([runner.py](../../../src/shibuya/world/laws/runner.py) の `PROCESS_ORDER`)。名前は 18 本ありますが、5 本は既定で中身が止まっています。
 
 | 順 | 過程 | 既定の中身 | 状態 |
 |---:|---|---|---|
@@ -279,9 +279,9 @@
 
 ### 10-1 日の終わり
 
-1 日のランでは `drain`(LLM の残りを受け取る)→ `close_final`(鉄道の最後の便・金と物の台帳の締め・センサス)→ `report`(結果と manifest=ランの同定情報)と進みます([run_end.py](../../../src/shibuya/engine/systems/run_end.py)・[report.py](../../../src/shibuya/engine/systems/report.py))。`--sim-days 2` 以上では日の間に `day_close` と `day_head` が入り、表だけ張り直して体の状態は持ち越します([state_io.py](../../../src/shibuya/engine/systems/state_io.py))。
+1 日のランでは `drain`(LLM の残りを受け取る)→ `close_final`(鉄道の最後の便・金と物の台帳の締め・センサス)→ `report`(結果と manifest=ランの同定情報)と進みます([run_end.py](../../../src/shibuya/runtime/systems/run_end.py)・[report.py](../../../src/shibuya/runtime/systems/report.py))。`--sim-days 2` 以上では日の間に `day_close` と `day_head` が入り、表だけ張り直して体の状態は持ち越します([state_io.py](../../../src/shibuya/runtime/systems/state_io.py))。
 
-既定のランがファイルに書くものはありません。出来事の記録は既定 on ですがメモリの中に 7 日分を持つだけで([log.py](../../../src/shibuya/engine/events/log.py))、応答の記録(`--tape`)・状態(`--state-out`)・センサス(`--census-out`)・在圏の記録(`--occupancy-every`)は頼んだときだけです。
+既定のランがファイルに書くものはありません。出来事の記録は既定 on ですがメモリの中に 7 日分を持つだけで([log.py](../../../src/shibuya/foundation/journal/log.py))、応答の記録(`--tape`)・状態(`--state-out`)・センサス(`--census-out`)・在圏の記録(`--occupancy-every`)は頼んだときだけです。
 
 ### 10-2 区分の数
 
@@ -304,7 +304,7 @@
 
 | # | 文書の記述 | コード | 場所 |
 |---:|---|---|---|
-| 1 | 刻みの順は「1 応答の適用 → 2 世界過程と日課の実行部 → 3 前計算と変化検出」 | 体 → 世界過程 → 出入り → 知覚の前計算 → 到着の受け取り → 応答の適用 → 変化検出。応答の適用は先頭でない | [概要の詳細版](../../design/v2-architecture-overview-detailed.md) §4 の図・[run.py](../../../src/shibuya/engine/run.py) の docstring の骨格 |
+| 1 | 刻みの順は「1 応答の適用 → 2 世界過程と日課の実行部 → 3 前計算と変化検出」 | 体 → 世界過程 → 出入り → 知覚の前計算 → 到着の受け取り → 応答の適用 → 変化検出。応答の適用は先頭でない | [概要の詳細版](../../design/v2-architecture-overview-detailed.md) §4 の図・[run.py](../../../src/shibuya/runtime/run.py) の docstring の骨格 |
 | 2 | 個体の状態「既定 345,858 体」 | `--agents` の既定は 5,000。345,858 は母集団の総数 | 概要の詳細版 §1 の図 |
 | 3 | 「各体は W17 の予定表どおりに動き」 | 実行するのは出入り・就寝・起床(`WORK_START` と `AT_HOME` は積まない)と舞台の外の食事 | 概要の詳細版 §7 |
 | 4 | 個体の欄に `plan_activity` | 第330 の K15 で欄を消した(`agents/state.py` の注) | 概要の詳細版 §7 |
@@ -322,8 +322,8 @@
 | 16 | 発注の手がかりの `engine/conductor.py` | 実体は `engine/systems/conductor.py` | 発注文(リポの外。リポの中に同じ文は無く、突き合わせでも確かめられなかった) |
 | 17 | 技術マップの行数(build.py 1,688・run.py 2,662・cli.py 1,860) | HEAD `33193c3` の値。今は 1,701・2,691・1,876 | [技術マップ](../tech-map-2026-11-03.md) §1 |
 | 18 | 経済の段階 2 の部品の表「給与の天引きは器だけ(規則の表に行が無い=0)」 | 既定の `SHIBUYA_RULES_42=on` で天引きが動く(`engine/economy_rules.py`。§6 の記述はコードと合う) | [stage2.py](../../../src/shibuya/economy/stage2.py) の冒頭の部品の表(11-09 に直した) |
-| 19 | 報道は「全セルへ届く」「到達=全セル」 | 在席者のいるセルだけ(`salient._broadcast_events`。§9 の記述はコードと合う) | [civic.py](../../../src/shibuya/engine/processes/civic.py) の `PressProcess` の docstring と `summary` の文(11-09 に直した) |
-| 20 | 「流れ・顕著行為ダイジェストは C3 では常に 0」 | 描画の前計算が世界過程の流れと顕著行為を入れた B4 の欄を変化の検出へ渡す(`systems/perceive.py`・`perception.b4_field_rows`) | [change_detect.py](../../../src/shibuya/engine/change_detect.py) の expedient の項(11-09 に直した) |
+| 19 | 報道は「全セルへ届く」「到達=全セル」 | 在席者のいるセルだけ(`salient._broadcast_events`。§9 の記述はコードと合う) | [civic.py](../../../src/shibuya/world/laws/civic.py) の `PressProcess` の docstring と `summary` の文(11-09 に直した) |
+| 20 | 「流れ・顕著行為ダイジェストは C3 では常に 0」 | 描画の前計算が世界過程の流れと顕著行為を入れた B4 の欄を変化の検出へ渡す(`systems/perceive.py`・`perception.b4_field_rows`) | [change_detect.py](../../../src/shibuya/mind/system1/change_detect.py) の expedient の項(11-09 に直した) |
 
 ## 12. 未確認のまま残した所
 

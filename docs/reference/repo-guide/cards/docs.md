@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-393 ディレクトリ・2590 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+397 ディレクトリ・2614 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -110,6 +110,12 @@
 ## docs/bench/analysis/fleet-flake-347/probe_out(6 本)
 
 ## docs/bench/analysis/fleet-flake-347/tools(3 本)
+
+## docs/bench/analysis/guide-links-348(6 本)
+
+- [README.md](../../../bench/analysis/guide-links-348/README.md): 手書きの案内のリンクの引き直し(第348・返事その 9 §1 の 25)
+
+## docs/bench/analysis/guide-links-348/tools(2 本)
 
 ## docs/bench/analysis/intent-chooser-2026-09-28(18 本)
 
@@ -280,6 +286,8 @@
 ## docs/bench/analysis/q111-capacity-2026-09-30(5 本)
 
 - [README.md](../../../bench/analysis/q111-capacity-2026-09-30/README.md): Q111 関係辺の表の容量 — 解析計算(2026-09-30)
+
+## docs/bench/analysis/r158-fields(2 本)
 
 ## docs/bench/analysis/s2-ledger-1101(3 本)
 
@@ -488,6 +496,11 @@
 ## docs/bench/analysis/tenjin-2026-11/t0(1 本)
 
 - [README.md](../../../bench/analysis/tenjin-2026-11/t0/README.md): 天神(福岡市)の段 0「材料」 取得の記録(t0)
+
+## docs/bench/analysis/test-map-348(4 本)
+
+- [counts.md](../../../bench/analysis/test-map-348/counts.md): 1. tests の直下ごと
+- [legacy_counts.md](../../../bench/analysis/test-map-348/legacy_counts.md): (見出しなし)
 
 ## docs/bench/analysis/two-layer-2026-09-27(12 本)
 
@@ -1252,9 +1265,13 @@
 
 ## docs/bench/w17/v2_attempt1(2 本)
 
-## docs/design(120 本)
+## docs/design(124 本)
 
 - [decision-id-index.md](../../../design/decision-id-index.md): 決定の ID の索引(自動生成・手で編集しない)
+- [plan-348-rented-compute-readiness.md](../../../design/plan-348-rented-compute-readiness.md): 親案 4:借りる計算(GPU)の用意の見積り(第 348・下書き)
+- [plan-348-stage1-single-decisions-vs-human.md](../../../design/plan-348-stage1-single-decisions-vs-human.md): 段 1 の計画(一人ひとりの判断を、人の実験と比べる・手元の GPU RTX 5070)
+- [plan-348-test-map.md](../../../design/plan-348-test-map.md): 試験の地図(親案 3・第348・下書き)
+- [plan-348-topic4-schedule-book-scale.md](../../../design/plan-348-topic4-schedule-book-scale.md): 親案 2(下書き): 題 4(予定帳)の実装の規模と順
 - [prompt-2026-11-01-5070.md](../../../design/prompt-2026-11-01-5070.md): 目的
 - [prompt-2026-11-01.md](../../../design/prompt-2026-11-01.md): 段 0(11/5 まで)
 - [prompt-2026-11-02-reply2.md](../../../design/prompt-2026-11-02-reply2.md): 1. 第 340 の 11 件の判断(答え)
@@ -1401,7 +1418,7 @@
 - [pending-archive-2026-09-28.md](../../../log/pending-archive-2026-09-28.md): PENDING アーカイブ(2026-09-08〜09-27・第278 時点の全文)
 - [pending-archive-2026-10-25.md](../../../log/pending-archive-2026-10-25.md): PENDING の凍結(2026-10-25・第339)
 
-## docs/ops(25 本)
+## docs/ops(27 本)
 
 - [build-report-C0.md](../../../ops/build-report-C0.md): 工程 C0(骨格)受入報告(2026-09-08・ブランチ build/c0-c4)
 - [build-report-C1.md](../../../ops/build-report-C1.md): 工程 C1(世界データ構築)受入報告(2026-09-08・ブランチ build/c0-c4)
@@ -1424,7 +1441,9 @@
 - [layer2-review-checklist.md](../../../ops/layer2-review-checklist.md): 層2 独立検収チェックリスト(工程出口・別インスタンスのFableが実施)
 - [murata-lab-inquiry-draft-2026-10-12.md](../../../ops/murata-lab-inquiry-draft-2026-10-12.md): 大阪大学 村田研(合成人口データ)への問い合わせの下書き(2026-10-12・親起草・ユーザーが送る)
 - [night5070-runbook.md](../../../ops/night5070-runbook.md): 5070 の夜の実験の運用手順
+- [report-345-2026-11-05.md](../../../ops/report-345-2026-11-05.md): 第 345 の報告(2026-11-05)
 - [report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md): 第 347 の報告(返事その 8 への対応)2026-11-16
+- [report-348-2026-11-21.md](../../../ops/report-348-2026-11-21.md): 第 348 の報告(返事その 9 への対応)2026-11-21
 - [u9-inquiry-draft-2026-09-30.md](../../../ops/u9-inquiry-draft-2026-09-30.md): U-9 渋谷区への照会文(送れる形・2026-10-03 更新。下書きは 2026-09-30)
 - [v2-server-lessons.md](../../../ops/v2-server-lessons.md): サーバーで回して初めて分かったこと — 実装に織り込む形(2026-09-22・第251)
 - [version-history.md](../../../ops/version-history.md): 版上げの履歴とタグ(戻し方つき)
@@ -1486,7 +1505,7 @@
 - [devlog-compressed.md](../../v1/devlog-compressed.md): 開発ログ(圧縮アーカイブ)
 - [v1-inventory.md](../../v1/v1-inventory.md): v1シミュレーション 全機能棚卸し(2026-08-29・v2ゼロベース再設計の入力)
 
-## docs/research(229 本)
+## docs/research(233 本)
 
 - [INDEX.md](../../../research/INDEX.md): 答申の索引(docs/research/ 73 本)
 - [RESEARCH-STATE.md](../../../research/RESEARCH-STATE.md): リサーチの進行状況(次のエージェントが最初に読む 1 枚)
@@ -1622,6 +1641,7 @@
 - [v2-r148-social-cognition-anchors.md](../../../research/v2-r148-social-cognition-anchors.md): R-148 社会的認知の錨(印象の形成の連続体の模型・ステレオタイプの内容の模型の日本での値・心の理論の計測・LLM の社会的な偏りの測り方)
 - [v2-r149-addendum-1-safety-tuning-and-response-to-appeals.md](../../../research/v2-r149-addendum-1-safety-tuning-and-response-to-appeals.md): R-149 の追補 その 1: 安全と好みの学習が住民をどれだけ縛るか(断る向きを消す・重みを混ぜる・候補と確率をまとめて出させる)と、呼びかけへの反応のずれ(人の従う率と LLM の率の比べ方)
 - [v2-r149-addendum-2-persona-drift-self-image-and-retest.md](../../../research/v2-r149-addendum-2-persona-drift-self-image-and-retest.md): R-149 の追補 その 2: 人物のずれを 3 つの時間の長さで測る先例と人の変わる速さ・場面と自己像・同じ場面への答え直しの一致
+- [v2-r149-addendum-3-propagation-test-and-rumor-spread.md](../../../research/v2-r149-addendum-3-propagation-test-and-rumor-spread.md): R-149 の追補 3: 広がりの試験の作り方の先例と、人の噂・説得の広がりのデータ(記録 2-72 ④ の材料と、2-72 の文献の一次確認)
 - [v2-r149-llm-judge-model-biases-and-remedies.md](../../../research/v2-r149-llm-judge-model-biases-and-remedies.md): R-149 LLM と判断モデルの癖と手当て(数と時刻の偏りと例の写し・出力の形と時刻の付けすぎ・選択肢の並び・均質化の手当てと副作用・働きかけへの反応しすぎ・時刻で思い出す記憶の模型・Qwen3-8B と判断モデルの候補で測った値)
 - [v2-r150-addendum-human-distribution-reward-and-shibuya-data.md](../../../research/v2-r150-addendum-human-distribution-reward-and-shibuya-data.md): R-150 の追補: 報酬を「人の選択の分布への合い方」にした学習の先例・渋谷で学びに使えるデータの棚卸し・答えの型を覚えて意味を失う危険の確かめ方
 - [v2-r150-learning-from-human-behavior-data.md](../../../research/v2-r150-learning-from-human-behavior-data.md): R-150 人の行動のデータで学ばせる道(Centaur 型の判断モデルの候補・心の組み方を機械に探させる道・学ばせた住民と学ばせない住民の比べ方)
@@ -1629,6 +1649,9 @@
 - [v2-r153-attention-gate-and-person-information-relevance.md](../../../research/v2-r153-attention-gate-and-person-information-relevance.md): R-153 注意の門と、人と情報の関係度(個人化した注意の先例・人の注意の優先度の地図と重みの決め方・街の中の気づきの錨・埋め込みの近さで関係度を出す形の偏り・候補 A〜F の比較)
 - [v2-r154-persona-forms-and-primary-check.md](../../../research/v2-r154-persona-forms-and-primary-check.md): R-154 ペルソナ(添付 2 本の一次確認・人物の持ち方の 3 つの分け方の先例・人物のベクトルの大きさの比べ方・Anthology 型の生い立ちと TIPI-J と Nemotron-Personas-Japan の 22 欄)
 - [v2-r155-primary-check-a48-m10-citations.md](../../../research/v2-r155-primary-check-a48-m10-citations.md): R-155 版上げ A48・M10 の ① の根拠の一次確認と、M10 の ① の決まっていない細部の材料(記録 2-55・2-59 が引く 5 本・会話の後に誰が考え直すか・何を覚えているか・どのくらい覚えているか)
+- [v2-r156-nonverbal-channels-to-llm.md](../../../research/v2-r156-nonverbal-channels-to-llm.md): R-156 言葉以外の伝え方(LLM の住民に、文のトークン以外で情報を渡す方法の先例と検証のしかた・vLLM の prompt embeds と頭の使い回しの不具合の今の状態・人が体の状態と場の空気をどこまで意識し言葉にできるかのデータ)
+- [v2-r157-primary-check-2026-11-18_20-citations.md](../../../research/v2-r157-primary-check-2026-11-18_20-citations.md): R-157 11-18〜11-20 の壁打ちが根拠に挙げた文献の一次確認と、日本語の自由連想の基準データ(記録 2-77・2-78・2-80・2-81)
+- [v2-r158-resident-self-knowledge-elements.md](../../../research/v2-r158-resident-self-knowledge-elements.md): R-158 住民が自分について知っている事実の要素(状況の行 A07 を決めるための材料)
 - [v2-r2-llm-social-sim-fulltext-check.md](../../../research/v2-r2-llm-social-sim-fulltext-check.md): R-2 — LLM 社会シミュレーション文献 12 件の本文実読(答申・2026-09-16)
 - [v2-r23-primary-check-batch1.md](../../../research/v2-r23-primary-check-batch1.md): R-23 第1批: 出典URLゼロの答申(D等級33本)の一次確認
 - [v2-r23-primary-check-batch2.md](../../../research/v2-r23-primary-check-batch2.md): R-23 第2批: 「背骨」を成す 4 答申の一次確認
