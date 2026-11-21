@@ -3,6 +3,7 @@
   "groups": {
     "g1": {
       "about": "engine(試験 3,301 本・見立て 22〜40 分)",
+      "weight": "heavy",
       "entries": ["engine"]
     },
     "g2": {
