@@ -36,8 +36,13 @@ python tools/bytecheck/cli.py run --work C:\bc<N>a --out-dir <置き場> --set a
 
 ## 何を確かめるか
 
-- 構成: 19 構成(`--set all19`)=W6 の 15 腕(現行 8・旧 6・golden の帰無腕 1)+店の記憶・関係・古典・古典+記憶+関係。
-  表は `configs.py`(前の道具の `wave2_bytecheck.configs()` と同じ並びと引数=試験で確かめる)。
+- 構成: 20 構成(`--set all20`・既定)=W6 の 15 腕(現行 8・旧 6・golden の帰無腕 1)+店の記憶・関係・古典・古典+記憶+関係
+  +話す時計が拍で数える構成 `v3_speech_talk_mora`(第348・返事その 9 §1 の 30)。初めの 19 構成は `--set all19`
+  (第348 の前の組=古い記録の再現用)。表は `configs.py`(初めの 19 は前の道具の `wave2_bytecheck.configs()` と同じ並びと
+  引数=試験で確かめる)。`v3_speech_talk_mora` は `w6_v3_default` の引数に、環境変数 `SHIBUYA_SPEECH_PORT=on`・
+  `SHIBUYA_TALK_CLOCK=mora` を足した構成(第347 の段 6 の M1 で親が手で足して確かめた構成と同じ=記録
+  `docs/bench/analysis/split6-347/bytecheck_M1_mora/`)。引数で選べない腕の環境変数は `configs.CONFIG_ENV` に書き、
+  `one` が shibuya を読む前にそのプロセスに置く(行の `switch_env` にランが見た切替口の値が残る・比べない)。
   `parent4`=w6_v3_default・v3_mem_store・v3_classical・v3_classical_mem_rel。`arms`=w6_v3_default・v3_classical を、
   両側とも `SHIBUYA_DECISION_PORT=port`・`SHIBUYA_CONTACT=c1`・`SHIBUYA_CONTACT_HABIT=on`・`SHIBUYA_CALENDAR=1b`・
   `SHIBUYA_CALENDAR_2=arm`・`SHIBUYA_CALENDAR_3=arm`・`SHIBUYA_DUTIES=arm` で回す(v3-0a の README §4 の追加の確かめ)。
@@ -114,8 +119,8 @@ v30a の記録(`docs/bench/analysis/v3-2026-11/v30a/bytecheck/`)のように新�
 
 - 壁時計・刻みの時間・checkpoint の時間(記録はするが比べない)。性能は別に測る。
 - `RunResult` の欄のうち manifest にも 25 欄にも入らないもの(`diagnostics` の配列など)。
-- 艦隊の道と判断モデルの中身(19 構成は mock と古典。腕の判断の口も mock が答える)。
-- 組に入っていない腕と切替口(`arms` の 7 変数の外)。2 日以上・別の seed・別の体数。
+- 艦隊の道と判断モデルの中身(20 構成は mock と古典。腕の判断の口も mock が答える)。
+- 組に入っていない腕と切替口(`arms` の 7 変数と、`v3_speech_talk_mora` の 2 変数の外)。2 日以上・別の seed・別の体数。
 - data の中身の変化(両側が同じ data を読む=data が変わっても両側は同じに動く)。
 - GPU。
 - `PYTHONHASHSEED` の値による違い(両側を同じ値で回す=値に依る非決定は映らない)。

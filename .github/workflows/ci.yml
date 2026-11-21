@@ -6,7 +6,7 @@
 #         id ごとの飛ばした数を組ごとのジョブの要約に出す(合否にしない)
 #   ci-2  毎晩(JST 3 時)と手動: slow のうち data の要らないもの。時間の門は記録だけ(SHIBUYA_TIME_GATES=record)。
 #         作業の枝で手で起動(workflow_dispatch)してよいのは群の終わりだけ(返事その 9 §1 の 27)
-# 本体の夜間(data のある全体の試験・byte-check 19 構成・golden・性能の門)は作者の機械で回す(CI には入れない)。
+# 本体の夜間(data のある全体の試験・byte-check 20 構成・golden・性能の門)は作者の機械で回す(CI には入れない)。
 # GPU 必須の試験(@pytest.mark.gpu)はセルフホストランナーで別に。
 # 入れ方(第348・返事その 9 §1 の 13): 依存の全部を requirements-lock.txt の版で入れ、本体は依存なしで入れる。Python と pip も
 # 手元と同じ版(ロックの頭の行)。入った版がロックと同じかを、どの仕事も tools/ci/check_lock.py で確かめる(違えば落とす)。

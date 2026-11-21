@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-388 ディレクトリ・2576 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+390 ディレクトリ・2580 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -23,6 +23,12 @@
 - [README.md](../../../bench/analysis/astsame-347/README.md): 文だけの直しの commit の確かめ(第347〜)
 
 ## docs/bench/analysis/astsame-347/c6c8799-bytecheck(3 本)
+
+## docs/bench/analysis/bytecheck20-348(1 本)
+
+- [README.md](../../../bench/analysis/bytecheck20-348/README.md): byte-check を 20 構成にした確かめ(第348・2026-11-21)
+
+## docs/bench/analysis/bytecheck20-348/bytecheck(3 本)
 
 ## docs/bench/analysis/c10-relations-2026-09-28(24 本)
 

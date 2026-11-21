@@ -35,8 +35,9 @@ def _common(sp: argparse.ArgumentParser) -> None:
 
 
 def _set_args(sp: argparse.ArgumentParser) -> None:
-    sp.add_argument("--set", dest="set_name", default="all19", choices=sorted(C.SETS),
-                    help="構成の組(all19=19 構成・parent4=親の 4 構成・arms=腕 on の 2 構成と 7 変数)")
+    sp.add_argument("--set", dest="set_name", default="all20", choices=sorted(C.SETS),
+                    help="構成の組(all20=20 構成=既定・all19=第348 で 1 つ足す前の 19 構成=古い記録の再現用・"
+                         "parent4=親の 4 構成・arms=腕 on の 2 構成と 7 変数)")
     sp.add_argument("--only", default="", help="構成の名をカンマで(組の並びの代わり)")
     sp.add_argument("--jobs", type=int, default=4, help="同時に回すランの数")
 

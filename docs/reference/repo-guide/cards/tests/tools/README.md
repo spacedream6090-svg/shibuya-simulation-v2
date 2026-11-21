@@ -100,6 +100,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `old10e`(関数)
   - `refs`(関数)
   - `stop_before_copy`(関数): 断るはずの run が先へ進んだら、写しの木もつなぎも作らずに落とす(壊れた道具でもリポや data に触れない)。
+  - `test_added_348_is_the_mora_config_of_the_347_m1_record`(関数): 〔第348〕20 本目=第347 の段 6 の M1 で親が手で足した構成(記録 bytecheck_M1_mora の両側)と同じ引数と環境変数。
   - `test_all19_is_the_old_table`(関数): 19 構成は前の道具の表と同じ並びと引数。〔第347・Q13-5 (b)〕違いは 1 つだけ: golden の帰無腕 ``w6_golden_null_arm`` に
   - `test_all19_matches_the_v30a_record`(関数)
   - `test_archive_paths`(関数)
@@ -127,6 +128,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `test_engine_anchor_files_are_in_the_list`(関数)
   - `test_every_shibuya_env_in_src_is_listed`(関数)
   - `test_every_tracked_path_in_src_is_classified`(関数)
+  - `test_fake_config_env_is_set_before_shibuya_is_read`(関数): 〔第348〕構成の環境変数(CONFIG_ENV)は one の中で shibuya を読む前に置かれ、行の switch_env に残る。ほかの構成には付かない。
   - `test_fake_extra_path_is_listed_and_outside_reads_are_recorded`(関数): 検収 M2: --extra-path で足したファイルは一覧に無いと数えない。検収 M4: 外で開いたファイルは記録する(誤りにしない)。
   - `test_fake_one_reports_a_src_other_than_expected`(関数)
   - `test_fake_read_above_the_tree_is_an_error`(関数)
@@ -183,8 +185,8 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `wired`(関数)
 - import している内部モジュール: `shibuya.foundation.paths`・`tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
-- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
-- 決定の ID: 11-09/§2・第 346・第 347
+- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・`SHIBUYA_SPEECH_PORT`・`SHIBUYA_TALK_CLOCK`・名前を読めない所 5 か所・`os.environ` をまるごと使う
+- 決定の ID: 11-09/§2・第 346・第 347・第 348
 
 ## [test_ci_check_lock.py](../../../../../../tests/tools/test_ci_check_lock.py)
 

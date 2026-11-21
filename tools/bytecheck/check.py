@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""bytecheck.check — 1 構成のラン(``one``)・片側の 19 構成(``side``)・2 つの side の比べ(``compare``)・基準の commit との 1 回通し(``run``)。
+"""bytecheck.check — 1 構成のラン(``one``)・片側の構成の組(``side``)・2 つの side の比べ(``compare``)・基準の commit との 1 回通し(``run``)。
 
 出典(写した): ``docs/bench/analysis/wallbounce-1012/10e/byte_check_10e.py`` の ``cmd_one``・``cmd_side``・``cmd_compare``
 (25 欄・ハッシュの作り方は同じ)。足したもの:
@@ -263,7 +263,12 @@ def resolve_run() -> Any:
 
 def cmd_one(*, config: str, tape: str, world: str, agents: int, seed: int, kw: str = "",
             drop_behavior_item: str = "", multiset_items: str = "", expect_src: str = "", scratch: str = "") -> int:
-    """1 構成を回し、比べる欄を 1 行の JSON で標準出力に出す(``byte_check_10e.cmd_one`` の欄+開いたファイル+H1 の欄)。"""
+    """1 構成を回し、比べる欄を 1 行の JSON で標準出力に出す(``byte_check_10e.cmd_one`` の欄+開いたファイル+H1 の欄)。
+
+    〔第348〕構成ごとの環境変数(:data:`configs.CONFIG_ENV`)は、shibuya を読む前にこのプロセスに置く(腕は読み込みと組み立ての
+    時に環境変数を読む)。ランが見た切替口の値は行の ``switch_env`` に残す(比べない・記録だけ)。
+    """
+    os.environ.update(C.config_env(config))
     sys.addaudithook(_audit)
     import pyarrow.parquet as pq
 
@@ -314,6 +319,7 @@ def cmd_one(*, config: str, tape: str, world: str, agents: int, seed: int, kw: s
     print(json.dumps({
         "config": config,
         "kw": parse_kw(kw),
+        "switch_env": C.switch_env(dict(os.environ)),
         "src_is_worktree": src_root == (REPO / "src").resolve(),
         "src_as_expected": (src_root == Path(expect_src).resolve()) if expect_src else None,
         "final": res.final_hash[:16],
@@ -392,7 +398,7 @@ def resolve_names(set_name: str, only: str) -> list[str]:
     return names
 
 
-def side(*, label: str, scratch: str | Path, out: str | Path, src: str | Path = "", set_name: str = "all19",
+def side(*, label: str, scratch: str | Path, out: str | Path, src: str | Path = "", set_name: str = "all20",
          only: str = "", jobs: int = 4, kw: str = "", world: str = "data/world/v2", agents: int = 5_000, seed: int = 1,
          drop_behavior_item: str = "", multiset_items: str = "", allow_incomplete_tree: bool = False,
          commit: str = "", extra_paths: Iterable[str] = (), nonce: str = "") -> int:
@@ -699,7 +705,7 @@ def verify_sides(base_doc: dict[str, Any], work_doc: dict[str, Any], *, base_src
     return out
 
 
-def run(*, work: str | Path, out_dir: str | Path, base: str = "HEAD", src: str | Path = "", set_name: str = "all19",
+def run(*, work: str | Path, out_dir: str | Path, base: str = "HEAD", src: str | Path = "", set_name: str = "all20",
         only: str = "", jobs: int = 4, label: str = "work", kw: str = "", extra_paths: Iterable[str] = (),
         inherit_env: bool = False, note: str = "", world: str = "data/world/v2", agents: int = 5_000,
         seed: int = 1) -> int:
