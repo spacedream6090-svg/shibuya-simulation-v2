@@ -443,6 +443,7 @@
   "shibuya.perception.renderer.SignageNotice": "SignageNotice",
   "shibuya.perception.renderer._TickCache": "_TickCache",
   "shibuya.perception.state.PerceptionState": "PerceptionState",
+  "shibuya.runtime.inference.fleet._AttemptMark": "_AttemptMark",
   "shibuya.world.assets.ProcessAssets": "ProcessAssets",
   "shibuya.world.assets.WorldAssets": "WorldAssets",
   "shibuya.world.graph.WalkGraph": "WalkGraph",

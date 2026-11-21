@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-394 ディレクトリ・2603 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+397 ディレクトリ・2614 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -105,7 +105,9 @@
 
 - [README.md](../../../bench/analysis/fleet-flake-347/README.md): 艦隊の口の試験の揺れと、接続の置き場が詰まる件(第347・2026-11-20)
 
-## docs/bench/analysis/fleet-flake-347/probe_out(5 本)
+## docs/bench/analysis/fleet-flake-347/bytecheck-348(3 本)
+
+## docs/bench/analysis/fleet-flake-347/probe_out(6 本)
 
 ## docs/bench/analysis/fleet-flake-347/tools(3 本)
 
@@ -133,6 +135,10 @@
 - [README.md](../../../bench/analysis/library-defaults-q13-347/README.md): Q13(第347)ライブラリの既定を CLI にそろえる(library-defaults-q13-347)
 
 ## docs/bench/analysis/library-defaults-q13-347/bytecheck(3 本)
+
+## docs/bench/analysis/library-defaults-q13-347/bytecheck-348(3 本)
+
+## docs/bench/analysis/library-defaults-q13-347/bytecheck-348-all(3 本)
 
 ## docs/bench/analysis/library-defaults-q13-347/bytecheck_unpinned_base_9495521(3 本)
 
@@ -1412,7 +1418,7 @@
 - [pending-archive-2026-09-28.md](../../../log/pending-archive-2026-09-28.md): PENDING アーカイブ(2026-09-08〜09-27・第278 時点の全文)
 - [pending-archive-2026-10-25.md](../../../log/pending-archive-2026-10-25.md): PENDING の凍結(2026-10-25・第339)
 
-## docs/ops(26 本)
+## docs/ops(27 本)
 
 - [build-report-C0.md](../../../ops/build-report-C0.md): 工程 C0(骨格)受入報告(2026-09-08・ブランチ build/c0-c4)
 - [build-report-C1.md](../../../ops/build-report-C1.md): 工程 C1(世界データ構築)受入報告(2026-09-08・ブランチ build/c0-c4)
@@ -1437,6 +1443,7 @@
 - [night5070-runbook.md](../../../ops/night5070-runbook.md): 5070 の夜の実験の運用手順
 - [report-345-2026-11-05.md](../../../ops/report-345-2026-11-05.md): 第 345 の報告(2026-11-05)
 - [report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md): 第 347 の報告(返事その 8 への対応)2026-11-16
+- [report-348-2026-11-21.md](../../../ops/report-348-2026-11-21.md): 第 348 の報告(返事その 9 への対応)2026-11-21
 - [u9-inquiry-draft-2026-09-30.md](../../../ops/u9-inquiry-draft-2026-09-30.md): U-9 渋谷区への照会文(送れる形・2026-10-03 更新。下書きは 2026-09-30)
 - [v2-server-lessons.md](../../../ops/v2-server-lessons.md): サーバーで回して初めて分かったこと — 実装に織り込む形(2026-09-22・第251)
 - [version-history.md](../../../ops/version-history.md): 版上げの履歴とタグ(戻し方つき)

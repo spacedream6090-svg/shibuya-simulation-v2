@@ -82,7 +82,7 @@ def _agents(cells) -> AgentState:
 
 def _move(w, cells, texts, radius=MOVE_SEARCH_RADIUS_CELLS):
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1, move_search_radius=radius)
-    tg = [None if t is None else parse_target(t) for t in texts]
+    tg = [None if t is None else parse_target(t, vocab_version="v1") for t in texts]
     out = res.resolve_move(_agents(cells), NOON, np.arange(len(cells)),
                            np.full(len(cells), CV.ACT_MOVE), tg, np.ones(len(cells), dtype=bool))
     return out, res
@@ -168,7 +168,7 @@ def test_commit_uses_the_target_field_but_keeps_explicit_hints_and_wander():
     batch = CW.intents_from_responses(
         ag, w, _space(w, 4), NOON, np.arange(4), np.zeros(4, dtype=np.int64),
         np.full(4, CV.ACT_MOVE), home_cell=home, work_cell=work, target_hint=hint,
-        move_dest=move_dest, targets=[parse_target("飲食店")] * 3 + [parse_target("なし")],
+        move_dest=move_dest, targets=[parse_target("飲食店", vocab_version="v1")] * 3 + [parse_target("なし", vocab_version="v1")],
         poi_resolver=res,
     )
     # 体0: 対象欄のカテゴリ → セル 1 / 体1: 「帰宅」のヒント → 自宅 3 / 体2: あたり → 1 /

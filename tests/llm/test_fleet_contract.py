@@ -26,6 +26,7 @@ from shibuya.runtime.inference.fleet import (
     FleetBridge,
     FleetClient,
     FleetConfig,
+    format_check_for,
     l4_calls_per_day,
     l6_in_flight_per_gpu,
     plan_batch,
@@ -387,7 +388,8 @@ def test_single_replica_has_no_alternate_and_is_counted():
         e2e_timeout_s=2.0,
         ttft_timeout_s=2.0,
     )
-    client = FleetClient(cfg, transport_factory=_mock_factory(lambda t, e: "ok"))
+    # 〔第348〕橋を通さない口=前の口の既定(語彙 v1 の書式の判定)を明示する。
+    client = FleetClient(cfg, transport_factory=_mock_factory(lambda t, e: "ok"), format_check=format_check_for("v1"))
     try:
         client.submit([LLMCall(call_id="1:1:2", agent_id=1, tick=1, wake_class=2, prompt="p", user="p")])
         out = client.drain(timeout=10.0)

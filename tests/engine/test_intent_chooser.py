@@ -134,7 +134,7 @@ SUBS = ["", "", "", "convenience", "", "", "books", ""]
 def _resolve(w, agent_cells, codes, targets, eat, buy_like, tick=NOON):
     ag = _agents(agent_cells)
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
-    tg = [None if t is None else parse_target(t) for t in targets]
+    tg = [None if t is None else parse_target(t, vocab_version="v1") for t in targets]
     out = res.resolve(ag, tick, np.arange(len(agent_cells)), np.asarray(codes), tg,
                       is_eat=np.asarray(eat), is_buy_like=np.asarray(buy_like))
     return out, res, ag
@@ -144,17 +144,17 @@ def test_classify_order_category_word_before_names():
     w = _world(CELLS, CATS, NAMES, subcats=SUBS)
     r = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     assert r.classify(None)[0] == KIND_NONE
-    assert r.classify(parse_target("なし"))[0] == KIND_NONE
-    assert r.classify(parse_target("g0_0_GL"))[0] == KIND_NONE          # セル ID は なし扱い(段 2a)
-    k, _t, named, word = r.classify(parse_target("カフェ"))                # 「カフェ」はカテゴリ語
+    assert r.classify(parse_target("なし", vocab_version="v1"))[0] == KIND_NONE
+    assert r.classify(parse_target("g0_0_GL", vocab_version="v1"))[0] == KIND_NONE          # セル ID は なし扱い(段 2a)
+    k, _t, named, word = r.classify(parse_target("カフェ", vocab_version="v1"))                # 「カフェ」はカテゴリ語
     assert (k, named, word) == (KIND_CATEGORY, (), "カフェ")
-    assert r.classify(parse_target("スターバックス"))[:3] == (KIND_NAMED, "スターバックス", (0, 4))
-    assert r.classify(parse_target("おむすび権米衛の店頭"))[2] == (2,)    # 接尾辞を剥がす
-    assert r.classify(parse_target("権米衛"))[2] == (2,)                  # 入力 ⊂ 名
-    assert r.classify(parse_target("近くの飲食店"))[::3] == (KIND_CATEGORY, "飲食店")  # 語を含む
-    assert r.classify(parse_target("shop0006"))[:3] == (KIND_NAMED, "shop0006", (6,))
-    assert r.classify(parse_target("food0006"))[0] == KIND_NONE           # cat が合わない
-    assert r.classify(parse_target("目的物"))[0] == KIND_NONE
+    assert r.classify(parse_target("スターバックス", vocab_version="v1"))[:3] == (KIND_NAMED, "スターバックス", (0, 4))
+    assert r.classify(parse_target("おむすび権米衛の店頭", vocab_version="v1"))[2] == (2,)    # 接尾辞を剥がす
+    assert r.classify(parse_target("権米衛", vocab_version="v1"))[2] == (2,)                  # 入力 ⊂ 名
+    assert r.classify(parse_target("近くの飲食店", vocab_version="v1"))[::3] == (KIND_CATEGORY, "飲食店")  # 語を含む
+    assert r.classify(parse_target("shop0006", vocab_version="v1"))[:3] == (KIND_NAMED, "shop0006", (6,))
+    assert r.classify(parse_target("food0006", vocab_version="v1"))[0] == KIND_NONE           # cat が合わない
+    assert r.classify(parse_target("目的物", vocab_version="v1"))[0] == KIND_NONE
 
 
 def test_none_skips_the_closed_lowest_id_and_picks_the_most_visible_open_poi():
@@ -265,8 +265,8 @@ def test_generic_words_read_as_none_q11():
     r = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     assert GENERIC_WORDS == {"店", "店舗", "ショップ", "お店"}
     for word in GENERIC_WORDS:
-        assert r.classify(parse_target(word))[0] == KIND_NONE, word
-    assert r.classify(parse_target("カメラショップ"))[0] == KIND_NAMED
+        assert r.classify(parse_target(word, vocab_version="v1"))[0] == KIND_NONE, word
+    assert r.classify(parse_target("カメラショップ", vocab_version="v1"))[0] == KIND_NAMED
     assert len(CATEGORY_WORDS) == 59
 
 

@@ -110,7 +110,7 @@ def test_the_resolver_records_the_immediate_named_closure_q25():
     io: dict[int, tuple[int, int]] = {}
     ag = _agents0(w, 7)
     res.resolve(ag, NOON, np.array([5, 6]), np.array([C.ACT_EAT, C.ACT_EAT]),
-                [parse_target("カフェ・ベローチェ"), None], is_eat=np.array([True, True]),
+                [parse_target("カフェ・ベローチェ", vocab_version="v1"), None], is_eat=np.array([True, True]),
                 is_buy_like=np.array([False, False]), intent_out=io)
     assert res.named_closed == {5: (4, NOON)}   # 名指しの即時閉店の体だけ
 

@@ -934,7 +934,7 @@ def score_texts(texts: Sequence[str], vocab_version: str = "v1") -> dict[str, An
             n_mapped += 1
             word = mapped
         actions[word] += 1
-        if is_role_action(word):
+        if is_role_action(word, "v1"):
             n_role += 1
             role_counts[word] += 1
     lo, hi = wilson_ci(n_format_err, n) if n else (0.0, 1.0)
@@ -978,7 +978,7 @@ def violation_flags(scenes: Sequence[Scene], texts: Sequence[str]) -> list[int]:
 
     out: list[int] = []
     for s, t in zip(scenes, texts):
-        p = parse_two_line(t)
+        p = parse_two_line(t, "v1")
         bad = BANNED_ACTION_BY_KIND.get(s.constraint)
         out.append(1 if (bad is not None and p.action == bad) else 0)
     return out
