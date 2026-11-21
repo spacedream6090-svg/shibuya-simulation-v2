@@ -152,31 +152,31 @@ def test_output_form_constants_match_section_1():
     ],
 )
 def test_parse_target_recognises_the_declared_surface_forms(text, kind):
-    assert parse_target(text).kind is kind
+    assert parse_target(text, vocab_version="v1").kind is kind
 
 
 def test_parse_target_keeps_the_raw_string_and_extracts_ids():
-    t = parse_target("「C-0117」")
+    t = parse_target("「C-0117」", vocab_version="v1")
     assert t.raw == "C-0117" and t.cell_index == 117
-    w2 = parse_target("g12_34_UG")
+    w2 = parse_target("g12_34_UG", vocab_version="v1")
     assert w2.cell_id == "g12_34_UG" and w2.band == "UG" and w2.cell_index is None
-    p = parse_target("P204")
+    p = parse_target("P204", vocab_version="v1")
     assert p.person_id == 204
-    assert parse_target(None).is_none and str(parse_target(None)) == NO_TARGET
+    assert parse_target(None, vocab_version="v1").is_none and str(parse_target(None, vocab_version="v1")) == NO_TARGET
 
 
 def test_parse_target_never_raises_on_odd_input():
     for bad in ("", "   ", "　", "🙂", "-", "C-" + "9" * 50, "g1_2_XX"):
-        parse_target(bad)  # 例外を投げないことだけを見る
+        parse_target(bad, vocab_version="v1")  # 例外を投げないことだけを見る
 
 
 def test_target_placeholder_words_are_read_as_no_target_but_keep_raw():
     """第223(D-89): 観測テンプレートの欄説明語を写した応答は対象なし(raw は診断用に残す)。"""
     from shibuya.foundation.vocab.actions import TargetKind, parse_target, NO_TARGET
     for w in ("物のカテゴリ", "セルID", "人ID", "<セルID / 物のカテゴリ / 人ID / なし>"):
-        tg = parse_target(w)
+        tg = parse_target(w, vocab_version="v1")
         assert tg.kind is TargetKind.NONE, w
-    assert parse_target("物のカテゴリ").raw == "物のカテゴリ" and parse_target("なし").raw == NO_TARGET
+    assert parse_target("物のカテゴリ", vocab_version="v1").raw == "物のカテゴリ" and parse_target("なし", vocab_version="v1").raw == NO_TARGET
 
 
 def test_cell_prefix_is_stripped_only_when_the_rest_is_a_cell_id():
@@ -186,25 +186,25 @@ def test_cell_prefix_is_stripped_only_when_the_rest_is_a_cell_id():
     ``cell_id`` は接頭辞を剥がした形。説明語「セルID」は NONE のまま(第223 の読みを動かさない)。
     """
     from shibuya.foundation.vocab.actions import TargetKind, parse_target
-    tg = parse_target("セルg-1_0_GL")
+    tg = parse_target("セルg-1_0_GL", vocab_version="v1")
     assert tg.kind is TargetKind.CELL and tg.raw == "セルg-1_0_GL" and tg.cell_id == "g-1_0_GL" and tg.band == "GL"
-    tg = parse_target("セルID: g0_-3_DECK")
+    tg = parse_target("セルID: g0_-3_DECK", vocab_version="v1")
     assert tg.kind is TargetKind.CELL and tg.cell_id == "g0_-3_DECK" and tg.band == "DECK"
-    tg = parse_target("セルC-0117")
+    tg = parse_target("セルC-0117", vocab_version="v1")
     assert tg.kind is TargetKind.CELL and tg.cell_id == "C-0117" and tg.cell_index == 117
-    assert parse_target("セルID").kind is TargetKind.NONE
-    assert parse_target("セル").kind is TargetKind.ITEM_CATEGORY
-    assert parse_target("g-1_0_GL").cell_id == "g-1_0_GL"  # 接頭辞なしは不変
+    assert parse_target("セルID", vocab_version="v1").kind is TargetKind.NONE
+    assert parse_target("セル", vocab_version="v1").kind is TargetKind.ITEM_CATEGORY
+    assert parse_target("g-1_0_GL", vocab_version="v1").cell_id == "g-1_0_GL"  # 接頭辞なしは不変
 
 
 def test_target_category_suffix_is_stripped_before_parsing():
     """「食品のカテゴリ」→ 物カテゴリ「食品」。実在名・セル・人 ID の読み方は不変。"""
     from shibuya.foundation.vocab.actions import TargetKind, parse_target
-    tg = parse_target("食品のカテゴリ")
+    tg = parse_target("食品のカテゴリ", vocab_version="v1")
     assert tg.kind is TargetKind.ITEM_CATEGORY and tg.category == "食品"
-    assert parse_target("C-0117").kind is TargetKind.CELL
-    assert parse_target("P-204").kind is TargetKind.PERSON
-    assert parse_target("渋谷駅").kind is TargetKind.STATION_OR_VEHICLE
+    assert parse_target("C-0117", vocab_version="v1").kind is TargetKind.CELL
+    assert parse_target("P-204", vocab_version="v1").kind is TargetKind.PERSON
+    assert parse_target("渋谷駅", vocab_version="v1").kind is TargetKind.STATION_OR_VEHICLE
 
 
 # ================================================================ 語彙 v3(第274・D-116 行為と活動の二層)
@@ -261,7 +261,7 @@ def test_v3_engine_codes_are_the_cross_cutting_words():
 
 
 def test_v3_queue_is_cross_cutting_and_not_a_role_word():
-    assert C.is_role_action("並ぶ") and not C.is_role_action("並ぶ", "v3")
+    assert C.is_role_action("並ぶ", "v1") and not C.is_role_action("並ぶ", "v3")
     assert C.is_role_action("撮影", "v3") and C.is_role_action("接客", "v3")
     spec = C.spec_of("並ぶ", "v3")
     assert spec is not None and not spec.is_role and spec.permission_holder == ""
@@ -312,12 +312,12 @@ def test_v3_compat_reads_both_directions():
 def test_v3_target_wander_and_base_words():
     t = C.parse_target("あたり", vocab_version="v3")
     assert t.kind is TargetKind.ITEM_CATEGORY and t.category == "あたり" and t.wander
-    v1 = C.parse_target("あたり")
+    v1 = C.parse_target("あたり", vocab_version="v1")
     assert v1.kind is TargetKind.ITEM_CATEGORY and not v1.wander, "v1/v2 は現行のまま"
     assert not C.parse_target("あたり", vocab_version="v2").wander
     landmarks = {"渋谷区立神南小学校": 5}
-    assert C.parse_target("学校", landmarks).poi_id == 5, "v1 は目印に解決する(現行)"
-    s = C.parse_target("学校", landmarks, "v3")
+    assert C.parse_target("学校", landmarks, vocab_version="v1").poi_id == 5, "v1 は目印に解決する(現行)"
+    s = C.parse_target("学校", landmarks, vocab_version="v3")  # 〔第348〕語彙はキーワードだけ
     assert s.kind is TargetKind.ITEM_CATEGORY and s.category == "学校" and s.poi_id is None
     for w in ("自宅", "職場"):
         assert C.parse_target(w, vocab_version="v3").category == w
@@ -326,7 +326,7 @@ def test_v3_target_wander_and_base_words():
 def test_v3_placeholders_are_read_as_no_target_only_in_v3():
     for w in ("名前かID", "店の種類", "店名", "駅名", "人のID", "<名前かID / 自宅 / 職場 / 学校 / あたり / なし>"):
         assert C.parse_target(w, vocab_version="v3").kind is TargetKind.NONE, w
-    assert C.parse_target("店の種類").kind is TargetKind.ITEM_CATEGORY, "v1 は現行のまま"
+    assert C.parse_target("店の種類", vocab_version="v1").kind is TargetKind.ITEM_CATEGORY, "v1 は現行のまま"
     assert C.parse_target("物のカテゴリ", vocab_version="v3").kind is TargetKind.NONE
 
 

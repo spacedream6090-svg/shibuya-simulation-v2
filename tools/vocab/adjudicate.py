@@ -256,15 +256,17 @@ class FleetAdjudicator:
     name = "fleet"
 
     def __init__(self, endpoints: Sequence[str], model: str = "", *, max_tokens: int = 768) -> None:
-        from shibuya.runtime.inference.fleet import FleetClient, FleetConfig
+        from shibuya.runtime.inference.fleet import FleetClient, FleetConfig, format_check_for
 
         eps = tuple(e.strip() for e in endpoints if e.strip())
         if not eps:
             raise SystemExit("--llm fleet には --endpoints が要る")
         self.temperature = 0.0
         self.n_endpoints = len(eps)
+        # 〔第348〕橋を通さない口=前の口の既定(語彙 v1 の 2 行形の書式の判定)を明示して、前と同じに回す。
         self._client = FleetClient(
-            FleetConfig(endpoints=eps, model=model, temperature=0.0, t1_max_tokens=int(max_tokens))
+            FleetConfig(endpoints=eps, model=model, temperature=0.0, t1_max_tokens=int(max_tokens)),
+            format_check=format_check_for("v1"),
         )
         self.model = model or getattr(self._client, "model", "") or ""
 

@@ -77,6 +77,7 @@ expedient(本モジュール分・登録簿 §8「C6 艦隊接続」へ転記)
 from __future__ import annotations
 
 import asyncio
+import functools
 import json
 import math
 import os
@@ -132,6 +133,7 @@ __all__ = [
     "LANE_TIER", "DEFAULT_TTFT_TIMEOUT_S", "DEFAULT_E2E_TIMEOUT_S", "DEFAULT_IMBALANCE_THRESHOLD", "FleetConfig",
     "TapeSink", "FleetTapeRow", "DEBUG_FILENAME", "DEFAULT_DEBUG_MAX_ROWS", "FleetClient", "FleetBridge",
     "FleetBridgeResult", "plan_batch", "l6_in_flight_per_gpu", "l4_calls_per_day", "call_from_request",
+    "format_check_for",
 ]
 
 
@@ -150,6 +152,23 @@ DEFAULT_E2E_TIMEOUT_S: Final[float] = 300.0
 
 #: least-in-flight の発動閾値(expedient)。
 DEFAULT_IMBALANCE_THRESHOLD: Final[int] = 8
+
+#: 〔第348〕置き場の時間切れが、同じレプリカで間に成功を挟まずにこの回数続いたら、そのレプリカの
+#: ``httpx.AsyncClient`` を作り直す(expedient(未リサーチ)。親案の 3)。httpcore 1.0.9 の置き場は、
+#: 割り当て直後に取り消された要求の接続を残し、上限まで溜まると空かない(上流 encode/httpcore PR #1099・
+#: 記録 docs/bench/analysis/fleet-flake-347)。1 回で作り直すと、たまたま混んだだけの置き場でも作り直すので、
+#: 続いたことを見る。「置き場の時間切れ」は、``httpx.PoolTimeout`` と、要求が置き場を出ないまま
+#: 1 試行の締め切り(``asyncio.wait_for``)で切れた時間切れの両方(``_AttemptMark``)。
+POOL_WAIT_TIMEOUTS_BEFORE_REBUILD: Final[int] = 3
+#: 〔第348〕置き場の接続の上限 = 1 レプリカの同時実行の上限(Semaphore)× この倍率(expedient(未リサーチ)。
+#: 親案の 2。実装計画書 §2 の部品表の Limits(64,64,None) を 2 倍にした)。同時に走る試行の数は今までどおり
+#: Semaphore が決める。残った接続が少し溜まっても、要求が置き場で待たないようにする。上限なしにはしない。
+#: 空き接続の上限も同じ値にする(前と同じく上限と同じ値)。httpcore 1.0.9 は空き接続を閉じる判定で、空きで
+#: ない接続まで数えるので、空きの上限が上限より小さいと、漏れがあるときに空き接続を使い回さずに閉じる。
+POOL_CONNECTIONS_PER_IN_FLIGHT: Final[int] = 2
+#: ``close()`` が、退いたクライアントを閉じる仕事の終わりを待ち直す回数の上限(expedient(未リサーチ))。
+#: 待っている間に最後の試行が終わり、新しい仕事が立つことがあるので、空になるまで繰り返す。
+_CLOSE_WAIT_ROUNDS: Final[int] = 8
 
 #: 書式デバッグ jsonl の名前と既定の行数上限(診断のみ・既定 off)。
 DEBUG_FILENAME: Final[str] = "format_debug.jsonl"
@@ -504,13 +523,39 @@ def _classify(exc: BaseException) -> str:
 
 
 class _Replica:
-    __slots__ = ("index", "endpoint", "client", "sem")
+    __slots__ = ("index", "endpoint", "client", "sem", "pool_wait_streak", "holds", "retired")
 
     def __init__(self, index: int, endpoint: str, client: httpx.AsyncClient, limit: int) -> None:
         self.index = index
         self.endpoint = endpoint
         self.client = client
         self.sem = asyncio.Semaphore(limit)
+        #: 今のクライアントで、置き場の時間切れが間に成功を挟まずに続いた回数(作り直すと 0 に戻る)。
+        self.pool_wait_streak = 0
+        #: クライアントごとの、進行中の試行の数(作り直して退いたクライアントは、これが 0 になってから閉じる)。
+        self.holds: dict[httpx.AsyncClient, int] = {}
+        #: 作り直して退いたが、進行中の試行が残っていて、まだ閉じていないクライアント。
+        self.retired: list[httpx.AsyncClient] = []
+
+
+class _AttemptMark:
+    """1 試行の印(〔第348〕置き場の時間切れの見分け)。
+
+    httpcore は、要求が接続を使い始めると trace の印(接続を張る・見出しを送る など)を出す。印を 1 つも
+    受けないまま時間切れになった試行は、置き場で接続を待ったまま切れたと見なす(1 試行の締め切りが
+    置き場の時間切れより先に来ると、例外は ``httpx.PoolTimeout`` ではなく ``TimeoutError`` になるため)。
+    前提: 印が出るのは httpcore の置き場を通す transport だけ。``httpx.MockTransport`` のように httpcore を
+    通さない transport では印が出ないので、時間切れは全部「置き場の時間切れ」と数えられる。
+    """
+
+    __slots__ = ("client", "left_pool")
+
+    def __init__(self) -> None:
+        self.client: httpx.AsyncClient | None = None
+        self.left_pool = False
+
+    async def trace(self, event_name: str, info: Mapping[str, Any]) -> None:
+        self.left_pool = True
 
 
 class FleetClient:
@@ -525,12 +570,16 @@ class FleetClient:
 
     ``LLMClient`` プロトコル(``complete``)も満たすので、既存の
     ``engine.llm_bridge.LLMBridge(llm=client)`` にそのまま挿さる(**1 呼ずつの同期経路**=
-    スモーク/デバッグ用。繰り延べは例外 ``FleetDeferredError`` になる)。
+    スモーク/デバッグ用。繰り延べは例外 ``FleetDeferredError`` になる)。〔第348〕この使い方では書式の判定を
+    ``format_check=format_check_for(版)`` で渡す。渡さない口は書式の再生成をしない(前は v1 の判定で再生成していた)。
 
     Args:
         config: 艦隊設定。
         transport_factory: ``endpoint -> httpx.AsyncBaseTransport``(テストの偽 vLLM 用)。
-        format_check: 応答本文 → 書式 OK か(既定=2行形パーサ)。``None`` で再生成を切る。
+        format_check: 応答本文 → 書式 OK か。〔第348〕``None``(既定)では口は判定を持たず、``FleetBridge`` が
+            組み立てのときに橋の語彙(=ランの語彙)を結んだ判定 ``format_check_for(版)`` を渡す(``bind_run_vocab``)。
+            明示して渡した判定は橋が結び直さない。橋を通さず判定も渡さない口は再生成しない(語彙の既定を持たない)。
+            再生成そのものを切るのは ``FleetConfig.format_retry=False``。
     """
 
     def __init__(
@@ -547,11 +596,10 @@ class FleetClient:
         self.queue_capacity = config.resolved_queue_capacity()
         self.model = config.model
         self._transport_factory = transport_factory
-        self._format_check: Callable[[str], bool] | None = (
-            format_check if format_check is not None else (_format_ok if config.format_retry else None)
-        )
-        if not config.format_retry:
-            self._format_check = None
+        # 〔第348〕判定の既定(前は語彙を見ない ``_format_ok`` =v1 の規則)を無くした。渡さなければ橋が結ぶ。
+        self._format_check: Callable[[str], bool] | None = format_check if config.format_retry else None
+        #: 判定を明示して渡したか(明示した判定は ``bind_run_vocab`` が結び直さない)。
+        self._format_check_given = format_check is not None
 
         n = config.n_replicas
         self._lock = threading.Lock()
@@ -579,6 +627,11 @@ class FleetClient:
         self.n_retry_other = 0
         self.n_infra_clip = 0
         self.n_no_alternate_replica = 0
+        #: 〔第348〕置き場の時間切れが続いて、レプリカのクライアントを作り直した回数(全レプリカの合計)。
+        self.n_client_rebuilt = 0
+        #: 作り直して退いたクライアントを閉じている途中の仕事(``close()`` が終わりを待つ)。
+        self._closing: set[asyncio.Future[Any]] = set()
+        self._auth_headers: dict[str, str] | None = None
         self.tokens_in = 0
         self.tokens_out = 0
         self._ttft = _Latency(config.latency_samples)
@@ -618,10 +671,21 @@ class FleetClient:
         return asyncio.run_coroutine_threadsafe(coro, self._loop).result(timeout)
 
     async def _setup_clients(self) -> None:
+        self._replicas = []
+        self._auth_headers = fleet_auth_headers()
+        for i, ep in enumerate(self.config.endpoints):
+            self._replicas.append(_Replica(i, ep.rstrip("/"), self._make_client(i), self.per_replica))
+
+    def _make_client(self, index: int) -> httpx.AsyncClient:
+        """レプリカ ``index`` の ``httpx.AsyncClient``(最初の組み立てと、作り直しで同じ形)。
+
+        ``transport_factory`` を渡されていれば、作り直しでも同じ factory を通す。
+        """
         cfg = self.config
+        ep = cfg.endpoints[index]
         limits = httpx.Limits(
-            max_connections=self.per_replica,
-            max_keepalive_connections=self.per_replica,
+            max_connections=self.per_replica * POOL_CONNECTIONS_PER_IN_FLIGHT,
+            max_keepalive_connections=self.per_replica * POOL_CONNECTIONS_PER_IN_FLIGHT,
             keepalive_expiry=None,
         )
         timeout = httpx.Timeout(
@@ -630,15 +694,49 @@ class FleetClient:
             write=cfg.e2e_timeout_s,
             pool=cfg.e2e_timeout_s,
         )
-        self._replicas = []
-        headers = fleet_auth_headers()
-        for i, ep in enumerate(cfg.endpoints):
-            transport = self._transport_factory(ep) if self._transport_factory is not None else None
-            client = httpx.AsyncClient(
-                base_url=ep.rstrip("/"), limits=limits, timeout=timeout, transport=transport,
-                headers=headers,
-            )
-            self._replicas.append(_Replica(i, ep.rstrip("/"), client, self.per_replica))
+        transport = self._transport_factory(ep) if self._transport_factory is not None else None
+        return httpx.AsyncClient(
+            base_url=ep.rstrip("/"), limits=limits, timeout=timeout, transport=transport,
+            headers=self._auth_headers,
+        )
+
+    def _close_later(self, client: httpx.AsyncClient) -> None:
+        """退いたクライアントを閉じる仕事を立てる(``close()`` が終わりを待つ)。"""
+        task = asyncio.ensure_future(client.aclose())
+        self._closing.add(task)
+        task.add_done_callback(self._closing.discard)
+
+    def _release_client(self, rep: _Replica, client: httpx.AsyncClient) -> None:
+        """試行が終わった。退いたクライアントの最後の試行なら、ここで閉じる(進行中の試行は壊さない)。"""
+        left = rep.holds.get(client, 1) - 1
+        if left > 0:
+            rep.holds[client] = left
+            return
+        rep.holds.pop(client, None)
+        if any(old is client for old in rep.retired):
+            rep.retired = [old for old in rep.retired if old is not client]
+            self._close_later(client)
+
+    def _note_pool_wait(self, rep: _Replica, client: httpx.AsyncClient | None) -> None:
+        """置き場の時間切れを 1 つ数え、続いたらクライアントを作り直す(〔第348〕)。
+
+        作り直した後に、古いクライアントで待っていた試行が切れても数えない(新しいクライアントを
+        続けて作り直さないため)。古いクライアントは、進行中の試行が 0 になってから閉じる。
+        """
+        if client is not rep.client:
+            return
+        rep.pool_wait_streak += 1
+        if rep.pool_wait_streak < POOL_WAIT_TIMEOUTS_BEFORE_REBUILD:
+            return
+        old = rep.client
+        rep.client = self._make_client(rep.index)
+        rep.pool_wait_streak = 0
+        with self._lock:
+            self.n_client_rebuilt += 1
+        if rep.holds.get(old, 0) > 0:
+            rep.retired.append(old)
+        else:
+            self._close_later(old)
 
     def close(self) -> None:
         """背景スレッドと全 AsyncClient を閉じる(冪等)。"""
@@ -655,9 +753,21 @@ class FleetClient:
         self._thread = None
 
     async def _close_clients(self) -> None:
+        await self._wait_closing()
         for rep in self._replicas:
+            for old in rep.retired:  # 作り直して退いたクライアントも全部閉じる
+                await old.aclose()
+            rep.retired = []
             await rep.client.aclose()
         self._replicas = []
+        await self._wait_closing()  # 閉じている間に立った仕事も待つ
+
+    async def _wait_closing(self) -> None:
+        """退いたクライアントを閉じる仕事が無くなるまで待つ(上限 ``_CLOSE_WAIT_ROUNDS`` 回)。"""
+        for _ in range(_CLOSE_WAIT_ROUNDS):
+            if not self._closing:
+                return
+            await asyncio.gather(*list(self._closing), return_exceptions=True)
 
     def __enter__(self) -> "FleetClient":
         self.start()
@@ -686,6 +796,16 @@ class FleetClient:
             except Exception as exc:  # noqa: BLE001 - どのレプリカでも良い
                 last = exc
         raise RuntimeError(f"/v1/models からモデル名が取れない: {last}")
+
+    # ------------------------------------------------------------ 書式の判定にランの語彙を結ぶ(第348)
+    def bind_run_vocab(self, vocab_version: str) -> None:
+        """書式の判定を、ランの語彙 ``vocab_version`` の規則で読む判定にする(``FleetBridge`` が組み立てのときに呼ぶ)。
+
+        ``format_retry`` を切った口と、``format_check`` を明示して渡した口には何もしない。同じ口を別の語彙のランで
+        使い直したときは、後の橋の語彙で結び直す。
+        """
+        if self.config.format_retry and not self._format_check_given:
+            self._format_check = format_check_for(vocab_version)
 
     # ------------------------------------------------------------ 発射
     def submit(self, calls: Sequence[LLMCall]) -> list[LLMResult | Deferred]:
@@ -855,13 +975,17 @@ class FleetClient:
                         self.n_retry_same += 1
                 rep = self._replicas[current]
                 attempts += 1
+                mark = _AttemptMark()
                 try:
                     async with rep.sem:
                         text, finish, ptok, ctok, ttft, e2e = await self._attempt(
-                            rep, self._payload(call)
+                            rep, self._payload(call), mark
                         )
                 except Exception as exc:  # noqa: BLE001 - 分類してから捌く
                     kind = _classify(exc)
+                    # 〔第348〕置き場の時間切れを数える(再試行と繰り延べの決まりは変えない)
+                    if isinstance(exc, httpx.PoolTimeout) or (kind == "timeout" and not mark.left_pool):
+                        self._note_pool_wait(rep, mark.client)
                     if kind == "retryable":  # §7 接続エラー = 同一1回 → 別1回
                         last_reason = f"{type(exc).__name__}: {exc}"
                         continue
@@ -894,6 +1018,8 @@ class FleetClient:
                     )
                     return
 
+                if mark.client is rep.client:
+                    rep.pool_wait_streak = 0  # 〔第348〕成功を挟んだ(続いた数を 0 に戻す)
                 outcome = Outcome.ERROR_RETRIED_OK if attempts > 1 else Outcome.OK
                 format_retried = False
                 first_text = ""
@@ -984,20 +1110,35 @@ class FleetClient:
             )
 
     async def _attempt(
-        self, rep: _Replica, payload: Mapping[str, Any]
+        self, rep: _Replica, payload: Mapping[str, Any], mark: _AttemptMark | None = None
     ) -> tuple[str, str, int, int, float, float]:
-        """1 試行。``(text, finish_reason, tokens_in, tokens_out, ttft_s, e2e_s)``。"""
-        if payload.get("stream"):
+        """1 試行。``(text, finish_reason, tokens_in, tokens_out, ttft_s, e2e_s)``。
+
+        〔第348〕試行はその時のクライアントを最後まで使う(途中で作り直されても、進行中の試行は壊さない)。
+        ``mark`` を渡すと、使ったクライアントと、要求が置き場を出たか(httpcore の trace の印)を控える。
+        """
+        client = rep.client
+        rep.holds[client] = rep.holds.get(client, 0) + 1
+        ext: dict[str, Any] | None = None
+        if mark is not None:
+            mark.client = client
+            ext = {"trace": mark.trace}
+        try:
+            if payload.get("stream"):
+                return await asyncio.wait_for(
+                    self._attempt_stream(client, payload, ext), self.config.e2e_timeout_s
+                )
             return await asyncio.wait_for(
-                self._attempt_stream(rep, payload), self.config.e2e_timeout_s
+                self._attempt_once(client, payload, ext), self.config.e2e_timeout_s
             )
-        return await asyncio.wait_for(self._attempt_once(rep, payload), self.config.e2e_timeout_s)
+        finally:
+            self._release_client(rep, client)
 
     async def _attempt_once(
-        self, rep: _Replica, payload: Mapping[str, Any]
+        self, client: httpx.AsyncClient, payload: Mapping[str, Any], ext: dict[str, Any] | None
     ) -> tuple[str, str, int, int, float, float]:
         t0 = time.perf_counter()
-        r = await rep.client.post("/v1/chat/completions", json=dict(payload))
+        r = await client.post("/v1/chat/completions", json=dict(payload), extensions=ext)
         _raise_for_status(r.status_code, r.text)
         d = r.json()
         ch = d["choices"][0]
@@ -1014,7 +1155,7 @@ class FleetClient:
         )
 
     async def _attempt_stream(
-        self, rep: _Replica, payload: Mapping[str, Any]
+        self, client: httpx.AsyncClient, payload: Mapping[str, Any], ext: dict[str, Any] | None
     ) -> tuple[str, str, int, int, float, float]:
         cfg = self.config
         t0 = time.perf_counter()
@@ -1023,7 +1164,9 @@ class FleetClient:
         ptok = 0
         ctok = 0
         ttft = 0.0
-        async with rep.client.stream("POST", "/v1/chat/completions", json=dict(payload)) as resp:
+        async with client.stream(
+            "POST", "/v1/chat/completions", json=dict(payload), extensions=ext
+        ) as resp:
             if resp.status_code >= 400:
                 body = (await resp.aread()).decode("utf-8", "replace")
                 _raise_for_status(resp.status_code, body)
@@ -1105,6 +1248,7 @@ class FleetClient:
                 "fleet_conn_retry_same": float(self.n_retry_same),
                 "fleet_conn_retry_other": float(self.n_retry_other),
                 "fleet_no_alternate_replica": float(self.n_no_alternate_replica),
+                "fleet_client_rebuilt": float(self.n_client_rebuilt),  # 〔第348〕作り直した回数
                 "fleet_infra_clip": float(self.n_infra_clip),
                 "fleet_tokens_in": float(self.tokens_in),
                 "fleet_tokens_out": float(self.tokens_out),
@@ -1144,8 +1288,11 @@ def _debug_reason(p: ParseResult) -> str:
     return "other"
 
 
-def _format_ok(text: str) -> bool:
+def _format_ok(text: str, vocab_version: str) -> bool:
     """再生成するかの判定(=**実効**基準・行動契約書 §1)。
+
+    〔第348〕``vocab_version`` はランの語彙(``format_check_for`` が結ぶ)。前は語彙を渡さずパーサの既定 v1 で読み、
+    語彙 v3 のランの「なし」「食事」と、語彙 v2 のランの「食事」を書式の誤り=温度 0 の再生成に回していた。
 
     **C6・09-09**: 次のどちらかで読めたら**温度 0 の再生成をしない**。
       ① ``format_ok``(C6 のラベル別名「目的地:」「目的:」や位置読みを許容した寛容判定)。
@@ -1154,8 +1301,16 @@ def _format_ok(text: str) -> bool:
     段0 で確実に救えるので、**辞書写像へ直行**させる(``fleet_dictionary_mapped`` に計上)。
     定義を動かさない受入指標のほうは ``strict_format_ok`` で別に数える。
     """
-    p = parse_two_line(text)
+    p = parse_two_line(text, vocab_version)
     return bool(p.format_ok or p.dictionary_candidate)
+
+
+def format_check_for(vocab_version: str) -> Callable[[str], bool]:
+    """ランの語彙 ``vocab_version`` を結んだ書式の判定(``FleetClient`` の ``format_check`` の口に渡す形・第348)。
+
+    不正な版は ``ValueError``(``check_vocab_version``)。
+    """
+    return functools.partial(_format_ok, vocab_version=check_vocab_version(vocab_version))
 
 
 def _raise_for_status(status: int, body: str) -> None:
@@ -1306,6 +1461,8 @@ class FleetBridge:
         self.tape_row_factory = tape_row_factory
         #: 行動語彙の版(D-71 §3 F)。既定 ``"v1"`` は現行と 1 バイトも変わらない。
         self.vocab_version = check_vocab_version(vocab_version)
+        # 〔第348〕口の書式の判定に、橋の語彙(=組み立てが渡すランの語彙)を結ぶ。
+        client.bind_run_vocab(self.vocab_version)
         #: 目印の「名 → POI 索引」表(C9b G6 a′)。``None`` なら現行どおり。
         self.landmarks = landmarks
         #: その版で**エンジンに適用分岐がある**語 → コード(``engine.llm_bridge`` と同規約)。

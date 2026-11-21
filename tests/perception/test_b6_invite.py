@@ -133,7 +133,7 @@ def test_deterministic_and_parses_back_to_the_inviter():
     x = r1.render(3, tick=600, wake_reason=0, inviter=17)
     y = r2.render(3, tick=600, wake_reason=0, inviter=17)
     assert x.prompt_hash == y.prompt_hash and x.text == y.text
-    said = parse_two_line("理由: 誘われたから\n行動: 会話 対象: P-17 ひと言: はい")
+    said = parse_two_line("理由: 誘われたから\n行動: 会話 対象: P-17 ひと言: はい", "v1")
     assert said.action == "会話" and int(said.target.person_id) == 17
     assert person_word(17) in x.text
 

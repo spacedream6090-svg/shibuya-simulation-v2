@@ -120,7 +120,7 @@
 | [tests/fig](tests/fig/README.md) | 2 | 0 |
 | [tests/fixtures](tests/fixtures/README.md) | 0 | 2 |
 | [tests/fixtures/calendar](tests/fixtures/calendar/README.md) | 0 | 1 |
-| [tests/llm](tests/llm/README.md) | 9 | 0 |
+| [tests/llm](tests/llm/README.md) | 12 | 0 |
 | [tests/perception](tests/perception/README.md) | 20 | 0 |
 | [tests/perception/facts](tests/perception/facts/README.md) | 8 | 1 |
 | [tests/tools](tests/tools/README.md) | 28 | 0 |
@@ -161,7 +161,7 @@
 
 ## docs と data
 
-- [docs の索引](docs.md): 390 ディレクトリ・2580 本
+- [docs の索引](docs.md): 393 ディレクトリ・2590 本
 - [data の一覧](data.md): ディレクトリの名前と大きさだけ(data のある機械で作ったときの写し)
 
 ## 読み方の規則

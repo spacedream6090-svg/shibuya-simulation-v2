@@ -99,7 +99,7 @@ def registry_from_tape(
             counts["deferred"] += 1
             continue
         counts["scored"] += 1
-        parse = parse_two_line(row.response)
+        parse = parse_two_line(row.response, "v1")
         if parse.action is not None:
             counts["action_ok"] += 1
             continue

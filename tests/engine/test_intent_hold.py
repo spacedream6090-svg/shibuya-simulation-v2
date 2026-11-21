@@ -117,7 +117,7 @@ def _tick(w, ag, act, il, space, t, llm_batch=None, applied=None):
 def _respond(w, ag, space, res, il, t, agent, code, target, *, home=None):
     return CW.intents_from_responses(
         ag, w, space, t, np.array([agent]), np.array([3]), np.array([code]),
-        home_cell=home, targets=[None if target is None else parse_target(target)],
+        home_cell=home, targets=[None if target is None else parse_target(target, vocab_version="v1")],
         poi_resolver=res, intent_hold=il, vocab_version="v3", run_salt=SALT,
         target_person=np.array([-1 if target is None or not target.startswith("P-")
                                 else int(target[2:])]),
@@ -164,7 +164,7 @@ def test_resolver_named_out_of_cell_becomes_an_intent_only_when_visible_and_fit(
     ag = _agents0(w)
     io: dict[int, tuple[int, int]] = {}
     out = res.resolve(ag, NOON, np.array([0]), np.array([CV.ACT_EAT]),
-                      [parse_target("カフェ・ベローチェ")], is_eat=np.array([True]),
+                      [parse_target("カフェ・ベローチェ", vocab_version="v1")], is_eat=np.array([True]),
                       is_buy_like=np.array([False]), intent_out=io)
     assert out.tolist() == [-1] and io == {0: (4, int(IntentKind.POI_NAMED))}
     # 見えない(W8 に無い)名指しは意図にならない=段 2a の失敗のまま
@@ -172,14 +172,14 @@ def test_resolver_named_out_of_cell_becomes_an_intent_only_when_visible_and_fit(
     res2 = TargetResolver(world=w2, chooser=NearestChooser(), seed=1)
     io2: dict[int, tuple[int, int]] = {}
     res2.resolve(_agents0(w2), NOON, np.array([0]), np.array([CV.ACT_EAT]),
-                 [parse_target("カフェ・ベローチェ")], is_eat=np.array([True]),
+                 [parse_target("カフェ・ベローチェ", vocab_version="v1")], is_eat=np.array([True]),
                  is_buy_like=np.array([False]), intent_out=io2)
     s = resolution_summary(res2.stats, res2.entropy_sum)
     assert io2 == {} and s["named_out_of_cell_detail"]["not_visible"] == 1
     assert s["iv_no_candidate"]["named_out_of_cell"] == 1
     # 意図に合わない(食事なのに物販店)名指しも意図にならない
     io3: dict[int, tuple[int, int]] = {}
-    res.resolve(ag, NOON, np.array([0]), np.array([CV.ACT_EAT]), [parse_target("花屋C")],
+    res.resolve(ag, NOON, np.array([0]), np.array([CV.ACT_EAT]), [parse_target("花屋C", vocab_version="v1")],
                 is_eat=np.array([True]), is_buy_like=np.array([False]), intent_out=io3)
     assert io3 == {} and res.stats["named_out_of_cell:not_fit"] == 1
 
@@ -189,7 +189,7 @@ def test_resolver_category_without_an_open_candidate_in_the_cell_searches_nearby
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     io: dict[int, tuple[int, int]] = {}
     out = res.resolve(_agents0(w), NOON, np.array([0]), np.array([CV.ACT_EAT]),
-                      [parse_target("飲食店")], is_eat=np.array([True]),
+                      [parse_target("飲食店", vocab_version="v1")], is_eat=np.array([True]),
                       is_buy_like=np.array([False]), intent_out=io)
     # セル 0 に food なし → 近い順(セル 1 の food 2=150 m)
     assert out.tolist() == [-1] and io == {0: (2, int(IntentKind.POI_CATEGORY))}
@@ -212,7 +212,7 @@ def test_named_visible_but_closed_returns_closed_now_without_walking_q21():
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     io: dict[int, tuple[int, int]] = {}
     out = res.resolve(_agents0(w, 2), NOON, np.arange(2), np.array([CV.ACT_EAT, CV.ACT_BUY]),
-                      [parse_target("カフェ・ベローチェ"), parse_target("花屋C")],
+                      [parse_target("カフェ・ベローチェ", vocab_version="v1"), parse_target("花屋C", vocab_version="v1")],
                       is_eat=np.array([True, False]), is_buy_like=np.array([False, True]),
                       intent_out=io)
     assert io == {} and out.tolist() == [4, 7]  # 代表 1 件=resolve が CLOSED/OUT_OF_STOCK を付ける
@@ -241,7 +241,7 @@ def test_resolver_without_intent_out_is_unchanged():
     w = _world(visible={0: [(4, 30)]})
     a = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
     b = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
-    tg = [parse_target("カフェ・ベローチェ"), parse_target("飲食店"), None]
+    tg = [parse_target("カフェ・ベローチェ", vocab_version="v1"), parse_target("飲食店", vocab_version="v1"), None]
     args = (_agents0(w, 3), NOON, np.arange(3), np.full(3, CV.ACT_EAT), tg)
     kw = dict(is_eat=np.ones(3, dtype=bool), is_buy_like=np.zeros(3, dtype=bool))
     assert a.resolve(*args, **kw).tolist() == b.resolve(*args, **kw, intent_out=None).tolist()
@@ -261,7 +261,7 @@ def test_commit_turns_out_of_cell_targets_into_moves_and_proposes_the_intent():
     batch = CW.intents_from_responses(
         ag, w, space, NOON, np.array([0, 1, 2]), np.full(3, 3),
         np.array([CV.ACT_EAT, CV.ACT_TALK, CV.ACT_SLEEP]),
-        home_cell=home, targets=[parse_target("カフェ・ベローチェ"), parse_target("P-2"), None],
+        home_cell=home, targets=[parse_target("カフェ・ベローチェ", vocab_version="v1"), parse_target("P-2", vocab_version="v1"), None],
         target_person=np.array([-1, 2, -1]),
         poi_resolver=res, intent_hold=il, vocab_version="v3", run_salt=SALT,
     )
@@ -286,7 +286,7 @@ def test_commit_turns_out_of_cell_targets_into_moves_and_proposes_the_intent():
     b3 = CW.intents_from_responses(
         ag, w, space, NOON, np.array([0, 1]), np.full(2, 3),
         np.array([CV.ACT_EAT, CV.ACT_TALK]), home_cell=home,
-        targets=[parse_target("カフェ・ベローチェ"), parse_target("P-2")],
+        targets=[parse_target("カフェ・ベローチェ", vocab_version="v1"), parse_target("P-2", vocab_version="v1")],
         target_person=np.array([-1, 2]), poi_resolver=res, vocab_version="v3", run_salt=SALT,
     )
     assert b3.action_code.tolist() == [CV.ACT_EAT, CV.ACT_TALK]
@@ -488,7 +488,7 @@ def test_move_to_a_person_goes_to_that_persons_cell_q18():
     ag = AgentState(4)
     ag.registry.cell[:] = np.array([0, 3, -1, 0])
     res = TargetResolver(world=w, chooser=NearestChooser(), seed=1)
-    tg = [parse_target(s) for s in ("P-1", "P-0", "P-2", "P-99")]
+    tg = [parse_target(s, vocab_version="v1") for s in ("P-1", "P-0", "P-2", "P-99")]
     out = res.resolve_move(ag, NOON, np.array([0, 0, 3, 3]), np.full(4, CV.ACT_MOVE), tg,
                            np.ones(4, dtype=bool))
     # 体 0→P-1(セル 3)/ 体 0→自分(今いるセル)/ 体 3→P-2(域外)/ 体 3→存在しない人

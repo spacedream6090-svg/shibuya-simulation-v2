@@ -255,17 +255,15 @@ def _clean_value(value: str) -> str:
     return v
 
 
-def find_action_word(
-    text: str, vocab_version: str = DEFAULT_VOCAB_VERSION
-) -> str | None:
+def find_action_word(text: str, vocab_version: str) -> str | None:
     """テキスト中で**最初に現れる**語彙語(同位置なら最長)を返す。
 
     「移動する」「移動します」のように助詞・語尾が付いていても、部分一致で語が取れる。
 
     Args:
         text: 走査対象。
-        vocab_version: 語彙版(``"v1"``=24 語・既定 / ``"v2"``=25 語=24 語+「食事」)。
-            既定では ``ALL_ACTION_WORDS`` と**同一の並び**を走るので 1 件も結果が変わらない。
+        vocab_version: 語彙版(``"v1"``=24 語 / ``"v2"``=25 語=24 語+「食事」/ ``"v3"``=23 語)。
+            〔第348〕既定は無い(呼び手がランの語彙を渡す)。``"v1"`` は ``ALL_ACTION_WORDS`` と**同一の並び**を走る。
 
     逐次ループ宣言(P4): 語彙数(v1=24 / v2=25)ぶん。
     """
@@ -388,9 +386,7 @@ class ParseResult:
         )
 
 
-def _empty_result(
-    errors: tuple[str, ...], vocab_version: str = DEFAULT_VOCAB_VERSION
-) -> ParseResult:
+def _empty_result(errors: tuple[str, ...], vocab_version: str) -> ParseResult:
     if str(vocab_version) == "v3":
         # v3 では 活動/まで を常に持たせる(読めない応答=活動なし・既定の持続)。
         return ParseResult(
@@ -417,7 +413,7 @@ def _empty_result(
 
 def parse_two_line(
     text: str | None,
-    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    vocab_version: str,
     landmarks: Mapping[str, int] | None = None,
 ) -> ParseResult:
     """2行形(および4行形)を寛容に読む。**例外を投げない**。
@@ -427,7 +423,7 @@ def parse_two_line(
         vocab_version: 語彙版(D-71 §3 F)。``"v2"`` で「食事」を語彙語として読み、
             段0 辞書の候補判定(``dictionary_candidate``)も辞書 v4 で引く。
             ``"v3"``(D-116)は 5 ラベル形(理由・行動・対象・活動・まで)を ``_parse_v3`` で読む。
-            **既定 ``"v1"`` は 1 バイトも挙動が変わらない**。
+            〔第348〕既定は無い(呼び手がランの語彙を渡す。前の既定は ``"v1"``)。
         landmarks: 目印の「名 → POI 索引」表(C9b G6 a′)。``parse_target`` へ素通しする。
             ``None``(既定)では ``target.poi_id`` が常に ``None``=**現行のまま**。
 
@@ -435,7 +431,7 @@ def parse_two_line(
         ``ParseResult``。
 
     Example:
-        >>> r = parse_two_line("理由: 予定の時間\\n行動: 移動 対象: C-0117 ひと言: なし")
+        >>> r = parse_two_line("理由: 予定の時間\\n行動: 移動 対象: C-0117 ひと言: なし", "v1")
         >>> r.action, r.target.cell_index, r.format_ok
         ('移動', 117, True)
     """
@@ -449,17 +445,17 @@ def parse_two_line(
 
 def _parse(
     text: str | None,
-    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    vocab_version: str,
     landmarks: Mapping[str, int] | None = None,
 ) -> ParseResult:
     if text is None:
-        return _empty_result(("empty_output",))
+        return _empty_result(("empty_output",), vocab_version)
     if not isinstance(text, str):
         text = str(text)
     strict = _is_strict_two_line(text)
     cleaned = _clean_text(text)
     if not cleaned:
-        return _empty_result(("empty_output",))
+        return _empty_result(("empty_output",), vocab_version)
 
     # ---- ラベル走査(行内でも分割する) ----
     labels, spans, surfaces = _scan_labels(cleaned, _LABEL_RE, LABEL_ALIASES)
@@ -472,7 +468,7 @@ def _parse(
             errors.append(f"missing_label:{label}")
 
     # ---- ラベルを省いて値だけ並べた形(C6・位置引数)の回収 ----
-    filled = _fill_positional(labels)
+    filled = _fill_positional(labels, vocab_version)
     positional_used = any(f.startswith("positional:") for f in filled)
     if filled:
         errors.extend(filled)
@@ -498,7 +494,7 @@ def _parse(
             dictionary_candidate = map_synonym(raw_action, None, vocab_version)[0]
 
     # ---- 対象・理由・ひと言 ----
-    target = parse_target(labels.get("対象"), landmarks)
+    target = parse_target(labels.get("対象"), landmarks, vocab_version=vocab_version)
     raw_reason = labels.get("理由", "")
     raw_comment = labels.get("ひと言", NO_TARGET)
     reason = raw_reason[:REASON_MAX_CHARS]
@@ -538,7 +534,7 @@ def _parse(
         strict_two_line=strict,
         reason_truncated=reason_truncated,
         comment_truncated=comment_truncated,
-        is_role_action=bool(action) and is_role_action(action),
+        is_role_action=bool(action) and is_role_action(action, vocab_version),
         action_from_free_text=from_free_text,
         strict_format_ok=strict_format_ok,
         alias_used=alias_used,
@@ -599,7 +595,7 @@ def _parse_v3(text: str | None, landmarks: Mapping[str, int] | None = None) -> P
     if action == ACTION_WORD_NONE and "対象" not in labels:
         labels["対象"] = NO_TARGET
         errors = ["target_omitted" if e == "missing_label:対象" else e for e in errors]
-    target = parse_target(labels.get("対象"), landmarks, ver)
+    target = parse_target(labels.get("対象"), landmarks, vocab_version=ver)
     target_hint = (
         target_surface_hint(target.raw, ver) if target.kind is TargetKind.ITEM_CATEGORY else ""
     )
@@ -744,7 +740,7 @@ def _fill_positional_v3(labels: dict[str, str]) -> tuple[str, ...]:
     return tuple(filled)
 
 
-def _fill_positional(labels: dict[str, str]) -> tuple[str, ...]:
+def _fill_positional(labels: dict[str, str], vocab_version: str) -> tuple[str, ...]:
     """ラベルを省いて**値だけ並べた**2行目から「対象」「ひと言」を位置で拾う(C6・expedient)。
 
     正典: 行動契約書 §1 の2行目は「行動: <語彙1語> 対象: <…> ひと言: <…>」で**欄の順序が固定**。
@@ -764,6 +760,8 @@ def _fill_positional(labels: dict[str, str]) -> tuple[str, ...]:
 
     Args:
         labels: ``_scan_labels`` が作った表。**破壊的に更新する**。
+        vocab_version: 行動語を探す語彙の版(〔第348〕``_parse`` が受けたランの語彙。前は ``find_action_word`` の既定 v1 で
+            探していた=v2 のランで「食事」を行動語として見なかった)。
 
     Returns:
         補ったラベルの診断名(``positional:対象`` 等・``errors`` に載せる。空なら未発動)。
@@ -778,8 +776,8 @@ def _fill_positional(labels: dict[str, str]) -> tuple[str, ...]:
     tokens = labels["行動"].split()
     if not tokens:
         return ()
-    action_all = find_action_word(labels["行動"])
-    if action_all is not None and find_action_word(tokens[0]) != action_all:
+    action_all = find_action_word(labels["行動"], vocab_version)
+    if action_all is not None and find_action_word(tokens[0], vocab_version) != action_all:
         return ()  # 行動語が先頭トークンに無い=位置で読める形ではない
     rest = tokens[1:]
     if not rest and "対象" not in labels:

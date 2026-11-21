@@ -23,8 +23,8 @@ act.intake.from_words — 割る段で ``engine/commit.py`` を割った割り�
   - `undefined_fallback_code`(関数): 未定義行動の落ち先コード(v1/v2=待機・**v3=なし**=アジェンダ §1-1)。
 - import している内部モジュール: `shibuya.act.commit`・`shibuya.act.intake.parser`・`shibuya.foundation.hashing`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`・`shibuya.world.model.proximity`
 - 呼び手: `shibuya.runtime.run`・`shibuya.runtime.systems.act`・`shibuya.runtime.systems.judge`
-- 読む試験: `tests/c6/test_t5_order_bias.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_parser_contract.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_resolve.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_vocab_v2_eat.py`
-- 決定の ID: D-112・D-114・第 275
+- 読む試験: `tests/c6/test_t5_order_bias.py`・`tests/engine/processes/test_rail_board_intent.py`・`tests/engine/proximity/test_switch_sites.py`・`tests/engine/test_c9b_targets_attention.py`・`tests/engine/test_conversation_invite.py`・`tests/engine/test_defect_fixes_1103.py`・`tests/engine/test_intent_hold.py`・`tests/engine/test_move_destination.py`・`tests/engine/test_parser_contract.py`・`tests/engine/test_plan_sleep_d62.py`・`tests/engine/test_resolve.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_two_layer_activity.py`・`tests/engine/test_vocab_v2_eat.py`・`tests/llm/test_parser_run_vocab_348.py`
+- 決定の ID: D-112・D-114・第 275・第 348
 
 ## [parser.py](../../../../../../../../src/shibuya/act/intake/parser.py)
 
@@ -36,8 +36,8 @@ llm.parser — 2行形の**ラベル基準・寛容行指向**パーサ(知覚�
   - `parse_two_line`(関数): 2行形(および4行形)を寛容に読む。**例外を投げない**。
 - import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.foundation.vocab.actions`
 - 呼び手: `shibuya.act.intake.from_words`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`tools/c6/c6lib.py`・`tools/fig/fig_ab7_actions.py`・`tools/fig/fig_ab7c_vocab.py`・`tools/fig/fig_d91_ride_chain.py`・`tools/instruments/dm_eval/situations.py`・`tools/vocab/registry_from_tape.py`
-- 読む試験: `tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_c6lib_aggregate.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/tape_analysis.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_parser_contract.py`・`tests/llm/test_mock_v3.py`・`tests/llm/test_parser.py`・`tests/llm/test_vocab_v2.py`・`tests/perception/test_b6_invite.py`・`tests/test_places_guard.py`
-- 決定の ID: D-71・D-113・D-116・第 266・第 274・第 275
+- 読む試験: `tests/build_pop/test_w21_stage8_9.py`・`tests/c6/test_c6lib_aggregate.py`・`tests/economy/cp2/test_cp2_event_links.py`・`tests/engine/decision/test_j0_mock_equivalence.py`・`tests/engine/memory/test_m0_store_schema.py`・`tests/engine/memory/test_mr65_guards.py`・`tests/engine/space/test_nav1_units.py`・`tests/engine/speech/test_speech_on_reaches_addressee.py`・`tests/engine/speech/test_wom_from_utterance_roundtrip.py`・`tests/engine/tape_analysis.py`・`tests/engine/test_classical_policy.py`・`tests/engine/test_parser_contract.py`・`tests/llm/test_mock_v3.py`・`tests/llm/test_parser.py`・`tests/llm/test_parser_run_vocab_348.py`・`tests/llm/test_vocab_v2.py`・`tests/perception/test_b6_invite.py`・`tests/test_places_guard.py`
+- 決定の ID: D-71・D-113・D-116・第 266・第 274・第 275・第 348
 
 ## [undefined.py](../../../../../../../../src/shibuya/act/intake/undefined.py)
 

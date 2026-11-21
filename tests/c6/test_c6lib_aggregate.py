@@ -60,7 +60,7 @@ def test_format_error_rate_is_reported_both_effective_and_strict(c6lib):
         t
         for surface, canonical in LABEL_ALIASES_C6.items()
         for t in [GOOD.replace(canonical + ":", surface + ":")]
-        if parse_two_line(t).format_ok and not parse_two_line(t).strict_format_ok
+        if parse_two_line(t, "v1").format_ok and not parse_two_line(t, "v1").strict_format_ok
     ]
     assert c6_only, "C6 追加別名が 1 つも効いていない(二重判定の意味が消える)"
     s = c6lib.score_texts(c6_only)
@@ -275,7 +275,7 @@ def test_format_role_table_separates_effective_and_strict_verdicts(c6lib):
         t
         for surface, canonical in LABEL_ALIASES_C6.items()
         for t in [GOOD.replace(canonical + ":", surface + ":")]
-        if parse_two_line(t).format_ok and not parse_two_line(t).strict_format_ok
+        if parse_two_line(t, "v1").format_ok and not parse_two_line(t, "v1").strict_format_ok
     )
     rows = fr.acceptance_rows(c6lib.score_texts([c6_only] * 60), None)
     assert rows[0][4] == "合格" and rows[1][4] == "不合格"

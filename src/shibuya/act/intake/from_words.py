@@ -74,8 +74,12 @@ def focus_codes(target_hint, target_person, target_poi, n_agents: int) -> np.nda
 #: **正典は ``llm.contract.UNDEFINED_ACTION``**(値 −2)を import している。
 
 
-def parse_action(text: str) -> int:
+def parse_action(text: str, vocab_version: str) -> int:
     """2行形から行動語を取り出してコードにする(**正典パーサへの薄い委譲**)。
+
+    Args:
+        text: 応答の本文。
+        vocab_version: ランの語彙の版(〔第348〕``parse_two_line`` へそのまま渡す。前は渡さず、パーサの既定 v1 で読んでいた)。
 
     Returns:
         ``ACTION_CODES`` の値(12 語)。取れない/12 語の外(役割語を含む)なら
@@ -90,7 +94,7 @@ def parse_action(text: str) -> int:
     """
     if not text:
         return UNDEFINED_ACTION
-    word = parse_two_line(text).action
+    word = parse_two_line(text, vocab_version).action
     if word is None:
         return UNDEFINED_ACTION
     return int(ACTION_CODES.get(word, UNDEFINED_ACTION))

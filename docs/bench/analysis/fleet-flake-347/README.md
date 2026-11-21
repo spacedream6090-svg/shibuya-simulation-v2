@@ -65,6 +65,16 @@ src を変えずに、接続の上限だけを替えて試した(`fleet_pool_pro
 - (e) 置き場の上限を、口の Semaphore より大きくするか、上限なしにする(src の小さな直し)。要求が置き場で待つ場面が減る。漏れは残る(上の表)。NEW の接続はソケットを開いたまま残るので、上限なしでは、手元とサーバーの側に開いた接続が溜まり得る(推測。数えていない)。
 - (f) 時計に頼らない再現の試験を足す(割り当ての直後に取り消して、置き場に残る接続を数える)。(b) を採っても、不具合が CI から見えなくならない。
 
+〔第348〕返事その 9 §1 の 24 で決まった扱い(中身は §7):
+
+| 候補 | 扱い |
+|---|---|
+| (f) | 採った。試験 `tests/llm/test_fleet_pool_orphans.py` |
+| (c) | 採った。置き場の時間切れが 3 回続いたレプリカのクライアントを作り直す |
+| (e) | 採った。置き場の上限を Semaphore の 2 倍に(上限なしにはしない) |
+| (b) | 採らない。不具合が CI から見えなくなる |
+| (d) | 見張るだけ。上流 PR #1099 が入った版が出たら、依存のロックで上げる(試験は残す) |
+
 ## 5. まだ確かめていないこと
 
 - Linux での再現(手元は Windows)。CI の失敗が同じ仕組みかどうか。偽サーバーの待ち行列(既定の 5)が Linux で効くかどうか。
@@ -78,3 +88,38 @@ src を変えずに、接続の上限だけを替えて試した(`fleet_pool_pro
 - `tools/fleet_pool_probe.py <直すまでの秒> <e2e の秒> [<刻みの数> [<形> [<見張りの間隔の秒>]]]`: ランの間、偽サーバーへ届いた要求の数・偽サーバーへ直に送ったときの所要・接続の置き場の表示を出す。置き場の表示は httpx の private な属性を読む(調べるための道具で、src からは使わない)。
 - `tools/force_fail_show_diag.py`: 時間切れだけを 0.05 秒に差し替えて試験の関数を呼び、失敗したときの表示を出す(試験のファイルは書き換えない)。
 - どれもリポの根で、`PYTHONPATH=src` を付けて回す。偽サーバーの遅れた応答の誤りが標準エラーに大量に出るので、標準エラーは捨てる。出力には、回したときの引数が出ない(上の各節に書いた)。
+
+## 7. 直し(第 348・返事その 9 §1 の 24・§5-2)
+
+### したこと
+
+- (f) 試験 `tests/llm/test_fleet_pool_orphans.py` を足した。本物の httpx/httpcore の置き場を通し、時計に頼らずに順を決める。置き場を満たす持ち手は、接続を受けるだけで何も返さない相手(listen だけするソケット)へ送り、応答を待ち始めたこと(httpcore の trace の印)をイベントで待つ。置き場で待たせた要求は、置き場が新しい接続を作る口(`create_connection`)に付けた印で、割り当ての直前に取り消す。
+  - 段 A `test_stage_a_httpcore_pool_keeps_a_connection_assigned_then_cancelled`: 上限 2 の置き場に、張られない接続(CONNECTING)が 2 本残り、次の要求が `PoolTimeout` になる(上流の不具合。PR #1099 が入った版で落ちたら、試験は消さずに期待を直す)。
+  - 段 B `test_stage_b_fleet_client_recovers_from_a_pool_full_of_orphans`: 1 レプリカの `FleetClient` の置き場を同じ順で満杯にし、健全な偽 vLLM へ呼を 1 つずつ出す。直す前は 6 呼とも `deferred_timeout`(答え 0)。直した後は回復して答える。
+  - `test_rebuild_keeps_the_call_in_progress_and_closes_every_client`: 作り直しても、古いクライアントで進行中の呼は答えを返し、終わってから古いものを閉じる。作り直しでも同じ `transport_factory` を通す。`close()` は退いたクライアントも含めて全部閉じる。
+  - `test_success_resets_the_streak_and_late_timeouts_on_the_old_client_do_not_chain`: 続いた数は今のクライアントでの成功で 0 に戻る。作り直した後に古いクライアントで切れた試行は数えない(作り直しが連鎖しない)。
+- (c) 置き場の時間切れが、同じレプリカで間に成功を挟まずに 3 回続いたら(`POOL_WAIT_TIMEOUTS_BEFORE_REBUILD`・expedient(未リサーチ))、そのレプリカの `httpx.AsyncClient` を作り直す。古いクライアントは、進行中の試行が 0 になってから閉じる。作り直した回数を診断の欄 `fleet_client_rebuilt`(全レプリカの合計)に出す。再試行の順・繰り延べの決まり・時間切れの値・Semaphore は変えていない。
+- (e) 置き場の上限を Semaphore の 2 倍にした(`POOL_CONNECTIONS_PER_IN_FLIGHT`・expedient(未リサーチ))。空き接続の上限も同じ 2 倍にした(前と同じく上限と同じ値。httpcore 1.0.9 は空き接続を閉じる判定で空きでない接続まで数えるので、空きの上限が上限より小さいと、漏れがあるときに空き接続を使い回さずに閉じ、新しい接続を張る回が増える)。
+- 1 試行を包む `asyncio.wait_for` は残した。
+
+### 分かったこと(「置き場の時間切れ」の見分け)
+
+詰まった置き場で待つ試行の例外は、多くが `httpx.PoolTimeout` ではなく `TimeoutError` だった。置き場の締め切りと 1 試行の締め切り(`asyncio.wait_for`)は同じ秒数で、`wait_for` の方が先に始まるので先に切れる。Windows の `time.monotonic` は 15.6 ms 刻みで、2 つの締め切りが同じ値になることがあり、そのときだけ順が入れ替わって `PoolTimeout` が出る(負荷をかけた 30 刻みで `TimeoutError` 5,793・`PoolTimeout` 2,265)。ループの時計を細かい刻みに替えると `PoolTimeout` は 0 だった(`TimeoutError` 5,895)。段 B では Windows でも 6 呼とも `TimeoutError` だった。Linux の時計は細かいので、`PoolTimeout` だけを数えると、CI と Linux の本番では作り直しが起きない(推測。Linux では回していない)。そこで、httpcore の trace の印を 1 つも受けないまま時間切れになった試行も、置き場の時間切れとして数える(`_AttemptMark`)。`PoolTimeout` だけを数える形にすると、段 B は赤のままだった。
+
+### 前後の数(`tools/fleet_pool_probe.py 3.0 0.05 30`・形 as_is)
+
+| | 答えが返った | 直した後に偽サーバーへ届いた要求 | 出力 |
+|---|---:|---|---|
+| 直す前 | 0 | 増えない(28・34・54 のまま) | [as_is_e2e005.txt](probe_out/as_is_e2e005.txt) |
+| 直した後 | 205 | 増え続けた(56・56・57 → 176・159・160) | [fixed_e2e005.txt](probe_out/fixed_e2e005.txt) |
+
+台本の出力には `fleet_client_rebuilt` が出ない(台本は変えていない)。見張りの表示は、そのときのレプリカの今のクライアントの置き場。
+
+### まだ確かめていないこと・残る弱さ
+
+- 漏れが Semaphore の数を超え、2 倍に満たないあいだは、同時に走れる数が Semaphore より下がる。それでも間に成功が挟まるので作り直しは起きず、全部が詰まるまで直らない(コードの読み)。
+- 作り直しの中でクライアントを作るのに失敗すると(`transport_factory` の例外など)、その呼は `error_other` になる(帳尻は合う)。
+- 本番の時間切れ(60 秒・300 秒)での挙動。実の vLLM では確かめていない。
+- Linux での段 A・段 B(手元は Windows。CI で回る)。
+- `tests/engine/test_fleet_wiring.py` の揺れた試験は、今も本物の時計に頼る(0.2 秒の時間切れ)。
+- 置き場の上限を 2 倍にしたときに、張り終えて送る前に残った接続(NEW)のソケットがどれだけ開いたまま溜まるか。

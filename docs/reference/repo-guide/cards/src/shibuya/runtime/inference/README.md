@@ -41,18 +41,19 @@ llm.fleet — 実 vLLM 艦隊クライアント(httpx 非同期 × N レプリ�
   - `TapeSink`(クラス): 録画テープの書き出し口(``engine.tape.TapeWriter`` がこの形を満たす)。
   - `call_from_request`(関数): ``llm.LLMRequest`` → ``LLMCall``(同期経路と既存テストのための橋)。
   - `fleet_auth_headers`(関数): ``SHIBUYA_FLEET_API_KEY`` が空でなければ ``Authorization: Bearer <値>``。無ければ None。
+  - `format_check_for`(関数): ランの語彙 ``vocab_version`` を結んだ書式の判定(``FleetClient`` の ``format_check`` の口に渡す形・第348)。
   - `l4_calls_per_day`(関数): 予算行 L4「上限 400 万呼/日(o64)」を読む(憲法1 の監査点)。
   - `l6_in_flight_per_gpu`(関数): 予算行 L6「**64 in-flight/GPU**(bounded)」を読む(数値をコード側に複製しない)。
   - `plan_batch`(関数): 1 バッチの発射順とレプリカ割当を決める**純関数**(実装計画書 §7 順序制御)。
 - import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.act.intake.undefined`・`shibuya.foundation.budget`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`
 - 呼び手: `shibuya.interfaces.cli.run_args`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`tools/c6/c6lib.py`・`tools/vocab/adjudicate.py`
-- 読む試験: `tests/c6/test_l4_l6_budget.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_auth.py`・`tests/llm/test_fleet_contract.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/test_cli_l4_scale.py`
+- 読む試験: `tests/c6/test_l4_l6_budget.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_state_checks_10f.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet.py`・`tests/llm/test_fleet_auth.py`・`tests/llm/test_fleet_contract.py`・`tests/llm/test_fleet_pool_orphans.py`・`tests/llm/test_fleet_run_vocab_348.py`・`tests/llm/test_parser_run_vocab_348.py`・`tests/perception/facts/test_percept_is_scratch.py`・`tests/test_cli_l4_scale.py`
 - 状態台帳の行
   - 持ち主 `fleet_bridge`(`FleetBridge`)
     - `O88` FleetBridge _interned(挙動 no・復元 required) 道筋 `fleet_bridge._interned` 書ける系: decide・drain・llm_receive
     - `O89` FleetBridge の計数(挙動 diag・復元 discardable) 道筋 `fleet_bridge.n_calls`・`fleet_bridge.n_debug_rows`・`fleet_bridge.n_debug_skipped`・`fleet_bridge.n_deferred`・`fleet_bridge.n_deferred_rows`・`fleet_bridge.n_dictionary_mapped`・`fleet_bridge.n_label_alias`・`fleet_bridge.n_parse_errors`・`fleet_bridge.n_parse_errors_strict`・`fleet_bridge.n_positional`・`fleet_bridge.n_role_actions`・`fleet_bridge.n_tape_rows`・`fleet_bridge.n_undefined_mapped`・`fleet_bridge.n_unknown_action` 書ける系: decide・drain・llm_receive
 - 環境変数: `SHIBUYA_FLEET_API_KEY`
-- 決定の ID: D-55・D-58・D-71
+- 決定の ID: D-55・D-58・D-71・第 348
 
 ## [mock.py](../../../../../../../../src/shibuya/runtime/inference/mock.py)
 

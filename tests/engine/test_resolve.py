@@ -313,7 +313,7 @@ def test_sleep_away_from_home_fails_no_bed():
 # ---------------------------------------------------------------- 未定義行動(§7 段1)
 def test_undefined_action_falls_back_to_wait():
     w, a = _setup()
-    code = CW.parse_action("これは2行形ではない")
+    code = CW.parse_action("これは2行形ではない", "v1")
     assert code == CW.UNDEFINED_ACTION
     batch = CW.intents_from_responses(
         a, w, C.ResourceSpace(w.n_poi, a.n, w.n_cells), 0,
@@ -327,7 +327,7 @@ def test_undefined_action_falls_back_to_wait():
 def test_all_twelve_words_parse():
     for word in CV.ACTION_WORDS:
         text = f"理由: テスト\n行動: {word} 対象: なし ひと言: なし"
-        assert CW.parse_action(text) == CV.ACTION_CODES[word]
+        assert CW.parse_action(text, "v1") == CV.ACTION_CODES[word]
 
 
 # ---------------------------------------------------------------- 密度・不応期・身体

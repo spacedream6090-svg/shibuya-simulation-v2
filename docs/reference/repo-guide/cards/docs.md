@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-390 ディレクトリ・2580 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+393 ディレクトリ・2590 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -105,7 +105,9 @@
 
 - [README.md](../../../bench/analysis/fleet-flake-347/README.md): 艦隊の口の試験の揺れと、接続の置き場が詰まる件(第347・2026-11-20)
 
-## docs/bench/analysis/fleet-flake-347/probe_out(5 本)
+## docs/bench/analysis/fleet-flake-347/bytecheck-348(3 本)
+
+## docs/bench/analysis/fleet-flake-347/probe_out(6 本)
 
 ## docs/bench/analysis/fleet-flake-347/tools(3 本)
 
@@ -127,6 +129,10 @@
 - [README.md](../../../bench/analysis/library-defaults-q13-347/README.md): Q13(第347)ライブラリの既定を CLI にそろえる(library-defaults-q13-347)
 
 ## docs/bench/analysis/library-defaults-q13-347/bytecheck(3 本)
+
+## docs/bench/analysis/library-defaults-q13-347/bytecheck-348(3 本)
+
+## docs/bench/analysis/library-defaults-q13-347/bytecheck-348-all(3 本)
 
 ## docs/bench/analysis/library-defaults-q13-347/bytecheck_unpinned_base_9495521(3 本)
 

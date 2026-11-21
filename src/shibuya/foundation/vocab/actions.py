@@ -913,8 +913,8 @@ def append_comment(text: str, comment: str) -> str:
     return f"{text} ひと言: {comment}"
 
 
-def is_role_action(word: str, vocab_version: str = DEFAULT_VOCAB_VERSION) -> bool:
-    """§2.2 の役割語か(``"v3"`` では 並ぶ は横断語=役割語ではない)。"""
+def is_role_action(word: str, vocab_version: str) -> bool:
+    """§2.2 の役割語か(``"v3"`` では 並ぶ は横断語=役割語ではない)。〔第348〕語彙の既定は無い(呼び手がランの語彙を渡す)。"""
     if str(vocab_version) == "v3":
         return word in _ROLE_SET_V3
     return word in ROLE_ACTIONS
@@ -1078,7 +1078,8 @@ def resolve_landmark(token: str, landmarks: Mapping[str, int] | None) -> int | N
 def parse_target(
     text: str | None,
     landmarks: Mapping[str, int] | None = None,
-    vocab_version: str = DEFAULT_VOCAB_VERSION,
+    *,
+    vocab_version: str,
 ) -> Target:
     """「対象」欄の文字列 → ``Target``。**例外を投げない**。
 
@@ -1097,16 +1098,16 @@ def parse_target(
         vocab_version: 語彙版。``"v3"`` のときだけ (i) ``あたり`` → ``wander=True``
             (``ITEM_CATEGORY``・``category="あたり"``)(ii) ``自宅/職場/学校`` は目印に解決しない
             (iii) v3 の説明語 ``TARGET_PLACEHOLDERS_V3`` も対象なしとして読む。
-            **既定 ``"v1"``(と ``"v2"``)は 1 バイトも挙動が変わらない**。
+            ``"v1"`` と ``"v2"`` は同じ規則。〔第348〕既定は無い(キーワードで必ず渡す。前の既定は ``"v1"``)。
 
     Note:
         EVENT(事象ID)は表層形が定まっていないため**この関数では出さない**
         (通報・遅延報告の対象は engine 側が文脈から決める)。
 
     Example:
-        >>> parse_target("ハチ公", {"忠犬ハチ公像": 7}).poi_id
+        >>> parse_target("ハチ公", {"忠犬ハチ公像": 7}, vocab_version="v1").poi_id
         7
-        >>> parse_target("ハチ公").poi_id is None
+        >>> parse_target("ハチ公", vocab_version="v1").poi_id is None
         True
     """
     if text is None:
