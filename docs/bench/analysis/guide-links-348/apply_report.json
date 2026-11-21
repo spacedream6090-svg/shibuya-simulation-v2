@@ -1,0 +1,4768 @@
+{
+ "schema": "guide-links-348/relink/1",
+ "apply": true,
+ "files": {
+  "docs/reference/repo-guide/can-say.md": {
+   "picked": 30,
+   "exists": 29,
+   "missing": 1,
+   "one_to_one": 1
+  },
+  "docs/reference/repo-guide/catalog/a-body-and-town.md": {
+   "picked": 198,
+   "exists": 64,
+   "missing": 134,
+   "one_to_one": 105,
+   "main": 18,
+   "one_to_one_dir": 2,
+   "by_name": 9,
+   "main_many": 2
+  },
+  "docs/reference/repo-guide/catalog/b-people.md": {
+   "picked": 116,
+   "exists": 16,
+   "missing": 100,
+   "main": 11,
+   "main_many": 7,
+   "one_to_one": 73,
+   "by_name": 16
+  },
+  "docs/reference/repo-guide/catalog/c-foundation.md": {
+   "picked": 213,
+   "exists": 75,
+   "missing": 138,
+   "one_to_one": 109,
+   "left": 1,
+   "main": 15,
+   "main_many": 1,
+   "by_name": 13
+  },
+  "docs/reference/repo-guide/day-flow.md": {
+   "picked": 107,
+   "exists": 28,
+   "missing": 79,
+   "by_name": 2,
+   "one_to_one": 62,
+   "main": 15
+  },
+  "docs/reference/repo-guide/README.md": {
+   "picked": 13,
+   "exists": 13
+  }
+ },
+ "changes": [
+  {
+   "file": "docs/reference/repo-guide/can-say.md",
+   "line": 14,
+   "text": "absent.py",
+   "old": "../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 16,
+   "text": "rail.py",
+   "old": "../../../../src/shibuya/engine/processes/rail.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/rail.py",
+   "dest": "src/shibuya/world/laws/rail.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 16,
+   "text": "resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/apply.py",
+   "dest": "src/shibuya/act/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 17,
+   "text": "presence.py",
+   "old": "../../../../src/shibuya/engine/presence.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/presence.py",
+   "dest": "src/shibuya/world/laws/presence.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 17,
+   "text": "weekly.py",
+   "old": "../../../../src/shibuya/agents/weekly.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/weekly_reader.py",
+   "dest": "src/shibuya/world/facts/weekly_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 18,
+   "text": "nav1.py",
+   "old": "../../../../src/shibuya/engine/space/nav1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/space/nav1.py",
+   "dest": "src/shibuya/world/model/space/nav1.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 18,
+   "text": "navmesh.py",
+   "old": "../../../../src/shibuya/world/navmesh.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/navmesh.py",
+   "dest": "src/shibuya/world/model/navmesh.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 18,
+   "text": "navmesh_route.py",
+   "old": "../../../../src/shibuya/world/navmesh_route.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/navmesh_route.py",
+   "dest": "src/shibuya/world/model/navmesh_route.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 19,
+   "text": "geometry.py",
+   "old": "../../../../src/shibuya/engine/geometry.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/geometry.py",
+   "dest": "src/shibuya/world/model/geometry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 20,
+   "text": "crowd.py",
+   "old": "../../../../src/shibuya/engine/processes/crowd.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/crowd.py",
+   "dest": "src/shibuya/world/laws/crowd.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 20,
+   "text": "state.py",
+   "old": "../../../../src/shibuya/world/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/state.py",
+   "dest": "src/shibuya/world/model/state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 21,
+   "text": "seat_release.py",
+   "old": "../../../../src/shibuya/engine/seat_release.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/switch_seat.py",
+   "dest": "src/shibuya/world/laws/switch_seat.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 22,
+   "text": "environment.py",
+   "old": "../../../../src/shibuya/engine/processes/environment.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/environment.py",
+   "dest": "src/shibuya/world/laws/environment.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 22,
+   "text": "solar.py",
+   "old": "../../../../src/shibuya/engine/solar.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/solar.py",
+   "dest": "src/shibuya/world/model/solar.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 25,
+   "text": "assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 26,
+   "text": "runner.py",
+   "old": "../../../../src/shibuya/engine/processes/runner.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/runner.py",
+   "dest": "src/shibuya/world/laws/runner.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 26,
+   "text": "processes/",
+   "old": "../../../../src/shibuya/engine/processes/",
+   "how": "dir_one",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/",
+   "dest": "src/shibuya/world/laws"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 27,
+   "text": "first_batch.py",
+   "old": "../../../../src/shibuya/world/processes/first_batch.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/first_batch.py",
+   "dest": "src/shibuya/world/ledger/first_batch.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 27,
+   "text": "registry.py",
+   "old": "../../../../src/shibuya/world/processes/registry.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/registry.py",
+   "dest": "src/shibuya/world/ledger/registry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 28,
+   "text": "absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 28,
+   "text": "inputs.py",
+   "old": "../../../../src/shibuya/world/processes/inputs.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/inputs.py",
+   "dest": "src/shibuya/world/ledger/inputs.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 29,
+   "text": "table.py",
+   "old": "../../../../src/shibuya/engine/rules/table.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/rules/table.py",
+   "dest": "src/shibuya/world/facts/rules/table.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 30,
+   "text": "engine/body/",
+   "old": "../../../../src/shibuya/engine/body/",
+   "how": "dir_one",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/",
+   "dest": "src/shibuya/world/body"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 31,
+   "text": "calendar.py",
+   "old": "../../../../src/shibuya/engine/calendar.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/calendar.py",
+   "dest": "src/shibuya/world/facts/calendar.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 32,
+   "text": "proximity.py",
+   "old": "../../../../src/shibuya/engine/proximity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/proximity.py",
+   "dest": "src/shibuya/world/model/proximity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 32,
+   "text": "spatial_index.py",
+   "old": "../../../../src/shibuya/engine/spatial_index.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/spatial_index.py",
+   "dest": "src/shibuya/world/model/spatial_index.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 33,
+   "text": "batching.py",
+   "old": "../../../../src/shibuya/engine/batching.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/queues/batching.py",
+   "dest": "src/shibuya/foundation/queues/batching.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 33,
+   "text": "regional_clock.py",
+   "old": "../../../../src/shibuya/engine/regional_clock.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/regional.py",
+   "dest": "src/shibuya/runtime/clocks/regional.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 33,
+   "text": "step_scope.py",
+   "old": "../../../../src/shibuya/engine/step_scope.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/step_scope.py",
+   "dest": "src/shibuya/runtime/clocks/step_scope.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 37,
+   "text": "absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 104,
+   "text": "rail_events.py",
+   "old": "../../../../src/shibuya/engine/processes/rail_events.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/rail_events.py",
+   "dest": "src/shibuya/world/laws/rail_events.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 112,
+   "text": "engine/processes/rail.py",
+   "old": "../../../../src/shibuya/engine/processes/rail.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/rail.py",
+   "dest": "src/shibuya/world/laws/rail.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 113,
+   "text": "engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "_apply_board",
+    "_board_riders",
+    "_enter_board_queue",
+    "_serve_board_queue",
+    "rail_arrive",
+    "rail_depart",
+    "sync_transit_activity"
+   ],
+   "new": "../../../../src/shibuya/act/ops/rail.py",
+   "dest": "src/shibuya/act/ops/rail.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 114,
+   "text": "engine/rate_rules.py",
+   "old": "../../../../src/shibuya/engine/rate_rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/switch_rate.py",
+   "dest": "src/shibuya/world/laws/switch_rate.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 115,
+   "text": "world/assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "name_line",
+   "names": [
+    "ProcessAssets"
+   ],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 116,
+   "text": "world/processes/first_batch.py",
+   "old": "../../../../src/shibuya/world/processes/first_batch.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/first_batch.py",
+   "dest": "src/shibuya/world/ledger/first_batch.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 168,
+   "text": "judge.py",
+   "old": "../../../../src/shibuya/engine/systems/judge.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/judge.py",
+   "dest": "src/shibuya/runtime/systems/judge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 184,
+   "text": "engine/presence.py",
+   "old": "../../../../src/shibuya/engine/presence.py",
+   "how": "main_many_line",
+   "names": [
+    "PlanBlocks",
+    "PlanExecutor"
+   ],
+   "new": "../../../../src/shibuya/world/laws/presence.py",
+   "dest": "src/shibuya/world/laws/presence.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 185,
+   "text": "agents/weekly.py",
+   "old": "../../../../src/shibuya/agents/weekly.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/weekly_reader.py",
+   "dest": "src/shibuya/world/facts/weekly_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 186,
+   "text": "engine/systems/body.py",
+   "old": "../../../../src/shibuya/engine/systems/body.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/body.py",
+   "dest": "src/shibuya/runtime/systems/body.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 187,
+   "text": "engine/systems/build.py",
+   "old": "../../../../src/shibuya/engine/systems/build.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/assemble.py",
+   "dest": "src/shibuya/runtime/systems/assemble.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 188,
+   "text": "engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "main_many_line",
+   "names": [
+    "balk_queue",
+    "begin_exit_walk",
+    "begin_planned_sleep",
+    "place_at_external",
+    "rail_arrive",
+    "rail_depart",
+    "release_indoor",
+    "set_plan_state",
+    "wake_from_plan"
+   ],
+   "new": "../../../../src/shibuya/act/apply.py",
+   "dest": "src/shibuya/act/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 189,
+   "text": "engine/arbiter.py",
+   "old": "../../../../src/shibuya/engine/arbiter.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/arbiter.py",
+   "dest": "src/shibuya/runtime/arbiter.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 189,
+   "text": "engine/systems/judge.py",
+   "old": "../../../../src/shibuya/engine/systems/judge.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/judge.py",
+   "dest": "src/shibuya/runtime/systems/judge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 241,
+   "text": "intent.py",
+   "old": "../../../../src/shibuya/engine/intent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/act/intent.py",
+   "dest": "src/shibuya/act/intent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 245,
+   "text": "NavPlanner",
+   "old": "../../../../src/shibuya/world/navmesh_route.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/navmesh_route.py",
+   "dest": "src/shibuya/world/model/navmesh_route.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 270,
+   "text": "engine/space/nav1.py",
+   "old": "../../../../src/shibuya/engine/space/nav1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/space/nav1.py",
+   "dest": "src/shibuya/world/model/space/nav1.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 271,
+   "text": "world/navmesh.py",
+   "old": "../../../../src/shibuya/world/navmesh.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/navmesh.py",
+   "dest": "src/shibuya/world/model/navmesh.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 272,
+   "text": "world/navmesh_route.py",
+   "old": "../../../../src/shibuya/world/navmesh_route.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/navmesh_route.py",
+   "dest": "src/shibuya/world/model/navmesh_route.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 273,
+   "text": "world/graph.py",
+   "old": "../../../../src/shibuya/world/graph.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/graph.py",
+   "dest": "src/shibuya/world/model/graph.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 274,
+   "text": "engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "_apply_engine_step",
+    "_apply_move",
+    "_nav_positions",
+    "_nav_step",
+    "_nav_stop",
+    "nav_place"
+   ],
+   "new": "../../../../src/shibuya/act/ops/move.py",
+   "dest": "src/shibuya/act/ops/move.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 275,
+   "text": "engine/commit.py",
+   "old": "../../../../src/shibuya/engine/commit.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/commit.py",
+   "dest": "src/shibuya/act/commit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 275,
+   "text": "engine/poi_target.py",
+   "old": "../../../../src/shibuya/engine/poi_target.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/target.py",
+   "dest": "src/shibuya/act/target.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 276,
+   "text": "engine/intent.py",
+   "old": "../../../../src/shibuya/engine/intent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/act/intent.py",
+   "dest": "src/shibuya/act/intent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 276,
+   "text": "engine/activity.py",
+   "old": "../../../../src/shibuya/engine/activity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/act/activity.py",
+   "dest": "src/shibuya/act/activity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 277,
+   "text": "engine/geometry.py",
+   "old": "../../../../src/shibuya/engine/geometry.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/geometry.py",
+   "dest": "src/shibuya/world/model/geometry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 345,
+   "text": "engine/space/nav1.py",
+   "old": "../../../../src/shibuya/engine/space/nav1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/space/nav1.py",
+   "dest": "src/shibuya/world/model/space/nav1.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 346,
+   "text": "engine/geometry.py",
+   "old": "../../../../src/shibuya/engine/geometry.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/geometry.py",
+   "dest": "src/shibuya/world/model/geometry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 347,
+   "text": "world/state.py",
+   "old": "../../../../src/shibuya/world/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/state.py",
+   "dest": "src/shibuya/world/model/state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 394,
+   "text": "engine/processes/crowd.py",
+   "old": "../../../../src/shibuya/engine/processes/crowd.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/crowd.py",
+   "dest": "src/shibuya/world/laws/crowd.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 395,
+   "text": "engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/apply.py",
+   "dest": "src/shibuya/act/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 396,
+   "text": "world/state.py",
+   "old": "../../../../src/shibuya/world/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/state.py",
+   "dest": "src/shibuya/world/model/state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 397,
+   "text": "engine/change_detect.py",
+   "old": "../../../../src/shibuya/engine/change_detect.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/system1/change_detect.py",
+   "dest": "src/shibuya/mind/system1/change_detect.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 438,
+   "text": "commit.py",
+   "old": "../../../../src/shibuya/engine/commit.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/commit.py",
+   "dest": "src/shibuya/act/commit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 454,
+   "text": "engine/processes/crowd.py",
+   "old": "../../../../src/shibuya/engine/processes/crowd.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/crowd.py",
+   "dest": "src/shibuya/world/laws/crowd.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 455,
+   "text": "engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "_apply_buy",
+    "_apply_eat",
+    "_apply_queue",
+    "_complete_buy",
+    "_complete_eat",
+    "_serve_poi_queue",
+    "balk_queue",
+    "release_indoor"
+   ],
+   "new": "../../../../src/shibuya/act/ops/shop.py",
+   "dest": "src/shibuya/act/ops/shop.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 456,
+   "text": "engine/seat_release.py",
+   "old": "../../../../src/shibuya/engine/seat_release.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/switch_seat.py",
+   "dest": "src/shibuya/world/laws/switch_seat.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 457,
+   "text": "engine/defect_fixes_1103.py",
+   "old": "../../../../src/shibuya/engine/defect_fixes_1103.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/switch_defects.py",
+   "dest": "src/shibuya/runtime/switch_defects.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 458,
+   "text": "engine/commit.py",
+   "old": "../../../../src/shibuya/engine/commit.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/commit.py",
+   "dest": "src/shibuya/act/commit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 527,
+   "text": "engine/processes/environment.py",
+   "old": "../../../../src/shibuya/engine/processes/environment.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/environment.py",
+   "dest": "src/shibuya/world/laws/environment.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 528,
+   "text": "engine/solar.py",
+   "old": "../../../../src/shibuya/engine/solar.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/solar.py",
+   "dest": "src/shibuya/world/model/solar.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 529,
+   "text": "engine/body/rules.py",
+   "old": "../../../../src/shibuya/engine/body/rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/rules.py",
+   "dest": "src/shibuya/world/body/rules.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 529,
+   "text": "engine/body/model.py",
+   "old": "../../../../src/shibuya/engine/body/model.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/model.py",
+   "dest": "src/shibuya/world/body/model.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 530,
+   "text": "engine/systems/build.py",
+   "old": "../../../../src/shibuya/engine/systems/build.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/assemble.py",
+   "dest": "src/shibuya/runtime/systems/assemble.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 530,
+   "text": "perception/renderer.py",
+   "old": "../../../../src/shibuya/perception/renderer.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/percept_scene.py",
+   "dest": "src/shibuya/world/model/percept_scene.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 531,
+   "text": "world/assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 583,
+   "text": "engine/processes/environment.py",
+   "old": "../../../../src/shibuya/engine/processes/environment.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/environment.py",
+   "dest": "src/shibuya/world/laws/environment.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 584,
+   "text": "world/assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 625,
+   "text": "world/assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "name_line",
+   "names": [
+    "NOISE_DAY_HOURS"
+   ],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 626,
+   "text": "world/state.py",
+   "old": "../../../../src/shibuya/world/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/state.py",
+   "dest": "src/shibuya/world/model/state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 627,
+   "text": "perception/renderer.py",
+   "old": "../../../../src/shibuya/perception/renderer.py",
+   "how": "name_line",
+   "names": [
+    "PerceptionAssets"
+   ],
+   "new": "../../../../src/shibuya/world/model/percept_scene.py",
+   "dest": "src/shibuya/world/model/percept_scene.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 672,
+   "text": "world/assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "name_line",
+   "names": [
+    "load_poi_own_cell_visibility",
+    "load_visible_pois_by_cell"
+   ],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 673,
+   "text": "world/state.py",
+   "old": "../../../../src/shibuya/world/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/state.py",
+   "dest": "src/shibuya/world/model/state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 674,
+   "text": "engine/poi_target.py",
+   "old": "../../../../src/shibuya/engine/poi_target.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/target.py",
+   "dest": "src/shibuya/act/target.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 674,
+   "text": "engine/classical.py",
+   "old": "../../../../src/shibuya/engine/classical.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/classical.py",
+   "dest": "src/shibuya/mind/judge/classical.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 734,
+   "text": "engine/processes/runner.py",
+   "old": "../../../../src/shibuya/engine/processes/runner.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/runner.py",
+   "dest": "src/shibuya/world/laws/runner.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 735,
+   "text": "engine/systems/world.py",
+   "old": "../../../../src/shibuya/engine/systems/world.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/world.py",
+   "dest": "src/shibuya/runtime/systems/world.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 736,
+   "text": "engine/processes/environment.py",
+   "old": "../../../../src/shibuya/engine/processes/environment.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/environment.py",
+   "dest": "src/shibuya/world/laws/environment.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 736,
+   "text": "rail.py",
+   "old": "../../../../src/shibuya/engine/processes/rail.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/rail.py",
+   "dest": "src/shibuya/world/laws/rail.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 736,
+   "text": "crowd.py",
+   "old": "../../../../src/shibuya/engine/processes/crowd.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/crowd.py",
+   "dest": "src/shibuya/world/laws/crowd.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 737,
+   "text": "engine/processes/opening.py",
+   "old": "../../../../src/shibuya/engine/processes/opening.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/opening.py",
+   "dest": "src/shibuya/world/laws/opening.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 738,
+   "text": "engine/processes/traffic.py",
+   "old": "../../../../src/shibuya/engine/processes/traffic.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/traffic.py",
+   "dest": "src/shibuya/world/laws/traffic.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 739,
+   "text": "engine/processes/goods_flow.py",
+   "old": "../../../../src/shibuya/engine/processes/goods_flow.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/goods_flow.py",
+   "dest": "src/shibuya/world/laws/goods_flow.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 740,
+   "text": "engine/processes/logistics.py",
+   "old": "../../../../src/shibuya/engine/processes/logistics.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/logistics.py",
+   "dest": "src/shibuya/world/laws/logistics.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 741,
+   "text": "engine/processes/civic.py",
+   "old": "../../../../src/shibuya/engine/processes/civic.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/civic.py",
+   "dest": "src/shibuya/world/laws/civic.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 742,
+   "text": "engine/processes/salient.py",
+   "old": "../../../../src/shibuya/engine/processes/salient.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/salient.py",
+   "dest": "src/shibuya/world/laws/salient.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 743,
+   "text": "engine/rate_rules.py",
+   "old": "../../../../src/shibuya/engine/rate_rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/switch_rate.py",
+   "dest": "src/shibuya/world/laws/switch_rate.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 743,
+   "text": "engine/absent_processes.py",
+   "old": "../../../../src/shibuya/engine/absent_processes.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/switch_absent.py",
+   "dest": "src/shibuya/world/laws/switch_absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 803,
+   "text": "world/processes/records.py",
+   "old": "../../../../src/shibuya/world/processes/records.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/records.py",
+   "dest": "src/shibuya/world/ledger/records.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 804,
+   "text": "world/processes/relations.py",
+   "old": "../../../../src/shibuya/world/processes/relations.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/relations.py",
+   "dest": "src/shibuya/world/ledger/relations.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 805,
+   "text": "world/processes/registry.py",
+   "old": "../../../../src/shibuya/world/processes/registry.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/registry.py",
+   "dest": "src/shibuya/world/ledger/registry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 806,
+   "text": "world/processes/first_batch.py",
+   "old": "../../../../src/shibuya/world/processes/first_batch.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/first_batch.py",
+   "dest": "src/shibuya/world/ledger/first_batch.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 807,
+   "text": "world/processes/constitution.py",
+   "old": "../../../../src/shibuya/world/processes/constitution.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/constitution.py",
+   "dest": "src/shibuya/world/ledger/constitution.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 808,
+   "text": "world/processes/actual_log.py",
+   "old": "../../../../src/shibuya/world/processes/actual_log.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/actual_log.py",
+   "dest": "src/shibuya/world/ledger/actual_log.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 809,
+   "text": "world/processes/circularity.py",
+   "old": "../../../../src/shibuya/world/processes/circularity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/validation/static/circularity.py",
+   "dest": "src/shibuya/validation/static/circularity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 810,
+   "text": "world/processes/deletion_candidates.py",
+   "old": "../../../../src/shibuya/world/processes/deletion_candidates.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/validation/static/deletion_candidates.py",
+   "dest": "src/shibuya/validation/static/deletion_candidates.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 832,
+   "text": "absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 832,
+   "text": "inputs.py",
+   "old": "../../../../src/shibuya/world/processes/inputs.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/inputs.py",
+   "dest": "src/shibuya/world/ledger/inputs.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 854,
+   "text": "world/processes/absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 855,
+   "text": "world/processes/inputs.py",
+   "old": "../../../../src/shibuya/world/processes/inputs.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/inputs.py",
+   "dest": "src/shibuya/world/ledger/inputs.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 856,
+   "text": "world/processes/records.py",
+   "old": "../../../../src/shibuya/world/processes/records.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/records.py",
+   "dest": "src/shibuya/world/ledger/records.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 857,
+   "text": "engine/absent_processes.py",
+   "old": "../../../../src/shibuya/engine/absent_processes.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/switch_absent.py",
+   "dest": "src/shibuya/world/laws/switch_absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 857,
+   "text": "engine/rate_rules.py",
+   "old": "../../../../src/shibuya/engine/rate_rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/switch_rate.py",
+   "dest": "src/shibuya/world/laws/switch_rate.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 893,
+   "text": "calendar3/layer.py",
+   "old": "../../../../src/shibuya/engine/calendar3/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/calendar3/layer.py",
+   "dest": "src/shibuya/interim_bundles/calendar3/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 904,
+   "text": "engine/rules/table.py",
+   "old": "../../../../src/shibuya/engine/rules/table.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/rules/table.py",
+   "dest": "src/shibuya/world/facts/rules/table.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 907,
+   "text": "engine/economy_rules.py",
+   "old": "../../../../src/shibuya/engine/economy_rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/economy/rules_bind.py",
+   "dest": "src/shibuya/economy/rules_bind.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 908,
+   "text": "engine/run.py",
+   "old": "../../../../src/shibuya/engine/run.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 908,
+   "text": "engine/systems/state_io.py",
+   "old": "../../../../src/shibuya/engine/systems/state_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/state_io.py",
+   "dest": "src/shibuya/runtime/systems/state_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 954,
+   "text": "system1.py",
+   "old": "../../../../src/shibuya/engine/body/system1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/reactions.py",
+   "dest": "src/shibuya/world/body/reactions.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 961,
+   "text": "engine/body/rules.py",
+   "old": "../../../../src/shibuya/engine/body/rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/rules.py",
+   "dest": "src/shibuya/world/body/rules.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 962,
+   "text": "engine/body/model.py",
+   "old": "../../../../src/shibuya/engine/body/model.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/model.py",
+   "dest": "src/shibuya/world/body/model.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 963,
+   "text": "engine/body/schedule.py",
+   "old": "../../../../src/shibuya/engine/body/schedule.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/schedule.py",
+   "dest": "src/shibuya/world/body/schedule.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 964,
+   "text": "engine/body/system1.py",
+   "old": "../../../../src/shibuya/engine/body/system1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/reactions.py",
+   "dest": "src/shibuya/world/body/reactions.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 965,
+   "text": "engine/systems/body.py",
+   "old": "../../../../src/shibuya/engine/systems/body.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/body.py",
+   "dest": "src/shibuya/runtime/systems/body.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1019,
+   "text": "engine/calendar.py",
+   "old": "../../../../src/shibuya/engine/calendar.py",
+   "how": "name_line",
+   "names": [
+    "SimCalendar",
+    "load_holidays"
+   ],
+   "new": "../../../../src/shibuya/world/facts/calendar.py",
+   "dest": "src/shibuya/world/facts/calendar.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1020,
+   "text": "world/processes/inputs.py",
+   "old": "../../../../src/shibuya/world/processes/inputs.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/inputs.py",
+   "dest": "src/shibuya/world/ledger/inputs.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1021,
+   "text": "engine/systems/state_io.py",
+   "old": "../../../../src/shibuya/engine/systems/state_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/state_io.py",
+   "dest": "src/shibuya/runtime/systems/state_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1063,
+   "text": "engine/proximity.py",
+   "old": "../../../../src/shibuya/engine/proximity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/proximity.py",
+   "dest": "src/shibuya/world/model/proximity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1064,
+   "text": "engine/spatial_index.py",
+   "old": "../../../../src/shibuya/engine/spatial_index.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/spatial_index.py",
+   "dest": "src/shibuya/world/model/spatial_index.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1065,
+   "text": "engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "talk_within_reach"
+   ],
+   "new": "../../../../src/shibuya/act/ops/talk.py",
+   "dest": "src/shibuya/act/ops/talk.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1106,
+   "text": "engine/batching.py",
+   "old": "../../../../src/shibuya/engine/batching.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/queues/batching.py",
+   "dest": "src/shibuya/foundation/queues/batching.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1107,
+   "text": "engine/regional_clock.py",
+   "old": "../../../../src/shibuya/engine/regional_clock.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/regional.py",
+   "dest": "src/shibuya/runtime/clocks/regional.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1108,
+   "text": "engine/step_scope.py",
+   "old": "../../../../src/shibuya/engine/step_scope.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/step_scope.py",
+   "dest": "src/shibuya/runtime/clocks/step_scope.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1109,
+   "text": "engine/systems/conductor.py",
+   "old": "../../../../src/shibuya/engine/systems/conductor.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/conductor.py",
+   "dest": "src/shibuya/runtime/systems/conductor.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/a-body-and-town.md",
+   "line": 1110,
+   "text": "engine/clock.py",
+   "old": "../../../../src/shibuya/engine/clock.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clock.py",
+   "dest": "src/shibuya/runtime/clock.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 80,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "main_many_line",
+   "names": [
+    "_apply_buy",
+    "_apply_queue",
+    "_complete_buy",
+    "_payable",
+    "_serve_poi_queue",
+    "consume"
+   ],
+   "new": "../../../../src/shibuya/act/apply.py",
+   "dest": "src/shibuya/act/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 81,
+   "text": "src/shibuya/engine/commit.py",
+   "old": "../../../../src/shibuya/engine/commit.py",
+   "how": "main_many_line",
+   "names": [
+    "arbitrate_resources",
+    "intents_from_responses"
+   ],
+   "new": "../../../../src/shibuya/act/commit.py",
+   "dest": "src/shibuya/act/commit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 82,
+   "text": "src/shibuya/engine/systems/act.py",
+   "old": "../../../../src/shibuya/engine/systems/act.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/act.py",
+   "dest": "src/shibuya/runtime/systems/act.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 83,
+   "text": "src/shibuya/engine/processes/crowd.py",
+   "old": "../../../../src/shibuya/engine/processes/crowd.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/crowd.py",
+   "dest": "src/shibuya/world/laws/crowd.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 84,
+   "text": "src/shibuya/engine/processes/goods_flow.py",
+   "old": "../../../../src/shibuya/engine/processes/goods_flow.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/goods_flow.py",
+   "dest": "src/shibuya/world/laws/goods_flow.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 85,
+   "text": "src/shibuya/world/assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "name_line",
+   "names": [
+    "SYNTHETIC_POI_CAPACITY"
+   ],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 86,
+   "text": "src/shibuya/world/processes/absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 137,
+   "text": "src/shibuya/engine/poi_target.py",
+   "old": "../../../../src/shibuya/engine/poi_target.py",
+   "how": "main_many_line",
+   "names": [
+    "BUYABLE_CATS",
+    "CATEGORY_WORDS",
+    "TargetResolver"
+   ],
+   "new": "../../../../src/shibuya/act/target.py",
+   "dest": "src/shibuya/act/target.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 138,
+   "text": "src/shibuya/engine/chooser.py",
+   "old": "../../../../src/shibuya/engine/chooser.py",
+   "how": "main_many_line",
+   "names": [
+    "Chooser",
+    "ClassicalChooser",
+    "NearestChooser",
+    "draw_index"
+   ],
+   "new": "../../../../src/shibuya/mind/judge/chooser.py",
+   "dest": "src/shibuya/mind/judge/chooser.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 139,
+   "text": "src/shibuya/engine/store_choice.py",
+   "old": "../../../../src/shibuya/engine/store_choice.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/store_choice.py",
+   "dest": "src/shibuya/mind/judge/store_choice.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 199,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "main_many_line",
+   "names": [
+    "_apply_eat",
+    "_complete_eat",
+    "_energy_meal",
+    "_energy_snack",
+    "advance_body",
+    "energy_home_meal",
+    "energy_out_of_area_meal",
+    "initialize_energy"
+   ],
+   "new": "../../../../src/shibuya/act/apply.py",
+   "dest": "src/shibuya/act/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 200,
+   "text": "src/shibuya/engine/energy.py",
+   "old": "../../../../src/shibuya/engine/energy.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/energy.py",
+   "dest": "src/shibuya/world/body/energy.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 201,
+   "text": "src/shibuya/engine/body/rules.py",
+   "old": "../../../../src/shibuya/engine/body/rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/rules.py",
+   "dest": "src/shibuya/world/body/rules.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 202,
+   "text": "src/shibuya/engine/systems/body.py",
+   "old": "../../../../src/shibuya/engine/systems/body.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/body.py",
+   "dest": "src/shibuya/runtime/systems/body.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 203,
+   "text": "src/shibuya/engine/classical.py",
+   "old": "../../../../src/shibuya/engine/classical.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/classical.py",
+   "dest": "src/shibuya/mind/judge/classical.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 204,
+   "text": "src/shibuya/world/state.py",
+   "old": "../../../../src/shibuya/world/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/state.py",
+   "dest": "src/shibuya/world/model/state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 205,
+   "text": "src/shibuya/perception/renderer.py",
+   "old": "../../../../src/shibuya/perception/renderer.py",
+   "how": "name_line",
+   "names": [
+    "HUNGER_WORDS_MODES"
+   ],
+   "new": "../../../../src/shibuya/mind/percept/draw.py",
+   "dest": "src/shibuya/mind/percept/draw.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 265,
+   "text": "src/shibuya/engine/conversation.py",
+   "old": "../../../../src/shibuya/engine/conversation.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/conversation.py",
+   "dest": "src/shibuya/society/conversation.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 266,
+   "text": "src/shibuya/engine/systems/talk.py",
+   "old": "../../../../src/shibuya/engine/systems/talk.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/talk.py",
+   "dest": "src/shibuya/runtime/systems/talk.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 267,
+   "text": "src/shibuya/engine/systems/judge.py",
+   "old": "../../../../src/shibuya/engine/systems/judge.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/judge.py",
+   "dest": "src/shibuya/runtime/systems/judge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 268,
+   "text": "src/shibuya/engine/systems/llm_io.py",
+   "old": "../../../../src/shibuya/engine/systems/llm_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/llm_io.py",
+   "dest": "src/shibuya/runtime/systems/llm_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 269,
+   "text": "src/shibuya/engine/run.py",
+   "old": "../../../../src/shibuya/engine/run.py",
+   "how": "name_line",
+   "names": [
+    "_settle_pending_invites"
+   ],
+   "new": "../../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 270,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "_apply_talk",
+    "end_conversation",
+    "join_conversation",
+    "revert_conversation",
+    "set_conversing",
+    "talk_within_reach"
+   ],
+   "new": "../../../../src/shibuya/act/ops/talk.py",
+   "dest": "src/shibuya/act/ops/talk.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 271,
+   "text": "src/shibuya/engine/commit.py",
+   "old": "../../../../src/shibuya/engine/commit.py",
+   "how": "name_line",
+   "names": [
+    "_talk_partners_reach",
+    "pair_partners",
+    "talk_partners"
+   ],
+   "new": "../../../../src/shibuya/act/intake/from_words.py",
+   "dest": "src/shibuya/act/intake/from_words.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 272,
+   "text": "src/shibuya/engine/defect_fixes_1103.py",
+   "old": "../../../../src/shibuya/engine/defect_fixes_1103.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/switch_defects.py",
+   "dest": "src/shibuya/runtime/switch_defects.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 318,
+   "text": "src/shibuya/engine/proximity.py",
+   "old": "../../../../src/shibuya/engine/proximity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/proximity.py",
+   "dest": "src/shibuya/world/model/proximity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 319,
+   "text": "src/shibuya/engine/spatial_index.py",
+   "old": "../../../../src/shibuya/engine/spatial_index.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/spatial_index.py",
+   "dest": "src/shibuya/world/model/spatial_index.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 357,
+   "text": "src/shibuya/engine/speech/port.py",
+   "old": "../../../../src/shibuya/engine/speech/port.py",
+   "how": "main_many_line",
+   "names": [
+    "SpeechPort",
+    "Utterance",
+    "mora_count"
+   ],
+   "new": "../../../../src/shibuya/society/speech/port.py",
+   "dest": "src/shibuya/society/speech/port.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 358,
+   "text": "src/shibuya/engine/speech/layer.py",
+   "old": "../../../../src/shibuya/engine/speech/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/speech/layer.py",
+   "dest": "src/shibuya/society/speech/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 359,
+   "text": "src/shibuya/llm/mock.py",
+   "old": "../../../../src/shibuya/llm/mock.py",
+   "how": "name_line",
+   "names": [
+    "MOCK_UTTERANCE"
+   ],
+   "new": "../../../../src/shibuya/foundation/vocab/actions.py",
+   "dest": "src/shibuya/foundation/vocab/actions.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 360,
+   "text": "src/shibuya/perception/renderer.py",
+   "old": "../../../../src/shibuya/perception/renderer.py",
+   "how": "name_line",
+   "names": [
+    "SPEECH_HEARD_LINE",
+    "SPEECH_IMPERATIVE_PATTERNS"
+   ],
+   "new": "../../../../src/shibuya/mind/percept/draw.py",
+   "dest": "src/shibuya/mind/percept/draw.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 394,
+   "text": "src/shibuya/engine/speech_clock.py",
+   "old": "../../../../src/shibuya/engine/speech_clock.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/speech.py",
+   "dest": "src/shibuya/runtime/clocks/speech.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 448,
+   "text": "src/shibuya/engine/memory.py",
+   "old": "../../../../src/shibuya/engine/memory.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory.py",
+   "dest": "src/shibuya/mind/memory/memory.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 449,
+   "text": "src/shibuya/engine/memory_store.py",
+   "old": "../../../../src/shibuya/engine/memory_store.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory_store.py",
+   "dest": "src/shibuya/mind/memory/memory_store.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 450,
+   "text": "src/shibuya/engine/memory_m1.py",
+   "old": "../../../../src/shibuya/engine/memory_m1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory_m1.py",
+   "dest": "src/shibuya/mind/memory/memory_m1.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 451,
+   "text": "src/shibuya/engine/memory_embed.py",
+   "old": "../../../../src/shibuya/engine/memory_embed.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory_embed.py",
+   "dest": "src/shibuya/mind/memory/memory_embed.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 452,
+   "text": "src/shibuya/engine/memory_impression.py",
+   "old": "../../../../src/shibuya/engine/memory_impression.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory_impression.py",
+   "dest": "src/shibuya/mind/memory/memory_impression.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 453,
+   "text": "src/shibuya/engine/memory_trace.py",
+   "old": "../../../../src/shibuya/engine/memory_trace.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory_trace.py",
+   "dest": "src/shibuya/mind/memory/memory_trace.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 454,
+   "text": "src/shibuya/engine/systems/remember.py",
+   "old": "../../../../src/shibuya/engine/systems/remember.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/remember.py",
+   "dest": "src/shibuya/runtime/systems/remember.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 455,
+   "text": "src/shibuya/engine/events/body.py",
+   "old": "../../../../src/shibuya/engine/events/body.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/body_events.py",
+   "dest": "src/shibuya/mind/memory/body_events.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 456,
+   "text": "src/shibuya/agents/state.py",
+   "old": "../../../../src/shibuya/agents/state.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/agent_table.py",
+   "dest": "src/shibuya/world/model/agent_table.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 501,
+   "text": "src/shibuya/engine/store_memory.py",
+   "old": "../../../../src/shibuya/engine/store_memory.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/store_memory.py",
+   "dest": "src/shibuya/mind/memory/store_memory.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 502,
+   "text": "src/shibuya/engine/store_choice.py",
+   "old": "../../../../src/shibuya/engine/store_choice.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/store_choice.py",
+   "dest": "src/shibuya/mind/judge/store_choice.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 503,
+   "text": "src/shibuya/engine/wom.py",
+   "old": "../../../../src/shibuya/engine/wom.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/wom.py",
+   "dest": "src/shibuya/mind/memory/wom.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 504,
+   "text": "src/shibuya/engine/memory_shops.py",
+   "old": "../../../../src/shibuya/engine/memory_shops.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory_shops.py",
+   "dest": "src/shibuya/mind/memory/memory_shops.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 505,
+   "text": "src/shibuya/engine/systems/llm_io.py",
+   "old": "../../../../src/shibuya/engine/systems/llm_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/llm_io.py",
+   "dest": "src/shibuya/runtime/systems/llm_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 544,
+   "text": "src/shibuya/engine/familiarity.py",
+   "old": "../../../../src/shibuya/engine/familiarity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/familiarity.py",
+   "dest": "src/shibuya/mind/memory/familiarity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 545,
+   "text": "src/shibuya/engine/systems/remember.py",
+   "old": "../../../../src/shibuya/engine/systems/remember.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/remember.py",
+   "dest": "src/shibuya/runtime/systems/remember.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 546,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "write_familiarity"
+   ],
+   "new": "../../../../src/shibuya/mind/ops.py",
+   "dest": "src/shibuya/mind/ops.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 547,
+   "text": "src/shibuya/engine/poi_target.py",
+   "old": "../../../../src/shibuya/engine/poi_target.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/target.py",
+   "dest": "src/shibuya/act/target.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 596,
+   "text": "src/shibuya/engine/relations.py",
+   "old": "../../../../src/shibuya/engine/relations.py",
+   "how": "main_many_line",
+   "names": [
+    "RelationLayer",
+    "initial_edges"
+   ],
+   "new": "../../../../src/shibuya/mind/relations/layer.py",
+   "dest": "src/shibuya/mind/relations/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 597,
+   "text": "src/shibuya/engine/relations_people.py",
+   "old": "../../../../src/shibuya/engine/relations_people.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/relations/people.py",
+   "dest": "src/shibuya/mind/relations/people.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 598,
+   "text": "src/shibuya/engine/systems/talk.py",
+   "old": "../../../../src/shibuya/engine/systems/talk.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/talk.py",
+   "dest": "src/shibuya/runtime/systems/talk.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 599,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "write_relations"
+   ],
+   "new": "../../../../src/shibuya/mind/ops.py",
+   "dest": "src/shibuya/mind/ops.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 600,
+   "text": "src/shibuya/engine/memory.py",
+   "old": "../../../../src/shibuya/engine/memory.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/memory.py",
+   "dest": "src/shibuya/mind/memory/memory.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 656,
+   "text": "src/shibuya/engine/calendar.py",
+   "old": "../../../../src/shibuya/engine/calendar.py",
+   "how": "name_line",
+   "names": [
+    "SimCalendar"
+   ],
+   "new": "../../../../src/shibuya/world/facts/calendar.py",
+   "dest": "src/shibuya/world/facts/calendar.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 657,
+   "text": "src/shibuya/agents/weekly.py",
+   "old": "../../../../src/shibuya/agents/weekly.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/weekly_reader.py",
+   "dest": "src/shibuya/world/facts/weekly_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 658,
+   "text": "src/shibuya/engine/calendar_shadow.py",
+   "old": "../../../../src/shibuya/engine/calendar_shadow.py",
+   "how": "name_line",
+   "names": [
+    "load_table"
+   ],
+   "new": "../../../../src/shibuya/world/facts/w20_calendar_reader.py",
+   "dest": "src/shibuya/world/facts/w20_calendar_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 659,
+   "text": "src/shibuya/engine/calendar_self.py",
+   "old": "../../../../src/shibuya/engine/calendar_self.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/calendar_self.py",
+   "dest": "src/shibuya/interim_bundles/calendar_self.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 660,
+   "text": "src/shibuya/engine/calendar2/book.py",
+   "old": "../../../../src/shibuya/engine/calendar2/book.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/promise_book.py",
+   "dest": "src/shibuya/mind/plan/promise_book.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 661,
+   "text": "src/shibuya/engine/calendar2/layer.py",
+   "old": "../../../../src/shibuya/engine/calendar2/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/calendar2/layer.py",
+   "dest": "src/shibuya/interim_bundles/calendar2/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 662,
+   "text": "src/shibuya/engine/calendar2/port.py",
+   "old": "../../../../src/shibuya/engine/calendar2/port.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/calendar2_port.py",
+   "dest": "src/shibuya/mind/plan/calendar2_port.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 663,
+   "text": "src/shibuya/engine/calendar2/recall.py",
+   "old": "../../../../src/shibuya/engine/calendar2/recall.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/head_recall.py",
+   "dest": "src/shibuya/mind/plan/head_recall.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 664,
+   "text": "src/shibuya/engine/calendar2/arm.py",
+   "old": "../../../../src/shibuya/engine/calendar2/arm.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/arms/calendar2.py",
+   "dest": "src/shibuya/foundation/arms/calendar2.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 665,
+   "text": "src/shibuya/engine/calendar3/layer.py",
+   "old": "../../../../src/shibuya/engine/calendar3/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/calendar3/layer.py",
+   "dest": "src/shibuya/interim_bundles/calendar3/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 666,
+   "text": "src/shibuya/engine/calendar3/roster.py",
+   "old": "../../../../src/shibuya/engine/calendar3/roster.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/calendar3/roster.py",
+   "dest": "src/shibuya/interim_bundles/calendar3/roster.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 667,
+   "text": "src/shibuya/engine/calendar3/port.py",
+   "old": "../../../../src/shibuya/engine/calendar3/port.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/calendar3_port.py",
+   "dest": "src/shibuya/mind/plan/calendar3_port.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 668,
+   "text": "src/shibuya/engine/calendar3/knowledge.py",
+   "old": "../../../../src/shibuya/engine/calendar3/knowledge.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/calendar3/knowledge.py",
+   "dest": "src/shibuya/interim_bundles/calendar3/knowledge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 669,
+   "text": "src/shibuya/engine/calendar3/arm.py",
+   "old": "../../../../src/shibuya/engine/calendar3/arm.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/arms/calendar3.py",
+   "dest": "src/shibuya/foundation/arms/calendar3.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 732,
+   "text": "src/shibuya/engine/contact/layer.py",
+   "old": "../../../../src/shibuya/engine/contact/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/contact/layer.py",
+   "dest": "src/shibuya/interim_bundles/contact/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 733,
+   "text": "src/shibuya/engine/contact/arm.py",
+   "old": "../../../../src/shibuya/engine/contact/arm.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/arms/contact.py",
+   "dest": "src/shibuya/foundation/arms/contact.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 734,
+   "text": "src/shibuya/engine/contact/device.py",
+   "old": "../../../../src/shibuya/engine/contact/device.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/things/device.py",
+   "dest": "src/shibuya/world/things/device.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 735,
+   "text": "src/shibuya/engine/contact/attention.py",
+   "old": "../../../../src/shibuya/engine/contact/attention.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/contact_attention.py",
+   "dest": "src/shibuya/mind/plan/contact_attention.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 736,
+   "text": "src/shibuya/engine/contact/deliver.py",
+   "old": "../../../../src/shibuya/engine/contact/deliver.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/contact/deliver.py",
+   "dest": "src/shibuya/society/contact/deliver.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 737,
+   "text": "src/shibuya/engine/contact/chat_state.py",
+   "old": "../../../../src/shibuya/engine/contact/chat_state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/contact/chat_state.py",
+   "dest": "src/shibuya/society/contact/chat_state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 738,
+   "text": "src/shibuya/engine/contact/calls.py",
+   "old": "../../../../src/shibuya/engine/contact/calls.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/contact/calls.py",
+   "dest": "src/shibuya/society/contact/calls.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 739,
+   "text": "src/shibuya/engine/contact/book.py",
+   "old": "../../../../src/shibuya/engine/contact/book.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/contact/book.py",
+   "dest": "src/shibuya/interim_bundles/contact/book.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 740,
+   "text": "src/shibuya/engine/contact/port.py",
+   "old": "../../../../src/shibuya/engine/contact/port.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/contact_port.py",
+   "dest": "src/shibuya/mind/plan/contact_port.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 741,
+   "text": "src/shibuya/engine/contact/habit.py",
+   "old": "../../../../src/shibuya/engine/contact/habit.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/contact_habit.py",
+   "dest": "src/shibuya/mind/plan/contact_habit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 742,
+   "text": "src/shibuya/engine/contact/tools.py",
+   "old": "../../../../src/shibuya/engine/contact/tools.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/contact/tools.py",
+   "dest": "src/shibuya/society/contact/tools.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 743,
+   "text": "src/shibuya/perception/contact_view.py",
+   "old": "../../../../src/shibuya/perception/contact_view.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/ports/percept_contact.py",
+   "dest": "src/shibuya/foundation/ports/percept_contact.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 744,
+   "text": "src/shibuya/engine/tools/registry.py",
+   "old": "../../../../src/shibuya/engine/tools/registry.py",
+   "how": "name_line",
+   "names": [
+    "ToolRegistry"
+   ],
+   "new": "../../../../src/shibuya/society/tools/registry.py",
+   "dest": "src/shibuya/society/tools/registry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 745,
+   "text": "src/shibuya/engine/tools/contacts.py",
+   "old": "../../../../src/shibuya/engine/tools/contacts.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/vocab/contact_flags.py",
+   "dest": "src/shibuya/foundation/vocab/contact_flags.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 746,
+   "text": "src/shibuya/engine/tools/groups.py",
+   "old": "../../../../src/shibuya/engine/tools/groups.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/tools/groups.py",
+   "dest": "src/shibuya/society/tools/groups.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 747,
+   "text": "src/shibuya/engine/tools/places.py",
+   "old": "../../../../src/shibuya/engine/tools/places.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/tools/places.py",
+   "dest": "src/shibuya/society/tools/places.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 748,
+   "text": "src/shibuya/engine/tools/record.py",
+   "old": "../../../../src/shibuya/engine/tools/record.py",
+   "how": "name_line",
+   "names": [
+    "build_fixture"
+   ],
+   "new": "../../../../src/shibuya/society/tools/record.py",
+   "dest": "src/shibuya/society/tools/record.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 802,
+   "text": "src/shibuya/engine/processes/opening.py",
+   "old": "../../../../src/shibuya/engine/processes/opening.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/opening.py",
+   "dest": "src/shibuya/world/laws/opening.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 803,
+   "text": "src/shibuya/engine/processes/goods_flow.py",
+   "old": "../../../../src/shibuya/engine/processes/goods_flow.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/goods_flow.py",
+   "dest": "src/shibuya/world/laws/goods_flow.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 804,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "discard_to_bin",
+    "request_open_close",
+    "restock",
+    "set_open_flags"
+   ],
+   "new": "../../../../src/shibuya/act/ops/law_writes.py",
+   "dest": "src/shibuya/act/ops/law_writes.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 805,
+   "text": "src/shibuya/engine/rights/initial.py",
+   "old": "../../../../src/shibuya/engine/rights/initial.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/rights/initial.py",
+   "dest": "src/shibuya/world/facts/rights/initial.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 806,
+   "text": "src/shibuya/engine/duties/layer.py",
+   "old": "../../../../src/shibuya/engine/duties/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/duties/layer.py",
+   "dest": "src/shibuya/interim_bundles/duties/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 807,
+   "text": "src/shibuya/engine/duties/knowledge.py",
+   "old": "../../../../src/shibuya/engine/duties/knowledge.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/interim_bundles/duties/knowledge.py",
+   "dest": "src/shibuya/interim_bundles/duties/knowledge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 808,
+   "text": "src/shibuya/engine/duties/port.py",
+   "old": "../../../../src/shibuya/engine/duties/port.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/plan/duties_port.py",
+   "dest": "src/shibuya/mind/plan/duties_port.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 809,
+   "text": "src/shibuya/engine/duties/arm.py",
+   "old": "../../../../src/shibuya/engine/duties/arm.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/arms/duties.py",
+   "dest": "src/shibuya/foundation/arms/duties.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 852,
+   "text": "src/shibuya/engine/intent.py",
+   "old": "../../../../src/shibuya/engine/intent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/act/intent.py",
+   "dest": "src/shibuya/act/intent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 853,
+   "text": "src/shibuya/engine/activity.py",
+   "old": "../../../../src/shibuya/engine/activity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/act/activity.py",
+   "dest": "src/shibuya/act/activity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 854,
+   "text": "src/shibuya/engine/commit.py",
+   "old": "../../../../src/shibuya/engine/commit.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/commit.py",
+   "dest": "src/shibuya/act/commit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 855,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "clear_intent",
+    "fail_intent",
+    "set_activity",
+    "set_intent"
+   ],
+   "new": "../../../../src/shibuya/act/ops/intent_writes.py",
+   "dest": "src/shibuya/act/ops/intent_writes.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 891,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "_apply_help",
+    "_apply_record_only",
+    "_apply_report"
+   ],
+   "new": "../../../../src/shibuya/act/apply.py",
+   "dest": "src/shibuya/act/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/b-people.md",
+   "line": 917,
+   "text": "src/shibuya/engine/decision/persona.py",
+   "old": "../../../../src/shibuya/engine/decision/persona.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/decision/persona.py",
+   "dest": "src/shibuya/mind/judge/decision/persona.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 16,
+   "text": "absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 101,
+   "text": "src/shibuya/core/wage_formula.py",
+   "old": "../../../../src/shibuya/core/wage_formula.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/economy/wage_formula.py",
+   "dest": "src/shibuya/economy/wage_formula.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 105,
+   "text": "src/shibuya/engine/ledger_api.py",
+   "old": "../../../../src/shibuya/engine/ledger_api.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/ports/ledger.py",
+   "dest": "src/shibuya/foundation/ports/ledger.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 106,
+   "text": "src/shibuya/engine/economy_stage2.py",
+   "old": "../../../../src/shibuya/engine/economy_stage2.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/economy/stage2_bind.py",
+   "dest": "src/shibuya/economy/stage2_bind.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 106,
+   "text": "src/shibuya/engine/economy_rules.py",
+   "old": "../../../../src/shibuya/engine/economy_rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/economy/rules_bind.py",
+   "dest": "src/shibuya/economy/rules_bind.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 107,
+   "text": "src/shibuya/engine/events/links.py",
+   "old": "../../../../src/shibuya/engine/events/links.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/journal/links.py",
+   "dest": "src/shibuya/foundation/journal/links.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 163,
+   "text": "src/shibuya/engine/rights/ledger.py",
+   "old": "../../../../src/shibuya/engine/rights/ledger.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/rights/ledger.py",
+   "dest": "src/shibuya/world/facts/rights/ledger.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 164,
+   "text": "src/shibuya/engine/rights/initial.py",
+   "old": "../../../../src/shibuya/engine/rights/initial.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/rights/initial.py",
+   "dest": "src/shibuya/world/facts/rights/initial.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 165,
+   "text": "src/shibuya/engine/rights/record.py",
+   "old": "../../../../src/shibuya/engine/rights/record.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/rights/record.py",
+   "dest": "src/shibuya/world/facts/rights/record.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 166,
+   "text": "src/shibuya/engine/processes/opening.py",
+   "old": "../../../../src/shibuya/engine/processes/opening.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/opening.py",
+   "dest": "src/shibuya/world/laws/opening.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 167,
+   "text": "src/shibuya/engine/processes/runner.py",
+   "old": "../../../../src/shibuya/engine/processes/runner.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/laws/runner.py",
+   "dest": "src/shibuya/world/laws/runner.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 221,
+   "text": "src/shibuya/engine/systems/observe.py",
+   "old": "../../../../src/shibuya/engine/systems/observe.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/observe.py",
+   "dest": "src/shibuya/runtime/systems/observe.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 222,
+   "text": "src/shibuya/engine/systems/report.py",
+   "old": "../../../../src/shibuya/engine/systems/report.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/report.py",
+   "dest": "src/shibuya/runtime/systems/report.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 223,
+   "text": "src/shibuya/engine/norm_meter.py",
+   "old": "../../../../src/shibuya/engine/norm_meter.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/norm_meter.py",
+   "dest": "src/shibuya/society/norm_meter.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 224,
+   "text": "src/shibuya/core/growth.py",
+   "old": "../../../../src/shibuya/core/growth.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/growth.py",
+   "dest": "src/shibuya/foundation/growth.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 224,
+   "text": "src/shibuya/engine/growth_decl.py",
+   "old": "../../../../src/shibuya/engine/growth_decl.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/state/growth_decl.py",
+   "dest": "src/shibuya/runtime/state/growth_decl.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 225,
+   "text": "src/shibuya/core/budget.py",
+   "old": "../../../../src/shibuya/core/budget.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/budget.py",
+   "dest": "src/shibuya/foundation/budget.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 226,
+   "text": "src/shibuya/engine/systems/probe.py",
+   "old": "../../../../src/shibuya/engine/systems/probe.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/probe.py",
+   "dest": "src/shibuya/runtime/systems/probe.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 273,
+   "text": "src/shibuya/engine/run.py",
+   "old": "../../../../src/shibuya/engine/run.py",
+   "how": "main_many_line",
+   "names": [
+    "RunResult",
+    "run_day"
+   ],
+   "new": "../../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 274,
+   "text": "src/shibuya/engine/manifest_sections.py",
+   "old": "../../../../src/shibuya/engine/manifest_sections.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/manifest/sections.py",
+   "dest": "src/shibuya/foundation/manifest/sections.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 275,
+   "text": "src/shibuya/engine/run_kind.py",
+   "old": "../../../../src/shibuya/engine/run_kind.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/port/run_kind.py",
+   "dest": "src/shibuya/experiments/port/run_kind.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 277,
+   "text": "src/shibuya/manifest/schema.py",
+   "old": "../../../../src/shibuya/manifest/schema.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/manifest/schema.py",
+   "dest": "src/shibuya/foundation/manifest/schema.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 277,
+   "text": "src/shibuya/manifest/canonical.py",
+   "old": "../../../../src/shibuya/manifest/canonical.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/manifest/canonical.py",
+   "dest": "src/shibuya/foundation/manifest/canonical.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 277,
+   "text": "src/shibuya/manifest/world_catalog.py",
+   "old": "../../../../src/shibuya/manifest/world_catalog.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/world_catalog.py",
+   "dest": "src/shibuya/world/ledger/world_catalog.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 325,
+   "text": "src/shibuya/engine/experiment/form.py",
+   "old": "../../../../src/shibuya/engine/experiment/form.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/port/form.py",
+   "dest": "src/shibuya/experiments/port/form.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 326,
+   "text": "src/shibuya/engine/experiment/apply.py",
+   "old": "../../../../src/shibuya/engine/experiment/apply.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/port/apply.py",
+   "dest": "src/shibuya/experiments/port/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 327,
+   "text": "src/shibuya/engine/experiment/gate.py",
+   "old": "../../../../src/shibuya/engine/experiment/gate.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/ports/experiment_gate.py",
+   "dest": "src/shibuya/foundation/ports/experiment_gate.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 328,
+   "text": "src/shibuya/engine/experiment/layer.py",
+   "old": "../../../../src/shibuya/engine/experiment/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/port/layer.py",
+   "dest": "src/shibuya/experiments/port/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 329,
+   "text": "src/shibuya/engine/experiment/branch.py",
+   "old": "../../../../src/shibuya/engine/experiment/branch.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/drive/branch.py",
+   "dest": "src/shibuya/experiments/drive/branch.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 330,
+   "text": "src/shibuya/engine/experiment/switch.py",
+   "old": "../../../../src/shibuya/engine/experiment/switch.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/drive/switch.py",
+   "dest": "src/shibuya/experiments/drive/switch.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 331,
+   "text": "src/shibuya/engine/experiment/ensemble.py",
+   "old": "../../../../src/shibuya/engine/experiment/ensemble.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/port/ensemble.py",
+   "dest": "src/shibuya/experiments/port/ensemble.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 332,
+   "text": "src/shibuya/engine/experiment/checks.py",
+   "old": "../../../../src/shibuya/engine/experiment/checks.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/port/checks.py",
+   "dest": "src/shibuya/experiments/port/checks.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 333,
+   "text": "src/shibuya/engine/experiment/warmup.py",
+   "old": "../../../../src/shibuya/engine/experiment/warmup.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/experiments/port/warmup.py",
+   "dest": "src/shibuya/experiments/port/warmup.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 378,
+   "text": "src/shibuya/engine/tape.py",
+   "old": "../../../../src/shibuya/engine/tape.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/inference/tape.py",
+   "dest": "src/shibuya/runtime/inference/tape.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 379,
+   "text": "src/shibuya/engine/llm_bridge.py",
+   "old": "../../../../src/shibuya/engine/llm_bridge.py",
+   "how": "name_line",
+   "names": [
+    "LLMBridge"
+   ],
+   "new": "../../../../src/shibuya/runtime/inference/bridge.py",
+   "dest": "src/shibuya/runtime/inference/bridge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 380,
+   "text": "src/shibuya/llm/mock.py",
+   "old": "../../../../src/shibuya/llm/mock.py",
+   "how": "name_line",
+   "names": [
+    "TapeLLM"
+   ],
+   "new": "../../../../src/shibuya/runtime/inference/mock.py",
+   "dest": "src/shibuya/runtime/inference/mock.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 381,
+   "text": "src/shibuya/llm/fleet.py",
+   "old": "../../../../src/shibuya/llm/fleet.py",
+   "how": "name_line",
+   "names": [
+    "TapeSink"
+   ],
+   "new": "../../../../src/shibuya/runtime/inference/fleet.py",
+   "dest": "src/shibuya/runtime/inference/fleet.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 382,
+   "text": "src/shibuya/engine/run.py",
+   "old": "../../../../src/shibuya/engine/run.py",
+   "how": "name_line",
+   "names": [
+    "check_replay_tape"
+   ],
+   "new": "../../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 422,
+   "text": "src/shibuya/engine/events/log.py",
+   "old": "../../../../src/shibuya/engine/events/log.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/journal/log.py",
+   "dest": "src/shibuya/foundation/journal/log.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 423,
+   "text": "src/shibuya/engine/events/vocab.py",
+   "old": "../../../../src/shibuya/engine/events/vocab.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/vocab/events.py",
+   "dest": "src/shibuya/foundation/vocab/events.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 424,
+   "text": "src/shibuya/engine/events/links.py",
+   "old": "../../../../src/shibuya/engine/events/links.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/journal/links.py",
+   "dest": "src/shibuya/foundation/journal/links.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 425,
+   "text": "src/shibuya/engine/events/body.py",
+   "old": "../../../../src/shibuya/engine/events/body.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/memory/body_events.py",
+   "dest": "src/shibuya/mind/memory/body_events.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 426,
+   "text": "src/shibuya/world/processes/actual_log.py",
+   "old": "../../../../src/shibuya/world/processes/actual_log.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/actual_log.py",
+   "dest": "src/shibuya/world/ledger/actual_log.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 465,
+   "text": "src/shibuya/engine/resume.py",
+   "old": "../../../../src/shibuya/engine/resume.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/state/resume.py",
+   "dest": "src/shibuya/runtime/state/resume.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 466,
+   "text": "src/shibuya/engine/state_codec.py",
+   "old": "../../../../src/shibuya/engine/state_codec.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/state/codec.py",
+   "dest": "src/shibuya/runtime/state/codec.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 467,
+   "text": "src/shibuya/engine/state_hashes.py",
+   "old": "../../../../src/shibuya/engine/state_hashes.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/state/hashes.py",
+   "dest": "src/shibuya/runtime/state/hashes.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 468,
+   "text": "src/shibuya/engine/systems/state_io.py",
+   "old": "../../../../src/shibuya/engine/systems/state_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/state_io.py",
+   "dest": "src/shibuya/runtime/systems/state_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 469,
+   "text": "src/shibuya/engine/systems/day.py",
+   "old": "../../../../src/shibuya/engine/systems/day.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/day.py",
+   "dest": "src/shibuya/runtime/systems/day.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 470,
+   "text": "src/shibuya/engine/systems/run_end.py",
+   "old": "../../../../src/shibuya/engine/systems/run_end.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/run_end.py",
+   "dest": "src/shibuya/runtime/systems/run_end.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 471,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "restore_items",
+    "restore_soa"
+   ],
+   "new": "../../../../src/shibuya/runtime/state/restore.py",
+   "dest": "src/shibuya/runtime/state/restore.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 472,
+   "text": "src/shibuya/core/serialize.py",
+   "old": "../../../../src/shibuya/core/serialize.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/serialize.py",
+   "dest": "src/shibuya/foundation/serialize.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 505,
+   "text": "src/shibuya/engine/state_ledger.py",
+   "old": "../../../../src/shibuya/engine/state_ledger.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/state/ledger.py",
+   "dest": "src/shibuya/runtime/state/ledger.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 506,
+   "text": "src/shibuya/engine/state_ledger_ast.py",
+   "old": "../../../../src/shibuya/engine/state_ledger_ast.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/state/ledger_ast.py",
+   "dest": "src/shibuya/runtime/state/ledger_ast.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 551,
+   "text": "src/shibuya/llm/fleet.py",
+   "old": "../../../../src/shibuya/llm/fleet.py",
+   "how": "name_line",
+   "names": [
+    "FleetConfig",
+    "fleet_auth_headers",
+    "plan_batch"
+   ],
+   "new": "../../../../src/shibuya/runtime/inference/fleet.py",
+   "dest": "src/shibuya/runtime/inference/fleet.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 552,
+   "text": "src/shibuya/engine/systems/decide.py",
+   "old": "../../../../src/shibuya/engine/systems/decide.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/decide.py",
+   "dest": "src/shibuya/runtime/systems/decide.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 553,
+   "text": "src/shibuya/engine/systems/llm_io.py",
+   "old": "../../../../src/shibuya/engine/systems/llm_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/llm_io.py",
+   "dest": "src/shibuya/runtime/systems/llm_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 554,
+   "text": "src/shibuya/engine/systems/run_end.py",
+   "old": "../../../../src/shibuya/engine/systems/run_end.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/run_end.py",
+   "dest": "src/shibuya/runtime/systems/run_end.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 555,
+   "text": "src/shibuya/engine/llm_bridge.py",
+   "old": "../../../../src/shibuya/engine/llm_bridge.py",
+   "how": "name_line",
+   "names": [
+    "LANE_SECONDS",
+    "delta_think_ticks"
+   ],
+   "new": "../../../../src/shibuya/runtime/inference/bridge.py",
+   "dest": "src/shibuya/runtime/inference/bridge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 608,
+   "text": "src/shibuya/engine/decision/port.py",
+   "old": "../../../../src/shibuya/engine/decision/port.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/ports/decision.py",
+   "dest": "src/shibuya/foundation/ports/decision.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 609,
+   "text": "src/shibuya/engine/decision/ports.py",
+   "old": "../../../../src/shibuya/engine/decision/ports.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/decision/ports.py",
+   "dest": "src/shibuya/mind/judge/decision/ports.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 610,
+   "text": "src/shibuya/engine/decision/sources.py",
+   "old": "../../../../src/shibuya/engine/decision/sources.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/decision/sources.py",
+   "dest": "src/shibuya/mind/judge/decision/sources.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 611,
+   "text": "src/shibuya/engine/decision/layer.py",
+   "old": "../../../../src/shibuya/engine/decision/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/decision/layer.py",
+   "dest": "src/shibuya/mind/judge/decision/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 612,
+   "text": "src/shibuya/engine/decision/persona.py",
+   "old": "../../../../src/shibuya/engine/decision/persona.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/decision/persona.py",
+   "dest": "src/shibuya/mind/judge/decision/persona.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 613,
+   "text": "src/shibuya/llm/mock.py",
+   "old": "../../../../src/shibuya/llm/mock.py",
+   "how": "name_line",
+   "names": [
+    "MockLLM"
+   ],
+   "new": "../../../../src/shibuya/runtime/inference/mock.py",
+   "dest": "src/shibuya/runtime/inference/mock.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 614,
+   "text": "src/shibuya/engine/classical.py",
+   "old": "../../../../src/shibuya/engine/classical.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/judge/classical.py",
+   "dest": "src/shibuya/mind/judge/classical.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 615,
+   "text": "src/shibuya/engine/systems/decide.py",
+   "old": "../../../../src/shibuya/engine/systems/decide.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/decide.py",
+   "dest": "src/shibuya/runtime/systems/decide.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 660,
+   "text": "src/shibuya/llm/contract.py",
+   "old": "../../../../src/shibuya/llm/contract.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/vocab/actions.py",
+   "dest": "src/shibuya/foundation/vocab/actions.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 661,
+   "text": "src/shibuya/llm/parser.py",
+   "old": "../../../../src/shibuya/llm/parser.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/act/intake/parser.py",
+   "dest": "src/shibuya/act/intake/parser.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 662,
+   "text": "src/shibuya/llm/undefined.py",
+   "old": "../../../../src/shibuya/llm/undefined.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/intake/undefined.py",
+   "dest": "src/shibuya/act/intake/undefined.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 663,
+   "text": "src/shibuya/llm/\\_\\_init\\_\\_.py",
+   "old": "../../../../src/shibuya/llm/__init__.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/ports/inference.py",
+   "dest": "src/shibuya/foundation/ports/inference.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 664,
+   "text": "src/shibuya/engine/llm_bridge.py",
+   "old": "../../../../src/shibuya/engine/llm_bridge.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/inference/bridge.py",
+   "dest": "src/shibuya/runtime/inference/bridge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 713,
+   "text": "src/shibuya/perception/renderer.py",
+   "old": "../../../../src/shibuya/perception/renderer.py",
+   "how": "name_line",
+   "names": [
+    "PerceptionAssets"
+   ],
+   "new": "../../../../src/shibuya/world/model/percept_scene.py",
+   "dest": "src/shibuya/world/model/percept_scene.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 714,
+   "text": "src/shibuya/perception/facts.py",
+   "old": "../../../../src/shibuya/perception/facts.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/ports/percept.py",
+   "dest": "src/shibuya/foundation/ports/percept.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 715,
+   "text": "src/shibuya/perception/templates.py",
+   "old": "../../../../src/shibuya/perception/templates.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/text/templates.py",
+   "dest": "src/shibuya/foundation/text/templates.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 716,
+   "text": "src/shibuya/perception/channels.py",
+   "old": "../../../../src/shibuya/perception/channels.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/text/channels.py",
+   "dest": "src/shibuya/foundation/text/channels.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 717,
+   "text": "src/shibuya/perception/normalize.py",
+   "old": "../../../../src/shibuya/perception/normalize.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/text/normalize.py",
+   "dest": "src/shibuya/foundation/text/normalize.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 718,
+   "text": "src/shibuya/perception/hashes.py",
+   "old": "../../../../src/shibuya/perception/hashes.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/text/hashes.py",
+   "dest": "src/shibuya/foundation/text/hashes.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 719,
+   "text": "src/shibuya/perception/attention.py",
+   "old": "../../../../src/shibuya/perception/attention.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/text/salience.py",
+   "dest": "src/shibuya/foundation/text/salience.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 720,
+   "text": "src/shibuya/perception/p_notice.py",
+   "old": "../../../../src/shibuya/perception/p_notice.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/notice_reach.py",
+   "dest": "src/shibuya/world/model/notice_reach.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 721,
+   "text": "src/shibuya/perception/state.py",
+   "old": "../../../../src/shibuya/perception/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/percept_state.py",
+   "dest": "src/shibuya/world/model/percept_state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 722,
+   "text": "src/shibuya/perception/contact_view.py",
+   "old": "../../../../src/shibuya/perception/contact_view.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/ports/percept_contact.py",
+   "dest": "src/shibuya/foundation/ports/percept_contact.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 723,
+   "text": "src/shibuya/engine/systems/perceive.py",
+   "old": "../../../../src/shibuya/engine/systems/perceive.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/perceive.py",
+   "dest": "src/shibuya/runtime/systems/perceive.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 724,
+   "text": "src/shibuya/engine/llm_bridge.py",
+   "old": "../../../../src/shibuya/engine/llm_bridge.py",
+   "how": "name_line",
+   "names": [
+    "PerceptionRendererAdapter",
+    "StubRenderer"
+   ],
+   "new": "../../../../src/shibuya/runtime/inference/bridge.py",
+   "dest": "src/shibuya/runtime/inference/bridge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 785,
+   "text": "src/shibuya/engine/change_detect.py",
+   "old": "../../../../src/shibuya/engine/change_detect.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/mind/system1/change_detect.py",
+   "dest": "src/shibuya/mind/system1/change_detect.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 786,
+   "text": "src/shibuya/engine/arbiter.py",
+   "old": "../../../../src/shibuya/engine/arbiter.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/arbiter.py",
+   "dest": "src/shibuya/runtime/arbiter.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 787,
+   "text": "src/shibuya/engine/scheduler.py",
+   "old": "../../../../src/shibuya/engine/scheduler.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/queues/scheduler.py",
+   "dest": "src/shibuya/foundation/queues/scheduler.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 788,
+   "text": "src/shibuya/agents/state.py",
+   "old": "../../../../src/shibuya/agents/state.py",
+   "how": "name_line",
+   "names": [
+    "REFRACTORY_MINUTES",
+    "WAKE_CONDITION_CLASS",
+    "WakeCondition"
+   ],
+   "new": "../../../../src/shibuya/foundation/vocab/agent_codes.py",
+   "dest": "src/shibuya/foundation/vocab/agent_codes.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 789,
+   "text": "src/shibuya/engine/systems/judge.py",
+   "old": "../../../../src/shibuya/engine/systems/judge.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/judge.py",
+   "dest": "src/shibuya/runtime/systems/judge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 790,
+   "text": "src/shibuya/engine/systems/perceive.py",
+   "old": "../../../../src/shibuya/engine/systems/perceive.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/perceive.py",
+   "dest": "src/shibuya/runtime/systems/perceive.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 791,
+   "text": "src/shibuya/engine/systems/body.py",
+   "old": "../../../../src/shibuya/engine/systems/body.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/body.py",
+   "dest": "src/shibuya/runtime/systems/body.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 792,
+   "text": "src/shibuya/engine/step_scope.py",
+   "old": "../../../../src/shibuya/engine/step_scope.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/step_scope.py",
+   "dest": "src/shibuya/runtime/clocks/step_scope.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 832,
+   "text": "src/shibuya/engine/commit.py",
+   "old": "../../../../src/shibuya/engine/commit.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/commit.py",
+   "dest": "src/shibuya/act/commit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 833,
+   "text": "src/shibuya/engine/resolve.py",
+   "old": "../../../../src/shibuya/engine/resolve.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/act/apply.py",
+   "dest": "src/shibuya/act/apply.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 834,
+   "text": "src/shibuya/engine/systems/act.py",
+   "old": "../../../../src/shibuya/engine/systems/act.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/act.py",
+   "dest": "src/shibuya/runtime/systems/act.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 835,
+   "text": "src/shibuya/engine/intent.py",
+   "old": "../../../../src/shibuya/engine/intent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/act/intent.py",
+   "dest": "src/shibuya/act/intent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 881,
+   "text": "src/shibuya/engine/systems/conductor.py",
+   "old": "../../../../src/shibuya/engine/systems/conductor.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/conductor.py",
+   "dest": "src/shibuya/runtime/systems/conductor.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 882,
+   "text": "src/shibuya/engine/systems/table.py",
+   "old": "../../../../src/shibuya/engine/systems/table.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/table.py",
+   "dest": "src/shibuya/runtime/systems/table.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 883,
+   "text": "src/shibuya/engine/systems/build.py",
+   "old": "../../../../src/shibuya/engine/systems/build.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/assemble.py",
+   "dest": "src/shibuya/runtime/systems/assemble.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 884,
+   "text": "src/shibuya/engine/systems/boxes.py",
+   "old": "../../../../src/shibuya/engine/systems/boxes.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/boxes.py",
+   "dest": "src/shibuya/runtime/systems/boxes.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 885,
+   "text": "src/shibuya/engine/systems/spec.py",
+   "old": "../../../../src/shibuya/engine/systems/spec.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/spec.py",
+   "dest": "src/shibuya/runtime/systems/spec.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 885,
+   "text": "src/shibuya/engine/systems/allow.py",
+   "old": "../../../../src/shibuya/engine/systems/allow.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/allow.py",
+   "dest": "src/shibuya/runtime/systems/allow.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 886,
+   "text": "src/shibuya/engine/systems/guard.py",
+   "old": "../../../../src/shibuya/engine/systems/guard.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/write_guard.py",
+   "dest": "src/shibuya/foundation/write_guard.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 886,
+   "text": "src/shibuya/core/write_permit.py",
+   "old": "../../../../src/shibuya/core/write_permit.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/write_permit.py",
+   "dest": "src/shibuya/foundation/write_permit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 887,
+   "text": "src/shibuya/engine/systems/probe.py",
+   "old": "../../../../src/shibuya/engine/systems/probe.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/systems/probe.py",
+   "dest": "src/shibuya/runtime/systems/probe.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 887,
+   "text": "src/shibuya/engine/systems/static_check.py",
+   "old": "../../../../src/shibuya/engine/systems/static_check.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/validation/static/system_static_check.py",
+   "dest": "src/shibuya/validation/static/system_static_check.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 887,
+   "text": "src/shibuya/engine/systems/overrides.py",
+   "old": "../../../../src/shibuya/engine/systems/overrides.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/validation/static/system_overrides.py",
+   "dest": "src/shibuya/validation/static/system_overrides.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 888,
+   "text": "src/shibuya/engine/owner_guard.py",
+   "old": "../../../../src/shibuya/engine/owner_guard.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/owner_guard.py",
+   "dest": "src/shibuya/runtime/clocks/owner_guard.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 889,
+   "text": "src/shibuya/core/soa.py",
+   "old": "../../../../src/shibuya/core/soa.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/soa.py",
+   "dest": "src/shibuya/foundation/soa.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 890,
+   "text": "src/shibuya/engine/run.py",
+   "old": "../../../../src/shibuya/engine/run.py",
+   "how": "name_line",
+   "names": [
+    "run_day"
+   ],
+   "new": "../../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 934,
+   "text": "src/shibuya/engine/batching.py",
+   "old": "../../../../src/shibuya/engine/batching.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/queues/batching.py",
+   "dest": "src/shibuya/foundation/queues/batching.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 935,
+   "text": "src/shibuya/engine/calendar.py",
+   "old": "../../../../src/shibuya/engine/calendar.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/calendar.py",
+   "dest": "src/shibuya/world/facts/calendar.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 936,
+   "text": "src/shibuya/core/time_consts.py",
+   "old": "../../../../src/shibuya/core/time_consts.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/time_consts.py",
+   "dest": "src/shibuya/foundation/time_consts.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 936,
+   "text": "src/shibuya/core/types.py",
+   "old": "../../../../src/shibuya/core/types.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/types.py",
+   "dest": "src/shibuya/foundation/types.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 937,
+   "text": "src/shibuya/engine/speech_clock.py",
+   "old": "../../../../src/shibuya/engine/speech_clock.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/speech.py",
+   "dest": "src/shibuya/runtime/clocks/speech.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 937,
+   "text": "src/shibuya/engine/step_scope.py",
+   "old": "../../../../src/shibuya/engine/step_scope.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/step_scope.py",
+   "dest": "src/shibuya/runtime/clocks/step_scope.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 937,
+   "text": "src/shibuya/engine/regional_clock.py",
+   "old": "../../../../src/shibuya/engine/regional_clock.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clocks/regional.py",
+   "dest": "src/shibuya/runtime/clocks/regional.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 938,
+   "text": "src/shibuya/engine/body/schedule.py",
+   "old": "../../../../src/shibuya/engine/body/schedule.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/body/schedule.py",
+   "dest": "src/shibuya/world/body/schedule.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 939,
+   "text": "src/shibuya/engine/clock.py",
+   "old": "../../../../src/shibuya/engine/clock.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/runtime/clock.py",
+   "dest": "src/shibuya/runtime/clock.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 979,
+   "text": "src/shibuya/core/rng.py",
+   "old": "../../../../src/shibuya/core/rng.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/rng.py",
+   "dest": "src/shibuya/foundation/rng.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 980,
+   "text": "src/shibuya/core/hashing.py",
+   "old": "../../../../src/shibuya/core/hashing.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/hashing.py",
+   "dest": "src/shibuya/foundation/hashing.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 981,
+   "text": "src/shibuya/engine/run.py",
+   "old": "../../../../src/shibuya/engine/run.py",
+   "how": "name_line",
+   "names": [
+    "ENVIRONMENT_RNG_DOMAINS",
+    "MOTION_RNG_DOMAINS",
+    "POPULATION_RNG_DOMAINS",
+    "run_salt_for"
+   ],
+   "new": "../../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 982,
+   "text": "src/shibuya/engine/rng_audit.py",
+   "old": "../../../../src/shibuya/engine/rng_audit.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/validation/static/rng_audit.py",
+   "dest": "src/shibuya/validation/static/rng_audit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1038,
+   "text": "src/shibuya/world/assets.py",
+   "old": "../../../../src/shibuya/world/assets.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/assets.py",
+   "dest": "src/shibuya/world/model/assets.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1038,
+   "text": "src/shibuya/world/state.py",
+   "old": "../../../../src/shibuya/world/state.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/state.py",
+   "dest": "src/shibuya/world/model/state.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1079,
+   "text": "src/shibuya/agents/population.py",
+   "old": "../../../../src/shibuya/agents/population.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/population_reader.py",
+   "dest": "src/shibuya/world/facts/population_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1080,
+   "text": "src/shibuya/agents/state.py",
+   "old": "../../../../src/shibuya/agents/state.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/world/model/agent_table.py",
+   "dest": "src/shibuya/world/model/agent_table.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1081,
+   "text": "src/shibuya/agents/schedule.py",
+   "old": "../../../../src/shibuya/agents/schedule.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/facts/mock_schedule.py",
+   "dest": "src/shibuya/world/facts/mock_schedule.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1155,
+   "text": "src/shibuya/engine/tools/registry.py",
+   "old": "../../../../src/shibuya/engine/tools/registry.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/society/tools/registry.py",
+   "dest": "src/shibuya/society/tools/registry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1156,
+   "text": "src/shibuya/engine/tools/record.py",
+   "old": "../../../../src/shibuya/engine/tools/record.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../../src/shibuya/society/tools/record.py",
+   "dest": "src/shibuya/society/tools/record.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1157,
+   "text": "src/shibuya/engine/tools/groups.py",
+   "old": "../../../../src/shibuya/engine/tools/groups.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/tools/groups.py",
+   "dest": "src/shibuya/society/tools/groups.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1157,
+   "text": "src/shibuya/engine/tools/contacts.py",
+   "old": "../../../../src/shibuya/engine/tools/contacts.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/vocab/contact_flags.py",
+   "dest": "src/shibuya/foundation/vocab/contact_flags.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1157,
+   "text": "src/shibuya/engine/tools/places.py",
+   "old": "../../../../src/shibuya/engine/tools/places.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/society/tools/places.py",
+   "dest": "src/shibuya/society/tools/places.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1181,
+   "text": "absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1189,
+   "text": "src/shibuya/engine/bridging/ledger.py",
+   "old": "../../../../src/shibuya/engine/bridging/ledger.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/foundation/decl/bridging.py",
+   "dest": "src/shibuya/foundation/decl/bridging.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1190,
+   "text": "src/shibuya/engine/bridging/scan.py",
+   "old": "../../../../src/shibuya/engine/bridging/scan.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/validation/static/bridging_scan.py",
+   "dest": "src/shibuya/validation/static/bridging_scan.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1191,
+   "text": "src/shibuya/world/processes/absent.py",
+   "old": "../../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 1191,
+   "text": "src/shibuya/world/processes/inputs.py",
+   "old": "../../../../src/shibuya/world/processes/inputs.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../../src/shibuya/world/ledger/inputs.py",
+   "dest": "src/shibuya/world/ledger/inputs.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 17,
+   "text": "calendar.py",
+   "old": "../../../src/shibuya/engine/calendar.py",
+   "how": "name_line",
+   "names": [
+    "DEFAULT_WORLD_START"
+   ],
+   "new": "../../../src/shibuya/world/facts/calendar.py",
+   "dest": "src/shibuya/world/facts/calendar.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 32,
+   "text": "absent.py",
+   "old": "../../../src/shibuya/world/processes/absent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/ledger/absent.py",
+   "dest": "src/shibuya/world/ledger/absent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 66,
+   "text": "table.py",
+   "old": "../../../src/shibuya/engine/systems/table.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/table.py",
+   "dest": "src/shibuya/runtime/systems/table.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 66,
+   "text": "conductor.py",
+   "old": "../../../src/shibuya/engine/systems/conductor.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/conductor.py",
+   "dest": "src/shibuya/runtime/systems/conductor.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 66,
+   "text": "day.py",
+   "old": "../../../src/shibuya/engine/systems/day.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/day.py",
+   "dest": "src/shibuya/runtime/systems/day.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 74,
+   "text": "experiment/layer.py",
+   "old": "../../../src/shibuya/engine/experiment/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/experiments/port/layer.py",
+   "dest": "src/shibuya/experiments/port/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 75,
+   "text": "body.py",
+   "old": "../../../src/shibuya/engine/systems/body.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/body.py",
+   "dest": "src/shibuya/runtime/systems/body.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 76,
+   "text": "world.py",
+   "old": "../../../src/shibuya/engine/systems/world.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/world.py",
+   "dest": "src/shibuya/runtime/systems/world.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 78,
+   "text": "perceive.py",
+   "old": "../../../src/shibuya/engine/systems/perceive.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/perceive.py",
+   "dest": "src/shibuya/runtime/systems/perceive.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 79,
+   "text": "llm_io.py",
+   "old": "../../../src/shibuya/engine/systems/llm_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/llm_io.py",
+   "dest": "src/shibuya/runtime/systems/llm_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 80,
+   "text": "judge.py",
+   "old": "../../../src/shibuya/engine/systems/judge.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/judge.py",
+   "dest": "src/shibuya/runtime/systems/judge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 86,
+   "text": "talk.py",
+   "old": "../../../src/shibuya/engine/systems/talk.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/talk.py",
+   "dest": "src/shibuya/runtime/systems/talk.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 89,
+   "text": "decide.py",
+   "old": "../../../src/shibuya/engine/systems/decide.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/decide.py",
+   "dest": "src/shibuya/runtime/systems/decide.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 90,
+   "text": "act.py",
+   "old": "../../../src/shibuya/engine/systems/act.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/act.py",
+   "dest": "src/shibuya/runtime/systems/act.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 95,
+   "text": "contact/layer.py",
+   "old": "../../../src/shibuya/engine/contact/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/interim_bundles/contact/layer.py",
+   "dest": "src/shibuya/interim_bundles/contact/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 96,
+   "text": "calendar3/layer.py",
+   "old": "../../../src/shibuya/engine/calendar3/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/interim_bundles/calendar3/layer.py",
+   "dest": "src/shibuya/interim_bundles/calendar3/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 97,
+   "text": "calendar2/layer.py",
+   "old": "../../../src/shibuya/engine/calendar2/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/interim_bundles/calendar2/layer.py",
+   "dest": "src/shibuya/interim_bundles/calendar2/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 98,
+   "text": "duties/layer.py",
+   "old": "../../../src/shibuya/engine/duties/layer.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/interim_bundles/duties/layer.py",
+   "dest": "src/shibuya/interim_bundles/duties/layer.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 99,
+   "text": "remember.py",
+   "old": "../../../src/shibuya/engine/systems/remember.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/remember.py",
+   "dest": "src/shibuya/runtime/systems/remember.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 102,
+   "text": "observe.py",
+   "old": "../../../src/shibuya/engine/systems/observe.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/observe.py",
+   "dest": "src/shibuya/runtime/systems/observe.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 107,
+   "text": "llm_bridge.py",
+   "old": "../../../src/shibuya/engine/llm_bridge.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/inference/bridge.py",
+   "dest": "src/shibuya/runtime/inference/bridge.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 111,
+   "text": "build.py",
+   "old": "../../../src/shibuya/engine/systems/build.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/assemble.py",
+   "dest": "src/shibuya/runtime/systems/assemble.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 113,
+   "text": "population.py",
+   "old": "../../../src/shibuya/agents/population.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/facts/population_reader.py",
+   "dest": "src/shibuya/world/facts/population_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 114,
+   "text": "weekly.py",
+   "old": "../../../src/shibuya/agents/weekly.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/facts/weekly_reader.py",
+   "dest": "src/shibuya/world/facts/weekly_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 122,
+   "text": "presence.py",
+   "old": "../../../src/shibuya/engine/presence.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/presence.py",
+   "dest": "src/shibuya/world/laws/presence.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 122,
+   "text": "weekly.py",
+   "old": "../../../src/shibuya/agents/weekly.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/facts/weekly_reader.py",
+   "dest": "src/shibuya/world/facts/weekly_reader.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 122,
+   "text": "rail.py",
+   "old": "../../../src/shibuya/engine/processes/rail.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/rail.py",
+   "dest": "src/shibuya/world/laws/rail.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 122,
+   "text": "resolve.py",
+   "old": "../../../src/shibuya/engine/resolve.py",
+   "how": "name_line",
+   "names": [
+    "rail_arrive"
+   ],
+   "new": "../../../src/shibuya/act/ops/rail.py",
+   "dest": "src/shibuya/act/ops/rail.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 128,
+   "text": "rail_events.py",
+   "old": "../../../src/shibuya/engine/processes/rail_events.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/rail_events.py",
+   "dest": "src/shibuya/world/laws/rail_events.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 129,
+   "text": "rate_rules.py",
+   "old": "../../../src/shibuya/engine/rate_rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/switch_rate.py",
+   "dest": "src/shibuya/world/laws/switch_rate.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 141,
+   "text": "change_detect.py",
+   "old": "../../../src/shibuya/engine/change_detect.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/mind/system1/change_detect.py",
+   "dest": "src/shibuya/mind/system1/change_detect.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 145,
+   "text": "arbiter.py",
+   "old": "../../../src/shibuya/engine/arbiter.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/arbiter.py",
+   "dest": "src/shibuya/runtime/arbiter.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 151,
+   "text": "mock.py",
+   "old": "../../../src/shibuya/llm/mock.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/inference/mock.py",
+   "dest": "src/shibuya/runtime/inference/mock.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 153,
+   "text": "classical.py",
+   "old": "../../../src/shibuya/engine/classical.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/mind/judge/classical.py",
+   "dest": "src/shibuya/mind/judge/classical.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 154,
+   "text": "fleet.py",
+   "old": "../../../src/shibuya/llm/fleet.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/inference/fleet.py",
+   "dest": "src/shibuya/runtime/inference/fleet.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 156,
+   "text": "ports.py",
+   "old": "../../../src/shibuya/engine/decision/ports.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/mind/judge/decision/ports.py",
+   "dest": "src/shibuya/mind/judge/decision/ports.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 164,
+   "text": "renderer.py",
+   "old": "../../../src/shibuya/perception/renderer.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/world/model/percept_scene.py",
+   "dest": "src/shibuya/world/model/percept_scene.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 166,
+   "text": "templates.py",
+   "old": "../../../src/shibuya/perception/templates.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/foundation/text/templates.py",
+   "dest": "src/shibuya/foundation/text/templates.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 168,
+   "text": "parser.py",
+   "old": "../../../src/shibuya/llm/parser.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/act/intake/parser.py",
+   "dest": "src/shibuya/act/intake/parser.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 168,
+   "text": "undefined.py",
+   "old": "../../../src/shibuya/llm/undefined.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/act/intake/undefined.py",
+   "dest": "src/shibuya/act/intake/undefined.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 168,
+   "text": "contract.py",
+   "old": "../../../src/shibuya/llm/contract.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/foundation/vocab/actions.py",
+   "dest": "src/shibuya/foundation/vocab/actions.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 174,
+   "text": "persona.py",
+   "old": "../../../src/shibuya/engine/decision/persona.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/mind/judge/decision/persona.py",
+   "dest": "src/shibuya/mind/judge/decision/persona.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 179,
+   "text": "commit.py",
+   "old": "../../../src/shibuya/engine/commit.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/act/commit.py",
+   "dest": "src/shibuya/act/commit.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 179,
+   "text": "activity.py",
+   "old": "../../../src/shibuya/engine/activity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/act/activity.py",
+   "dest": "src/shibuya/act/activity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 179,
+   "text": "intent.py",
+   "old": "../../../src/shibuya/engine/intent.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/act/intent.py",
+   "dest": "src/shibuya/act/intent.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 181,
+   "text": "nav1.py",
+   "old": "../../../src/shibuya/engine/space/nav1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/model/space/nav1.py",
+   "dest": "src/shibuya/world/model/space/nav1.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 183,
+   "text": "act.py",
+   "old": "../../../src/shibuya/engine/systems/act.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/act.py",
+   "dest": "src/shibuya/runtime/systems/act.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 183,
+   "text": "navmesh.py",
+   "old": "../../../src/shibuya/world/navmesh.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/model/navmesh.py",
+   "dest": "src/shibuya/world/model/navmesh.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 183,
+   "text": "navmesh_route.py",
+   "old": "../../../src/shibuya/world/navmesh_route.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/model/navmesh_route.py",
+   "dest": "src/shibuya/world/model/navmesh_route.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 183,
+   "text": "geometry.py",
+   "old": "../../../src/shibuya/engine/geometry.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/model/geometry.py",
+   "dest": "src/shibuya/world/model/geometry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 189,
+   "text": "system1.py",
+   "old": "../../../src/shibuya/engine/body/system1.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/body/reactions.py",
+   "dest": "src/shibuya/world/body/reactions.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 194,
+   "text": "poi_target.py",
+   "old": "../../../src/shibuya/engine/poi_target.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/act/target.py",
+   "dest": "src/shibuya/act/target.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 194,
+   "text": "chooser.py",
+   "old": "../../../src/shibuya/engine/chooser.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/mind/judge/chooser.py",
+   "dest": "src/shibuya/mind/judge/chooser.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 196,
+   "text": "crowd.py",
+   "old": "../../../src/shibuya/engine/processes/crowd.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/crowd.py",
+   "dest": "src/shibuya/world/laws/crowd.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 200,
+   "text": "energy.py",
+   "old": "../../../src/shibuya/engine/energy.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/body/energy.py",
+   "dest": "src/shibuya/world/body/energy.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 202,
+   "text": "opening.py",
+   "old": "../../../src/shibuya/engine/processes/opening.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/opening.py",
+   "dest": "src/shibuya/world/laws/opening.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 202,
+   "text": "goods_flow.py",
+   "old": "../../../src/shibuya/engine/processes/goods_flow.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/goods_flow.py",
+   "dest": "src/shibuya/world/laws/goods_flow.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 204,
+   "text": "economy_stage2.py",
+   "old": "../../../src/shibuya/engine/economy_stage2.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/economy/stage2_bind.py",
+   "dest": "src/shibuya/economy/stage2_bind.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 204,
+   "text": "economy_rules.py",
+   "old": "../../../src/shibuya/engine/economy_rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/economy/rules_bind.py",
+   "dest": "src/shibuya/economy/rules_bind.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 204,
+   "text": "rules/table.py",
+   "old": "../../../src/shibuya/engine/rules/table.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/facts/rules/table.py",
+   "dest": "src/shibuya/world/facts/rules/table.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 204,
+   "text": "rights/ledger.py",
+   "old": "../../../src/shibuya/engine/rights/ledger.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/facts/rights/ledger.py",
+   "dest": "src/shibuya/world/facts/rights/ledger.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 215,
+   "text": "proximity.py",
+   "old": "../../../src/shibuya/engine/proximity.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/model/proximity.py",
+   "dest": "src/shibuya/world/model/proximity.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 217,
+   "text": "conversation.py",
+   "old": "../../../src/shibuya/engine/conversation.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/society/conversation.py",
+   "dest": "src/shibuya/society/conversation.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 223,
+   "text": "talk.py",
+   "old": "../../../src/shibuya/engine/systems/talk.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/talk.py",
+   "dest": "src/shibuya/runtime/systems/talk.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 223,
+   "text": "run.py",
+   "old": "../../../src/shibuya/engine/run.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 223,
+   "text": "spatial_index.py",
+   "old": "../../../src/shibuya/engine/spatial_index.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/model/spatial_index.py",
+   "dest": "src/shibuya/world/model/spatial_index.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 229,
+   "text": "道具の台帳",
+   "old": "../../../src/shibuya/engine/tools/registry.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/society/tools/registry.py",
+   "dest": "src/shibuya/society/tools/registry.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 229,
+   "text": "記憶の印象",
+   "old": "../../../src/shibuya/engine/memory_impression.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/mind/memory/memory_impression.py",
+   "dest": "src/shibuya/mind/memory/memory_impression.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 229,
+   "text": "浅い痕跡",
+   "old": "../../../src/shibuya/engine/memory_trace.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/mind/memory/memory_trace.py",
+   "dest": "src/shibuya/mind/memory/memory_trace.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 242,
+   "text": "body/model.py",
+   "old": "../../../src/shibuya/engine/body/model.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/body/model.py",
+   "dest": "src/shibuya/world/body/model.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 242,
+   "text": "body/rules.py",
+   "old": "../../../src/shibuya/engine/body/rules.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/body/rules.py",
+   "dest": "src/shibuya/world/body/rules.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 255,
+   "text": "runner.py",
+   "old": "../../../src/shibuya/engine/processes/runner.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/runner.py",
+   "dest": "src/shibuya/world/laws/runner.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 282,
+   "text": "run_end.py",
+   "old": "../../../src/shibuya/engine/systems/run_end.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/run_end.py",
+   "dest": "src/shibuya/runtime/systems/run_end.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 282,
+   "text": "report.py",
+   "old": "../../../src/shibuya/engine/systems/report.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/report.py",
+   "dest": "src/shibuya/runtime/systems/report.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 282,
+   "text": "state_io.py",
+   "old": "../../../src/shibuya/engine/systems/state_io.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/systems/state_io.py",
+   "dest": "src/shibuya/runtime/systems/state_io.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 284,
+   "text": "log.py",
+   "old": "../../../src/shibuya/engine/events/log.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/foundation/journal/log.py",
+   "dest": "src/shibuya/foundation/journal/log.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 307,
+   "text": "run.py",
+   "old": "../../../src/shibuya/engine/run.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/runtime/run.py",
+   "dest": "src/shibuya/runtime/run.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 325,
+   "text": "civic.py",
+   "old": "../../../src/shibuya/engine/processes/civic.py",
+   "how": "move",
+   "names": [],
+   "new": "../../../src/shibuya/world/laws/civic.py",
+   "dest": "src/shibuya/world/laws/civic.py"
+  },
+  {
+   "file": "docs/reference/repo-guide/day-flow.md",
+   "line": 326,
+   "text": "change_detect.py",
+   "old": "../../../src/shibuya/engine/change_detect.py",
+   "how": "main_none",
+   "names": [],
+   "new": "../../../src/shibuya/mind/system1/change_detect.py",
+   "dest": "src/shibuya/mind/system1/change_detect.py"
+  }
+ ],
+ "left": [
+  {
+   "file": "docs/reference/repo-guide/catalog/c-foundation.md",
+   "line": 109,
+   "text": "src/shibuya/census/\\_\\_init\\_\\_.py",
+   "old": "../../../../src/shibuya/census/__init__.py",
+   "how": "deleted",
+   "names": []
+  }
+ ],
+ "anchor": {
+  "retargeted": 0,
+  "dropped": 0
+ },
+ "map_mismatch": [],
+ "total": {
+  "picked": 677,
+  "exists": 225,
+  "missing": 452,
+  "one_to_one": 350,
+  "main": 59,
+  "one_to_one_dir": 2,
+  "by_name": 40,
+  "main_many": 10,
+  "left": 1
+ }
+}

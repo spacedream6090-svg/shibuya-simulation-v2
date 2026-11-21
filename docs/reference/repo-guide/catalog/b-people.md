@@ -77,13 +77,13 @@
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `_apply_buy`・`_complete_buy`・`_apply_queue`・`_serve_poi_queue`・`_payable`・`consume` |
-| [src/shibuya/engine/commit.py](../../../../src/shibuya/engine/commit.py) | 答えから対象と資源を決める `intents_from_responses`・取り合いの決着 `arbitrate_resources` |
-| [src/shibuya/engine/systems/act.py](../../../../src/shibuya/engine/systems/act.py) | 系 `phase_a`・`phase_b`・`phase_c` |
-| [src/shibuya/engine/processes/crowd.py](../../../../src/shibuya/engine/processes/crowd.py) | 席数・`can_admit`・列の目的 `queue_action`(本体は A 群) |
-| [src/shibuya/engine/processes/goods_flow.py](../../../../src/shibuya/engine/processes/goods_flow.py) | `WasteCollectionProcess._household_consumption`(19 時の 1 個) |
-| [src/shibuya/world/assets.py](../../../../src/shibuya/world/assets.py) | `SYNTHETIC_POI_CAPACITY`・価格と初期在庫の読み口 |
-| [src/shibuya/world/processes/absent.py](../../../../src/shibuya/world/processes/absent.py) | 「無い」の宣言 |
+| [src/shibuya/engine/resolve.py](../../../../src/shibuya/act/apply.py) | `_apply_buy`・`_complete_buy`・`_apply_queue`・`_serve_poi_queue`・`_payable`・`consume` |
+| [src/shibuya/engine/commit.py](../../../../src/shibuya/act/commit.py) | 答えから対象と資源を決める `intents_from_responses`・取り合いの決着 `arbitrate_resources` |
+| [src/shibuya/engine/systems/act.py](../../../../src/shibuya/runtime/systems/act.py) | 系 `phase_a`・`phase_b`・`phase_c` |
+| [src/shibuya/engine/processes/crowd.py](../../../../src/shibuya/world/laws/crowd.py) | 席数・`can_admit`・列の目的 `queue_action`(本体は A 群) |
+| [src/shibuya/engine/processes/goods_flow.py](../../../../src/shibuya/world/laws/goods_flow.py) | `WasteCollectionProcess._household_consumption`(19 時の 1 個) |
+| [src/shibuya/world/assets.py](../../../../src/shibuya/world/model/assets.py) | `SYNTHETIC_POI_CAPACITY`・価格と初期在庫の読み口 |
+| [src/shibuya/world/processes/absent.py](../../../../src/shibuya/world/ledger/absent.py) | 「無い」の宣言 |
 
 ### 元の決定
 
@@ -134,9 +134,9 @@
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/poi_target.py](../../../../src/shibuya/engine/poi_target.py) | `TargetResolver`(読み・候補・移動の行き先 `resolve_move`・計数)・`CATEGORY_WORDS`・`BUYABLE_CATS` |
-| [src/shibuya/engine/chooser.py](../../../../src/shibuya/engine/chooser.py) | 選択器の口 `Chooser.probs`・`NearestChooser`・`ClassicalChooser`・`draw_index` |
-| [src/shibuya/engine/store_choice.py](../../../../src/shibuya/engine/store_choice.py) | 想起優先 `StoreChoice`・決め手の記録・`walk_m_per_tick` |
+| [src/shibuya/engine/poi_target.py](../../../../src/shibuya/act/target.py) | `TargetResolver`(読み・候補・移動の行き先 `resolve_move`・計数)・`CATEGORY_WORDS`・`BUYABLE_CATS` |
+| [src/shibuya/engine/chooser.py](../../../../src/shibuya/mind/judge/chooser.py) | 選択器の口 `Chooser.probs`・`NearestChooser`・`ClassicalChooser`・`draw_index` |
+| [src/shibuya/engine/store_choice.py](../../../../src/shibuya/mind/judge/store_choice.py) | 想起優先 `StoreChoice`・決め手の記録・`walk_m_per_tick` |
 
 ### 元の決定
 
@@ -196,13 +196,13 @@
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `_apply_eat`・`_complete_eat`・`_energy_meal`・`_energy_snack`・`energy_out_of_area_meal`・`energy_home_meal`・`advance_body`・`initialize_energy` |
-| [src/shibuya/engine/energy.py](../../../../src/shibuya/engine/energy.py) | 値を決める層 `EnergyModel`・`OutOfAreaMeals`・`HomeMeals`・`EnergyLayer`・`MealStartDistribution` |
-| [src/shibuya/engine/body/rules.py](../../../../src/shibuya/engine/body/rules.py) | 体の自然変動の値 `interoception`・`initial_energy_values` |
-| [src/shibuya/engine/systems/body.py](../../../../src/shibuya/engine/systems/body.py) | 系 `body`・`home_meal`・`energy_after` |
-| [src/shibuya/engine/classical.py](../../../../src/shibuya/engine/classical.py) | 古典の方策の食事の門と事前分布 |
-| [src/shibuya/world/state.py](../../../../src/shibuya/world/state.py) | `eatery_mask`・`EATERY_MODES` |
-| [src/shibuya/perception/renderer.py](../../../../src/shibuya/perception/renderer.py) | B5 の空腹の語・`HUNGER_WORDS_MODES` |
+| [src/shibuya/engine/resolve.py](../../../../src/shibuya/act/apply.py) | `_apply_eat`・`_complete_eat`・`_energy_meal`・`_energy_snack`・`energy_out_of_area_meal`・`energy_home_meal`・`advance_body`・`initialize_energy` |
+| [src/shibuya/engine/energy.py](../../../../src/shibuya/world/body/energy.py) | 値を決める層 `EnergyModel`・`OutOfAreaMeals`・`HomeMeals`・`EnergyLayer`・`MealStartDistribution` |
+| [src/shibuya/engine/body/rules.py](../../../../src/shibuya/world/body/rules.py) | 体の自然変動の値 `interoception`・`initial_energy_values` |
+| [src/shibuya/engine/systems/body.py](../../../../src/shibuya/runtime/systems/body.py) | 系 `body`・`home_meal`・`energy_after` |
+| [src/shibuya/engine/classical.py](../../../../src/shibuya/mind/judge/classical.py) | 古典の方策の食事の門と事前分布 |
+| [src/shibuya/world/state.py](../../../../src/shibuya/world/model/state.py) | `eatery_mask`・`EATERY_MODES` |
+| [src/shibuya/perception/renderer.py](../../../../src/shibuya/mind/percept/draw.py) | B5 の空腹の語・`HUNGER_WORDS_MODES` |
 
 ### 元の決定
 
@@ -262,14 +262,14 @@ D-118(索引に行なし・#57)・D-119(索引に行なし・#58)・`09-30/§4`�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/conversation.py](../../../../src/shibuya/engine/conversation.py) | セッションの状態機械 `ConversationManager`・`Session`・定数 |
-| [src/shibuya/engine/systems/talk.py](../../../../src/shibuya/engine/systems/talk.py) | 系 `relations_wake`・`conversation` |
-| [src/shibuya/engine/systems/judge.py](../../../../src/shibuya/engine/systems/judge.py) | 系 `apply_responses`(返事の解決を呼ぶ)・`wake_sources`(`conv.wake_candidates`) |
-| [src/shibuya/engine/systems/llm_io.py](../../../../src/shibuya/engine/systems/llm_io.py) | 会話の番の発話 `utter` |
-| [src/shibuya/engine/run.py](../../../../src/shibuya/engine/run.py) | `_settle_pending_invites` |
-| [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `_apply_talk`・`talk_within_reach`・`set_conversing`・`end_conversation`・`revert_conversation`・`join_conversation` |
-| [src/shibuya/engine/commit.py](../../../../src/shibuya/engine/commit.py) | `talk_partners`・`_talk_partners_reach`・`pair_partners` |
-| [src/shibuya/engine/defect_fixes_1103.py](../../../../src/shibuya/engine/defect_fixes_1103.py) | `--defect-fixes-1103` の切替口 |
+| [src/shibuya/engine/conversation.py](../../../../src/shibuya/society/conversation.py) | セッションの状態機械 `ConversationManager`・`Session`・定数 |
+| [src/shibuya/engine/systems/talk.py](../../../../src/shibuya/runtime/systems/talk.py) | 系 `relations_wake`・`conversation` |
+| [src/shibuya/engine/systems/judge.py](../../../../src/shibuya/runtime/systems/judge.py) | 系 `apply_responses`(返事の解決を呼ぶ)・`wake_sources`(`conv.wake_candidates`) |
+| [src/shibuya/engine/systems/llm_io.py](../../../../src/shibuya/runtime/systems/llm_io.py) | 会話の番の発話 `utter` |
+| [src/shibuya/engine/run.py](../../../../src/shibuya/runtime/run.py) | `_settle_pending_invites` |
+| [src/shibuya/engine/resolve.py](../../../../src/shibuya/act/ops/talk.py) | `_apply_talk`・`talk_within_reach`・`set_conversing`・`end_conversation`・`revert_conversation`・`join_conversation` |
+| [src/shibuya/engine/commit.py](../../../../src/shibuya/act/intake/from_words.py) | `talk_partners`・`_talk_partners_reach`・`pair_partners` |
+| [src/shibuya/engine/defect_fixes_1103.py](../../../../src/shibuya/runtime/switch_defects.py) | `--defect-fixes-1103` の切替口 |
 
 ### 元の決定
 
@@ -315,8 +315,8 @@ D-118(索引に行なし・#57)・D-119(索引に行なし・#58)・`09-30/§4`�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/proximity.py](../../../../src/shibuya/engine/proximity.py) | `ProximityRule`・`ProximityLayer`・`batch_partners`・`marks_for` |
-| [src/shibuya/engine/spatial_index.py](../../../../src/shibuya/engine/spatial_index.py) | 近傍の索引 |
+| [src/shibuya/engine/proximity.py](../../../../src/shibuya/world/model/proximity.py) | `ProximityRule`・`ProximityLayer`・`batch_partners`・`marks_for` |
+| [src/shibuya/engine/spatial_index.py](../../../../src/shibuya/world/model/spatial_index.py) | 近傍の索引 |
 
 ### 元の決定
 
@@ -354,10 +354,10 @@ E: S4(物理)・M16(物理)。V: A10・A51。`proximity.py` の本体は棚卸�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/speech/port.py](../../../../src/shibuya/engine/speech/port.py) | `Utterance`・`SpeechPort`・`mora_count` |
-| [src/shibuya/engine/speech/layer.py](../../../../src/shibuya/engine/speech/layer.py) | 切替口・`make_port`・`speak_turn` |
-| [src/shibuya/llm/mock.py](../../../../src/shibuya/llm/mock.py) | mock の決まった文 `MOCK_UTTERANCE`(「こんにちは」) |
-| [src/shibuya/perception/renderer.py](../../../../src/shibuya/perception/renderer.py) | `SPEECH_HEARD_LINE`・`SPEECH_IMPERATIVE_PATTERNS`・`heard_fn` |
+| [src/shibuya/engine/speech/port.py](../../../../src/shibuya/society/speech/port.py) | `Utterance`・`SpeechPort`・`mora_count` |
+| [src/shibuya/engine/speech/layer.py](../../../../src/shibuya/society/speech/layer.py) | 切替口・`make_port`・`speak_turn` |
+| [src/shibuya/llm/mock.py](../../../../src/shibuya/foundation/vocab/actions.py) | mock の決まった文 `MOCK_UTTERANCE`(「こんにちは」) |
+| [src/shibuya/perception/renderer.py](../../../../src/shibuya/mind/percept/draw.py) | `SPEECH_HEARD_LINE`・`SPEECH_IMPERATIVE_PATTERNS`・`heard_fn` |
 
 ### 元の決定
 
@@ -391,7 +391,7 @@ D: A65(ひと言 20 字)。K: A42(要旨の源)。V: A45(個体の枠の超過�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/speech_clock.py](../../../../src/shibuya/engine/speech_clock.py) | `TalkClock`・`make`・`ChatTiming`(値は空欄) |
+| [src/shibuya/engine/speech_clock.py](../../../../src/shibuya/runtime/clocks/speech.py) | `TalkClock`・`make`・`ChatTiming`(値は空欄) |
 
 ### 元の決定
 
@@ -445,15 +445,15 @@ D: A65(ひと言 20 字)。K: A42(要旨の源)。V: A45(個体の枠の超過�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/memory.py](../../../../src/shibuya/engine/memory.py) | `MemoryLayer`(記録 `after_tick`・想起 `recall`・要旨 `note_utterance`) |
-| [src/shibuya/engine/memory_store.py](../../../../src/shibuya/engine/memory_store.py) | 記憶の器 `MemoryStore`・`MemoryView` |
-| [src/shibuya/engine/memory_m1.py](../../../../src/shibuya/engine/memory_m1.py) | M1 の式・人ごとの倍率・腕の切替口 `check_arms` |
-| [src/shibuya/engine/memory_embed.py](../../../../src/shibuya/engine/memory_embed.py) | 埋め込みの口・`CueState`・`RURI_PINS` |
-| [src/shibuya/engine/memory_impression.py](../../../../src/shibuya/engine/memory_impression.py) | 印象の器 `ImpressionBook` |
-| [src/shibuya/engine/memory_trace.py](../../../../src/shibuya/engine/memory_trace.py) | 浅い痕跡 `shallow_trace`・`played_along_share` |
-| [src/shibuya/engine/systems/remember.py](../../../../src/shibuya/engine/systems/remember.py) | 系 `memory`・`familiarity` |
-| [src/shibuya/engine/events/body.py](../../../../src/shibuya/engine/events/body.py) | 体の出来事を記録に書く口(器のランだけ) |
-| [src/shibuya/agents/state.py](../../../../src/shibuya/agents/state.py) | 列 `mem_*`(`memory_columns` のランだけ確保) |
+| [src/shibuya/engine/memory.py](../../../../src/shibuya/mind/memory/memory.py) | `MemoryLayer`(記録 `after_tick`・想起 `recall`・要旨 `note_utterance`) |
+| [src/shibuya/engine/memory_store.py](../../../../src/shibuya/mind/memory/memory_store.py) | 記憶の器 `MemoryStore`・`MemoryView` |
+| [src/shibuya/engine/memory_m1.py](../../../../src/shibuya/mind/memory/memory_m1.py) | M1 の式・人ごとの倍率・腕の切替口 `check_arms` |
+| [src/shibuya/engine/memory_embed.py](../../../../src/shibuya/mind/memory/memory_embed.py) | 埋め込みの口・`CueState`・`RURI_PINS` |
+| [src/shibuya/engine/memory_impression.py](../../../../src/shibuya/mind/memory/memory_impression.py) | 印象の器 `ImpressionBook` |
+| [src/shibuya/engine/memory_trace.py](../../../../src/shibuya/mind/memory/memory_trace.py) | 浅い痕跡 `shallow_trace`・`played_along_share` |
+| [src/shibuya/engine/systems/remember.py](../../../../src/shibuya/runtime/systems/remember.py) | 系 `memory`・`familiarity` |
+| [src/shibuya/engine/events/body.py](../../../../src/shibuya/mind/memory/body_events.py) | 体の出来事を記録に書く口(器のランだけ) |
+| [src/shibuya/agents/state.py](../../../../src/shibuya/world/model/agent_table.py) | 列 `mem_*`(`memory_columns` のランだけ確保) |
 
 ### 元の決定
 
@@ -498,11 +498,11 @@ K: A42(要旨の源と口コミの聞き手)。V: A45(個体の枠 300 tok で�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/store_memory.py](../../../../src/shibuya/engine/store_memory.py) | `StoreMemory`・`STORE_SIGMA`・列の口 |
-| [src/shibuya/engine/store_choice.py](../../../../src/shibuya/engine/store_choice.py) | 想起優先と決め手 |
-| [src/shibuya/engine/wom.py](../../../../src/shibuya/engine/wom.py) | 店名と評価語の抽出 `WomExtractor`・`hear` |
-| [src/shibuya/engine/memory_shops.py](../../../../src/shibuya/engine/memory_shops.py) | 上限なしの腕の店の行 `ShopTable`・`UncappedStoreMemory` |
-| [src/shibuya/engine/systems/llm_io.py](../../../../src/shibuya/engine/systems/llm_io.py) | `utter` が抽出と転写を呼ぶ |
+| [src/shibuya/engine/store_memory.py](../../../../src/shibuya/mind/memory/store_memory.py) | `StoreMemory`・`STORE_SIGMA`・列の口 |
+| [src/shibuya/engine/store_choice.py](../../../../src/shibuya/mind/judge/store_choice.py) | 想起優先と決め手 |
+| [src/shibuya/engine/wom.py](../../../../src/shibuya/mind/memory/wom.py) | 店名と評価語の抽出 `WomExtractor`・`hear` |
+| [src/shibuya/engine/memory_shops.py](../../../../src/shibuya/mind/memory/memory_shops.py) | 上限なしの腕の店の行 `ShopTable`・`UncappedStoreMemory` |
+| [src/shibuya/engine/systems/llm_io.py](../../../../src/shibuya/runtime/systems/llm_io.py) | `utter` が抽出と転写を呼ぶ |
 
 ### 元の決定
 
@@ -541,10 +541,10 @@ K: A37(〔腕〕届く店の式)・A42(口コミの聞き手)。V: A54(抽選の
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/familiarity.py](../../../../src/shibuya/engine/familiarity.py) | `FamiliarityLayer`・`place_thing`・`activation_approx` |
-| [src/shibuya/engine/systems/remember.py](../../../../src/shibuya/engine/systems/remember.py) | 系 `familiarity` |
-| [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | 書き手 `write_familiarity` |
-| [src/shibuya/engine/poi_target.py](../../../../src/shibuya/engine/poi_target.py) | 読み手 `_rich_fields` |
+| [src/shibuya/engine/familiarity.py](../../../../src/shibuya/mind/memory/familiarity.py) | `FamiliarityLayer`・`place_thing`・`activation_approx` |
+| [src/shibuya/engine/systems/remember.py](../../../../src/shibuya/runtime/systems/remember.py) | 系 `familiarity` |
+| [src/shibuya/engine/resolve.py](../../../../src/shibuya/mind/ops.py) | 書き手 `write_familiarity` |
+| [src/shibuya/engine/poi_target.py](../../../../src/shibuya/act/target.py) | 読み手 `_rich_fields` |
 
 ### 元の決定
 
@@ -593,11 +593,11 @@ K: A38(〔腕〕習慣 0.5)。`familiarity.py` は表の path の欄に出てき
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/relations.py](../../../../src/shibuya/engine/relations.py) | `RelationLayer`・`initial_edges`・`choose_talk_partners`・`acquaintance_candidates`・`copresent_step` |
-| [src/shibuya/engine/relations_people.py](../../../../src/shibuya/engine/relations_people.py) | `PeopleRelationLayer` |
-| [src/shibuya/engine/systems/talk.py](../../../../src/shibuya/engine/systems/talk.py) | 系 `relations_wake` |
-| [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | 書き手 `write_relations` |
-| [src/shibuya/engine/memory.py](../../../../src/shibuya/engine/memory.py) | `enable_relations`・人の行に触れる `_touch_people` |
+| [src/shibuya/engine/relations.py](../../../../src/shibuya/mind/relations/layer.py) | `RelationLayer`・`initial_edges`・`choose_talk_partners`・`acquaintance_candidates`・`copresent_step` |
+| [src/shibuya/engine/relations_people.py](../../../../src/shibuya/mind/relations/people.py) | `PeopleRelationLayer` |
+| [src/shibuya/engine/systems/talk.py](../../../../src/shibuya/runtime/systems/talk.py) | 系 `relations_wake` |
+| [src/shibuya/engine/resolve.py](../../../../src/shibuya/mind/ops.py) | 書き手 `write_relations` |
+| [src/shibuya/engine/memory.py](../../../../src/shibuya/mind/memory/memory.py) | `enable_relations`・人の行に触れる `_touch_people` |
 
 ### 元の決定
 
@@ -653,20 +653,20 @@ V: S17(辺の符号 ±127)・A10(知人は人数の外)。K: B8・M14(相手を�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/calendar.py](../../../../src/shibuya/engine/calendar.py) | 暦の口 `SimCalendar`・祝日の表・開始日の検査 |
-| [src/shibuya/agents/weekly.py](../../../../src/shibuya/agents/weekly.py) | W17 の読み口 |
-| [src/shibuya/engine/calendar_shadow.py](../../../../src/shibuya/engine/calendar_shadow.py) | 1a の影・W20 の読み口 `load_table` |
-| [src/shibuya/engine/calendar_self.py](../../../../src/shibuya/engine/calendar_self.py) | 1b の層 `CalendarSelf`・見積り・実感・検査 |
-| [src/shibuya/engine/calendar2/book.py](../../../../src/shibuya/engine/calendar2/book.py) | 本人の予定の器 `PromiseBook` |
-| [src/shibuya/engine/calendar2/layer.py](../../../../src/shibuya/engine/calendar2/layer.py) | 持ち主 `Calendar2Layer`・系 `calendar_2` |
-| [src/shibuya/engine/calendar2/port.py](../../../../src/shibuya/engine/calendar2/port.py) | 候補と仮のモデル `Calendar2Port` |
-| [src/shibuya/engine/calendar2/recall.py](../../../../src/shibuya/engine/calendar2/recall.py) | 頭の中の予定の思い出し `HeadRecall` |
-| [src/shibuya/engine/calendar2/arm.py](../../../../src/shibuya/engine/calendar2/arm.py) | 切替口 |
-| [src/shibuya/engine/calendar3/layer.py](../../../../src/shibuya/engine/calendar3/layer.py) | 持ち主 `Calendar3Layer`・系 `calendar_3` |
-| [src/shibuya/engine/calendar3/roster.py](../../../../src/shibuya/engine/calendar3/roster.py) | 雇い主の口 `Roster`(つなぎ) |
-| [src/shibuya/engine/calendar3/port.py](../../../../src/shibuya/engine/calendar3/port.py) | 候補と仮のモデル `Calendar3Port` |
-| [src/shibuya/engine/calendar3/knowledge.py](../../../../src/shibuya/engine/calendar3/knowledge.py) | 暦の常識の口 `CommonCalendar`・`StoreRules` |
-| [src/shibuya/engine/calendar3/arm.py](../../../../src/shibuya/engine/calendar3/arm.py) | 切替口と試験用の印 |
+| [src/shibuya/engine/calendar.py](../../../../src/shibuya/world/facts/calendar.py) | 暦の口 `SimCalendar`・祝日の表・開始日の検査 |
+| [src/shibuya/agents/weekly.py](../../../../src/shibuya/world/facts/weekly_reader.py) | W17 の読み口 |
+| [src/shibuya/engine/calendar_shadow.py](../../../../src/shibuya/world/facts/w20_calendar_reader.py) | 1a の影・W20 の読み口 `load_table` |
+| [src/shibuya/engine/calendar_self.py](../../../../src/shibuya/interim_bundles/calendar_self.py) | 1b の層 `CalendarSelf`・見積り・実感・検査 |
+| [src/shibuya/engine/calendar2/book.py](../../../../src/shibuya/mind/plan/promise_book.py) | 本人の予定の器 `PromiseBook` |
+| [src/shibuya/engine/calendar2/layer.py](../../../../src/shibuya/interim_bundles/calendar2/layer.py) | 持ち主 `Calendar2Layer`・系 `calendar_2` |
+| [src/shibuya/engine/calendar2/port.py](../../../../src/shibuya/mind/plan/calendar2_port.py) | 候補と仮のモデル `Calendar2Port` |
+| [src/shibuya/engine/calendar2/recall.py](../../../../src/shibuya/mind/plan/head_recall.py) | 頭の中の予定の思い出し `HeadRecall` |
+| [src/shibuya/engine/calendar2/arm.py](../../../../src/shibuya/foundation/arms/calendar2.py) | 切替口 |
+| [src/shibuya/engine/calendar3/layer.py](../../../../src/shibuya/interim_bundles/calendar3/layer.py) | 持ち主 `Calendar3Layer`・系 `calendar_3` |
+| [src/shibuya/engine/calendar3/roster.py](../../../../src/shibuya/interim_bundles/calendar3/roster.py) | 雇い主の口 `Roster`(つなぎ) |
+| [src/shibuya/engine/calendar3/port.py](../../../../src/shibuya/mind/plan/calendar3_port.py) | 候補と仮のモデル `Calendar3Port` |
+| [src/shibuya/engine/calendar3/knowledge.py](../../../../src/shibuya/interim_bundles/calendar3/knowledge.py) | 暦の常識の口 `CommonCalendar`・`StoreRules` |
+| [src/shibuya/engine/calendar3/arm.py](../../../../src/shibuya/foundation/arms/calendar3.py) | 切替口と試験用の印 |
 
 ### 元の決定
 
@@ -729,23 +729,23 @@ V: S17(辺の符号 ±127)・A10(知人は人数の外)。K: B8・M14(相手を�
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/contact/layer.py](../../../../src/shibuya/engine/contact/layer.py) | 持ち主 `ContactLayer`・系 `contact`・`workplace_send`・監査 |
-| [src/shibuya/engine/contact/arm.py](../../../../src/shibuya/engine/contact/arm.py) | 切替口と下の腕 |
-| [src/shibuya/engine/contact/device.py](../../../../src/shibuya/engine/contact/device.py) | 道具の状態と刺激 `Devices` |
-| [src/shibuya/engine/contact/attention.py](../../../../src/shibuya/engine/contact/attention.py) | 目と心の向き `Attention` |
-| [src/shibuya/engine/contact/deliver.py](../../../../src/shibuya/engine/contact/deliver.py) | 届く `Mailbox` |
-| [src/shibuya/engine/contact/chat_state.py](../../../../src/shibuya/engine/contact/chat_state.py) | チャットの状態 `ChatBook` |
-| [src/shibuya/engine/contact/calls.py](../../../../src/shibuya/engine/contact/calls.py) | 電話 `CallManager`・`CallSpeechPort` |
-| [src/shibuya/engine/contact/book.py](../../../../src/shibuya/engine/contact/book.py) | 宛先 `ContactBook` |
-| [src/shibuya/engine/contact/port.py](../../../../src/shibuya/engine/contact/port.py) | 候補と仮のモデル `ContactPort`・文の口 |
-| [src/shibuya/engine/contact/habit.py](../../../../src/shibuya/engine/contact/habit.py) | 習慣 `HabitBook` |
-| [src/shibuya/engine/contact/tools.py](../../../../src/shibuya/engine/contact/tools.py) | 道具の台帳に足す 6 行 |
-| [src/shibuya/perception/contact_view.py](../../../../src/shibuya/perception/contact_view.py) | 知覚の事実の値と描き方の行 |
-| [src/shibuya/engine/tools/registry.py](../../../../src/shibuya/engine/tools/registry.py) | 道具の台帳 `ToolRegistry` |
-| [src/shibuya/engine/tools/contacts.py](../../../../src/shibuya/engine/tools/contacts.py) | 連絡先の手段の印 |
-| [src/shibuya/engine/tools/groups.py](../../../../src/shibuya/engine/tools/groups.py) | グループの一覧 `GroupList` |
-| [src/shibuya/engine/tools/places.py](../../../../src/shibuya/engine/tools/places.py) | 店の番号の表 `PhoneTable` |
-| [src/shibuya/engine/tools/record.py](../../../../src/shibuya/engine/tools/record.py) | 道具の一式 `build_fixture`・看板の記録 |
+| [src/shibuya/engine/contact/layer.py](../../../../src/shibuya/interim_bundles/contact/layer.py) | 持ち主 `ContactLayer`・系 `contact`・`workplace_send`・監査 |
+| [src/shibuya/engine/contact/arm.py](../../../../src/shibuya/foundation/arms/contact.py) | 切替口と下の腕 |
+| [src/shibuya/engine/contact/device.py](../../../../src/shibuya/world/things/device.py) | 道具の状態と刺激 `Devices` |
+| [src/shibuya/engine/contact/attention.py](../../../../src/shibuya/mind/plan/contact_attention.py) | 目と心の向き `Attention` |
+| [src/shibuya/engine/contact/deliver.py](../../../../src/shibuya/society/contact/deliver.py) | 届く `Mailbox` |
+| [src/shibuya/engine/contact/chat_state.py](../../../../src/shibuya/society/contact/chat_state.py) | チャットの状態 `ChatBook` |
+| [src/shibuya/engine/contact/calls.py](../../../../src/shibuya/society/contact/calls.py) | 電話 `CallManager`・`CallSpeechPort` |
+| [src/shibuya/engine/contact/book.py](../../../../src/shibuya/interim_bundles/contact/book.py) | 宛先 `ContactBook` |
+| [src/shibuya/engine/contact/port.py](../../../../src/shibuya/mind/plan/contact_port.py) | 候補と仮のモデル `ContactPort`・文の口 |
+| [src/shibuya/engine/contact/habit.py](../../../../src/shibuya/mind/plan/contact_habit.py) | 習慣 `HabitBook` |
+| [src/shibuya/engine/contact/tools.py](../../../../src/shibuya/society/contact/tools.py) | 道具の台帳に足す 6 行 |
+| [src/shibuya/perception/contact_view.py](../../../../src/shibuya/foundation/ports/percept_contact.py) | 知覚の事実の値と描き方の行 |
+| [src/shibuya/engine/tools/registry.py](../../../../src/shibuya/society/tools/registry.py) | 道具の台帳 `ToolRegistry` |
+| [src/shibuya/engine/tools/contacts.py](../../../../src/shibuya/foundation/vocab/contact_flags.py) | 連絡先の手段の印 |
+| [src/shibuya/engine/tools/groups.py](../../../../src/shibuya/society/tools/groups.py) | グループの一覧 `GroupList` |
+| [src/shibuya/engine/tools/places.py](../../../../src/shibuya/society/tools/places.py) | 店の番号の表 `PhoneTable` |
+| [src/shibuya/engine/tools/record.py](../../../../src/shibuya/society/tools/record.py) | 道具の一式 `build_fixture`・看板の記録 |
 
 ### 元の決定
 
@@ -799,14 +799,14 @@ V: A45(個体の枠の超過で連絡の行を落とす)。`engine/contact/` と
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/processes/opening.py](../../../../src/shibuya/engine/processes/opening.py) | `OpeningProcess`(開閉と代打)・担当の表 |
-| [src/shibuya/engine/processes/goods_flow.py](../../../../src/shibuya/engine/processes/goods_flow.py) | `ShelfRestockProcess`・`DeliveryInboundProcess`・`WasteCollectionProcess`・`restock_by_staff`・`bin_by_staff` |
-| [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `request_open_close`・`set_open_flags`・`restock`・`discard_to_bin` |
-| [src/shibuya/engine/rights/initial.py](../../../../src/shibuya/engine/rights/initial.py) | 担当の雇用の行(W21c と丸振り)。権利の本体は C 群 |
-| [src/shibuya/engine/duties/layer.py](../../../../src/shibuya/engine/duties/layer.py) | 持ち主 `DutiesLayer`・系 `duties`・`staffed_now`・監査 |
-| [src/shibuya/engine/duties/knowledge.py](../../../../src/shibuya/engine/duties/knowledge.py) | 店の決まり `ShopRules` |
-| [src/shibuya/engine/duties/port.py](../../../../src/shibuya/engine/duties/port.py) | 候補と仮のモデル `DutiesPort` |
-| [src/shibuya/engine/duties/arm.py](../../../../src/shibuya/engine/duties/arm.py) | 切替口 |
+| [src/shibuya/engine/processes/opening.py](../../../../src/shibuya/world/laws/opening.py) | `OpeningProcess`(開閉と代打)・担当の表 |
+| [src/shibuya/engine/processes/goods_flow.py](../../../../src/shibuya/world/laws/goods_flow.py) | `ShelfRestockProcess`・`DeliveryInboundProcess`・`WasteCollectionProcess`・`restock_by_staff`・`bin_by_staff` |
+| [src/shibuya/engine/resolve.py](../../../../src/shibuya/act/ops/law_writes.py) | `request_open_close`・`set_open_flags`・`restock`・`discard_to_bin` |
+| [src/shibuya/engine/rights/initial.py](../../../../src/shibuya/world/facts/rights/initial.py) | 担当の雇用の行(W21c と丸振り)。権利の本体は C 群 |
+| [src/shibuya/engine/duties/layer.py](../../../../src/shibuya/interim_bundles/duties/layer.py) | 持ち主 `DutiesLayer`・系 `duties`・`staffed_now`・監査 |
+| [src/shibuya/engine/duties/knowledge.py](../../../../src/shibuya/interim_bundles/duties/knowledge.py) | 店の決まり `ShopRules` |
+| [src/shibuya/engine/duties/port.py](../../../../src/shibuya/mind/plan/duties_port.py) | 候補と仮のモデル `DutiesPort` |
+| [src/shibuya/engine/duties/arm.py](../../../../src/shibuya/foundation/arms/duties.py) | 切替口 |
 
 ### 元の決定
 
@@ -849,10 +849,10 @@ E: S26(物理的に止める仕組み・権利の無い開閉店も止めない)
 
 | ファイル | 役割 |
 |---|---|
-| [src/shibuya/engine/intent.py](../../../../src/shibuya/engine/intent.py) | `IntentLayer` |
-| [src/shibuya/engine/activity.py](../../../../src/shibuya/engine/activity.py) | `ActivityLayer`・`ActivityPayload` |
-| [src/shibuya/engine/commit.py](../../../../src/shibuya/engine/commit.py) | セル外の対象を移動に変える `intent_hold` の道 |
-| [src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `set_intent`・`clear_intent`・`fail_intent`・`set_activity` |
+| [src/shibuya/engine/intent.py](../../../../src/shibuya/act/intent.py) | `IntentLayer` |
+| [src/shibuya/engine/activity.py](../../../../src/shibuya/act/activity.py) | `ActivityLayer`・`ActivityPayload` |
+| [src/shibuya/engine/commit.py](../../../../src/shibuya/act/commit.py) | セル外の対象を移動に変える `intent_hold` の道 |
+| [src/shibuya/engine/resolve.py](../../../../src/shibuya/act/ops/intent_writes.py) | `set_intent`・`clear_intent`・`fail_intent`・`set_activity` |
 
 ### 元の決定
 
@@ -888,7 +888,7 @@ E: S26(物理的に止める仕組み・権利の無い開閉店も止めない)
 
 ### 実装しているファイル
 
-[src/shibuya/engine/resolve.py](../../../../src/shibuya/engine/resolve.py) の `_apply_help`・`_apply_record_only`・`_apply_report`。
+[src/shibuya/engine/resolve.py](../../../../src/shibuya/act/apply.py) の `_apply_help`・`_apply_record_only`・`_apply_report`。
 
 ### 元の決定
 
@@ -914,7 +914,7 @@ D: M24(手伝いはいつも失敗)・S6(断ると通報は記録だけ)。V: S5
 
 ### 実装しているファイル
 
-[src/shibuya/engine/decision/persona.py](../../../../src/shibuya/engine/decision/persona.py)。構築側の文は `src/shibuya/build/pop/w21_persona.py` です(このグループでは読んでいません)。
+[src/shibuya/engine/decision/persona.py](../../../../src/shibuya/mind/judge/decision/persona.py)。構築側の文は `src/shibuya/build/pop/w21_persona.py` です(このグループでは読んでいません)。
 
 ### 元の決定
 

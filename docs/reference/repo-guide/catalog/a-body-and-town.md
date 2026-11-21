@@ -13,28 +13,28 @@
 
 | # | 機能 | 状態 | 主なファイル |
 |---:|---|---|---|
-| 1 | 鉄道 | 既定=時刻表の運行・乗車・運賃・200% の上限/腕=帰無腕/器だけ=渋谷の発着の表/無いと宣言=電車を見送る | [rail.py](../../../../src/shibuya/engine/processes/rail.py)・[resolve.py](../../../../src/shibuya/engine/resolve.py) |
-| 2 | 在圏(域内に居る・舞台の外) | 既定=日課の実行部・読み取り規則 v2・即時の退出/腕=`--exit-mode walk_to_platform` ほか/器だけ=§2 の状態の表の 4 項目(`board_intent`・`native`・`WORK_START` と `AT_HOME`・W12 の門のセル)/無いと宣言=催しの人の注入 | [presence.py](../../../../src/shibuya/engine/presence.py)・[weekly.py](../../../../src/shibuya/agents/weekly.py) |
-| 3 | 歩行とナビメッシュ | 既定=歩ける面の移動 nav1/腕=坂・曲がる重み/器だけ=経路の候補 3 つ/`absent.py` に行なし | [nav1.py](../../../../src/shibuya/engine/space/nav1.py)・[navmesh.py](../../../../src/shibuya/world/navmesh.py)・[navmesh_route.py](../../../../src/shibuya/world/navmesh_route.py) |
-| 4 | 人の動きのモデル(足した) | 既定=本人の速さ × 坂 × 混み具合・接続口/腕=密度の推定/器だけ=混雑の中の避け方 | nav1.py・[geometry.py](../../../../src/shibuya/engine/geometry.py) |
-| 5 | 混雑場(足した) | 既定=密度の段と流れの 3 値/器だけ=8 方位と平均待ち | [crowd.py](../../../../src/shibuya/engine/processes/crowd.py)・[state.py](../../../../src/shibuya/world/state.py) |
-| 6 | 席と列 | 既定=席・列・30 刻みと 15 刻みの離脱/腕=席の面積の感度/`absent.py` に行なし | crowd.py・resolve.py・[seat_release.py](../../../../src/shibuya/engine/seat_release.py) |
-| 7 | 天気と環境 | 既定=暦の太陽と再生日の気象/腕=`--weather-perturb`/`absent.py` に行なし | [environment.py](../../../../src/shibuya/engine/processes/environment.py)・[solar.py](../../../../src/shibuya/engine/solar.py) |
+| 1 | 鉄道 | 既定=時刻表の運行・乗車・運賃・200% の上限/腕=帰無腕/器だけ=渋谷の発着の表/無いと宣言=電車を見送る | [rail.py](../../../../src/shibuya/world/laws/rail.py)・[resolve.py](../../../../src/shibuya/act/apply.py) |
+| 2 | 在圏(域内に居る・舞台の外) | 既定=日課の実行部・読み取り規則 v2・即時の退出/腕=`--exit-mode walk_to_platform` ほか/器だけ=§2 の状態の表の 4 項目(`board_intent`・`native`・`WORK_START` と `AT_HOME`・W12 の門のセル)/無いと宣言=催しの人の注入 | [presence.py](../../../../src/shibuya/world/laws/presence.py)・[weekly.py](../../../../src/shibuya/world/facts/weekly_reader.py) |
+| 3 | 歩行とナビメッシュ | 既定=歩ける面の移動 nav1/腕=坂・曲がる重み/器だけ=経路の候補 3 つ/`absent.py` に行なし | [nav1.py](../../../../src/shibuya/world/model/space/nav1.py)・[navmesh.py](../../../../src/shibuya/world/model/navmesh.py)・[navmesh_route.py](../../../../src/shibuya/world/model/navmesh_route.py) |
+| 4 | 人の動きのモデル(足した) | 既定=本人の速さ × 坂 × 混み具合・接続口/腕=密度の推定/器だけ=混雑の中の避け方 | nav1.py・[geometry.py](../../../../src/shibuya/world/model/geometry.py) |
+| 5 | 混雑場(足した) | 既定=密度の段と流れの 3 値/器だけ=8 方位と平均待ち | [crowd.py](../../../../src/shibuya/world/laws/crowd.py)・[state.py](../../../../src/shibuya/world/model/state.py) |
+| 6 | 席と列 | 既定=席・列・30 刻みと 15 刻みの離脱/腕=席の面積の感度/`absent.py` に行なし | crowd.py・resolve.py・[seat_release.py](../../../../src/shibuya/world/laws/switch_seat.py) |
+| 7 | 天気と環境 | 既定=暦の太陽と再生日の気象/腕=`--weather-perturb`/`absent.py` に行なし | [environment.py](../../../../src/shibuya/world/laws/environment.py)・[solar.py](../../../../src/shibuya/world/model/solar.py) |
 | 8 | 日影(足した) | 既定=W9 の 5 分ごとの影をセル 1 点で読む | environment.py・[w9_shadow.py](../../../../src/shibuya/build/vis/w9_shadow.py) |
 | 9 | 騒音(足した) | 既定=W10 の静的な昼夜の段/器だけ=動的な上書きの欄 | state.py・[w10_noise.py](../../../../src/shibuya/build/field/w10_noise.py) |
-| 10 | 見通し(足した) | 既定=W8 の静的な可視の表 | [assets.py](../../../../src/shibuya/world/assets.py)・[w8_visibility.py](../../../../src/shibuya/build/vis/w8_visibility.py) |
-| 11 | 世界過程 18 本 | 既定 13 本(うち記録か集計だけ 3 本・一部だけ 1 本)/無いと宣言で止めた 5 本/旧道あり | [runner.py](../../../../src/shibuya/engine/processes/runner.py)・[processes/](../../../../src/shibuya/engine/processes/) |
-| 12 | 世界の台帳と検査(足した) | 既定=起動時の憲法 5 の検査と ActualLog/宣言だけの欄あり | [first_batch.py](../../../../src/shibuya/world/processes/first_batch.py)・[registry.py](../../../../src/shibuya/world/processes/registry.py) |
-| 13 | 無いと宣言と入力の宣言(足した) | 宣言だけ(挙動を変えない) | [absent.py](../../../../src/shibuya/world/processes/absent.py)・[inputs.py](../../../../src/shibuya/world/processes/inputs.py) |
-| 14 | 規則の表 | 既定=表と読み手/器だけ=読み手に呼び手の無い行 4 件/読むコードの無い行 8 id | [table.py](../../../../src/shibuya/engine/rules/table.py)・[rules-table.json](../../../design/rules-table.json) |
-| 15 | 体の層(足した) | 既定=全員を見る版/腕=予約の版/器だけ=System 1 の 3 件/無いと宣言=倒れる | [engine/body/](../../../../src/shibuya/engine/body/) |
-| 16 | 暦の口(足した) | 既定(開始日の検査を含む=土日と祝日は回せない)/腕=開始日・日数・祝日の表・学校の長期休みの表(どれも開始日の検査の範囲の中だけ) | [calendar.py](../../../../src/shibuya/engine/calendar.py) |
-| 17 | 近接の判定(足した) | 既定=実距離 2.0 m/腕=距離の感度 | [proximity.py](../../../../src/shibuya/engine/proximity.py)・[spatial_index.py](../../../../src/shibuya/engine/spatial_index.py) |
-| 18 | 時計と刻みの腕(足した) | 腕だけ(既定は全体で 1 つの時計・幅 60 秒) | [batching.py](../../../../src/shibuya/engine/batching.py)・[regional_clock.py](../../../../src/shibuya/engine/regional_clock.py)・[step_scope.py](../../../../src/shibuya/engine/step_scope.py) |
+| 10 | 見通し(足した) | 既定=W8 の静的な可視の表 | [assets.py](../../../../src/shibuya/world/model/assets.py)・[w8_visibility.py](../../../../src/shibuya/build/vis/w8_visibility.py) |
+| 11 | 世界過程 18 本 | 既定 13 本(うち記録か集計だけ 3 本・一部だけ 1 本)/無いと宣言で止めた 5 本/旧道あり | [runner.py](../../../../src/shibuya/world/laws/runner.py)・[processes/](../../../../src/shibuya/world/laws/) |
+| 12 | 世界の台帳と検査(足した) | 既定=起動時の憲法 5 の検査と ActualLog/宣言だけの欄あり | [first_batch.py](../../../../src/shibuya/world/ledger/first_batch.py)・[registry.py](../../../../src/shibuya/world/ledger/registry.py) |
+| 13 | 無いと宣言と入力の宣言(足した) | 宣言だけ(挙動を変えない) | [absent.py](../../../../src/shibuya/world/ledger/absent.py)・[inputs.py](../../../../src/shibuya/world/ledger/inputs.py) |
+| 14 | 規則の表 | 既定=表と読み手/器だけ=読み手に呼び手の無い行 4 件/読むコードの無い行 8 id | [table.py](../../../../src/shibuya/world/facts/rules/table.py)・[rules-table.json](../../../design/rules-table.json) |
+| 15 | 体の層(足した) | 既定=全員を見る版/腕=予約の版/器だけ=System 1 の 3 件/無いと宣言=倒れる | [engine/body/](../../../../src/shibuya/world/body/) |
+| 16 | 暦の口(足した) | 既定(開始日の検査を含む=土日と祝日は回せない)/腕=開始日・日数・祝日の表・学校の長期休みの表(どれも開始日の検査の範囲の中だけ) | [calendar.py](../../../../src/shibuya/world/facts/calendar.py) |
+| 17 | 近接の判定(足した) | 既定=実距離 2.0 m/腕=距離の感度 | [proximity.py](../../../../src/shibuya/world/model/proximity.py)・[spatial_index.py](../../../../src/shibuya/world/model/spatial_index.py) |
+| 18 | 時計と刻みの腕(足した) | 腕だけ(既定は全体で 1 つの時計・幅 60 秒) | [batching.py](../../../../src/shibuya/foundation/queues/batching.py)・[regional_clock.py](../../../../src/shibuya/runtime/clocks/regional.py)・[step_scope.py](../../../../src/shibuya/runtime/clocks/step_scope.py) |
 
 ### 0-2 区分と ID の読み方
 
-状態の区分は 4 つです。既定は既定のラン([段 1 §0-2](../day-flow.md) の `python -m shibuya.cli`)で動くもの、腕は切替口を立てると動くもの、器だけは口や欄があっても既定の結果を変えないもの、無いと宣言は [absent.py](../../../../src/shibuya/world/processes/absent.py) の一覧にあるものです。旧値の再現のためだけに残る切替口は「旧道」と書いて腕に入れません。
+状態の区分は 4 つです。既定は既定のラン([段 1 §0-2](../day-flow.md) の `python -m shibuya.cli`)で動くもの、腕は切替口を立てると動くもの、器だけは口や欄があっても既定の結果を変えないもの、無いと宣言は [absent.py](../../../../src/shibuya/world/ledger/absent.py) の一覧にあるものです。旧値の再現のためだけに残る切替口は「旧道」と書いて腕に入れません。
 
 元の決定の ID は 4 つの形で書きます。
 
@@ -101,7 +101,7 @@ CLI の既定は `shibuya.cli.main` の引数の定義を読み出した値、�
 |---|---|
 | 既定 | 時刻表の運行・乗車の意図の保持・先着順・運賃・上限 `floor(2.0 × 定員 − 乗車人数)` だけの乗り残し。合成の世界は便が無く休み、乗車は `NO_TRAIN` |
 | 腕 | `--exit-mode walk_to_platform`(§2)・帰無腕 `--no-plan-executor`(12% の域外居住の抽選と D-61 の帰りの便)・`--ablate AB-RAIL-EXECUTOR` |
-| 器だけ | [rail_events.py](../../../../src/shibuya/engine/processes/rail_events.py)(`READ_RAIL_EVENTS=False`・呼び手なし)。線別の混雑率の上限 `cap_pct` は旧道の `_spread_arrivals` だけが読みます |
+| 器だけ | [rail_events.py](../../../../src/shibuya/world/laws/rail_events.py)(`READ_RAIL_EVENTS=False`・呼び手なし)。線別の混雑率の上限 `cap_pct` は旧道の `_spread_arrivals` だけが読みます |
 | 無いと宣言 | `absent.skip_train`(電車を見送る)。運行の乱れは `input.service_disruption` の欄だけ |
 | 旧道 | `--rate-rules legacy` の受け入れ確率(150〜200% で 1.0→0.7) |
 
@@ -109,11 +109,11 @@ CLI の既定は `shibuya.cli.main` の引数の定義を読み出した値、�
 
 | ファイル | 役割 |
 |---|---|
-| [engine/processes/rail.py](../../../../src/shibuya/engine/processes/rail.py) | 便の表・発車・定員と停車の表・運賃の口・計器 |
-| [engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `_apply_board`・`_enter_board_queue`・`_serve_board_queue`・`_board_riders`・`rail_arrive`・`rail_depart`・`sync_transit_activity` |
-| [engine/rate_rules.py](../../../../src/shibuya/engine/rate_rules.py) | 受け入れ確率を外す切替口 |
-| [world/assets.py](../../../../src/shibuya/world/assets.py) | `ProcessAssets` の `tt_*`・`line_platform_cell`・`ext_node_line_idx` |
-| [world/processes/first_batch.py](../../../../src/shibuya/world/processes/first_batch.py) | 台帳の行 `rail_operation_static`(engine_rule・conf 0.6)・`plan.rail_timetable` |
+| [engine/processes/rail.py](../../../../src/shibuya/world/laws/rail.py) | 便の表・発車・定員と停車の表・運賃の口・計器 |
+| [engine/resolve.py](../../../../src/shibuya/act/ops/rail.py) | `_apply_board`・`_enter_board_queue`・`_serve_board_queue`・`_board_riders`・`rail_arrive`・`rail_depart`・`sync_transit_activity` |
+| [engine/rate_rules.py](../../../../src/shibuya/world/laws/switch_rate.py) | 受け入れ確率を外す切替口 |
+| [world/assets.py](../../../../src/shibuya/world/model/assets.py) | `ProcessAssets` の `tt_*`・`line_platform_cell`・`ext_node_line_idx` |
+| [world/processes/first_batch.py](../../../../src/shibuya/world/ledger/first_batch.py) | 台帳の行 `rail_operation_static`(engine_rule・conf 0.6)・`plan.rail_timetable` |
 | [build/field/w12_external_nodes.py](../../../../src/shibuya/build/field/w12_external_nodes.py)・[w12_real_timetables.py](../../../../src/shibuya/build/field/w12_real_timetables.py)・[w12_rail_events.py](../../../../src/shibuya/build/field/w12_rail_events.py) | 構築側の W12 |
 | [build/geo/w11_station_exits.py](../../../../src/shibuya/build/geo/w11_station_exits.py) | 構築側の W11(駅と出口) |
 
@@ -165,7 +165,7 @@ D-R2-5・D-W14(静的ダイヤ)・D-51(乗車の意図の保持)・D-61(帰り�
 
 就寝は W17 の就寝の行で `begin_planned_sleep` が実行します。就寝地のセルに居れば寝て、居なければ歩いて着いたら寝ます。乗車中・舞台の外・会話中の体には何もしません。起床の実行は就寝でない行の始まりごとの `wake_from_plan` です。
 
-乗車で舞台の外へ出た体は、次のブロックの到着を張り直します。次のブロックが無ければ、次の 4 つがそろうときだけ出口のセルへ戻します(E12・`presence._rearm_after_leaving`)。① 答えの「乗車」で出た体である(`allow_return_to_current`。civic の押し出しは使わない)② 進行中のブロックの残りが 60 分以上 ③ 60 分以後の最も早い便が進行中のブロックの終わりより前 ④ その便が日の終わりより前。舞台の外と乗車中の体には呼び出しを出しません([judge.py](../../../../src/shibuya/engine/systems/judge.py) が `arbiter.step` に `outside` を渡します)。
+乗車で舞台の外へ出た体は、次のブロックの到着を張り直します。次のブロックが無ければ、次の 4 つがそろうときだけ出口のセルへ戻します(E12・`presence._rearm_after_leaving`)。① 答えの「乗車」で出た体である(`allow_return_to_current`。civic の押し出しは使わない)② 進行中のブロックの残りが 60 分以上 ③ 60 分以後の最も早い便が進行中のブロックの終わりより前 ④ その便が日の終わりより前。舞台の外と乗車中の体には呼び出しを出しません([judge.py](../../../../src/shibuya/runtime/systems/judge.py) が `arbiter.step` に `outside` を渡します)。
 
 ### 状態
 
@@ -181,12 +181,12 @@ D-R2-5・D-W14(静的ダイヤ)・D-51(乗車の意図の保持)・D-61(帰り�
 
 | ファイル | 役割 |
 |---|---|
-| [engine/presence.py](../../../../src/shibuya/engine/presence.py) | `PlanBlocks`(在圏ブロック)・`PlanExecutor`(表と実行と計器) |
-| [agents/weekly.py](../../../../src/shibuya/agents/weekly.py) | W17 の読み口(語彙は二重定義) |
-| [engine/systems/body.py](../../../../src/shibuya/engine/systems/body.py) | 系 `presence`・`plan_boundary` |
-| [engine/systems/build.py](../../../../src/shibuya/engine/systems/build.py) | 組み立て(`home_cell`・`direction_node` を母集団から渡す) |
-| [engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `begin_planned_sleep`・`wake_from_plan`・`place_at_external`・`rail_arrive`・`rail_depart`・`release_indoor`・`balk_queue`・`set_plan_state`・`begin_exit_walk` |
-| [engine/arbiter.py](../../../../src/shibuya/engine/arbiter.py)・[engine/systems/judge.py](../../../../src/shibuya/engine/systems/judge.py) | 舞台の外の見送り |
+| [engine/presence.py](../../../../src/shibuya/world/laws/presence.py) | `PlanBlocks`(在圏ブロック)・`PlanExecutor`(表と実行と計器) |
+| [agents/weekly.py](../../../../src/shibuya/world/facts/weekly_reader.py) | W17 の読み口(語彙は二重定義) |
+| [engine/systems/body.py](../../../../src/shibuya/runtime/systems/body.py) | 系 `presence`・`plan_boundary` |
+| [engine/systems/build.py](../../../../src/shibuya/runtime/systems/assemble.py) | 組み立て(`home_cell`・`direction_node` を母集団から渡す) |
+| [engine/resolve.py](../../../../src/shibuya/act/apply.py) | `begin_planned_sleep`・`wake_from_plan`・`place_at_external`・`rail_arrive`・`rail_depart`・`release_indoor`・`balk_queue`・`set_plan_state`・`begin_exit_walk` |
+| [engine/arbiter.py](../../../../src/shibuya/runtime/arbiter.py)・[engine/systems/judge.py](../../../../src/shibuya/runtime/systems/judge.py) | 舞台の外の見送り |
 
 ### 元の決定
 
@@ -238,11 +238,11 @@ presence.py の冒頭に〔既知の穴・11-02〕として書かれ、[PENDING]
 
 ### 何をしているか
 
-答えが「移動」なら行き先を決めます。対象が「なし」や説明語なら職場か自宅のうち今いない方(`commit.intents_from_responses`)、対象の語があれば `poi_target.resolve_move`、「あたり」は活動層の近傍です。店・人・寝床が別のセルにあるときは行為を意図として持ち、着いたら呼ばずに実行します([intent.py](../../../../src/shibuya/engine/intent.py)・上限 60 刻み)。
+答えが「移動」なら行き先を決めます。対象が「なし」や説明語なら職場か自宅のうち今いない方(`commit.intents_from_responses`)、対象の語があれば `poi_target.resolve_move`、「あたり」は活動層の近傍です。店・人・寝床が別のセルにあるときは行為を意図として持ち、着いたら呼ばずに実行します([intent.py](../../../../src/shibuya/act/intent.py)・上限 60 刻み)。
 
 `_apply_move` は行き先をセルの代表の節にし、W3 の次の節の表で経路があるかを確かめます。nav1 でもこの確かめは W3 のままです。
 
-経路の形は [NavPlanner](../../../../src/shibuya/world/navmesh_route.py) が 2 段で引きます。通りの選びは W1 の向きつきの辺の Dijkstra(曲がる 1 回=50 m・上り 1 m=3.8 m)、面の上の線は通り道の近くの帯の A* と funnel です。通り道の中で引けなければ全面に広げます。
+経路の形は [NavPlanner](../../../../src/shibuya/world/model/navmesh_route.py) が 2 段で引きます。通りの選びは W1 の向きつきの辺の Dijkstra(曲がる 1 回=50 m・上り 1 m=3.8 m)、面の上の線は通り道の近くの帯の A* と funnel です。通り道の中で引けなければ全面に広げます。
 
 歩ける面の資産は階ごとの 0.5 m の格子を塗ったもので、構築は [navmesh1.py](../../../../src/shibuya/build/space/navmesh1.py) です。行ごとの連なり(ラン)・その境(門)・縦の鎖(帯)に分け、階の間は接続口(階段・エスカレーター・エレベーター・スロープ)でつなぎます。位置は `r.xy` と `nav_fi`(階)で持ち、セルは面から導きます。経路の形と時間は状態でなく派生の値です(再開では引き直す)。
 
@@ -267,14 +267,14 @@ presence.py の冒頭に〔既知の穴・11-02〕として書かれ、[PENDING]
 
 | ファイル | 役割 |
 |---|---|
-| [engine/space/nav1.py](../../../../src/shibuya/engine/space/nav1.py) | `NavSpace`・`RoutePool`・`advance_kernel`・腕と manifest |
-| [world/navmesh.py](../../../../src/shibuya/world/navmesh.py) | 資産と問い合わせ(`locate_run`・`astar_strips`・`funnel_points`・`w1_turn_dijkstra`・`cell_of`) |
-| [world/navmesh_route.py](../../../../src/shibuya/world/navmesh_route.py) | 経路の形を引く `NavPlanner` |
-| [world/graph.py](../../../../src/shibuya/world/graph.py) | W1 と W3 の次の節の表 |
-| [engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `_apply_move`・`_apply_engine_step`・`_nav_step`・`_nav_stop`・`_nav_positions`・`nav_place` |
-| [engine/commit.py](../../../../src/shibuya/engine/commit.py)・[engine/poi_target.py](../../../../src/shibuya/engine/poi_target.py) | 行き先の決定 |
-| [engine/intent.py](../../../../src/shibuya/engine/intent.py)・[engine/activity.py](../../../../src/shibuya/engine/activity.py) | 意図の保持・活動層とあたり |
-| [engine/geometry.py](../../../../src/shibuya/engine/geometry.py) | `desired_speeds`・Kladek の式・`EdgeGeometry`(腕) |
+| [engine/space/nav1.py](../../../../src/shibuya/world/model/space/nav1.py) | `NavSpace`・`RoutePool`・`advance_kernel`・腕と manifest |
+| [world/navmesh.py](../../../../src/shibuya/world/model/navmesh.py) | 資産と問い合わせ(`locate_run`・`astar_strips`・`funnel_points`・`w1_turn_dijkstra`・`cell_of`) |
+| [world/navmesh_route.py](../../../../src/shibuya/world/model/navmesh_route.py) | 経路の形を引く `NavPlanner` |
+| [world/graph.py](../../../../src/shibuya/world/model/graph.py) | W1 と W3 の次の節の表 |
+| [engine/resolve.py](../../../../src/shibuya/act/ops/move.py) | `_apply_move`・`_apply_engine_step`・`_nav_step`・`_nav_stop`・`_nav_positions`・`nav_place` |
+| [engine/commit.py](../../../../src/shibuya/act/commit.py)・[engine/poi_target.py](../../../../src/shibuya/act/target.py) | 行き先の決定 |
+| [engine/intent.py](../../../../src/shibuya/act/intent.py)・[engine/activity.py](../../../../src/shibuya/act/activity.py) | 意図の保持・活動層とあたり |
+| [engine/geometry.py](../../../../src/shibuya/world/model/geometry.py) | `desired_speeds`・Kladek の式・`EdgeGeometry`(腕) |
 | [build/space/navmesh1.py](../../../../src/shibuya/build/space/navmesh1.py)・[mesh.py](../../../../src/shibuya/build/space/mesh.py)・[raster.py](../../../../src/shibuya/build/space/raster.py)・[sources.py](../../../../src/shibuya/build/space/sources.py) | 構築側 |
 | [build/geo/w1_walk_graph.py](../../../../src/shibuya/build/geo/w1_walk_graph.py)・[w2_cells.py](../../../../src/shibuya/build/geo/w2_cells.py)・[w3_distances.py](../../../../src/shibuya/build/geo/w3_distances.py) | W1・W2・W3 の構築 |
 
@@ -342,9 +342,9 @@ presence.py の冒頭に〔既知の穴・11-02〕として書かれ、[PENDING]
 
 | ファイル | 役割 |
 |---|---|
-| [engine/space/nav1.py](../../../../src/shibuya/engine/space/nav1.py) | `slope_speed_factor`・`link_times`・`per_m2`・`surface_counts`・`kladek_factor`・`advance` |
-| [engine/geometry.py](../../../../src/shibuya/engine/geometry.py) | `desired_speeds`・`kladek_speed_factor` |
-| [world/state.py](../../../../src/shibuya/world/state.py) | `DENSITY_STAGE_EDGES_PER_M2`(Fruin の境) |
+| [engine/space/nav1.py](../../../../src/shibuya/world/model/space/nav1.py) | `slope_speed_factor`・`link_times`・`per_m2`・`surface_counts`・`kladek_factor`・`advance` |
+| [engine/geometry.py](../../../../src/shibuya/world/model/geometry.py) | `desired_speeds`・`kladek_speed_factor` |
+| [world/state.py](../../../../src/shibuya/world/model/state.py) | `DENSITY_STAGE_EDGES_PER_M2`(Fruin の境) |
 
 ### 元の決定
 
@@ -391,10 +391,10 @@ C9 の G2(索引の ID 不明)・`10-06/§2` の SR11・SR12・R-61・R-63・R-6
 
 | ファイル | 役割 |
 |---|---|
-| [engine/processes/crowd.py](../../../../src/shibuya/engine/processes/crowd.py) | `_update_flow`・`queue_rows` |
-| [engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `apply` の末尾の位置の確定 |
-| [world/state.py](../../../../src/shibuya/world/state.py) | `compute_density`・`density_stage` |
-| [engine/change_detect.py](../../../../src/shibuya/engine/change_detect.py) | セルの変化の検出(中身は C の起床) |
+| [engine/processes/crowd.py](../../../../src/shibuya/world/laws/crowd.py) | `_update_flow`・`queue_rows` |
+| [engine/resolve.py](../../../../src/shibuya/act/apply.py) | `apply` の末尾の位置の確定 |
+| [world/state.py](../../../../src/shibuya/world/model/state.py) | `compute_density`・`density_stage` |
+| [engine/change_detect.py](../../../../src/shibuya/mind/system1/change_detect.py) | セルの変化の検出(中身は C の起床) |
 
 ### 元の決定
 
@@ -435,7 +435,7 @@ D-R2-5・C9 §4 の改訂(索引の ID 不明)・#126・`10-12/§1-6`。
 
 移動で歩き出した体は席の印を解き、移動か乗車で歩き出した体は列を離れます。行列の材料は `queue_rows(3)` で B4b へ渡します。
 
-席とは別に、1 刻みに店が受け入れる数 `pois.capacity`(4 人)が取り合いの決着で効きます([commit.py](../../../../src/shibuya/engine/commit.py) の `capacity`)。
+席とは別に、1 刻みに店が受け入れる数 `pois.capacity`(4 人)が取り合いの決着で効きます([commit.py](../../../../src/shibuya/act/commit.py) の `capacity`)。
 
 ### 状態
 
@@ -451,11 +451,11 @@ D-R2-5・C9 §4 の改訂(索引の ID 不明)・#126・`10-12/§1-6`。
 
 | ファイル | 役割 |
 |---|---|
-| [engine/processes/crowd.py](../../../../src/shibuya/engine/processes/crowd.py) | `seats_for_categories`・`can_admit`・`on_admit`・`step`・`queue_rows` |
-| [engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `_apply_buy`・`_apply_eat`・`_apply_queue`・`_complete_buy`・`_complete_eat`・`_serve_poi_queue`・`release_indoor`・`balk_queue` |
-| [engine/seat_release.py](../../../../src/shibuya/engine/seat_release.py) | 歩き出しで席を解く切替口 |
-| [engine/defect_fixes_1103.py](../../../../src/shibuya/engine/defect_fixes_1103.py) | 欠陥 4 件の切替口と計器 |
-| [engine/commit.py](../../../../src/shibuya/engine/commit.py) | 店の受け入れ数の取り合い |
+| [engine/processes/crowd.py](../../../../src/shibuya/world/laws/crowd.py) | `seats_for_categories`・`can_admit`・`on_admit`・`step`・`queue_rows` |
+| [engine/resolve.py](../../../../src/shibuya/act/ops/shop.py) | `_apply_buy`・`_apply_eat`・`_apply_queue`・`_complete_buy`・`_complete_eat`・`_serve_poi_queue`・`release_indoor`・`balk_queue` |
+| [engine/seat_release.py](../../../../src/shibuya/world/laws/switch_seat.py) | 歩き出しで席を解く切替口 |
+| [engine/defect_fixes_1103.py](../../../../src/shibuya/runtime/switch_defects.py) | 欠陥 4 件の切替口と計器 |
+| [engine/commit.py](../../../../src/shibuya/act/commit.py) | 店の受け入れ数の取り合い |
 
 購入と食事の中身は B(購入・食事)の担当です。
 
@@ -524,11 +524,11 @@ engine の中で雨や天候型が行為や歩く速さを変える処理はあ�
 
 | ファイル | 役割 |
 |---|---|
-| [engine/processes/environment.py](../../../../src/shibuya/engine/processes/environment.py) | 再生日の決定・5 分ごとの更新・manifest の `weather` |
-| [engine/solar.py](../../../../src/shibuya/engine/solar.py) | 太陽の位置と WBGT(構築側の式の写し) |
-| [engine/body/rules.py](../../../../src/shibuya/engine/body/rules.py)・[engine/body/model.py](../../../../src/shibuya/engine/body/model.py) | 体感温度の写像 |
-| [engine/systems/build.py](../../../../src/shibuya/engine/systems/build.py)・[perception/renderer.py](../../../../src/shibuya/perception/renderer.py) | B3 の語 |
-| [world/assets.py](../../../../src/shibuya/world/assets.py) | W13 の読み口(`hourly_*`) |
+| [engine/processes/environment.py](../../../../src/shibuya/world/laws/environment.py) | 再生日の決定・5 分ごとの更新・manifest の `weather` |
+| [engine/solar.py](../../../../src/shibuya/world/model/solar.py) | 太陽の位置と WBGT(構築側の式の写し) |
+| [engine/body/rules.py](../../../../src/shibuya/world/body/rules.py)・[engine/body/model.py](../../../../src/shibuya/world/body/model.py) | 体感温度の写像 |
+| [engine/systems/build.py](../../../../src/shibuya/runtime/systems/assemble.py)・[perception/renderer.py](../../../../src/shibuya/world/model/percept_scene.py) | B3 の語 |
+| [world/assets.py](../../../../src/shibuya/world/model/assets.py) | W13 の読み口(`hourly_*`) |
 | [build/field/w13_weather.py](../../../../src/shibuya/build/field/w13_weather.py) | 構築側の W13 |
 | [tools/realworld_fetch/jma_etrn.py](../../../../tools/realworld_fetch/jma_etrn.py) | 気象庁のデータの取得 |
 
@@ -580,8 +580,8 @@ D-R2-5・D-W15・`10-12b/§1-3`(天気と太陽の分け方)・`10-12b/§1-4`(�
 | ファイル | 役割 |
 |---|---|
 | [build/vis/w9_shadow.py](../../../../src/shibuya/build/vis/w9_shadow.py) | 構築 |
-| [engine/processes/environment.py](../../../../src/shibuya/engine/processes/environment.py) | `_shade_mask`・`_shade_at`・`nearest_shadow_date` |
-| [world/assets.py](../../../../src/shibuya/world/assets.py) | `shadow_planes`・`cell_street_point` |
+| [engine/processes/environment.py](../../../../src/shibuya/world/laws/environment.py) | `_shade_mask`・`_shade_at`・`nearest_shadow_date` |
+| [world/assets.py](../../../../src/shibuya/world/model/assets.py) | `shadow_planes`・`cell_street_point` |
 
 ### 元の決定
 
@@ -622,9 +622,9 @@ D-W10(5 分刻み)・`10-12b/§1-3`・#88・#100(影 7 日)・知覚契約書 §
 | ファイル | 役割 |
 |---|---|
 | [build/field/w10_noise.py](../../../../src/shibuya/build/field/w10_noise.py)・[road_names.py](../../../../src/shibuya/build/field/road_names.py)・[w10_ruler.py](../../../../src/shibuya/build/field/w10_ruler.py) | 構築 |
-| [world/assets.py](../../../../src/shibuya/world/assets.py) | `noise_stage_for_hour`・`NOISE_DAY_HOURS` |
-| [world/state.py](../../../../src/shibuya/world/state.py) | `noise_stage_for_tick` |
-| [perception/renderer.py](../../../../src/shibuya/perception/renderer.py) | `PerceptionAssets.noise_stage_for_tick`(同じ 6〜22 時の切り) |
+| [world/assets.py](../../../../src/shibuya/world/model/assets.py) | `noise_stage_for_hour`・`NOISE_DAY_HOURS` |
+| [world/state.py](../../../../src/shibuya/world/model/state.py) | `noise_stage_for_tick` |
+| [perception/renderer.py](../../../../src/shibuya/world/model/percept_scene.py) | `PerceptionAssets.noise_stage_for_tick`(同じ 6〜22 時の切り) |
 
 ### 元の決定
 
@@ -669,9 +669,9 @@ D-W11・`10-03/§9-4`・#51・#77・`static_noise_field`(台帳の行・実行�
 | ファイル | 役割 |
 |---|---|
 | [build/vis/w8_visibility.py](../../../../src/shibuya/build/vis/w8_visibility.py) | 構築 |
-| [world/assets.py](../../../../src/shibuya/world/assets.py) | `load_visible_pois_by_cell`・`load_poi_own_cell_visibility` |
-| [world/state.py](../../../../src/shibuya/world/state.py) | `visible_pois`・`poi_visibility` |
-| [engine/poi_target.py](../../../../src/shibuya/engine/poi_target.py)・[engine/classical.py](../../../../src/shibuya/engine/classical.py) | 読み手 |
+| [world/assets.py](../../../../src/shibuya/world/model/assets.py) | `load_visible_pois_by_cell`・`load_poi_own_cell_visibility` |
+| [world/state.py](../../../../src/shibuya/world/model/state.py) | `visible_pois`・`poi_visibility` |
+| [engine/poi_target.py](../../../../src/shibuya/act/target.py)・[engine/classical.py](../../../../src/shibuya/mind/judge/classical.py) | 読み手 |
 
 ### 元の決定
 
@@ -731,16 +731,16 @@ D-W9・#52(段 2a)・#53(段 2b)・`09-25/D-114`。
 
 | ファイル | 役割 |
 |---|---|
-| [engine/processes/runner.py](../../../../src/shibuya/engine/processes/runner.py) | 実行器・順・切り替え・日の頭の張り直し・廃棄の報告 |
-| [engine/systems/world.py](../../../../src/shibuya/engine/systems/world.py) | 系 `world` |
-| [engine/processes/environment.py](../../../../src/shibuya/engine/processes/environment.py)・[rail.py](../../../../src/shibuya/engine/processes/rail.py)・[crowd.py](../../../../src/shibuya/engine/processes/crowd.py) | §7・§1・§5・§6 |
-| [engine/processes/opening.py](../../../../src/shibuya/engine/processes/opening.py) | 開閉と権利台帳の持ち主 |
-| [engine/processes/traffic.py](../../../../src/shibuya/engine/processes/traffic.py) | 断面の車 |
-| [engine/processes/goods_flow.py](../../../../src/shibuya/engine/processes/goods_flow.py) | 納品・補充・廃棄・街路の清掃 |
-| [engine/processes/logistics.py](../../../../src/shibuya/engine/processes/logistics.py) | 宅配・バス・道路工事 |
-| [engine/processes/civic.py](../../../../src/shibuya/engine/processes/civic.py) | 出動・報道・ホテル・電気と水・催し |
-| [engine/processes/salient.py](../../../../src/shibuya/engine/processes/salient.py) | 顕著行為と気づきの結線 |
-| [engine/rate_rules.py](../../../../src/shibuya/engine/rate_rules.py)・[engine/absent_processes.py](../../../../src/shibuya/engine/absent_processes.py) | 切替口と manifest の印 |
+| [engine/processes/runner.py](../../../../src/shibuya/world/laws/runner.py) | 実行器・順・切り替え・日の頭の張り直し・廃棄の報告 |
+| [engine/systems/world.py](../../../../src/shibuya/runtime/systems/world.py) | 系 `world` |
+| [engine/processes/environment.py](../../../../src/shibuya/world/laws/environment.py)・[rail.py](../../../../src/shibuya/world/laws/rail.py)・[crowd.py](../../../../src/shibuya/world/laws/crowd.py) | §7・§1・§5・§6 |
+| [engine/processes/opening.py](../../../../src/shibuya/world/laws/opening.py) | 開閉と権利台帳の持ち主 |
+| [engine/processes/traffic.py](../../../../src/shibuya/world/laws/traffic.py) | 断面の車 |
+| [engine/processes/goods_flow.py](../../../../src/shibuya/world/laws/goods_flow.py) | 納品・補充・廃棄・街路の清掃 |
+| [engine/processes/logistics.py](../../../../src/shibuya/world/laws/logistics.py) | 宅配・バス・道路工事 |
+| [engine/processes/civic.py](../../../../src/shibuya/world/laws/civic.py) | 出動・報道・ホテル・電気と水・催し |
+| [engine/processes/salient.py](../../../../src/shibuya/world/laws/salient.py) | 顕著行為と気づきの結線 |
+| [engine/rate_rules.py](../../../../src/shibuya/world/laws/switch_rate.py)・[engine/absent_processes.py](../../../../src/shibuya/world/laws/switch_absent.py) | 切替口と manifest の印 |
 | [build/field/w7_planspec.py](../../../../src/shibuya/build/field/w7_planspec.py) | W7 の営業時間(法規の上限を構築で畳む) |
 
 ### 元の決定
@@ -800,14 +800,14 @@ D-R2-1・D-R2-5・`10-12/§1-1`(CP6)・`11-01/§2`・`11-01/§3`・`11-01/§10-1
 
 | ファイル | 役割 |
 |---|---|
-| [world/processes/records.py](../../../../src/shibuya/world/processes/records.py) | レコードの型 |
-| [world/processes/relations.py](../../../../src/shibuya/world/processes/relations.py) | 関係 4 本 |
-| [world/processes/registry.py](../../../../src/shibuya/world/processes/registry.py) | 台帳 |
-| [world/processes/first_batch.py](../../../../src/shibuya/world/processes/first_batch.py) | 宣言(データだけ) |
-| [world/processes/constitution.py](../../../../src/shibuya/world/processes/constitution.py) | 憲法 5 の検査 |
-| [world/processes/actual_log.py](../../../../src/shibuya/world/processes/actual_log.py) | ActualLog |
-| [world/processes/circularity.py](../../../../src/shibuya/world/processes/circularity.py) | 循環の機械検査 |
-| [world/processes/deletion_candidates.py](../../../../src/shibuya/world/processes/deletion_candidates.py) | 削除候補の追記 |
+| [world/processes/records.py](../../../../src/shibuya/world/ledger/records.py) | レコードの型 |
+| [world/processes/relations.py](../../../../src/shibuya/world/ledger/relations.py) | 関係 4 本 |
+| [world/processes/registry.py](../../../../src/shibuya/world/ledger/registry.py) | 台帳 |
+| [world/processes/first_batch.py](../../../../src/shibuya/world/ledger/first_batch.py) | 宣言(データだけ) |
+| [world/processes/constitution.py](../../../../src/shibuya/world/ledger/constitution.py) | 憲法 5 の検査 |
+| [world/processes/actual_log.py](../../../../src/shibuya/world/ledger/actual_log.py) | ActualLog |
+| [world/processes/circularity.py](../../../../src/shibuya/validation/static/circularity.py) | 循環の機械検査 |
+| [world/processes/deletion_candidates.py](../../../../src/shibuya/validation/static/deletion_candidates.py) | 削除候補の追記 |
 
 ### 元の決定
 
@@ -829,7 +829,7 @@ D-R2-2・D-R2-4・D-R2-6・`11-01/§3`・`11-02r/§1`(#6)・#133・#136。
 
 ### 何をしているか
 
-[absent.py](../../../../src/shibuya/world/processes/absent.py) が世界に無い過程と判断の一覧を、[inputs.py](../../../../src/shibuya/world/processes/inputs.py) が境界の外から一方向に入るものの一覧を持ちます。どちらも宣言だけで挙動を変えません。計器 [absent_declarations.py](../../../../tools/instruments/absent_declarations.py) が Markdown に出します。
+[absent.py](../../../../src/shibuya/world/ledger/absent.py) が世界に無い過程と判断の一覧を、[inputs.py](../../../../src/shibuya/world/ledger/inputs.py) が境界の外から一方向に入るものの一覧を持ちます。どちらも宣言だけで挙動を変えません。計器 [absent_declarations.py](../../../../tools/instruments/absent_declarations.py) が Markdown に出します。
 
 ### 状態
 
@@ -851,10 +851,10 @@ D-R2-2・D-R2-4・D-R2-6・`11-01/§3`・`11-02r/§1`(#6)・#133・#136。
 
 | ファイル | 役割 |
 |---|---|
-| [world/processes/absent.py](../../../../src/shibuya/world/processes/absent.py) | 無いの宣言 |
-| [world/processes/inputs.py](../../../../src/shibuya/world/processes/inputs.py) | 入力の宣言 |
-| [world/processes/records.py](../../../../src/shibuya/world/processes/records.py) | `Absence`・`InputDecl` |
-| [engine/absent_processes.py](../../../../src/shibuya/engine/absent_processes.py)・[engine/rate_rules.py](../../../../src/shibuya/engine/rate_rules.py) | エンジンの側の切替 |
+| [world/processes/absent.py](../../../../src/shibuya/world/ledger/absent.py) | 無いの宣言 |
+| [world/processes/inputs.py](../../../../src/shibuya/world/ledger/inputs.py) | 入力の宣言 |
+| [world/processes/records.py](../../../../src/shibuya/world/ledger/records.py) | `Absence`・`InputDecl` |
+| [engine/absent_processes.py](../../../../src/shibuya/world/laws/switch_absent.py)・[engine/rate_rules.py](../../../../src/shibuya/world/laws/switch_rate.py) | エンジンの側の切替 |
 
 ### 元の決定
 
@@ -890,7 +890,7 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 | 既定(給料日) | `income_tax.withholding_monthly`・`resident_tax.special_collection_tokyo_ward`・`resident_tax.basic_deduction`・`resident_tax.adjustment_credit_tokyo_ward`・`resident_tax.non_taxable_tokyo_ward`・`health_insurance.kyoukai_tokyo`・`child_support_levy.rate`・`pension.employees_rate`・`child_care_contribution.rate`・`employment_insurance.rate_general` | [economy/taxes.py](../../../../src/shibuya/economy/taxes.py)。既定の 1 日のラン(7 月 13 日)に給料日は来ません |
 | 既定(レジ・日の締め) | `consumption_tax.invoice_rounding`・`consumption_tax.filing_deadline` | economy/taxes.py |
 | 器だけ | `consumption_tax.reduced_rate`・`credit.total_volume_cap`・`credit.interest_cap`・`labor.overtime_premium` | taxes.py の読み手に呼び手なし(taxes.py の表による) |
-| 腕 | `labor.statutory_hours`・`labor.weekly_rest_day` | [calendar3/layer.py](../../../../src/shibuya/engine/calendar3/layer.py)(`--calendar-3 arm`)。`weekly_rest_day` は構築の [w20_calendar_1a.py](../../../../src/shibuya/build/sched/w20_calendar_1a.py) も読む |
+| 腕 | `labor.statutory_hours`・`labor.weekly_rest_day` | [calendar3/layer.py](../../../../src/shibuya/interim_bundles/calendar3/layer.py)(`--calendar-3 arm`)。`weekly_rest_day` は構築の [w20_calendar_1a.py](../../../../src/shibuya/build/sched/w20_calendar_1a.py) も読む |
 | 読むコードなし | `late_night_alcohol.residential_ban`・`food_business.licence`・`building_lease.termination_notice`・`road_use.police_permit`・`road_occupancy.shibuya_ward_road`・`outdoor_ad.tokyo_permit`・`national_pension.premium`・`national_health_insurance.shibuya` | src と tools の `.py` に id の文字列が無い(grep)。`check_rule_bridges` が全行の `params.bridge` だけを見ます |
 
 旧道は `SHIBUYA_RULES_42=off`(天引き 0・レジの税は売った時点で政府へ)と `SHIBUYA_RULES_42B=off`(空欄 3 件を埋める前の値)で、どちらも CLI の旗はありません。
@@ -901,11 +901,11 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 | ファイル | 役割 |
 |---|---|
-| [engine/rules/table.py](../../../../src/shibuya/engine/rules/table.py) | `Rule`・`Source`・`Rules`・`load`・`rules_version` |
+| [engine/rules/table.py](../../../../src/shibuya/world/facts/rules/table.py) | `Rule`・`Source`・`Rules`・`load`・`rules_version` |
 | [docs/design/rules-table.json](../../../design/rules-table.json) | 表の中身 |
 | [economy/taxes.py](../../../../src/shibuya/economy/taxes.py)・[economy/anchors.py](../../../../src/shibuya/economy/anchors.py) | machine の行の読み手・最低賃金と消費税 |
-| [engine/economy_rules.py](../../../../src/shibuya/engine/economy_rules.py) | 旧道の切替口・給与の天引きの材料 |
-| [engine/run.py](../../../../src/shibuya/engine/run.py)・[engine/systems/state_io.py](../../../../src/shibuya/engine/systems/state_io.py) | 版の記録 |
+| [engine/economy_rules.py](../../../../src/shibuya/economy/rules_bind.py) | 旧道の切替口・給与の天引きの材料 |
+| [engine/run.py](../../../../src/shibuya/runtime/run.py)・[engine/systems/state_io.py](../../../../src/shibuya/runtime/systems/state_io.py) | 版の記録 |
 | [tests/engine/rules/test_rules_table_schema.py](../../../../tests/engine/rules/test_rules_table_schema.py) | 行数(30・28)と写しの検査 |
 
 ### 元の決定
@@ -951,18 +951,18 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 |---|---|
 | 既定 | `--body-schedule sweep`(全員を見る) |
 | 腕 | `--body-schedule reserve`(次に段を越える時刻を予約する・結果は全員を見る版と同じと docstring にある)・`SHIBUYA_BODY_BOUNDARY_GAUGE=1`(計器) |
-| 器だけ | [system1.py](../../../../src/shibuya/engine/body/system1.py) の 3 件=ロンバード効果・混雑の中の歩き方と避け方・大きな音に注意が向く(値は `None`) |
+| 器だけ | [system1.py](../../../../src/shibuya/world/body/reactions.py) の 3 件=ロンバード効果・混雑の中の歩き方と避け方・大きな音に注意が向く(値は `None`) |
 | 無いと宣言 | `absent.collapse`(倒れる)。率 3.0 件は旧道 `--rate-rules legacy` だけ |
 
 ### 実装しているファイル
 
 | ファイル | 役割 |
 |---|---|
-| [engine/body/rules.py](../../../../src/shibuya/engine/body/rules.py) | 値と純関数・`BODY_RULES`・`BODY_EXPEDIENTS` |
-| [engine/body/model.py](../../../../src/shibuya/engine/body/model.py) | `BodyModel`(持ち主)・manifest |
-| [engine/body/schedule.py](../../../../src/shibuya/engine/body/schedule.py) | TM5 の予約 |
-| [engine/body/system1.py](../../../../src/shibuya/engine/body/system1.py) | 器 3 件 |
-| [engine/systems/body.py](../../../../src/shibuya/engine/systems/body.py) | 系 `body` |
+| [engine/body/rules.py](../../../../src/shibuya/world/body/rules.py) | 値と純関数・`BODY_RULES`・`BODY_EXPEDIENTS` |
+| [engine/body/model.py](../../../../src/shibuya/world/body/model.py) | `BodyModel`(持ち主)・manifest |
+| [engine/body/schedule.py](../../../../src/shibuya/world/body/schedule.py) | TM5 の予約 |
+| [engine/body/system1.py](../../../../src/shibuya/world/body/reactions.py) | 器 3 件 |
+| [engine/systems/body.py](../../../../src/shibuya/runtime/systems/body.py) | 系 `body` |
 
 ### 元の決定
 
@@ -1016,9 +1016,9 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 | ファイル | 役割 |
 |---|---|
-| [engine/calendar.py](../../../../src/shibuya/engine/calendar.py) | `SimCalendar`・`load_holidays`・`check_start` |
-| [world/processes/inputs.py](../../../../src/shibuya/world/processes/inputs.py) | `input.calendar` |
-| [engine/systems/state_io.py](../../../../src/shibuya/engine/systems/state_io.py) | K9 の月曜の行で引くつなぎ |
+| [engine/calendar.py](../../../../src/shibuya/world/facts/calendar.py) | `SimCalendar`・`load_holidays`・`check_start` |
+| [world/processes/inputs.py](../../../../src/shibuya/world/ledger/inputs.py) | `input.calendar` |
+| [engine/systems/state_io.py](../../../../src/shibuya/runtime/systems/state_io.py) | K9 の月曜の行で引くつなぎ |
 
 ### 元の決定
 
@@ -1060,9 +1060,9 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 | ファイル | 役割 |
 |---|---|
-| [engine/proximity.py](../../../../src/shibuya/engine/proximity.py) | 切替口・`ProximityRule` |
-| [engine/spatial_index.py](../../../../src/shibuya/engine/spatial_index.py) | 近傍の索引 |
-| [engine/resolve.py](../../../../src/shibuya/engine/resolve.py) | `talk_within_reach` |
+| [engine/proximity.py](../../../../src/shibuya/world/model/proximity.py) | 切替口・`ProximityRule` |
+| [engine/spatial_index.py](../../../../src/shibuya/world/model/spatial_index.py) | 近傍の索引 |
+| [engine/resolve.py](../../../../src/shibuya/act/ops/talk.py) | `talk_within_reach` |
 
 ### 元の決定
 
@@ -1103,11 +1103,11 @@ machine は機械が守らせる行、human は人が知っていて人が取り
 
 | ファイル | 役割 |
 |---|---|
-| [engine/batching.py](../../../../src/shibuya/engine/batching.py) | 窓の待ち行列 |
-| [engine/regional_clock.py](../../../../src/shibuya/engine/regional_clock.py) | 区域ごとの時計 |
-| [engine/step_scope.py](../../../../src/shibuya/engine/step_scope.py) | 走査の絞り込み |
-| [engine/systems/conductor.py](../../../../src/shibuya/engine/systems/conductor.py) | 進行役 |
-| [engine/clock.py](../../../../src/shibuya/engine/clock.py) | シミュレーションの時計 |
+| [engine/batching.py](../../../../src/shibuya/foundation/queues/batching.py) | 窓の待ち行列 |
+| [engine/regional_clock.py](../../../../src/shibuya/runtime/clocks/regional.py) | 区域ごとの時計 |
+| [engine/step_scope.py](../../../../src/shibuya/runtime/clocks/step_scope.py) | 走査の絞り込み |
+| [engine/systems/conductor.py](../../../../src/shibuya/runtime/systems/conductor.py) | 進行役 |
+| [engine/clock.py](../../../../src/shibuya/runtime/clock.py) | シミュレーションの時計 |
 
 ### 元の決定
 
