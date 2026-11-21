@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 27 本・その他 0 本(このディレクトリの直下)
+Python 28 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -202,6 +202,25 @@ tools/ci/check_lock.py(入っている版がロックと同じかを CI で確�
   - `test_real_lock_covers_the_direct_dependencies_of_pyproject`(関数): pyproject.toml の直の依存(本体と dev)は全部ロックにあり、版が宣言(下限・固定)を満たす。
   - `test_real_lock_has_the_48_and_the_head_lines`(関数)
   - `test_same_is_0`(関数)
+- 決定の ID: 第 348
+
+## [test_ci_check_test_shards.py](../../../../../../tests/tools/test_ci_check_test_shards.py)
+
+tools/ci/check_test_shards.py(ci-1 の組の表の検査・第348・返事その 9 §1 の 31)の試験。
+
+- 公開の関数とクラス
+  - `test_entry_in_two_groups_is_1`(関数)
+  - `test_fake_complete_is_0`(関数)
+  - `test_matrix_mismatch_is_1`(関数)
+  - `test_names_with_spaces_are_refused`(関数)
+  - `test_new_directory_left_out_is_1`(関数)
+  - `test_new_root_test_file_left_out_is_1`(関数)
+  - `test_paths_of_unknown_group_is_2`(関数)
+  - `test_python_files_of_pyproject_are_used`(関数)
+  - `test_real_groups_cover_tests_and_paths_are_under_tests`(関数)
+  - `test_real_repo_is_complete`(関数)
+  - `test_stale_entry_and_empty_group_are_1`(関数)
+  - `test_test_file_inside_not_tests_is_1`(関数)
 - 決定の ID: 第 348
 
 ## [test_commit_check.py](../../../../../../tests/tools/test_commit_check.py)

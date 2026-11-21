@@ -123,7 +123,7 @@
 | [tests/llm](tests/llm/README.md) | 9 | 0 |
 | [tests/perception](tests/perception/README.md) | 20 | 0 |
 | [tests/perception/facts](tests/perception/facts/README.md) | 8 | 1 |
-| [tests/tools](tests/tools/README.md) | 27 | 0 |
+| [tests/tools](tests/tools/README.md) | 28 | 0 |
 | [tests/vocab](tests/vocab/README.md) | 5 | 0 |
 | [tests/w17](tests/w17/README.md) | 3 | 0 |
 | [tests/world](tests/world/README.md) | 2 | 0 |
@@ -137,7 +137,7 @@
 | [tools/c6](tools/c6/README.md) | 7 | 0 |
 | [tools/c7](tools/c7/README.md) | 11 | 1 |
 | [tools/c8](tools/c8/README.md) | 5 | 3 |
-| [tools/ci](tools/ci/README.md) | 1 | 0 |
+| [tools/ci](tools/ci/README.md) | 2 | 1 |
 | [tools/fig](tools/fig/README.md) | 12 | 0 |
 | [tools/gen](tools/gen/README.md) | 1 | 0 |
 | [tools/hunger](tools/hunger/README.md) | 2 | 0 |

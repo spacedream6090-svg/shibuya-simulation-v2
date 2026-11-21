@@ -2,7 +2,9 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 1 本・その他 0 本(このディレクトリの直下)
+Python 2 本・その他 1 本(このディレクトリの直下)
+
+その他のファイル: `test_shards.json`
 
 ## [check_lock.py](../../../../../../tools/ci/check_lock.py)
 
@@ -25,4 +27,25 @@ Python 1 本・その他 0 本(このディレクトリの直下)
 - CLI の引数
   - `--freeze`: pip freeze の出力のファイル(無ければこの python で回す)
   - `--lock`: ロックのファイル(既定はリポの根の requirements-lock.txt)
+- 決定の ID: 第 348
+
+## [check_test_shards.py](../../../../../../tools/ci/check_test_shards.py)
+
+CI の ci-1 を同時に回す組の表(``tools/ci/test_shards.json``)の検査と、組の道筋の出力(第348・返事その 9 §1 の 31)。
+
+- 公開の関数とクラス
+  - `ci_matrix`(関数): ci.yml の ci-1 の matrix の組の名(無ければ ``ValueError``)。
+  - `group_paths`(関数): 組の pytest に渡す道筋(``tests/<名>``・表の並び)。知らない組・空の組は ``KeyError``。
+  - `is_test_file`(関数)
+  - `load_table`(関数): 組の表を読む(形が違えば ``ValueError``)。
+  - `main`(関数)
+  - `problems`(関数): 揃っていない所の文(空なら揃っている)。
+  - `python_files`(関数): pytest が集めるファイルの名の型(``pyproject.toml`` の ``python_files``・無ければ既定)。
+  - `top_entries`(関数): ``tests/`` の直下のディレクトリと試験のファイルの名(中には入らない)。
+- 読む試験(道筋で): `tests/tools/test_ci_check_test_shards.py`
+- CLI の引数
+  - サブコマンド `check`
+  - サブコマンド `paths`
+  - `--group`
+  - `--root`: リポの根(既定はこのファイルから 2 つ上・試験の口)
 - 決定の ID: 第 348
