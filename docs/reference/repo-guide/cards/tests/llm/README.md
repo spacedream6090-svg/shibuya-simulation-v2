@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 9 本・その他 0 本(このディレクトリの直下)
+Python 10 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../tests/llm/__init__.py)
 
@@ -82,7 +82,7 @@ C6-a 艦隊接続の検収テスト(**プロセス内の偽 vLLM**・実サー�
   - `test_temperature_and_max_tokens_are_configurable_and_recorded`(関数): ``--temperature 0.7 --max-tokens 96`` 相当が payload と manifest 欄に載る。
   - `test_ttft_timeout_defers_not_discards`(関数): TTFT 超過 = 繰り延べ(破棄禁止・憲法1)。再試行はしない。
 - import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.tape`
-- 読む試験: `tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/perception/facts/test_percept_is_scratch.py`
+- 読む試験: `tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet_pool_orphans.py`・`tests/perception/facts/test_percept_is_scratch.py`
 
 ## [test_fleet_auth.py](../../../../../../tests/llm/test_fleet_auth.py)
 
@@ -117,6 +117,18 @@ C6-a 艦隊接続の契約テスト(層契約・純関数・性質)。HTTP サ�
   - `test_split_system_user`(関数)
 - import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.act.intent`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.foundation.budget`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.templates`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_places.py`
 - 決定の ID: D-58
+
+## [test_fleet_pool_orphans.py](../../../../../../tests/llm/test_fleet_pool_orphans.py)
+
+艦隊の口の接続の置き場(httpcore のプール)に、使われない接続が残って詰まる件の試験(第348・返事その 9 §5-2 の 1)。
+
+- 公開の関数とクラス
+  - `test_rebuild_keeps_the_call_in_progress_and_closes_every_client`(関数): 作り直しても、古いクライアントで進行中の試行は壊さずに答えを返し、終わってから古いものを閉じる。
+  - `test_stage_a_httpcore_pool_keeps_a_connection_assigned_then_cancelled`(関数): 段 A: httpcore の置き場は、割り当て直後に取り消された要求の接続を残す(上流の不具合)。
+  - `test_stage_b_fleet_client_recovers_from_a_pool_full_of_orphans`(関数): 段 B: レプリカの置き場が、割り当て直後に取り消された接続で満杯になっても、艦隊の口は回復して答える。
+  - `test_success_resets_the_streak_and_late_timeouts_on_the_old_client_do_not_chain`(関数): 続いた数は、今のクライアントでの成功で 0 に戻る。作り直した後、古いクライアントで切れた試行は数えない。
+- import している内部モジュール: `shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.runtime.inference.fleet`・`tests/llm/test_fleet.py`
+- 決定の ID: 第 348
 
 ## [test_mock_v3.py](../../../../../../tests/llm/test_mock_v3.py)
 
