@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-397 ディレクトリ・2614 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+398 ディレクトリ・2618 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -33,6 +33,10 @@
 ## docs/bench/analysis/c10-relations-2026-09-28(24 本)
 
 - [README.md](../../../bench/analysis/c10-relations-2026-09-28/README.md): C10 版の台帳 — 関係辺・会話の起点(2026-09-28)
+
+## docs/bench/analysis/claude-md-slim-349(2 本)
+
+- [README.md](../../../bench/analysis/claude-md-slim-349/README.md): CLAUDE.md を軽くした記録(第 349・返事その 10 §3-1 の 2)
 
 ## docs/bench/analysis/count-347(3 本)
 
@@ -1452,7 +1456,7 @@
 
 - [check-3-3.md](../../../plateau2026/check-3-3.md): PLATEAU AWARD の「先に確かめること」(返事その 5 §3-3・返事その 6 §6)
 
-## docs/reference(28 本)
+## docs/reference(30 本)
 
 - [2026-10-25_engine_llm_parallelization_summary.md](../../2026-10-25_engine_llm_parallelization_summary.md): 渋谷LLM社会シミュレーター：判断頻度・並列処理・高速化の議論まとめ
 - [2026-10-25_shibuya_world_model_and_strategy_summary.md](../../2026-10-25_shibuya_world_model_and_strategy_summary.md): 渋谷シミュレーション：世界モデル構想・技術ロードマップ・市場戦略の要約
@@ -1461,6 +1465,7 @@
 - [behavior-audit-B-resolve-world-2026-11-02.md](../../behavior-audit-B-resolve-world-2026-11-02.md): 設計者の指紋の棚卸し B(本人が選んだ後、世界が何をするか)2026-11-02
 - [behavior-audit-triage-2026-11-03.md](../../behavior-audit-triage-2026-11-03.md): 挙動の棚卸し 164 件の仕分け(V/K/D/E)2026-11-03
 - [behavior-audit-triage-2026-11-04.md](../../behavior-audit-triage-2026-11-04.md): 挙動の棚卸し 164 件の仕分けのやり直し(V/K/D/E)2026-11-04
+- [claude-md-history.md](../../claude-md-history.md): CLAUDE.md の経緯(決まりの出どころ・日付・理由)
 - [conflicts-triage-2026-11-05.md](../../conflicts-triage-2026-11-05.md): 食い違いの仕分け(第 345 の conflicts.md の 44 問+X-1〜X-8)2026-11-05
 - [data-two-groups-2026-11-09.md](../../data-two-groups-2026-11-09.md): データの 2 つの組の台帳(答え合わせ専用/学びの候補)
 - [decision-inventory-2026-10-31.md](../../decision-inventory-2026-10-31.md): 住民の判断は今だれが決めているか(棚卸し)2026-10-31
@@ -1480,6 +1485,7 @@
 - [state-map-2026-11-20.md](../../state-map-2026-11-20.md): 渋谷シミュレーションの今:実装・実測・決定の地図(2026-11-16・11-20 に更新)
 - [tech-map-2026-11-03.md](../../tech-map-2026-11-03.md): 現状技術マップ 2026-11-03(`src/shibuya/` の全ファイル)
 - [v3-core-independent-review-2026-11-02.md](../../v3-core-independent-review-2026-11-02.md): v3 の核の独立の読み(R-130・R-133 の突き合わせ)
+- [wallbounce-index.md](../../wallbounce-index.md): 壁打ちの記録の索引(自動生成・手で編集しない)
 - [wallbounce-record-2026-11-02_05.md](../../wallbounce-record-2026-11-02_05.md): 壁打ちの記録 2026-11-02〜11-09(理由と意図の記録)
 
 ## docs/reference/repo-guide(3 本)

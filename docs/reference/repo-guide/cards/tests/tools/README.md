@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 28 本・その他 0 本(このディレクトリの直下)
+Python 31 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -187,6 +187,23 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・`SHIBUYA_SPEECH_PORT`・`SHIBUYA_TALK_CLOCK`・名前を読めない所 5 か所・`os.environ` をまるごと使う
 - 決定の ID: 11-09/§2・第 346・第 347・第 348
+
+## [test_ci_changed_scope.py](../../../../../../tests/tools/test_ci_changed_scope.py)
+
+変えたファイルの範囲から、重い組を回すかを決める道具(tools/ci/changed_scope.py・11-22 §3-2 の 1・5)。
+
+- 公開の関数とクラス
+  - `test_classify_docs_only_skips_the_heavy_group`(関数)
+  - `test_classify_one_non_document_is_heavy`(関数)
+  - `test_cli_with_git_and_github_output`(関数)
+  - `test_documents_and_non_documents`(関数)
+  - `test_empty_list_is_unknown_so_heavy`(関数)
+  - `test_heavy_groups_of_the_real_table`(関数): 本物の組の表: 重い組が 1 つ以上あり、軽い組も残る(文書だけの変更でも、文書を読む試験の組は回る)。
+  - `test_runtime_docs_are_heavy_and_run_affecting`(関数)
+  - `test_runtime_docs_come_from_the_bytecheck_list`(関数): 一覧の正は tools/bytecheck/tree.py の TRACKED_READS(二重に持たない)。5 本(ユーザーの言う「ランが読む文書」)を含む。
+  - `test_src_and_lock_affect_runs`(関数)
+  - `test_zero_or_missing_base_is_unknown`(関数)
+- 決定の ID: 11-22/§3-2
 
 ## [test_ci_check_lock.py](../../../../../../tests/tools/test_ci_check_lock.py)
 
@@ -910,6 +927,15 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: 10-13b/§7・第 337
 
+## [test_sealed_tables_shape.py](../../../../../../tests/tools/test_sealed_tables_shape.py)
+
+封印の語の表 2 つの「数」と「重なり」を固定する(11-22 §1 の 3)。
+
+- 公開の関数とクラス
+  - `test_counts_helper_returns_numbers_only`(関数): 助けの関数が返すのは数だけ(語が戻り値に混ざると、失敗の表示に出る)。
+  - `test_two_sealed_tables_keep_their_sizes_and_overlap`(関数)
+- 決定の ID: 11-22/§1
+
 ## [test_sealed_tokens_compare.py](../../../../../../tests/tools/test_sealed_tokens_compare.py)
 
 tools/instruments/sealed_tokens_compare.py の試験(11-16 §1-6 の 5=語を出さずに個数だけで比べる)。
@@ -944,6 +970,17 @@ tools/instruments/skill_gauge.py(第 3 期 3-3b・CP14 の技量スコアの隣�
   - `test_scores_of_a_mock_ensemble`(関数)
   - `test_skill_next_to_raw_scores_and_fill_the_container`(関数)
 - import している内部モジュール: `shibuya.experiments.port.ensemble`・`shibuya.interfaces.cli.main`・`tests/engine/experiment/_x33.py`
+
+## [test_wallbounce_index.py](../../../../../../tests/tools/test_wallbounce_index.py)
+
+壁打ちの記録の索引の道具(tools/wallbounce_index.py・11-22 §3-1 の 3)。
+
+- 公開の関数とクラス
+  - `test_real_index_is_fresh_and_covers_every_record`(関数): リポの索引が最新(記録を置き換えたら作り直す)。記録の決定の見出しの数と、索引の行の数が同じ。
+  - `test_render_and_check_on_a_small_repo`(関数)
+  - `test_rows_ranges_and_fences`(関数)
+  - `test_split_heading_shapes`(関数)
+- 決定の ID: 11-02・11-03・11-04・11-09・11-20・11-22/§3-1
 
 ## [test_warmup_gauge.py](../../../../../../tests/tools/test_warmup_gauge.py)
 

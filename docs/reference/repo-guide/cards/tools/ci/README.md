@@ -2,9 +2,31 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 2 本・その他 1 本(このディレクトリの直下)
+Python 3 本・その他 1 本(このディレクトリの直下)
 
 その他のファイル: `test_shards.json`
+
+## [changed_scope.py](../../../../../../tools/ci/changed_scope.py)
+
+変えたファイルの範囲から、どの試験を回すかを決める(11-22 §3-2 の 1・5)。標準ライブラリだけ(CI で依存を入れる前に回す)。
+
+- 公開の関数とクラス
+  - `affects_runs`(関数)
+  - `changed_paths`(関数): ``git diff --name-only base head``。失敗・基準なしは None(=分からない)。
+  - `classify`(関数): 道筋の一覧 → 判定。空の一覧は「分からない」として重い側。
+  - `heavy_groups`(関数): 重い組の名(``tools/ci/test_shards.json`` の ``weight`` が ``heavy`` の組)。文書だけの変更では回さない。
+  - `is_document`(関数): 文書だけの変更に数えてよい 1 本か。
+  - `main`(関数)
+  - `runtime_docs`(関数): ランが実行時に開きうる追跡ファイル(``tools/bytecheck/tree.py`` の ``TRACKED_READS`` の鍵)。
+- 読む試験(道筋で): `tests/tools/test_ci_changed_scope.py`
+- CLI の引数
+  - `--base`: 比べる基準の commit(PR の土台・push の前の頭)
+  - `--github-output`: $GITHUB_OUTPUT に heavy・run_affecting・skip_groups(回さない組の名・空白区切り)を書く
+  - `--head`
+  - `--paths`: 道筋を直に渡す(git を使わない)
+  - `--root`
+- 環境変数: `GITHUB_OUTPUT`
+- 決定の ID: 11-22/§3-2
 
 ## [check_lock.py](../../../../../../tools/ci/check_lock.py)
 
@@ -36,6 +58,7 @@ CI の ci-1 を同時に回す組の表(``tools/ci/test_shards.json``)の検査�
 - 公開の関数とクラス
   - `ci_matrix`(関数): ci.yml の ci-1 の matrix の組の名(無ければ ``ValueError``)。
   - `group_paths`(関数): 組の pytest に渡す道筋(``tests/<名>``・表の並び)。知らない組・空の組は ``KeyError``。
+  - `heavy_groups`(関数): 重い組の名(表の並び)。文書だけの変更では回さない(``tools/ci/changed_scope.py`` が使う)。
   - `is_test_file`(関数)
   - `load_table`(関数): 組の表を読む(形が違えば ``ValueError``)。
   - `main`(関数)
@@ -48,4 +71,4 @@ CI の ci-1 を同時に回す組の表(``tools/ci/test_shards.json``)の検査�
   - サブコマンド `paths`
   - `--group`
   - `--root`: リポの根(既定はこのファイルから 2 つ上・試験の口)
-- 決定の ID: 第 348
+- 決定の ID: 11-22/§3-2・第 348・第 349

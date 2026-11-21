@@ -242,7 +242,7 @@ read_guard — 計器の読み口を**許可の一覧(allow list)**で縛る(第
   - `path_hit`(関数): 読みの守りと同じ当たり方(小文字にそろえた道筋に、小文字にそろえた語が入っているか)。ファイルには触らない。
   - `render`(関数)
 - import している内部モジュール: `shibuya.build.audit.w19_freeze`
-- 読む試験(道筋で): `tests/tools/test_sealed_tokens_dryrun.py`
+- 読む試験(道筋で): `tests/tools/test_sealed_tables_shape.py`・`tests/tools/test_sealed_tokens_dryrun.py`
 - CLI の引数
   - `--json`: 記録の JSON の置き場(数だけを書く)
 - 決定の ID: 11-20/§1
