@@ -6,7 +6,7 @@
 
 | ディレクトリ | 大きさ |
 |---|---|
-| `data` | 55.4 GB |
+| `data` | 55.6 GB |
 | `data/_server_evacuation` | 1.1 GB |
 | `data/_server_evacuation/bench_20260906` | 1.1 GB |
 | `data/_server_evacuation/bench_20260908` | 894.2 KB |
@@ -55,13 +55,13 @@
 | `data/realworld/tokyo_noise` | 314.7 KB |
 | `data/realworld/transport_census` | 19.5 MB |
 | `data/realworld/wbgt` | 197.9 KB |
-| `data/realworld_live` | 1.2 GB |
-| `data/realworld_live/_logs` | 2.7 MB |
-| `data/realworld_live/amedas` | 5.9 MB |
-| `data/realworld_live/jma_xml` | 310.2 MB |
-| `data/realworld_live/odpt_rt` | 814.0 MB |
+| `data/realworld_live` | 1.3 GB |
+| `data/realworld_live/_logs` | 3.1 MB |
+| `data/realworld_live/amedas` | 6.5 MB |
+| `data/realworld_live/jma_xml` | 344.1 MB |
+| `data/realworld_live/odpt_rt` | 957.8 MB |
 | `data/realworld_live/odpt_static` | 54.9 MB |
-| `data/realworld_live/wbgt` | 252.4 KB |
+| `data/realworld_live/wbgt` | 275.8 KB |
 | `data/research_cache` | 788.3 MB |
 | `data/research_cache/pop41` | 256.7 MB |
 | `data/research_cache/pop41b` | 77.3 MB |

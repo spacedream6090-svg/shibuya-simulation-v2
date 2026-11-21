@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-382 ディレクトリ・2559 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+385 ディレクトリ・2571 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -94,6 +94,14 @@
 - [README.md](../../../bench/analysis/fix4-1103/README.md): fix4-1103 棚卸し B の欠陥 4 件の直し(小さな版上げ)と宣言の食い違いの直し
 
 ## docs/bench/analysis/fix4-1103/bytecheck(7 本)
+
+## docs/bench/analysis/fleet-flake-347(1 本)
+
+- [README.md](../../../bench/analysis/fleet-flake-347/README.md): 艦隊の口の試験の揺れと、接続の置き場が詰まる件(第347・2026-11-20)
+
+## docs/bench/analysis/fleet-flake-347/probe_out(5 本)
+
+## docs/bench/analysis/fleet-flake-347/tools(3 本)
 
 ## docs/bench/analysis/intent-chooser-2026-09-28(18 本)
 
@@ -1222,7 +1230,7 @@
 
 ## docs/bench/w17/v2_attempt1(2 本)
 
-## docs/design(119 本)
+## docs/design(120 本)
 
 - [decision-id-index.md](../../../design/decision-id-index.md): 決定の ID の索引(自動生成・手で編集しない)
 - [prompt-2026-11-01-5070.md](../../../design/prompt-2026-11-01-5070.md): 目的
@@ -1236,6 +1244,7 @@
 - [prompt-2026-11-05-reply6.md](../../../design/prompt-2026-11-05-reply6.md): 1. CLAUDE.md §2-2 の書き換え(ユーザー承認・ニュアンスを保つ)
 - [prompt-2026-11-09-reply7.md](../../../design/prompt-2026-11-09-reply7.md): 0. 届いた範囲の確認
 - [prompt-2026-11-16-reply8.md](../../../design/prompt-2026-11-16-reply8.md): 0. 届いた範囲の確認
+- [prompt-2026-11-20-reply9.md](../../../design/prompt-2026-11-20-reply9.md): 0. 届いた範囲の確認
 - [revision-draft-2026-11-16-resident-facing-text.md](../../../design/revision-draft-2026-11-16-resident-facing-text.md): 住民に見せる凍結の文の改版の案(返事その 8 §5)2026-11-16
 - [v2-a2-rights-flags-2026-11-02.md](../../../design/v2-a2-rights-flags-2026-11-02.md): A2 の旗 3 欄と OSM からの初期化(11-02r §3 の 7 (ア)・段 2 の入力の宣言の欄と同じ扱い)
 - [v2-action-activity-two-layer-draft.md](../../../design/v2-action-activity-two-layer-draft.md): 行為と活動の二層 — 出力形の設計ラウンド草案 v0(2026-09-27・第272)
@@ -1370,7 +1379,7 @@
 - [pending-archive-2026-09-28.md](../../../log/pending-archive-2026-09-28.md): PENDING アーカイブ(2026-09-08〜09-27・第278 時点の全文)
 - [pending-archive-2026-10-25.md](../../../log/pending-archive-2026-10-25.md): PENDING の凍結(2026-10-25・第339)
 
-## docs/ops(25 本)
+## docs/ops(26 本)
 
 - [build-report-C0.md](../../../ops/build-report-C0.md): 工程 C0(骨格)受入報告(2026-09-08・ブランチ build/c0-c4)
 - [build-report-C1.md](../../../ops/build-report-C1.md): 工程 C1(世界データ構築)受入報告(2026-09-08・ブランチ build/c0-c4)
@@ -1393,6 +1402,7 @@
 - [layer2-review-checklist.md](../../../ops/layer2-review-checklist.md): 層2 独立検収チェックリスト(工程出口・別インスタンスのFableが実施)
 - [murata-lab-inquiry-draft-2026-10-12.md](../../../ops/murata-lab-inquiry-draft-2026-10-12.md): 大阪大学 村田研(合成人口データ)への問い合わせの下書き(2026-10-12・親起草・ユーザーが送る)
 - [night5070-runbook.md](../../../ops/night5070-runbook.md): 5070 の夜の実験の運用手順
+- [report-345-2026-11-05.md](../../../ops/report-345-2026-11-05.md): 第 345 の報告(2026-11-05)
 - [report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md): 第 347 の報告(返事その 8 への対応)2026-11-16
 - [u9-inquiry-draft-2026-09-30.md](../../../ops/u9-inquiry-draft-2026-09-30.md): U-9 渋谷区への照会文(送れる形・2026-10-03 更新。下書きは 2026-09-30)
 - [v2-server-lessons.md](../../../ops/v2-server-lessons.md): サーバーで回して初めて分かったこと — 実装に織り込む形(2026-09-22・第251)
@@ -1402,7 +1412,7 @@
 
 - [check-3-3.md](../../../plateau2026/check-3-3.md): PLATEAU AWARD の「先に確かめること」(返事その 5 §3-3・返事その 6 §6)
 
-## docs/reference(27 本)
+## docs/reference(28 本)
 
 - [2026-10-25_engine_llm_parallelization_summary.md](../../2026-10-25_engine_llm_parallelization_summary.md): 渋谷LLM社会シミュレーター：判断頻度・並列処理・高速化の議論まとめ
 - [2026-10-25_shibuya_world_model_and_strategy_summary.md](../../2026-10-25_shibuya_world_model_and_strategy_summary.md): 渋谷シミュレーション：世界モデル構想・技術ロードマップ・市場戦略の要約
@@ -1427,6 +1437,7 @@
 - [research-persona-2026-11-14.md](../../research-persona-2026-11-14.md): 最近のペルソナ研究のまとめ(2025 年 9 月〜2026 年 11 月)
 - [research-persona-vectors-2026-11-14.md](../../research-persona-vectors-2026-11-14.md): モデル内部のベクトルでペルソナがどう変わるか:最近の研究のまとめ
 - [stage2-crosscheck-2026-11-05.md](../../stage2-crosscheck-2026-11-05.md): 段 2 の突き合わせの結果(2026-11-05・claude.ai の側の読み手 4 本・Opus 5.5)
+- [state-map-2026-11-20.md](../../state-map-2026-11-20.md): 渋谷シミュレーションの今:実装・実測・決定の地図(2026-11-16・11-20 に更新)
 - [tech-map-2026-11-03.md](../../tech-map-2026-11-03.md): 現状技術マップ 2026-11-03(`src/shibuya/` の全ファイル)
 - [v3-core-independent-review-2026-11-02.md](../../v3-core-independent-review-2026-11-02.md): v3 の核の独立の読み(R-130・R-133 の突き合わせ)
 - [wallbounce-record-2026-11-02_05.md](../../wallbounce-record-2026-11-02_05.md): 壁打ちの記録 2026-11-02〜11-09(理由と意図の記録)
