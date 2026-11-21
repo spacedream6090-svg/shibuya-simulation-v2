@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長いランも要らない(CI の ci-1 で回る)。
 
-- 構成の表: 19 構成が前の道具(``wave2_bytecheck.configs()``)と同じ並びと引数・記録 ``v30a.json`` の構成と同じ・
+- 構成の表: 20 構成のうち初めの 19 構成(組 all19)が前の道具(``wave2_bytecheck.configs()``)と同じ並びと引数・
+  20 本目(第348 で足した話す時計が拍で数える構成)が第347 の M1 の記録と同じ引数と環境変数・``one`` が構成の環境変数を
+  shibuya を読む前に置く(偽のエンジンで)・記録 ``v30a.json`` の構成と同じ・
   組 parent4 と arms(腕 on の 7 変数=記録 ``v30a_arms.json`` の env)・比べる 25 欄が ``byte_check_10e`` と同じ・
   ``one`` の出す欄が ``byte_check_10e.cmd_one`` の欄と新しい欄(``fields.NEW_KEYS``)を全部含む(AST で比べる)。
 - 切替口の環境変数: src が読む ``SHIBUYA_`` の名はすべて記録の一覧(値を残す/名だけ残す)のどちらかに載る。
@@ -50,6 +52,7 @@ SRC = ROOT / "src"
 OLD_10E = ROOT / "docs" / "bench" / "analysis" / "wallbounce-1012" / "10e" / "byte_check_10e.py"
 OLD_WAVE2 = ROOT / "docs" / "bench" / "analysis" / "wave2-2026-09-30" / "wave2_bytecheck.py"
 V30A = ROOT / "docs" / "bench" / "analysis" / "v3-2026-11" / "v30a" / "bytecheck"
+M1_MORA = ROOT / "docs" / "bench" / "analysis" / "split6-347" / "bytecheck_M1_mora"
 
 
 _TOOLS = ROOT / "tools"
@@ -107,15 +110,34 @@ def test_all19_is_the_old_table(wave2):
     ``vocab_version="v1"`` を明示した(前の表は語彙を渡さない=前の ``cli.run`` の語彙の既定 v1 で回った。Q13 で既定が v3 になった
     ので、前と同じラン=語彙 v1 の帰無腕を byte-check が見る範囲に保つ)。"""
     old = wave2.configs()
-    new = C.configs()
+    allc = C.configs()
+    # 〔第348・返事その 9 §1 の 30〕20 本目 v3_speech_talk_mora は第348 で足した(前の表に無い=比べる相手は下の M1 の記録)
+    assert len(allc) == 20 and list(allc)[19:] == ["v3_speech_talk_mora"] and C.ADDED_348 == ("v3_speech_talk_mora",)
+    new = {k: v for k, v in allc.items() if k not in C.ADDED_348}
     assert len(new) == 19
     assert list(new) == list(old)  # 並びも同じ
     assert "vocab_version" not in old["w6_golden_null_arm"]
     assert new["w6_golden_null_arm"] == {**old["w6_golden_null_arm"], "vocab_version": "v1"}
     assert {k: v for k, v in new.items() if k != "w6_golden_null_arm"} == {
         k: v for k, v in old.items() if k != "w6_golden_null_arm"}
-    assert all("vocab_version" in v for v in new.values())  # どの構成も語彙を明示=ランの既定に頼らない
+    assert all("vocab_version" in v for v in allc.values())  # どの構成も語彙を明示=ランの既定に頼らない
     assert list(C.set_configs("all19")) == list(old)
+    assert list(C.set_configs("all20")) == list(allc)
+    assert all(C.config_env(k) == {} for k in new)  # 前の 19 構成は環境変数を置かない
+
+
+def test_added_348_is_the_mora_config_of_the_347_m1_record():
+    """〔第348〕20 本目=第347 の段 6 の M1 で親が手で足した構成(記録 bytecheck_M1_mora の両側)と同じ引数と環境変数。"""
+    for name in ("all19_only_base_9f61eea.json", "all19_only_work.json"):
+        doc = json.loads((M1_MORA / name).read_text(encoding="utf-8"))
+        assert doc["configs"] == ["w6_v3_default"] and doc["kw"] == {}
+        assert C.configs()["v3_speech_talk_mora"] == C.configs()[doc["configs"][0]]
+        assert C.config_env("v3_speech_talk_mora") == doc["env"] == {"SHIBUYA_SPEECH_PORT": "on",
+                                                                     "SHIBUYA_TALK_CLOCK": "mora"}
+    assert set(C.CONFIG_ENV) <= set(C.configs())
+    assert all(set(env) <= set(C.SWITCH_ENV) for env in C.CONFIG_ENV.values())  # 値を記録に残す切替口だけ
+    assert C.config_env("v3_speech_talk_mora") is not C.CONFIG_ENV["v3_speech_talk_mora"]  # 写しを返す
+    assert CLI.build_parser().parse_args(["run", "--work", "w", "--out-dir", "o"]).set_name == "all20"  # 既定の組
 
 
 def test_all19_matches_the_v30a_record():
@@ -130,7 +152,7 @@ def test_parent4_and_arms_sets():
     assert list(C.set_configs("arms")) == list(arms["runs"])
     assert C.set_env("arms") == arms["env"]
     assert len(C.set_env("arms")) == 7
-    assert C.set_env("all19") == {} and C.set_env("parent4") == {}
+    assert C.set_env("all19") == {} and C.set_env("parent4") == {} and C.set_env("all20") == {}
     with pytest.raises(KeyError):
         C.set_configs("no_such_set")
 
@@ -892,6 +914,11 @@ def _env_id():
     return os.environ.get("FAKE_ENV_ID", "e0")
 
 
+# 読み込みの時の切替口(第348: 構成の環境変数が shibuya を読む前に置かれたかを試験が見る)
+_IMPORT_SWITCH = ",".join(f"{k}={os.environ[k]}" for k in ("SHIBUYA_SPEECH_PORT", "SHIBUYA_TALK_CLOCK")
+                          if k in os.environ)
+
+
 class Result:
     def __init__(self, variant):
         self.variant = variant
@@ -920,7 +947,7 @@ class Result:
                 "environment": {"code": {"git_commit": _env_id()}, "env_id": _env_id(), "platform": {"python": "3"}},
                 "resume": {"read_seconds": time.perf_counter(), "restore_seconds": 0.0, "finished": True},
                 "relations": {"wall_seconds_nondeterministic": {"x": time.perf_counter()}, "n": 1},
-                "hashseed": os.environ.get("PYTHONHASHSEED", ""), "weather": "w"}
+                "hashseed": os.environ.get("PYTHONHASHSEED", ""), "weather": "w", "import_switch": _IMPORT_SWITCH}
 
 
 def run(n_agents, seed, world_dir, tape_path, **kw):
@@ -1017,6 +1044,21 @@ def test_fake_side_runs_with_the_given_src(fake):
     assert doc["tree_reads"] == [] and doc["foreign_reads"] == [] and doc["outside_above_tree"] == []
     text = json.dumps(doc, ensure_ascii=False)
     assert not re.search(r"[A-Za-z]:[\\/]", text), "side の JSON に絶対パス"
+
+
+def test_fake_config_env_is_set_before_shibuya_is_read(fake, tmp_path: Path):
+    """〔第348〕構成の環境変数(CONFIG_ENV)は one の中で shibuya を読む前に置かれ、行の switch_env に残る。ほかの構成には付かない。"""
+    out = tmp_path / "mora.json"
+    with _env(SHIBUYA_SPEECH_PORT="", SHIBUYA_TALK_CLOCK=""):
+        code = K.side(label="mora", scratch=tmp_path / "s", out=out, src=fake.tree / "src",
+                      only="v3_speech_talk_mora,w6_v3_default", jobs=1, world="no/such/world", agents=3)
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    assert code == 0, doc
+    mora, base = doc["runs"]["v3_speech_talk_mora"], doc["runs"]["w6_v3_default"]
+    assert mora["manifest_scalars"]["import_switch"] == "SHIBUYA_SPEECH_PORT=on,SHIBUYA_TALK_CLOCK=mora"
+    assert mora["switch_env"] == {"SHIBUYA_SPEECH_PORT": "on", "SHIBUYA_TALK_CLOCK": "mora"}
+    assert base["manifest_scalars"]["import_switch"] == "" and base["switch_env"] == {}
+    assert doc["env"] == {}  # 組の側の環境変数は置かない(構成の側だけ)
 
 
 def test_fake_two_runs_differing_only_in_skipped_fields_are_same(fake):
@@ -1215,11 +1257,11 @@ def test_run_does_not_compare_a_json_from_an_earlier_run(wired, monkeypatch):
     out = wired / "o"
     out.mkdir()
     short = T.resolve_commit(ROOT, "HEAD")[:7]
-    (out / "all19_only_work.json").write_text(json.dumps(_side([_row("w6_v3_default")], nonce="old")), encoding="utf-8")
+    (out / "all20_only_work.json").write_text(json.dumps(_side([_row("w6_v3_default")], nonce="old")), encoding="utf-8")
     calls: list = []
     monkeypatch.setattr(K, "side", _recording_side(calls, skip_write=("work",)))
-    assert K.run(work=wired / "w", out_dir=out, only="w6_v3_default") == 2
-    assert not (out / f"all19_only_compare_base_{short}_vs_work.json").exists()
+    assert K.run(work=wired / "w", out_dir=out, only="w6_v3_default") == 2  # 〔第348〕既定の組は all20
+    assert not (out / f"all20_only_compare_base_{short}_vs_work.json").exists()
 
 
 @pytest.mark.parametrize("bad", ["base", "work"])

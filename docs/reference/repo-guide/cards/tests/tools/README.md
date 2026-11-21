@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 26 本・その他 0 本(このディレクトリの直下)
+Python 28 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -100,6 +100,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `old10e`(関数)
   - `refs`(関数)
   - `stop_before_copy`(関数): 断るはずの run が先へ進んだら、写しの木もつなぎも作らずに落とす(壊れた道具でもリポや data に触れない)。
+  - `test_added_348_is_the_mora_config_of_the_347_m1_record`(関数): 〔第348〕20 本目=第347 の段 6 の M1 で親が手で足した構成(記録 bytecheck_M1_mora の両側)と同じ引数と環境変数。
   - `test_all19_is_the_old_table`(関数): 19 構成は前の道具の表と同じ並びと引数。〔第347・Q13-5 (b)〕違いは 1 つだけ: golden の帰無腕 ``w6_golden_null_arm`` に
   - `test_all19_matches_the_v30a_record`(関数)
   - `test_archive_paths`(関数)
@@ -127,6 +128,7 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `test_engine_anchor_files_are_in_the_list`(関数)
   - `test_every_shibuya_env_in_src_is_listed`(関数)
   - `test_every_tracked_path_in_src_is_classified`(関数)
+  - `test_fake_config_env_is_set_before_shibuya_is_read`(関数): 〔第348〕構成の環境変数(CONFIG_ENV)は one の中で shibuya を読む前に置かれ、行の switch_env に残る。ほかの構成には付かない。
   - `test_fake_extra_path_is_listed_and_outside_reads_are_recorded`(関数): 検収 M2: --extra-path で足したファイルは一覧に無いと数えない。検収 M4: 外で開いたファイルは記録する(誤りにしない)。
   - `test_fake_one_reports_a_src_other_than_expected`(関数)
   - `test_fake_read_above_the_tree_is_an_error`(関数)
@@ -183,8 +185,45 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
   - `wired`(関数)
 - import している内部モジュール: `shibuya.foundation.paths`・`tools/bytecheck/check.py`・`tools/bytecheck/cli.py`・`tools/bytecheck/configs.py`・`tools/bytecheck/fields.py`・`tools/bytecheck/tree.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
-- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
-- 決定の ID: 11-09/§2・第 346・第 347
+- 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・`SHIBUYA_SPEECH_PORT`・`SHIBUYA_TALK_CLOCK`・名前を読めない所 5 か所・`os.environ` をまるごと使う
+- 決定の ID: 11-09/§2・第 346・第 347・第 348
+
+## [test_ci_check_lock.py](../../../../../../tests/tools/test_ci_check_lock.py)
+
+tools/ci/check_lock.py(入っている版がロックと同じかを CI で確かめる・第348・返事その 9 §1 の 13)の試験。
+
+- 公開の関数とクラス
+  - `test_bad_lock_is_2`(関数)
+  - `test_ci_yml_uses_the_pip_and_python_of_the_lock_head`(関数): ci.yml の 3 つの仕事の pip と Python の版は、ロックの頭の行と同じ(片方だけ上げると落ちる)。
+  - `test_editable_and_comment_lines_in_freeze_are_skipped`(関数)
+  - `test_extra_is_1`(関数)
+  - `test_head_lines_are_checked`(関数)
+  - `test_marker_line_counts_only_where_it_applies`(関数)
+  - `test_missing_is_1`(関数)
+  - `test_other_version_is_1`(関数)
+  - `test_real_lock_covers_the_direct_dependencies_of_pyproject`(関数): pyproject.toml の直の依存(本体と dev)は全部ロックにあり、版が宣言(下限・固定)を満たす。
+  - `test_real_lock_has_the_48_and_the_head_lines`(関数)
+  - `test_same_is_0`(関数)
+- 決定の ID: 第 348
+
+## [test_ci_check_test_shards.py](../../../../../../tests/tools/test_ci_check_test_shards.py)
+
+tools/ci/check_test_shards.py(ci-1 の組の表の検査・第348・返事その 9 §1 の 31)の試験。
+
+- 公開の関数とクラス
+  - `test_entry_in_two_groups_is_1`(関数)
+  - `test_fake_complete_is_0`(関数)
+  - `test_matrix_mismatch_is_1`(関数)
+  - `test_names_with_spaces_are_refused`(関数)
+  - `test_new_directory_left_out_is_1`(関数)
+  - `test_new_root_test_file_left_out_is_1`(関数)
+  - `test_paths_of_unknown_group_is_2`(関数)
+  - `test_python_files_of_pyproject_are_used`(関数)
+  - `test_real_groups_cover_tests_and_paths_are_under_tests`(関数)
+  - `test_real_repo_is_complete`(関数)
+  - `test_stale_entry_and_empty_group_are_1`(関数)
+  - `test_test_file_inside_not_tests_is_1`(関数)
+- 決定の ID: 第 348
 
 ## [test_commit_check.py](../../../../../../tests/tools/test_commit_check.py)
 

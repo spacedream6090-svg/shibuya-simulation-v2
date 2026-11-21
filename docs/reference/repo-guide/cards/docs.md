@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-386 ディレクトリ・2573 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
+390 ディレクトリ・2580 本(`docs/reference/repo-guide/cards` 自身を除く)。各行は Markdown の文書と最初の見出し。
 
 ## docs(3 本)
 
@@ -23,6 +23,12 @@
 - [README.md](../../../bench/analysis/astsame-347/README.md): 文だけの直しの commit の確かめ(第347〜)
 
 ## docs/bench/analysis/astsame-347/c6c8799-bytecheck(3 本)
+
+## docs/bench/analysis/bytecheck20-348(1 本)
+
+- [README.md](../../../bench/analysis/bytecheck20-348/README.md): byte-check を 20 構成にした確かめ(第348・2026-11-21)
+
+## docs/bench/analysis/bytecheck20-348/bytecheck(3 本)
 
 ## docs/bench/analysis/c10-relations-2026-09-28(24 本)
 
@@ -129,6 +135,12 @@
 - [README.md](../../../bench/analysis/llm-calls-2026-09-24/README.md): LLM 呼び出しが 7 回/体/日で止まり、会話がほぼ起きない理由(親の統合報告・2026-09-24・第262)
 - [sub_a_calls_and_usage.md](../../../bench/analysis/llm-calls-2026-09-24/sub_a_calls_and_usage.md): sub_a: LLM の呼数(1 体 1 日 約 7 回)と LLM 出力の使い道(2026-09-24)
 - [sub_b_conversation.md](../../../bench/analysis/llm-calls-2026-09-24/sub_b_conversation.md): 会話(と社会的な行動)が極端に少ない理由 — サブ B 調査報告(2026-09-24)
+
+## docs/bench/analysis/lock-348(1 本)
+
+- [README.md](../../../bench/analysis/lock-348/README.md): ロックの版で byte-check が今の基準と同じかの確かめ(第348・返事その 9 §1 の 13)
+
+## docs/bench/analysis/lock-348/bytecheck(3 本)
 
 ## docs/bench/analysis/memory-stage1-2026-09-28(10 本)
 
@@ -1383,7 +1395,7 @@
 - [pending-archive-2026-09-28.md](../../../log/pending-archive-2026-09-28.md): PENDING アーカイブ(2026-09-08〜09-27・第278 時点の全文)
 - [pending-archive-2026-10-25.md](../../../log/pending-archive-2026-10-25.md): PENDING の凍結(2026-10-25・第339)
 
-## docs/ops(26 本)
+## docs/ops(25 本)
 
 - [build-report-C0.md](../../../ops/build-report-C0.md): 工程 C0(骨格)受入報告(2026-09-08・ブランチ build/c0-c4)
 - [build-report-C1.md](../../../ops/build-report-C1.md): 工程 C1(世界データ構築)受入報告(2026-09-08・ブランチ build/c0-c4)
@@ -1406,7 +1418,6 @@
 - [layer2-review-checklist.md](../../../ops/layer2-review-checklist.md): 層2 独立検収チェックリスト(工程出口・別インスタンスのFableが実施)
 - [murata-lab-inquiry-draft-2026-10-12.md](../../../ops/murata-lab-inquiry-draft-2026-10-12.md): 大阪大学 村田研(合成人口データ)への問い合わせの下書き(2026-10-12・親起草・ユーザーが送る)
 - [night5070-runbook.md](../../../ops/night5070-runbook.md): 5070 の夜の実験の運用手順
-- [report-345-2026-11-05.md](../../../ops/report-345-2026-11-05.md): 第 345 の報告(2026-11-05)
 - [report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md): 第 347 の報告(返事その 8 への対応)2026-11-16
 - [u9-inquiry-draft-2026-09-30.md](../../../ops/u9-inquiry-draft-2026-09-30.md): U-9 渋谷区への照会文(送れる形・2026-10-03 更新。下書きは 2026-09-30)
 - [v2-server-lessons.md](../../../ops/v2-server-lessons.md): サーバーで回して初めて分かったこと — 実装に織り込む形(2026-09-22・第251)

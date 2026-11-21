@@ -6,7 +6,8 @@
 比べる欄と切替口の一覧は ``docs/bench/analysis/wallbounce-1012/10e/byte_check_10e.py`` の ``COMPARE_KEYS``・
 ``SWITCH_ENV``。構成の組 ``parent4``・``arms`` は ``docs/bench/analysis/v3-2026-11/v30a/README.md`` §4・§7
 (親の 4 構成と腕 on の追加の確かめ)。試験 ``tests/tools/test_bytecheck.py`` が元の表と同じであることを確かめる(〔第347・Q13-5
-(b)〕golden の帰無腕に明示した語彙 v1 のほか)。
+(b)〕golden の帰無腕に明示した語彙 v1 のほか)。〔第348〕20 本目の構成(話す時計が拍で数える構成)と構成ごとの環境変数
+:data:`CONFIG_ENV` を足した(試験は第347 の段 6 の M1 の記録と同じ引数と環境変数であることを確かめる)。
 """
 
 from __future__ import annotations
@@ -41,16 +42,37 @@ def _w6_arms() -> dict[str, dict[str, Any]]:
     return {**_W6_CURRENT, **old, **golden}
 
 
+#: 〔第348・返事その 9 §1 の 30〕環境変数で選ぶ腕の構成(名 → ``one`` が shibuya を読む前に置く環境変数)。会話の時計と
+#: 発話の口の腕は ``shibuya.cli.run`` の引数でなく、組み立ての時に環境変数か CLI の旗で読む(``runtime/clocks/speech.py`` の
+#: ``SHIBUYA_TALK_CLOCK``・``society/speech/layer.py`` の ``SHIBUYA_SPEECH_PORT``)ので、構成の表に環境変数で載せる。
+#: ``v3_speech_talk_mora``=第347 の段 6 の M1 で親が手で足して前後で同じことを確かめた構成(``w6_v3_default`` の引数に
+#: 2 つの変数=記録 ``docs/bench/analysis/split6-347/bytecheck_M1_mora/``)。話す時計が拍(モーラ)で数える=``mora_count`` を通る。
+CONFIG_ENV: Final[dict[str, dict[str, str]]] = {
+    "v3_speech_talk_mora": {"SHIBUYA_SPEECH_PORT": "on", "SHIBUYA_TALK_CLOCK": "mora"},
+}
+
+#: 〔第348〕19 構成の後に足した構成(組 ``all19`` は足す前の 19 構成=古い記録の再現用)。
+ADDED_348: Final[tuple[str, ...]] = ("v3_speech_talk_mora",)
+
+
 def configs() -> dict[str, dict[str, Any]]:
-    """19 構成(名 → ``shibuya.cli.run`` に渡す引数)。並びは ``wave2_bytecheck.configs()`` と同じ。"""
+    """20 構成(名 → ``shibuya.cli.run`` に渡す引数)。初めの 19 は ``wave2_bytecheck.configs()`` と同じ並び。
+    最後の 1 つ(:data:`ADDED_348`)は第348 で足した、話す時計が拍で数える構成(引数は ``w6_v3_default`` と同じ・
+    環境変数は :data:`CONFIG_ENV`)。"""
     out = {f"w6_{k}": dict(v) for k, v in _w6_arms().items()}
     out.update({
         "v3_mem_store": {"vocab_version": "v3", "memory": "on", "store_memory": "on"},
         "v3_mem_rel": {"vocab_version": "v3", "memory": "on", "relations": "on"},
         "v3_classical": {"vocab_version": "v3", **_CLS},
         "v3_classical_mem_rel": {"vocab_version": "v3", "memory": "on", "relations": "on", **_CLS},
+        "v3_speech_talk_mora": dict(_W6_CURRENT["v3_default"]),
     })
     return out
+
+
+def config_env(name: str) -> dict[str, str]:
+    """構成が ``one`` の中で shibuya を読む前に置く環境変数(写し・無ければ空)。"""
+    return dict(CONFIG_ENV.get(name, {}))
 
 
 #: 腕 on の追加の確かめで両側に置く環境変数(v30a の README §4・記録 ``v30a_arms.json`` の ``env``)。
@@ -66,8 +88,10 @@ ARMS_ENV: Final[dict[str, str]] = {
 
 #: 構成の組(名 → 構成の並びと両側に置く環境変数)。
 SETS: Final[dict[str, dict[str, Any]]] = {
-    "all19": {"configs": tuple(configs()), "env": {},
-              "about": "19 構成(W6 の 15 腕+店の記憶・関係・古典・古典+記憶+関係)"},
+    "all20": {"configs": tuple(configs()), "env": {},
+              "about": "20 構成(既定=19 構成+話す時計が拍で数える構成 1 つ=第348)"},
+    "all19": {"configs": tuple(n for n in configs() if n not in ADDED_348), "env": {},
+              "about": "前の 19 構成(W6 の 15 腕+店の記憶・関係・古典・古典+記憶+関係=第347 までの記録の再現用)"},
     "parent4": {"configs": ("w6_v3_default", "v3_mem_store", "v3_classical", "v3_classical_mem_rel"), "env": {},
                 "about": "親の 4 構成(v30a の README §7)"},
     "arms": {"configs": ("w6_v3_default", "v3_classical"), "env": dict(ARMS_ENV),

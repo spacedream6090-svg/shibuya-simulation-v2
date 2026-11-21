@@ -867,8 +867,8 @@ M22・S48・S49・A15 は `processes/crowd.py` の行で、グループ A の席
 | 段 B と番兵の検査 | 腕(試験) | `SHIBUYA_SYSTEMS_CHECK` |
 | AST の検査・負の対照(`static_check.py`・`overrides.py`) | 腕(試験) | src に呼び手なし |
 | 層の契約 | 既定(CI) | `pyproject.toml` の import-linter に 5 本。CI は `ci-0`・`ci-1`・`ci-2` の 3 段(`.github/workflows/ci.yml`・中身は下) |
-| CI の ci-0(push と PR) | CI | 祝日の fixture(`tests/fixtures/calendar/syukujitsu.csv`)の md5・秘密スキャン(`tools/scan_secrets.py` に追跡中の全ファイル)・import-linter・`data/` が追跡されていないこと・カードの新しさ(`python tools/repo_guide/build.py --check`) |
-| CI の ci-1(push と PR) | CI | `pytest -m "not gpu and not slow"` を 2 並列。data の要る試験は印 `requires_data`(登録表 `tests/_data_ids.py`)で飛び、飛ばした数を要約に出す(合否にしない) |
+| CI の ci-0(push と PR) | CI | 祝日の fixture(`tests/fixtures/calendar/syukujitsu.csv`)の md5・秘密スキャン(`tools/scan_secrets.py` に追跡中の全ファイル)・import-linter・`data/` が追跡されていないこと・カードの新しさ(`python tools/repo_guide/build.py --check`)・〔第348〕試験の組の表(`python tools/ci/check_test_shards.py check`=`tests/` の直下がちょうど 1 つの組に入っている・ci-1 の matrix と同じ) |
+| CI の ci-1(push と PR) | CI | `pytest -m "not gpu and not slow"`。〔第348〕`tests/` の直下を 3 つの組(`tools/ci/test_shards.json`)に分けて同時に回し、各組は 2 並列。data の要る試験は印 `requires_data`(登録表 `tests/_data_ids.py`)で飛び、飛ばした数を組ごとのジョブの要約に出す(合否にしない) |
 | CI の ci-2(毎晩と手動) | CI | slow のうち data の要らないもの。時間の門は記録だけ(`SHIBUYA_TIME_GATES=record`・`tests/_time_gates.py`) |
 | pre-commit(`.githooks/pre-commit`) | 手元の commit | `data/` のステージを拒む・ステージしたファイルの秘密スキャン・`tools/commit_check.py`(絶対パスほかの検査と、`COMMIT_EXPECT` があればステージの中身の突き合わせ)・src・tests・tools の .py を変えた commit だけカードの `--check` |
 | カード(段 3)の検査 | CI と pre-commit | src・tests・tools の .py を変えた commit ごとに、ci-0 と pre-commit がカードが古くないかを検査する(pre-commit はその .py を変えた commit だけ、ci-0 は push と PR のたびに毎回。返事その 6 §3-1 の「版上げのたびに作り直す」は、11-09 §1-4 で親案のこの形を採った) |

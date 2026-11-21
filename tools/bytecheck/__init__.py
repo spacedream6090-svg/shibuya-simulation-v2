@@ -7,7 +7,8 @@ CI では回せない=作者の機械で回す)。前の道具 ``docs/bench/anal
 引き継いだ(記録の再現のため前の道具は消さない)。使い方は ``tools/bytecheck/README.md``。
 
 モジュール
-    - ``configs``: 19 構成の表・構成の組(all19・parent4・arms)・比べる 25 欄・記録に残す切替口の環境変数。
+    - ``configs``: 20 構成の表(構成ごとの環境変数を含む)・構成の組(all20・all19・parent4・arms)・比べる 25 欄・記録に残す
+      切替口の環境変数。
     - ``fields``: 25 欄の外に足した比べるもの(テープの全ファイルとスキーマ・manifest・run_meta.json・全 checkpoint)と、
       比べない欄の名前つきの一覧・正準の JSON のハッシュ(第346 の検収 H1)。
     - ``tree``: 写す追跡ファイルの一覧と src の走査(取りこぼしの検査)・git archive の写し・data へのつなぎを置いて外す。

@@ -34,7 +34,7 @@ bytecheck.astsame — 文だけの直しの commit を、byte-check を回さず
 
 ## [check.py](../../../../../../tools/bytecheck/check.py)
 
-bytecheck.check — 1 構成のラン(``one``)・片側の 19 構成(``side``)・2 つの side の比べ(``compare``)・基準の commit との 1 回通し(``run``)。
+bytecheck.check — 1 構成のラン(``one``)・片側の構成の組(``side``)・2 つの side の比べ(``compare``)・基準の commit との 1 回通し(``run``)。
 
 - 公開の関数とクラス
   - `cmd_one`(関数): 1 構成を回し、比べる欄を 1 行の JSON で標準出力に出す(``byte_check_10e.cmd_one`` の欄+開いたファイル+H1 の欄)。
@@ -62,7 +62,7 @@ bytecheck.check — 1 構成のラン(``one``)・片側の 19 構成(``side``)�
 - 呼び手: `tools/bytecheck/cli.py`
 - 読む試験: `tests/tools/test_bytecheck.py`
 - 環境変数: `SHIBUYA_FLEET_API_KEY`・`os.environ` をまるごと使う
-- 決定の ID: 第 346
+- 決定の ID: 第 346・第 348
 
 ## [cli.py](../../../../../../tools/bytecheck/cli.py)
 
@@ -99,19 +99,21 @@ bytecheck.cli — byte-check の入口(``python tools/bytecheck/cli.py {run,side
   - `--out-dir`: side 2 本と compare を書く置き場
   - `--scratch`
   - `--seed`
-  - `--set`: 構成の組(all19=19 構成・parent4=親の 4 構成・arms=腕 on の 2 構成と 7 変数)
+  - `--set`: 構成の組(all20=20 構成=既定・all19=第348 で 1 つ足す前の 19 構成=古い記録の再現用・parent4=親の 4 構成・arms=腕 on の 2 構成と 7 変数)
   - `--src`: 読む src(既定は道具のリポ=作業木の src)
   - `--strict`: 新しい欄や条件の欄が記録に無いことも誤り(2)にする(run は常に strict)
   - `--tape`
   - `--work`: 作業の置き場(短い道筋・空か無いこと。写しの木とテープが残る)
   - `--world`: 世界資産の置き場(道具のリポの根からの相対)
+- 決定の ID: 第 348
 
 ## [configs.py](../../../../../../tools/bytecheck/configs.py)
 
 bytecheck.configs — byte-check の構成の表・構成の組・比べる 25 欄・記録に残す切替口の環境変数。
 
 - 公開の関数とクラス
-  - `configs`(関数): 19 構成(名 → ``shibuya.cli.run`` に渡す引数)。並びは ``wave2_bytecheck.configs()`` と同じ。
+  - `config_env`(関数): 構成が ``one`` の中で shibuya を読む前に置く環境変数(写し・無ければ空)。
+  - `configs`(関数): 20 構成(名 → ``shibuya.cli.run`` に渡す引数)。初めの 19 は ``wave2_bytecheck.configs()`` と同じ並び。
   - `hidden_env_names`(関数): ``env`` に置かれた ``SHIBUYA_`` の変数のうち、値を記録しないもの(:data:`SWITCH_ENV` の外)の名。
   - `set_configs`(関数): 構成の組の構成の並び(無い組の名は ``KeyError``)。
   - `set_env`(関数): 構成の組が両側に置く環境変数(写し)。
@@ -119,7 +121,7 @@ bytecheck.configs — byte-check の構成の表・構成の組・比べる 25 �
 - 呼び手: `tools/bytecheck/check.py`・`tools/bytecheck/cli.py`
 - 読む試験: `tests/tools/test_bytecheck.py`
 - 環境変数: `SHIBUYA_ABSENT_PROCESSES`・`SHIBUYA_BATCH_WIDTH_S`・`SHIBUYA_BODY_BOUNDARY_GAUGE`・`SHIBUYA_BODY_SCHEDULE`・`SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR`・`SHIBUYA_CALENDAR_2`・`SHIBUYA_CALENDAR_3`・`SHIBUYA_CALENDAR_3_TRIAL`・`SHIBUYA_CALENDAR_SHADOW`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CLOCK`・`SHIBUYA_CONTACT`・`SHIBUYA_CONTACT_HABIT`・`SHIBUYA_CONTACT_SEND`・`SHIBUYA_CONTACT_UNNOTICED`・`SHIBUYA_DECISION_PORT`・`SHIBUYA_DEFECT_FIXES_1103`・`SHIBUYA_DUTIES`・`SHIBUYA_ECONOMY_STAGE2`・`SHIBUYA_ECONOMY_STAGE2_PARTS`・`SHIBUYA_EVENTS`・`SHIBUYA_FLEET_API_KEY`・`SHIBUYA_MEAL_DEFAULT`・`SHIBUYA_MEMORY_CUE`・`SHIBUYA_MEMORY_EMBED_MODEL`・`SHIBUYA_MEMORY_GRAIN`・`SHIBUYA_MEMORY_MODEL`・`SHIBUYA_MEMORY_PEOPLE`・`SHIBUYA_MEMORY_STORE`・`SHIBUYA_NAV1_DENSITY`・`SHIBUYA_PATTERN_LEDGER_MD`・`SHIBUYA_PERCEPTION_MD`・`SHIBUYA_PROXIMITY`・`SHIBUYA_PROXIMITY_D`・`SHIBUYA_RATE_RULES`・`SHIBUYA_RULES_42`・`SHIBUYA_RULES_42B`・`SHIBUYA_SEAT_RELEASE`・`SHIBUYA_SLOPE`・`SHIBUYA_SPACE`・`SHIBUYA_SPEECH_PORT`・`SHIBUYA_STEP_SCOPE`・`SHIBUYA_SYSTEMS_CHECK`・`SHIBUYA_TALK_CLOCK`・`SHIBUYA_TOOL_EVENTS`・`SHIBUYA_TURN_WEIGHT`・`SHIBUYA_WAGE`・`SHIBUYA_WARD_AREA_M2`・`SHIBUYA_WRITE_GUARD`
-- 決定の ID: 第 346・第 347
+- 決定の ID: 第 346・第 347・第 348
 
 ## [fields.py](../../../../../../tools/bytecheck/fields.py)
 

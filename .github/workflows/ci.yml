@@ -1,10 +1,17 @@
 # CI の 3 段(第333・3-2-4「取り出したばかりの状態での試験」)。GitHub の ubuntu・data/ は無い。
-#   ci-0  push と PR: 静的な検査(秘密スキャン・層の契約・data/ が追跡されていない)
-#   ci-1  push と PR: data の要らない単体と結合(not gpu and not slow)を 2 並列で。data の要る試験は
-#         requires_data の印で飛び、id ごとの飛ばした数をジョブの要約に出す(合否にしない)
-#   ci-2  毎晩(JST 3 時)と手動: slow のうち data の要らないもの。時間の門は記録だけ(SHIBUYA_TIME_GATES=record)
-# 本体の夜間(data のある全体の試験・byte-check 19 構成・golden・性能の門)は作者の機械で回す(CI には入れない)。
+#   ci-0  push と PR: 静的な検査(秘密スキャン・層の契約・data/ が追跡されていない・試験の組の表)
+#   ci-1  push と PR: data の要らない単体と結合(not gpu and not slow)。〔第348・返事その 9 §1 の 31〕tests/ の直下を
+#         3 つの組(tools/ci/test_shards.json)に分けて同時に回し、各組は 2 並列。tests/ の直下がちょうど 1 つの組に
+#         入っているかは ci-0 が確かめる(入れ忘れると ci-0 が落ちる)。data の要る試験は requires_data の印で飛び、
+#         id ごとの飛ばした数を組ごとのジョブの要約に出す(合否にしない)
+#   ci-2  毎晩(JST 3 時)と手動: slow のうち data の要らないもの。時間の門は記録だけ(SHIBUYA_TIME_GATES=record)。
+#         作業の枝で手で起動(workflow_dispatch)してよいのは群の終わりだけ(返事その 9 §1 の 27)
+# 本体の夜間(data のある全体の試験・byte-check 20 構成・golden・性能の門)は作者の機械で回す(CI には入れない)。
 # GPU 必須の試験(@pytest.mark.gpu)はセルフホストランナーで別に。
+# 入れ方(第348・返事その 9 §1 の 13): 依存の全部を requirements-lock.txt の版で入れ、本体は依存なしで入れる。Python と pip も
+# 手元と同じ版(ロックの頭の行)。入った版がロックと同じかを、どの仕事も tools/ci/check_lock.py で確かめる(違えば落とす)。
+# 実行機は ubuntu-24.04 に固定(ubuntu-latest=26.04 には Python 3.12.10 が無く、setup-python が落ちる=第348 の PR の 1 回目で確かめた)。
+# 戻すなら、runs-on を ubuntu-latest・python-version を "3.12" にし、ロックの頭の python の行と check_lock の比べ方を合わせて直す。
 name: ci
 
 on:
@@ -19,18 +26,23 @@ jobs:
   ci-0:
     name: ci-0 静的な検査
     if: github.event_name == 'push' || github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # 〔第348〕ubuntu-latest(26.04)には Python 3.12.10 のビルドが無い=手元と同じ Python を入れるために実行機の版を固定
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"  # 手元の .venv と同じ細かい版(requirements-lock.txt の頭の行)
           cache: pip
-      - name: Install
+          cache-dependency-path: requirements-lock.txt
+      - name: Install(ロックの版で)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-lock.txt
+          python -m pip install --no-deps -e .
+          python -m pip check
+      - name: 入った版がロックと同じ
+        run: python tools/ci/check_lock.py
       # 祝日の fixture(内閣府の CSV・cp932)は中身を md5 で固定する(tests/fixtures/README.md)。秘密スキャンは
       # UTF-8 で読めないファイルを cp932 でも読むので(第333)、fixture も検査の対象に入れる。
       - name: Holiday fixture is the pinned Cabinet Office CSV (md5)
@@ -48,6 +60,9 @@ jobs:
       # (CI に data は無く、docs は commit ごとに変わる)。
       - name: Repo guide cards are fresh (src・tests・tools)
         run: python tools/repo_guide/build.py --check
+      # 〔第348〕ci-1 の組の表: tests/ の直下がちょうど 1 つの組に入っている・matrix の組の名が表と同じ(落ちこぼれの守り)。
+      - name: 試験の組の表(tests/ の直下の全部が、ちょうど 1 つの組に入っている)
+        run: python tools/ci/check_test_shards.py check
       # 〔第347・11-16 §1-3 の 5〕D-R2-4「届き先が消えた細部は削除候補として台帳に自動で載る」を機械で残す道。
       # runs/ は git に入らないので、数と名前をこの段の出力と要約に出し、台帳ファイルを成果物に置く。
       # 落とす条件にはしない(候補が何件あっても 0。道具そのものが壊れたときだけ落ちる)。
@@ -60,9 +75,13 @@ jobs:
           if-no-files-found: ignore
 
   ci-1:
-    name: ci-1 単体と結合(not gpu and not slow)
+    name: ci-1 単体と結合(not gpu and not slow・組 ${{ matrix.group }})
     if: github.event_name == 'push' || github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # 〔第348〕ubuntu-latest(26.04)には Python 3.12.10 のビルドが無い=手元と同じ Python を入れるために実行機の版を固定
+    strategy:
+      fail-fast: false  # 1 つの組が落ちても残りの組を最後まで回す(分ける前と同じく、全部の試験の結果を見る)
+      matrix:
+        group: ["g1", "g2", "g3"]  # 組の中身は tools/ci/test_shards.json(並びも同じ=ci-0 の check_test_shards.py が確かめる)
     # 〔第347・11-16 §1-5〕90 → 120: 第346 の間、単体と結合の段は 37〜79 分に揺れた(試験の段そのものが 45 分の回と 78 分の回がある・準備の段は同じ)。
     # 遅い回の原因は実行機の側と見ているが未確認=下の「実行機の情報」の段で CPU の型と数を記録に出して比べる。
     timeout-minutes: 120  # 〔第337〕45 → 90: ci-1 は 25〜38 分で揺れ、C1 の後の push の 2 回が 45 分の上限に当たって cancelled になった(同じ commit の pull_request 側は 25〜27 分で緑)=余裕を倍に(10-13b §0-4 CI-1 は常に緑)
@@ -72,24 +91,35 @@ jobs:
           fetch-depth: 0  # 旧 commit の src を git archive で取り出す試験がある(test_state_format_10f の U1)
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"  # 手元の .venv と同じ細かい版(requirements-lock.txt の頭の行)
           cache: pip
-      - name: Install
+          cache-dependency-path: requirements-lock.txt
+      - name: Install(ロックの版で)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-lock.txt
+          python -m pip install --no-deps -e .
+          python -m pip check
+      - name: 入った版がロックと同じ
+        run: python tools/ci/check_lock.py
       - name: 実行機の情報(遅い回の原因を比べるための記録・結果には使わない)
         run: |
           lscpu | grep -E 'Model name|^CPU\(s\)|MHz|L3' || true
           nproc
           free -g | head -2
-      - name: Unit / integration tests (2 並列)
-        run: pytest -q -m "not gpu and not slow" -n 2 --dist loadfile
+      # 〔第348〕並列の数は分ける前と同じ 2(実行機は 4 CPU・15 GB。時計に頼る試験〔艦隊の口〕があるので、上げるのは分けた後の
+      # 時間を見てから別に決める)。組の道筋が空なら pytest が全部を回してしまうので、取れなければ止める。
+      - name: Unit / integration tests(組 ${{ matrix.group }}・2 並列)
+        run: |
+          paths=$(python tools/ci/check_test_shards.py paths --group "${{ matrix.group }}")
+          test -n "$paths"
+          echo "組 ${{ matrix.group }}: $paths"
+          pytest -q -m "not gpu and not slow" -n 2 --dist loadfile $paths
 
   ci-2:
     name: ci-2 夜の slow(data 不要・時間の門は記録だけ)
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # 〔第348〕ubuntu-latest(26.04)には Python 3.12.10 のビルドが無い=手元と同じ Python を入れるために実行機の版を固定
     timeout-minutes: 120
     env:
       SHIBUYA_TIME_GATES: record
@@ -99,11 +129,16 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"  # 手元の .venv と同じ細かい版(requirements-lock.txt の頭の行)
           cache: pip
-      - name: Install
+          cache-dependency-path: requirements-lock.txt
+      - name: Install(ロックの版で)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-lock.txt
+          python -m pip install --no-deps -e .
+          python -m pip check
+      - name: 入った版がロックと同じ
+        run: python tools/ci/check_lock.py
       - name: Slow tests (2 並列・data 不要の分)
         run: pytest -q -m "slow and not gpu" -n 2 --dist loadfile

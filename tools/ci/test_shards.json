@@ -1,0 +1,27 @@
+{
+  "about": "CI の ci-1(単体と結合)を同時に回す組の表(第348・返事その 9 §1 の 31)。tests/ の直下のディレクトリと試験のファイルを、ちょうど 1 つの組に入れる(ci-0 の tools/ci/check_test_shards.py が確かめる)。組の名は ci.yml の ci-1 の matrix と同じ並び。釣り合いは、2026-11-18〜19 の CI の 15 回の進み具合の行の時刻(-n 2 --dist loadfile・ファイルは集めた順にほぼ終わる)から見立てた各ディレクトリの分数の平均で振った(engine 約 31 分=全体の約 5 割・tools 約 11 分・perception 約 4 分・world 約 4 分・llm 約 3 分・build_pop 約 2.5 分・ほかは 1 分未満)。engine は直下の単位では割れないので 1 つの組にした=いちばん長い組は engine。",
+  "groups": {
+    "g1": {
+      "about": "engine(試験 3,301 本・見立て 22〜40 分)",
+      "entries": ["engine"]
+    },
+    "g2": {
+      "about": "道具・LLM・語彙・日課(試験 1,300 本・見立て 12〜21 分)",
+      "entries": ["llm", "tools", "vocab", "w17"]
+    },
+    "g3": {
+      "about": "残りのディレクトリと直下の試験のファイル(試験 2,568 本と tests/c7・見立て 11〜21 分)",
+      "entries": [
+        "agents", "bench", "bridging", "build_audit", "build_field", "build_geo", "build_lang", "build_pop", "build_rail",
+        "build_sched", "build_space", "build_vis", "c6", "c7", "c8", "core", "economy", "fig", "perception", "world",
+        "test_budget_table.py", "test_build_run_keep_stage.py", "test_child_imports_this_tree.py", "test_cli.py",
+        "test_cli_help.py", "test_cli_intent_mode.py", "test_cli_l4_scale.py", "test_cli_vocab_version.py",
+        "test_fixture_holiday_csv.py", "test_manifest_roundtrip.py", "test_manifest_rules_extra.py",
+        "test_places_guard.py", "test_rng_properties.py", "test_world_catalog_sha.py"
+      ]
+    }
+  },
+  "not_tests": {
+    "fixtures": "試験が読むデータ(祝日の CSV など)。試験のファイルを持たない(check_test_shards.py が中の名を見て確かめる)"
+  }
+}
