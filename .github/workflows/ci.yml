@@ -10,6 +10,8 @@
 # GPU 必須の試験(@pytest.mark.gpu)はセルフホストランナーで別に。
 # 入れ方(第348・返事その 9 §1 の 13): 依存の全部を requirements-lock.txt の版で入れ、本体は依存なしで入れる。Python と pip も
 # 手元と同じ版(ロックの頭の行)。入った版がロックと同じかを、どの仕事も tools/ci/check_lock.py で確かめる(違えば落とす)。
+# 実行機は ubuntu-24.04 に固定(ubuntu-latest=26.04 には Python 3.12.10 が無く、setup-python が落ちる=第348 の PR の 1 回目で確かめた)。
+# 戻すなら、runs-on を ubuntu-latest・python-version を "3.12" にし、ロックの頭の python の行と check_lock の比べ方を合わせて直す。
 name: ci
 
 on:
@@ -24,7 +26,7 @@ jobs:
   ci-0:
     name: ci-0 静的な検査
     if: github.event_name == 'push' || github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # 〔第348〕ubuntu-latest(26.04)には Python 3.12.10 のビルドが無い=手元と同じ Python を入れるために実行機の版を固定
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +77,7 @@ jobs:
   ci-1:
     name: ci-1 単体と結合(not gpu and not slow・組 ${{ matrix.group }})
     if: github.event_name == 'push' || github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # 〔第348〕ubuntu-latest(26.04)には Python 3.12.10 のビルドが無い=手元と同じ Python を入れるために実行機の版を固定
     strategy:
       fail-fast: false  # 1 つの組が落ちても残りの組を最後まで回す(分ける前と同じく、全部の試験の結果を見る)
       matrix:
@@ -117,7 +119,7 @@ jobs:
   ci-2:
     name: ci-2 夜の slow(data 不要・時間の門は記録だけ)
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # 〔第348〕ubuntu-latest(26.04)には Python 3.12.10 のビルドが無い=手元と同じ Python を入れるために実行機の版を固定
     timeout-minutes: 120
     env:
       SHIBUYA_TIME_GATES: record
