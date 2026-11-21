@@ -850,6 +850,7 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
   - `test_decision_ids_without_prefix_list`(関数)
   - `test_decision_sort_key_breaks_ties_by_text`(関数)
   - `test_docs_index_and_entry_readme`(関数)
+  - `test_docs_index_lists_only_files_in_git`(関数): docs の一覧は git に入っている文書だけ(11-22 §1 の 19): 手元にだけ在る文書で、作る木ごとに一覧が変わらない。
   - `test_git_listing_includes_untracked_and_reports_them`(関数)
   - `test_ledger_rows_and_owner`(関数)
   - `test_link_shapes_in_text_are_escaped`(関数)
@@ -879,7 +880,7 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`tests/_places.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `os.environ` をまるごと使う
-- 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
+- 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・11-22/§1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
 
 ## [test_scan_secrets_cp932.py](../../../../../../tests/tools/test_scan_secrets_cp932.py)
 

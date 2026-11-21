@@ -1265,7 +1265,7 @@
 
 ## docs/bench/w17/v2_attempt1(2 本)
 
-## docs/design(124 本)
+## docs/design(125 本)
 
 - [decision-id-index.md](../../../design/decision-id-index.md): 決定の ID の索引(自動生成・手で編集しない)
 - [plan-348-rented-compute-readiness.md](../../../design/plan-348-rented-compute-readiness.md): 親案 4:借りる計算(GPU)の用意の見積り(第 348・下書き)
@@ -1284,6 +1284,7 @@
 - [prompt-2026-11-09-reply7.md](../../../design/prompt-2026-11-09-reply7.md): 0. 届いた範囲の確認
 - [prompt-2026-11-16-reply8.md](../../../design/prompt-2026-11-16-reply8.md): 0. 届いた範囲の確認
 - [prompt-2026-11-20-reply9.md](../../../design/prompt-2026-11-20-reply9.md): 0. 届いた範囲の確認
+- [prompt-2026-11-22-reply10.md](../../../design/prompt-2026-11-22-reply10.md): 0. 届いた範囲と claude.ai の確かめ
 - [revision-draft-2026-11-16-resident-facing-text.md](../../../design/revision-draft-2026-11-16-resident-facing-text.md): 住民に見せる凍結の文の改版の案(返事その 8 §5)2026-11-16
 - [v2-a2-rights-flags-2026-11-02.md](../../../design/v2-a2-rights-flags-2026-11-02.md): A2 の旗 3 欄と OSM からの初期化(11-02r §3 の 7 (ア)・段 2 の入力の宣言の欄と同じ扱い)
 - [v2-action-activity-two-layer-draft.md](../../../design/v2-action-activity-two-layer-draft.md): 行為と活動の二層 — 出力形の設計ラウンド草案 v0(2026-09-27・第272)
@@ -1418,7 +1419,7 @@
 - [pending-archive-2026-09-28.md](../../../log/pending-archive-2026-09-28.md): PENDING アーカイブ(2026-09-08〜09-27・第278 時点の全文)
 - [pending-archive-2026-10-25.md](../../../log/pending-archive-2026-10-25.md): PENDING の凍結(2026-10-25・第339)
 
-## docs/ops(27 本)
+## docs/ops(26 本)
 
 - [build-report-C0.md](../../../ops/build-report-C0.md): 工程 C0(骨格)受入報告(2026-09-08・ブランチ build/c0-c4)
 - [build-report-C1.md](../../../ops/build-report-C1.md): 工程 C1(世界データ構築)受入報告(2026-09-08・ブランチ build/c0-c4)
@@ -1441,7 +1442,6 @@
 - [layer2-review-checklist.md](../../../ops/layer2-review-checklist.md): 層2 独立検収チェックリスト(工程出口・別インスタンスのFableが実施)
 - [murata-lab-inquiry-draft-2026-10-12.md](../../../ops/murata-lab-inquiry-draft-2026-10-12.md): 大阪大学 村田研(合成人口データ)への問い合わせの下書き(2026-10-12・親起草・ユーザーが送る)
 - [night5070-runbook.md](../../../ops/night5070-runbook.md): 5070 の夜の実験の運用手順
-- [report-345-2026-11-05.md](../../../ops/report-345-2026-11-05.md): 第 345 の報告(2026-11-05)
 - [report-347-2026-11-16.md](../../../ops/report-347-2026-11-16.md): 第 347 の報告(返事その 8 への対応)2026-11-16
 - [report-348-2026-11-21.md](../../../ops/report-348-2026-11-21.md): 第 348 の報告(返事その 9 への対応)2026-11-21
 - [u9-inquiry-draft-2026-09-30.md](../../../ops/u9-inquiry-draft-2026-09-30.md): U-9 渋谷区への照会文(送れる形・2026-10-03 更新。下書きは 2026-09-30)

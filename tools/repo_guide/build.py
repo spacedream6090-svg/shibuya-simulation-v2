@@ -30,11 +30,16 @@ MASK = "〔伏〕"
 DATA_DEPTH = 2
 
 
-def list_files(root: Path, tops: tuple[str, ...]) -> list[str]:
-    """リポからの道筋の一覧(sort 済み・``/`` 区切り)。git があれば追跡+無視されない未追跡、無ければ歩く。"""
+def list_files(root: Path, tops: tuple[str, ...], *, tracked_only: bool = False) -> list[str]:
+    """リポからの道筋の一覧(sort 済み・``/`` 区切り)。git があれば追跡+無視されない未追跡、無ければ歩く。
+
+    ``tracked_only`` なら、git に入っているファイル(索引に載ったもの=ステージ済みを含む)だけ。docs の一覧が使う
+    (11-22 §1 の 19): 手元にだけ在る文書が一覧に載ると、作る木によって一覧が変わり、リポに無いファイルへのリンクができる。
+    """
     if (root / ".git").exists():
+        others = [] if tracked_only else ["--others", "--exclude-standard"]
         cp = subprocess.run(
-            ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", *tops],
+            ["git", "-C", str(root), "ls-files", "-z", "--cached", *others, "--", *tops],
             capture_output=True, check=True)
         rels = [x.decode("utf-8") for x in cp.stdout.split(b"\0") if x]
         return sorted(r for r in rels if (root / r).is_file())
@@ -174,7 +179,7 @@ def first_heading(raw: bytes) -> str:
 
 def docs_rows(root: Path) -> dict[str, tuple[int, list[tuple[str, str]]]]:
     rows: dict[str, tuple[int, list[tuple[str, str]]]] = {}
-    for rel in list_files(root, ("docs",)):
+    for rel in list_files(root, ("docs",), tracked_only=True):  # git に入っている文書だけ(11-22 §1 の 19)
         if rel.startswith(R.CARDS_REL + "/"):
             continue
         d, _, name = rel.rpartition("/")

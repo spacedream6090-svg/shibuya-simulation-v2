@@ -26,7 +26,7 @@ Python 4 本・その他 0 本(このディレクトリの直下)
 - CLI の引数
   - `--check`: src・tests・tools のカードだけを作って比べる(違えば exit 1)
   - `--root`: リポの根(既定はこのファイルから 2 つ上・試験用)
-- 決定の ID: 11-05/§3-1
+- 決定の ID: 11-05/§3-1・11-22/§1
 
 ## [guide_facts.py](../../../../../../tools/repo_guide/guide_facts.py)
 
