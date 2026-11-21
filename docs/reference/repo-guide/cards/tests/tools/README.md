@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 28 本・その他 0 本(このディレクトリの直下)
+Python 31 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -187,6 +187,23 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・`SHIBUYA_SPEECH_PORT`・`SHIBUYA_TALK_CLOCK`・名前を読めない所 5 か所・`os.environ` をまるごと使う
 - 決定の ID: 11-09/§2・第 346・第 347・第 348
+
+## [test_ci_changed_scope.py](../../../../../../tests/tools/test_ci_changed_scope.py)
+
+変えたファイルの範囲から、重い組を回すかを決める道具(tools/ci/changed_scope.py・11-22 §3-2 の 1・5)。
+
+- 公開の関数とクラス
+  - `test_classify_docs_only_skips_the_heavy_group`(関数)
+  - `test_classify_one_non_document_is_heavy`(関数)
+  - `test_cli_with_git_and_github_output`(関数)
+  - `test_documents_and_non_documents`(関数)
+  - `test_empty_list_is_unknown_so_heavy`(関数)
+  - `test_heavy_groups_of_the_real_table`(関数): 本物の組の表: 重い組が 1 つ以上あり、軽い組も残る(文書だけの変更でも、文書を読む試験の組は回る)。
+  - `test_runtime_docs_are_heavy_and_run_affecting`(関数)
+  - `test_runtime_docs_come_from_the_bytecheck_list`(関数): 一覧の正は tools/bytecheck/tree.py の TRACKED_READS(二重に持たない)。5 本(ユーザーの言う「ランが読む文書」)を含む。
+  - `test_src_and_lock_affect_runs`(関数)
+  - `test_zero_or_missing_base_is_unknown`(関数)
+- 決定の ID: 11-22/§3-2
 
 ## [test_ci_check_lock.py](../../../../../../tests/tools/test_ci_check_lock.py)
 
@@ -850,6 +867,7 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
   - `test_decision_ids_without_prefix_list`(関数)
   - `test_decision_sort_key_breaks_ties_by_text`(関数)
   - `test_docs_index_and_entry_readme`(関数)
+  - `test_docs_index_lists_only_files_in_git`(関数): docs の一覧は git に入っている文書だけ(11-22 §1 の 19): 手元にだけ在る文書で、作る木ごとに一覧が変わらない。
   - `test_git_listing_includes_untracked_and_reports_them`(関数)
   - `test_ledger_rows_and_owner`(関数)
   - `test_link_shapes_in_text_are_escaped`(関数)
@@ -879,7 +897,7 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
 - import している内部モジュール: `shibuya.foundation.time_consts`・`shibuya.runtime.state.ledger`・`shibuya.runtime.systems.allow`・`shibuya.runtime.systems.spec`・`shibuya.runtime.systems.table`・`tests/_places.py`
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `os.environ` をまるごと使う
-- 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
+- 決定の ID: 10-12・10-12/D-9・10-13b・10-13b/K3・10-13b/K3 #5・10-25・10-25/§2-5・11-01・11-01/A1-2・11-01/a01・11-01/a1・11-01/§1・11-01/§1 #7・11-01/§1 #8・11-01/§1 #12・11-05/§3-1・11-22/§1・R-9・R-9 #3・R-126・R-126 §1-4 #46・D-74・D-74 #4・第 170・第 275・第 275 #7・第 340・第 345・第 345 #2・第 1000
 
 ## [test_scan_secrets_cp932.py](../../../../../../tests/tools/test_scan_secrets_cp932.py)
 
@@ -908,6 +926,15 @@ tools/repo_guide(段 3 ファイルのカード・11-05/§3-1 の 1)の試験。
 - import している内部モジュール: `shibuya.build.pop.w21_sources`・`tools/instruments/anchor_split.py`・`tools/instruments/read_guard.py`・`tools/w17/diversity_yardstick.py`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - 決定の ID: 10-13b/§7・第 337
+
+## [test_sealed_tables_shape.py](../../../../../../tests/tools/test_sealed_tables_shape.py)
+
+封印の語の表 2 つの「数」と「重なり」を固定する(11-22 §1 の 3)。
+
+- 公開の関数とクラス
+  - `test_counts_helper_returns_numbers_only`(関数): 助けの関数が返すのは数だけ(語が戻り値に混ざると、失敗の表示に出る)。
+  - `test_two_sealed_tables_keep_their_sizes_and_overlap`(関数)
+- 決定の ID: 11-22/§1
 
 ## [test_sealed_tokens_compare.py](../../../../../../tests/tools/test_sealed_tokens_compare.py)
 
@@ -943,6 +970,17 @@ tools/instruments/skill_gauge.py(第 3 期 3-3b・CP14 の技量スコアの隣�
   - `test_scores_of_a_mock_ensemble`(関数)
   - `test_skill_next_to_raw_scores_and_fill_the_container`(関数)
 - import している内部モジュール: `shibuya.experiments.port.ensemble`・`shibuya.interfaces.cli.main`・`tests/engine/experiment/_x33.py`
+
+## [test_wallbounce_index.py](../../../../../../tests/tools/test_wallbounce_index.py)
+
+壁打ちの記録の索引の道具(tools/wallbounce_index.py・11-22 §3-1 の 3)。
+
+- 公開の関数とクラス
+  - `test_real_index_is_fresh_and_covers_every_record`(関数): リポの索引が最新(記録を置き換えたら作り直す)。記録の決定の見出しの数と、索引の行の数が同じ。
+  - `test_render_and_check_on_a_small_repo`(関数)
+  - `test_rows_ranges_and_fences`(関数)
+  - `test_split_heading_shapes`(関数)
+- 決定の ID: 11-02・11-03・11-04・11-09・11-20・11-22/§3-1
 
 ## [test_warmup_gauge.py](../../../../../../tests/tools/test_warmup_gauge.py)
 

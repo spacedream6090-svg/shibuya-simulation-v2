@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 3 本・その他 0 本(このディレクトリの直下)
+Python 4 本・その他 0 本(このディレクトリの直下)
 
 下のディレクトリ: [bench](bench/README.md)・[bench_spikes](bench_spikes/README.md)・[build_geo](build_geo/README.md)・[bytecheck](bytecheck/README.md)・[c6](c6/README.md)・[c7](c7/README.md)・[c8](c8/README.md)・[ci](ci/README.md)・[fig](fig/README.md)・[gen](gen/README.md)・[hunger](hunger/README.md)・[instruments](instruments/README.md)・[ledger](ledger/README.md)・[night5070](night5070/README.md)・[pkgmove](pkgmove/README.md)・[quality_probe_v0](quality_probe_v0/README.md)・[realworld_fetch](realworld_fetch/README.md)・[repo_guide](repo_guide/README.md)・[research](research/README.md)・[spatial](spatial/README.md)・[vocab](vocab/README.md)・[w17](w17/README.md)・[world_data](world_data/README.md)
 
@@ -38,7 +38,7 @@ commit の前の確認: 「入れるはずのファイル」の一覧とステ�
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
 - CLI の引数
   - `--check`: 生成物が最新かを確かめるだけ(違えば exit 1)
-- 決定の ID: 09-24d・09-25・09-29d・09-30・10-03・10-06・10-12・10-12/CA1・10-12b・10-12p・10-12p/2-0・10-13・10-13b・10-13b/§0-2・10-13b/§1・10-25・11-01・11-01g・11-01p・11-02・11-02r・11-03・11-04・11-04b・11-04c・11-05・11-09・11-16・11-20・R-129・R-149・R-150・R-152・R-153・R-156・R-157・R-158・第 330・第 332・第 338・第 340・第 344・第 346・第 347
+- 決定の ID: 09-24d・09-25・09-29d・09-30・10-03・10-06・10-12・10-12/CA1・10-12b・10-12p・10-12p/2-0・10-13・10-13b・10-13b/§0-2・10-13b/§1・10-25・11-01・11-01g・11-01p・11-02・11-02r・11-03・11-04・11-04b・11-04c・11-05・11-09・11-16・11-20・11-22・R-129・R-149・R-150・R-152・R-153・R-156・R-157・R-158・第 330・第 332・第 338・第 340・第 344・第 346・第 347・第 348
 
 ## [scan_secrets.py](../../../../../tools/scan_secrets.py)
 
@@ -48,3 +48,18 @@ commit の前の確認: 「入れるはずのファイル」の一覧とステ�
 - CLI の引数
   - `sys.argv` を直接読む
 - 決定の ID: 第 202・第 333
+
+## [wallbounce_index.py](../../../../../tools/wallbounce_index.py)
+
+壁打ちの記録の索引を作る(11-22 §3-1 の 3)。1 行 1 決定(ID・題・日付・状態・行の範囲)。
+
+- 公開の関数とクラス
+  - `main`(関数)
+  - `render`(関数)
+  - `rows_of`(関数): 記録の本文 → 見出しごとの行(深さ・ID・題・日付・状態・始まりと終わりの行)。コードの囲みの中は拾わない。
+  - `split_heading`(関数): 見出しの文字列 → (ID, 題, 日付, 状態)。分けられない所は空のまま(推し量らない)。
+- 読む試験(道筋で): `tests/tools/test_wallbounce_index.py`
+- CLI の引数
+  - `--check`: 書かずに、索引が最新かだけを見る(違えば exit 1)
+  - `--root`: リポの根(試験用)
+- 決定の ID: 11-22・11-22/§0・11-22/§3-1

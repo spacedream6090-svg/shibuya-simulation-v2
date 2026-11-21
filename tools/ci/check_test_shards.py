@@ -32,6 +32,8 @@ from typing import Any, Final, Sequence
 ROOT = Path(__file__).resolve().parents[2]
 TABLE_REL: Final[str] = "tools/ci/test_shards.json"
 CI_YML_REL: Final[str] = ".github/workflows/ci.yml"
+#: 組の重さ。heavy=文書だけの変更では回さない組(engine)。light=いつも回す組
+WEIGHTS: Final[tuple[str, ...]] = ("heavy", "light")
 #: ci.yml の中で組を回す仕事の名と、matrix の鍵。
 CI_JOB: Final[str] = "ci-1"
 MATRIX_KEY: Final[str] = "group"
@@ -82,10 +84,20 @@ def load_table(path: Path) -> dict[str, Any]:
         for x in [g, *entries]:
             if not x or any(c.isspace() for c in x) or "/" in x or "\\" in x:
                 raise ValueError(f"名に空白か区切りの字がある: {x!r}")
+        # 〔第349・11-22 §3-2 の 1〕重い組(文書だけの変更では回さない)の印。無ければ軽い組
+        if body.get("weight", "light") not in WEIGHTS:
+            raise ValueError(f"組 {g} の weight が {WEIGHTS} のどれでもない: {body.get('weight')!r}")
+    if all(b.get("weight", "light") == "heavy" for b in groups.values()):
+        raise ValueError("全部の組が heavy(文書だけの変更で、試験が 1 本も回らなくなる)")
     not_tests = doc.get("not_tests", {})
     if not isinstance(not_tests, dict):
         raise ValueError("not_tests が辞書でない")
     return doc
+
+
+def heavy_groups(table: dict[str, Any]) -> list[str]:
+    """重い組の名(表の並び)。文書だけの変更では回さない(``tools/ci/changed_scope.py`` が使う)。"""
+    return [g for g, b in table["groups"].items() if b.get("weight", "light") == "heavy"]
 
 
 def ci_matrix(ci_yml: Path) -> list[str]:

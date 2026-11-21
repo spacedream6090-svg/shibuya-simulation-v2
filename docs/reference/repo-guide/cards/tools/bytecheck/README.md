@@ -73,6 +73,7 @@ bytecheck.cli — byte-check の入口(``python tools/bytecheck/cli.py {run,side
   - `main`(関数): 入口。終了コード 0 同じ / 1 動いた / 2 誤り。
 - import している内部モジュール: `tools/bytecheck/check.py`・`tools/bytecheck/configs.py`
 - 読む試験: `tests/tools/test_bytecheck.py`
+- 読む試験(道筋で): `tests/tools/test_ci_changed_scope.py`
 - CLI の引数
   - サブコマンド `compare`
   - サブコマンド `one`

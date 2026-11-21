@@ -882,6 +882,26 @@ def test_git_listing_includes_untracked_and_reports_them(repo: Path, guide):
     assert "未追跡" not in _run(repo, "--check").stdout
 
 
+def test_docs_index_lists_only_files_in_git(repo: Path, guide):
+    """docs の一覧は git に入っている文書だけ(11-22 §1 の 19): 手元にだけ在る文書で、作る木ごとに一覧が変わらない。"""
+    if shutil.which("git") is None:
+        pytest.skip("git が無い")
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    _write(repo, "docs/ops/tracked_note.md", "# 追跡されている文書\n")
+    subprocess.run(["git", "-C", str(repo), "add", "src", "tests", "tools", "docs"], check=True)  # tmp の合成のリポの索引だけ
+    _write(repo, "docs/ops/local_only.md", "# 手元にだけ在る文書\n")
+    assert _run(repo).returncode == 0
+    index = (repo / CARDS / "docs.md").read_text(encoding="utf-8")
+    assert "tracked_note.md" in index and "local_only.md" not in index
+    listed = guide.list_files(repo, ("docs",), tracked_only=True)
+    assert "docs/ops/tracked_note.md" in listed and "docs/ops/local_only.md" not in listed
+    assert "docs/ops/local_only.md" in guide.list_files(repo, ("docs",))  # 既定は今までどおり未追跡も載る
+    # ステージすれば載る(commit の前に作り直せる)
+    subprocess.run(["git", "-C", str(repo), "add", "docs/ops/local_only.md"], check=True)
+    assert _run(repo).returncode == 0
+    assert "local_only.md" in (repo / CARDS / "docs.md").read_text(encoding="utf-8")
+
+
 # ---------------------------------------------------------------- 本物のリポ: AST で読んだものと実物の import を比べる
 @pytest.fixture(scope="module")
 def real_code(guide):
