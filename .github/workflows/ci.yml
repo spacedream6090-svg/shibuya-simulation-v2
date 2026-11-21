@@ -5,6 +5,8 @@
 #   ci-2  毎晩(JST 3 時)と手動: slow のうち data の要らないもの。時間の門は記録だけ(SHIBUYA_TIME_GATES=record)
 # 本体の夜間(data のある全体の試験・byte-check 19 構成・golden・性能の門)は作者の機械で回す(CI には入れない)。
 # GPU 必須の試験(@pytest.mark.gpu)はセルフホストランナーで別に。
+# 入れ方(第348・返事その 9 §1 の 13): 依存の全部を requirements-lock.txt の版で入れ、本体は依存なしで入れる。Python と pip も
+# 手元と同じ版(ロックの頭の行)。入った版がロックと同じかを、どの仕事も tools/ci/check_lock.py で確かめる(違えば落とす)。
 name: ci
 
 on:
@@ -25,12 +27,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"  # 手元の .venv と同じ細かい版(requirements-lock.txt の頭の行)
           cache: pip
-      - name: Install
+          cache-dependency-path: requirements-lock.txt
+      - name: Install(ロックの版で)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-lock.txt
+          python -m pip install --no-deps -e .
+          python -m pip check
+      - name: 入った版がロックと同じ
+        run: python tools/ci/check_lock.py
       # 祝日の fixture(内閣府の CSV・cp932)は中身を md5 で固定する(tests/fixtures/README.md)。秘密スキャンは
       # UTF-8 で読めないファイルを cp932 でも読むので(第333)、fixture も検査の対象に入れる。
       - name: Holiday fixture is the pinned Cabinet Office CSV (md5)
@@ -72,12 +79,17 @@ jobs:
           fetch-depth: 0  # 旧 commit の src を git archive で取り出す試験がある(test_state_format_10f の U1)
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"  # 手元の .venv と同じ細かい版(requirements-lock.txt の頭の行)
           cache: pip
-      - name: Install
+          cache-dependency-path: requirements-lock.txt
+      - name: Install(ロックの版で)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-lock.txt
+          python -m pip install --no-deps -e .
+          python -m pip check
+      - name: 入った版がロックと同じ
+        run: python tools/ci/check_lock.py
       - name: 実行機の情報(遅い回の原因を比べるための記録・結果には使わない)
         run: |
           lscpu | grep -E 'Model name|^CPU\(s\)|MHz|L3' || true
@@ -99,11 +111,16 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"  # 手元の .venv と同じ細かい版(requirements-lock.txt の頭の行)
           cache: pip
-      - name: Install
+          cache-dependency-path: requirements-lock.txt
+      - name: Install(ロックの版で)
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"
+          python -m pip install pip==26.2.1
+          python -m pip install -r requirements-lock.txt
+          python -m pip install --no-deps -e .
+          python -m pip check
+      - name: 入った版がロックと同じ
+        run: python tools/ci/check_lock.py
       - name: Slow tests (2 並列・data 不要の分)
         run: pytest -q -m "slow and not gpu" -n 2 --dist loadfile

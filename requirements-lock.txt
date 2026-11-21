@@ -1,0 +1,70 @@
+# 依存の全部の版の固定(第348・返事その 9 §1 の 13)。CI(.github/workflows/ci.yml)と手元で、この版をそのまま入れる。
+#
+# 作り方: 本体の .venv で `python -m pip freeze --exclude-editable` を回して出た 48 本を、`名==版` で全部書いた
+#   (2026-11-21・Windows)。手元の byte-check の基準はこの版で回っている。Windows でだけ要るもの(colorama=pytest が
+#   win32 でだけ要る)には環境の印を付けた。Linux でだけ要るものは、入っている全部の配布の依存の宣言(Requires-Dist)を
+#   Linux の印で評価して、無いと確かめた(この 48 本の閉包は Linux で 47 本=colorama を除いた全部)。
+# 入れ方(この順で。手元も CI も同じ。Python と pip の版は下の 2 行):
+#   python -m pip install pip==26.2.1
+#   python -m pip install -r requirements-lock.txt
+#   python -m pip install --no-deps -e .
+#   python -m pip check
+#   python tools/ci/check_lock.py
+# 上げ方: 手で 1 行だけ上げない(依存の組が崩れる)。上げる版を決めたら、その版を入れた venv で `pip freeze --exclude-editable`
+#   から全部を書き直し(環境の印も付け直す)、byte-check の全構成を今の基準と比べ(tools/bytecheck/README.md)、
+#   版上げの履歴(docs/ops/version-history.md)に 1 行足す。pip と Python の版を上げるときは、下の 2 行と ci.yml の
+#   `pip==`・`python-version` も一緒に直す(tests/tools/test_ci_check_lock.py が食い違いを落とす)。
+# pyproject.toml の下限(>=)はライブラリとしての宣言なので、そのまま別に持つ。ビルドの時だけ要るもの(setuptools・wheel)と
+#   ハッシュは、まだ固定していない。tools/night5070/ の WSL 側(vLLM・torch)の版の固定は別のもので、このファイルに入らない。
+#
+# 下の 2 行は tools/ci/check_lock.py が読む(入っている pip と動いている Python がこの版かを確かめる)。
+# pip==26.2.1
+# python==3.12.10
+annotated-types==0.8.0
+anyio==4.15.1
+blake3==1.0.9
+cbor2==6.1.4
+certifi==2026.7.22
+click==8.5.0
+colorama==0.4.6; sys_platform == "win32"
+contourpy==1.4.0
+cycler==0.12.1
+duckdb==1.5.5
+execnet==2.1.2
+fonttools==4.65.0
+grimp==3.17
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+hypothesis==6.167.1
+idna==3.19
+import-linter==2.15
+iniconfig==2.3.0
+kiwisolver==1.5.1
+llvmlite==0.49.0
+markdown-it-py==4.2.0
+matplotlib==3.11.2
+mdurl==0.1.2
+numba==0.67.0
+numpy==2.5.3
+packaging==26.3
+pillow==12.3.0
+pluggy==1.6.0
+py-cpuinfo2==10.1.1
+pyarrow==25.0.1
+pydantic==2.13.5
+pydantic_core==2.46.5
+Pygments==2.21.0
+pyparsing==3.3.2
+pytest==9.1.1
+pytest-benchmark==5.3.0
+pytest-xdist==3.8.0
+python-dateutil==2.9.0.post0
+PyYAML==6.0.3
+rich==15.0.0
+six==1.17.0
+sortedcontainers==2.4.0
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+xxhash==4.0.1
+zstandard==0.25.0

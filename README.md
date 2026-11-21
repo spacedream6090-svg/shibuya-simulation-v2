@@ -149,12 +149,18 @@ Python 3.12 以上。GPU なしで動くもの(ビルド・mock ラン・テー�
 Windows(PowerShell)の例。Linux/macOS では `.venv/bin/python` に読み替える。祝日の表は `tests/fixtures/calendar/` の写しが試験のときに自動で `data/calendar/` へ置かれるので、取り出したばかりの状態でも試験は回る(第333)。
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -e ".[dev]"
+python -m venv .venv                                                # Python は 3.12.10(CI と同じ)
+.venv\Scripts\python.exe -m pip install pip==26.2.1
+.venv\Scripts\python.exe -m pip install -r requirements-lock.txt    # 依存の全部をロックの版で
+.venv\Scripts\python.exe -m pip install --no-deps -e .              # 本体は依存なしで
+.venv\Scripts\python.exe -m pip check
+.venv\Scripts\python.exe tools/ci/check_lock.py                     # 入った版がロックと同じか
 .venv\Scripts\lint-imports.exe          # 層契約(実装計画書 §3)
 .venv\Scripts\python.exe -m pytest -q   # 単体・性質テスト(GPU 不要)
 git config core.hooksPath .githooks      # コミット前の検査(秘密スキャン・道筋・ステージの突き合わせ=CLAUDE.md §7)
 ```
+
+依存の版は `requirements-lock.txt` で全部固定している(第348)。CI も同じ順で入れ、入った版がロックと同じかを確かめる。版の上げ方はロックの頭の注に書いた(手で 1 行だけ上げない・byte-check・版上げの履歴に 1 行)。`pyproject.toml` の下限はライブラリとしての宣言で、ロックとは別に持つ。`tools/night5070/` の WSL 側(vLLM・torch)の版の固定は別のもので、このロックには入らない。
 
 **コミットの前(第330・CLAUDE.md §7)**: 入れるはずのファイルの一覧を 1 行 1 パスで作り(改行は何でもよい=道具が正規化する)、明示パスで `git add` したあと、`python tools/commit_check.py --expect <一覧>` で「一覧=ステージ」を確かめてから `git commit`。一覧を `COMMIT_EXPECT` に入れておけば `.githooks/pre-commit` が同じ検査をして、足りない/余計なファイルがあれば commit を止める(第329 の事故=一覧の CRLF で `git add` が 1 本にしか効かず 4 commit が空だった、の再発防止)。一覧が無いときも、記録してはいけない道筋(絶対パス・ユーザー名・サーバー名)の検査は毎回かかる。改行は `.gitattributes`(`* text=auto eol=lf`)で LF に固定している。
 

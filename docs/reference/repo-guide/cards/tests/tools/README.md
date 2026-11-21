@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 26 本・その他 0 本(このディレクトリの直下)
+Python 27 本・その他 0 本(このディレクトリの直下)
 
 ## [test_absent_declarations.py](../../../../../../tests/tools/test_absent_declarations.py)
 
@@ -185,6 +185,24 @@ tools/bytecheck(byte-check の道具・11-09 §2 の 4)の試験。data も長�
 - 読む試験(道筋で): `tests/tools/test_pkgmove.py`
 - 環境変数: `SHIBUYA_BUDGET_MD`・`SHIBUYA_CALENDAR_W20`・`SHIBUYA_CONTACT`・`SHIBUYA_FLEET_API_KEY`・名前を読めない所 5 か所・`os.environ` をまるごと使う
 - 決定の ID: 11-09/§2・第 346・第 347
+
+## [test_ci_check_lock.py](../../../../../../tests/tools/test_ci_check_lock.py)
+
+tools/ci/check_lock.py(入っている版がロックと同じかを CI で確かめる・第348・返事その 9 §1 の 13)の試験。
+
+- 公開の関数とクラス
+  - `test_bad_lock_is_2`(関数)
+  - `test_ci_yml_uses_the_pip_and_python_of_the_lock_head`(関数): ci.yml の 3 つの仕事の pip と Python の版は、ロックの頭の行と同じ(片方だけ上げると落ちる)。
+  - `test_editable_and_comment_lines_in_freeze_are_skipped`(関数)
+  - `test_extra_is_1`(関数)
+  - `test_head_lines_are_checked`(関数)
+  - `test_marker_line_counts_only_where_it_applies`(関数)
+  - `test_missing_is_1`(関数)
+  - `test_other_version_is_1`(関数)
+  - `test_real_lock_covers_the_direct_dependencies_of_pyproject`(関数): pyproject.toml の直の依存(本体と dev)は全部ロックにあり、版が宣言(下限・固定)を満たす。
+  - `test_real_lock_has_the_48_and_the_head_lines`(関数)
+  - `test_same_is_0`(関数)
+- 決定の ID: 第 348
 
 ## [test_commit_check.py](../../../../../../tests/tools/test_commit_check.py)
 
