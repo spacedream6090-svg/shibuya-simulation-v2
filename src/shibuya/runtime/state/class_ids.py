@@ -320,6 +320,7 @@ CLASS_IDS: Final[Mapping[str, str]] = MappingProxyType({
     "shibuya.runtime.inference.fleet.FleetConfig": "shibuya.llm.fleet.FleetConfig",
     "shibuya.runtime.inference.fleet.FleetTapeRow": "shibuya.llm.fleet.FleetTapeRow",
     "shibuya.runtime.inference.fleet.TapeSink": "shibuya.llm.fleet.TapeSink",
+    "shibuya.runtime.inference.fleet._AttemptMark": "shibuya.runtime.inference.fleet._AttemptMark",
     "shibuya.runtime.inference.fleet._FatalHTTP": "shibuya.llm.fleet._FatalHTTP",
     "shibuya.runtime.inference.fleet._Latency": "shibuya.llm.fleet._Latency",
     "shibuya.runtime.inference.fleet._Replica": "shibuya.llm.fleet._Replica",
