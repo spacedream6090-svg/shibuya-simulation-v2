@@ -6,7 +6,7 @@
 
 この段では重みを取らず、GPU・ネットワーク・実 LLM も使っていない。`src/` は変えていない。既定の走らせ方(`--scenes evalset`)と `both` は今のままで、1-10 の記録 `dm61/result.json` と 11-01 の消費の記録の `digest`・`compare_digest` は変わらない(試験で確かめた・§5)。
 
-> **人の値の状態**: 人の値は記録 2-54 にあるものだけを使った。R-149 の追補 1(問 9=人が頼み・看板・禁止の表示に従う率)を別の役が調べている途中なので、表の人の値にはすべて「R-149 の追補 1 で一次確認中」と書いた。
+> **人の値の状態**: 人の値は記録 2-54 にあるものだけを使った。R-149 の追補 1(問 9=人が頼み・看板・禁止の表示に従う率)を別の役が調べている途中なので、表の人の値にはすべて「R-149 の追補 1 で一次確認中」と書いた。〔第348 で直した〕取り方の決まり(記録 2-87)で、R-149 の追補 1 から Langer ら 1978 の値の一次確認が外れ(第三者の写しで読んでいたため)、追補 3 でも原典を読めなかった。表の人の値の状態は「記録 2-54 の文の値(Langer ら 1978 は答申での一次確認なし…)」に直し、下の 5 つのファイルを作り直した。測った値(compare_digest)は同じで、変わったのは状態の文と、それを含む digest と、壁時計の欄だけである。以下の本文の「一次確認中」は、第 347 の時点の書き方である。
 
 ## 1. 作ったもの
 
@@ -124,7 +124,7 @@
 
 ## 4. 今の値(CPU の当て口と対照・この dir の記録)
 
-`python tools/instruments/dm_eval/cli.py run --scenes appeal --out-dir docs/bench/analysis/dm-eval-appeal-347` で書いた(決定論は既定の 32 回)。digest `a2f3bf2118e1f89301f823d07d361e8ea2984c3471b0d32cb7d53e72310372e1`・compare_digest `2e62746fd2f9908b585f3f723bef6796a0eec329ca55098915feb5f01efce0a8`・appeal_digest `388e64a0de0d3c1b729f30130e3a0f90937558679cdb9bb8ef8d4e16292ff3d8`。試験 `test_cli_main_appeal_matches_the_record` が digest と appeal_digest を照らす。
+`python tools/instruments/dm_eval/cli.py run --scenes appeal --out-dir docs/bench/analysis/dm-eval-appeal-347` で書いた(決定論は既定の 32 回)。digest `552a5053500600932763ba57bbd72756af81e3ec962959bf68725fc9a318f8bd`・compare_digest `2e62746fd2f9908b585f3f723bef6796a0eec329ca55098915feb5f01efce0a8`・appeal_digest `d303824e0feb79a81af065215695ba339ddff77af4c8e8ad9c918cd6ddfb1d1b`〔第348 に作り直した値。第 347 の値は digest `a2f3bf21…`・appeal_digest `388e64a0…`。compare_digest は同じ〕。試験 `test_cli_main_appeal_matches_the_record` が digest と appeal_digest を照らす。
 
 | 当て口 | 応じる確率の差 | 分布の差 JSD | 1 位が変わった対の率 | 読み方 |
 |---|---|---|---|---|

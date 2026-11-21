@@ -1898,7 +1898,7 @@ def test_appeal_table_columns_and_blanks(appeal_result):
     assert any("appeal_table.md" in f for f in appeal_result["table"]["footnotes"])
     # 種類・条件ごとの表(人の値の欄つき)
     amd = AP.to_markdown(appeal_result["appeal"])
-    assert "R-149 の追補 1 で一次確認中" in amd and "0.93〜0.94" in amd and "約 0.42" in amd
+    assert "答申での一次確認なし" in amd and "0.93〜0.94" in amd and "約 0.42" in amd
     doc = json.loads(AP.to_json(appeal_result["appeal"]))
     br = doc["breakdown"]["rows"]
     lean0 = next(r for r in br if r["scorer"] == "lean" and r["group"].startswith("request/small/none"))
@@ -1936,7 +1936,9 @@ def test_appeal_human_values_are_the_record_values():
             lo = hc[f"request/{a[0]}/{x}"]["low"] - hc[f"request/{a[0]}/{y}"]["high"]
             hi = hc[f"request/{a[0]}/{x}"]["high"] - hc[f"request/{a[0]}/{y}"]["low"]
         assert (v["low"], v["high"]) == (pytest.approx(lo), pytest.approx(hi)), k
-    assert all(v["status"] == AP.HUMAN_STATUS == "R-149 の追補 1 で一次確認中" for v in list(hc.values()) + list(hx.values()))
+    assert all(v["status"] == AP.HUMAN_STATUS for v in list(hc.values()) + list(hx.values()))
+    # 〔第348〕Langer ら 1978 の値は、答申での一次確認を外した(記録 2-87)。「一次確認中」の表示に戻さない。
+    assert "一次確認なし" in AP.HUMAN_STATUS and "一次確認中" not in AP.HUMAN_STATUS
     assert all("記録 2-54" in v["source"] for v in list(hc.values()) + list(hx.values()))
     assert hx["prohibition/sign/orderly_minus_disorderly"]["low"] is None  # Keizer は値なし(向きの見込みだけ)
 
