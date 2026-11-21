@@ -41,12 +41,15 @@ from shibuya.runtime.inference.fleet import (
     FleetBridgeResult,
     FleetClient,
     FleetConfig,
+    format_check_for,
     plan_batch,
 )
 from shibuya.foundation.manifest.schema import Mode
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
 BAD = "うーん、なんとも言えませんね。"
+#: 〔第348〕橋を通さない口に渡す書式の判定(前の口の既定=語彙 v1 の規則を明示した)。
+V1_FORMAT_CHECK = format_check_for("v1")
 
 
 # ------------------------------------------------------------------ 偽 vLLM
@@ -333,7 +336,7 @@ def test_plan_batch_least_in_flight_on_imbalance():
 @pytest.mark.parametrize("stream", [True, False])
 def test_smoke_all_ok(fleet2, stream):
     cfg = make_config(fleet2, stream=stream)
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         rejected = client.submit([mkcall(i, cell=i % 3, bucket=0) for i in range(24)])
         assert rejected == []
         done = client.drain(timeout=20.0)
@@ -350,13 +353,13 @@ def test_smoke_all_ok(fleet2, stream):
 
 def test_model_discovery(fleet2):
     cfg = make_config(fleet2, model="")
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         assert client.discover_model() == fleet2[0].model
 
 
 def test_payload_carries_cache_salt_seed_and_no_structured_outputs(fleet2):
     cfg = make_config(fleet2, stream=False)
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         salt = client.cache_salt
         client.submit([mkcall(0)])
         client.drain(timeout=20.0)
@@ -377,7 +380,7 @@ def test_t2_lane_uses_thinking_and_infra_clip_ceiling(fleet2):
     call = LLMCall(
         call_id="10:1:0", agent_id=1, tick=10, wake_class=0, prompt="p", user="p", lane="L2"
     )
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([call])
         client.drain(timeout=20.0)
     p = [q for s in fleet2 for q in s.requests][0]
@@ -395,7 +398,7 @@ def test_connection_error_retries_same_then_other(fleet2):
     primary = route_primary(call.call_id, 2)
     other = (primary + 1) % 2
     fleet2[primary].hard_close_remaining = 2  # 初回 + 同一レプリカ再試行 を潰す
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         assert client.submit([call]) == []
         done = client.drain(timeout=20.0)
     assert len(done) == 1
@@ -416,7 +419,7 @@ def test_http_5xx_is_a_connection_error(fleet2):
     call = mkcall(0)
     primary = route_primary(call.call_id, 2)
     fleet2[primary].fail_remaining = 1
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([call])
         done = client.drain(timeout=20.0)
     assert done[0].outcome is Outcome.ERROR_RETRIED_OK
@@ -429,7 +432,7 @@ def test_all_replicas_down_defers_and_does_not_drop(fleet2):
     for s in fleet2:
         s.hard_close_remaining = 10
     call = mkcall(0)
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([call])
         done = client.drain(timeout=20.0)
     assert len(done) == 1  # 呼は消えない
@@ -444,7 +447,7 @@ def test_ttft_timeout_defers_not_discards(fleet2):
     cfg = make_config(fleet2, stream=True, ttft_timeout_s=0.2, e2e_timeout_s=8.0)
     for s in fleet2:
         s.ttft_delay_s = 1.5
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([mkcall(0)])
         done = client.drain(timeout=20.0)
     assert len(done) == 1 and isinstance(done[0], Deferred)
@@ -457,7 +460,7 @@ def test_e2e_timeout_defers(fleet2):
     cfg = make_config(fleet2, stream=False, ttft_timeout_s=0.3, e2e_timeout_s=0.3)
     for s in fleet2:
         s.total_delay_s = 1.5
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([mkcall(0)])
         done = client.drain(timeout=20.0)
     assert isinstance(done[0], Deferred)
@@ -470,7 +473,7 @@ def test_queue_full_is_non_blocking(fleet2):
     for s in fleet2:
         s.total_delay_s = 0.4
     calls = [mkcall(i, cell=i) for i in range(16)]
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         t0 = time.perf_counter()
         rejected = client.submit(calls)
         elapsed = time.perf_counter() - t0
@@ -490,7 +493,7 @@ def test_format_error_regenerates_at_temperature_zero(fleet2):
     call = mkcall(0)
     primary = route_primary(call.call_id, 2)
     fleet2[primary].bad_format_remaining = 1
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([call])
         done = client.drain(timeout=20.0)
     assert done[0].outcome is Outcome.FORMAT_RETRY_OK
@@ -567,7 +570,7 @@ def test_fleet_client_is_drop_in_for_existing_llm_bridge(fleet2, tmp_path: Path)
     from shibuya.runtime.inference.bridge import LLMBridge, StubRenderer
 
     cfg = make_config(fleet2, stream=False)
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         bridge = LLMBridge(client, renderer=StubRenderer(), mode="record")
         res = bridge.call(7, 3, 2, 0, cell=1)
     assert res.text == GOOD
@@ -614,7 +617,7 @@ def test_counters_account_for_every_call(fleet3):
 
 def test_in_flight_returns_to_zero_after_drain(fleet2):
     cfg = make_config(fleet2, stream=True)
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([mkcall(i, cell=i % 5) for i in range(12)])
         client.drain(timeout=20.0)
         assert client.outstanding == 0
@@ -668,7 +671,7 @@ def test_out_of_vocabulary_action_is_counted_as_dictionary_mapped(fleet2):
 def test_temperature_and_max_tokens_are_configurable_and_recorded(fleet2):
     """``--temperature 0.7 --max-tokens 96`` 相当が payload と manifest 欄に載る。"""
     cfg = make_config(fleet2, stream=False, temperature=0.7, t1_max_tokens=96)
-    with FleetClient(cfg) as client:
+    with FleetClient(cfg, format_check=V1_FORMAT_CHECK) as client:
         client.submit([mkcall(0)])
         client.drain(timeout=20.0)
     p = [q for s in fleet2 for q in s.requests][0]

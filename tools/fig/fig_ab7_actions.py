@@ -97,7 +97,7 @@ def analyze_arm(tape_dir: str | Path) -> dict[str, Any]:
     routes: dict[str, dict[str, Any]] = {}
     empty_action = 0
     for r in live:
-        p = parse_two_line(str(r.response))
+        p = parse_two_line(str(r.response), "v1")
         raw = (p.raw_action or "").strip()
         if not raw:
             empty_action += 1

@@ -75,7 +75,7 @@ def analyze(tape_dir: str | Path) -> dict[str, Any]:
         text = row.response or ""
         if not text.strip():
             n_empty += 1
-        p = parse_two_line(text)
+        p = parse_two_line(text, "v1")
         if not p.format_ok:
             n_effective_bad += 1
         if not p.strict_format_ok:

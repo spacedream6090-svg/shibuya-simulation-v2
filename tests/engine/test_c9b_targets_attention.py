@@ -197,13 +197,13 @@ def test_landmark_mask_and_name_table():
 
 def test_parse_target_resolves_a_proper_name_to_a_poi():
     table = _world_with_landmark().landmark_targets()
-    got = parse_target("ハチ公像", table)
+    got = parse_target("ハチ公像", table, vocab_version="v1")
     assert got.kind is TargetKind.ITEM_CATEGORY  # **型は増やさない**(店 ID 枠の再利用)
     assert got.poi_id == 0 and got.category == "ハチ公像"
     # 表を渡さなければ現行どおり(``poi_id`` は付かない)
-    assert parse_target("ハチ公像").poi_id is None
+    assert parse_target("ハチ公像", vocab_version="v1").poi_id is None
     # 駅名の判定は目印より**先**=表を渡しても動かない
-    assert parse_target("渋谷駅", table).kind is TargetKind.STATION_OR_VEHICLE
+    assert parse_target("渋谷駅", table, vocab_version="v1").kind is TargetKind.STATION_OR_VEHICLE
 
 
 def test_landmark_resolution_order_prefers_the_tightest_name():
@@ -221,7 +221,7 @@ def test_real_assets_have_the_68_landmarks_and_resolve_hachiko():
     w = World.load("data/world/v2")
     assert int(w.landmark_mask.sum()) == 68
     table = w.landmark_targets()
-    pid = parse_target("ハチ公像", table).poi_id
+    pid = parse_target("ハチ公像", table, vocab_version="v1").poi_id
     assert pid is not None and w.assets.poi_name[pid] == "忠犬ハチ公像"
 
 

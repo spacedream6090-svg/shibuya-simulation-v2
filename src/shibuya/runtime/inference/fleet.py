@@ -77,6 +77,7 @@ expedient(本モジュール分・登録簿 §8「C6 艦隊接続」へ転記)
 from __future__ import annotations
 
 import asyncio
+import functools
 import json
 import math
 import os
@@ -132,6 +133,7 @@ __all__ = [
     "LANE_TIER", "DEFAULT_TTFT_TIMEOUT_S", "DEFAULT_E2E_TIMEOUT_S", "DEFAULT_IMBALANCE_THRESHOLD", "FleetConfig",
     "TapeSink", "FleetTapeRow", "DEBUG_FILENAME", "DEFAULT_DEBUG_MAX_ROWS", "FleetClient", "FleetBridge",
     "FleetBridgeResult", "plan_batch", "l6_in_flight_per_gpu", "l4_calls_per_day", "call_from_request",
+    "format_check_for",
 ]
 
 
@@ -568,12 +570,16 @@ class FleetClient:
 
     ``LLMClient`` プロトコル(``complete``)も満たすので、既存の
     ``engine.llm_bridge.LLMBridge(llm=client)`` にそのまま挿さる(**1 呼ずつの同期経路**=
-    スモーク/デバッグ用。繰り延べは例外 ``FleetDeferredError`` になる)。
+    スモーク/デバッグ用。繰り延べは例外 ``FleetDeferredError`` になる)。〔第348〕この使い方では書式の判定を
+    ``format_check=format_check_for(版)`` で渡す。渡さない口は書式の再生成をしない(前は v1 の判定で再生成していた)。
 
     Args:
         config: 艦隊設定。
         transport_factory: ``endpoint -> httpx.AsyncBaseTransport``(テストの偽 vLLM 用)。
-        format_check: 応答本文 → 書式 OK か(既定=2行形パーサ)。``None`` で再生成を切る。
+        format_check: 応答本文 → 書式 OK か。〔第348〕``None``(既定)では口は判定を持たず、``FleetBridge`` が
+            組み立てのときに橋の語彙(=ランの語彙)を結んだ判定 ``format_check_for(版)`` を渡す(``bind_run_vocab``)。
+            明示して渡した判定は橋が結び直さない。橋を通さず判定も渡さない口は再生成しない(語彙の既定を持たない)。
+            再生成そのものを切るのは ``FleetConfig.format_retry=False``。
     """
 
     def __init__(
@@ -590,11 +596,10 @@ class FleetClient:
         self.queue_capacity = config.resolved_queue_capacity()
         self.model = config.model
         self._transport_factory = transport_factory
-        self._format_check: Callable[[str], bool] | None = (
-            format_check if format_check is not None else (_format_ok if config.format_retry else None)
-        )
-        if not config.format_retry:
-            self._format_check = None
+        # 〔第348〕判定の既定(前は語彙を見ない ``_format_ok`` =v1 の規則)を無くした。渡さなければ橋が結ぶ。
+        self._format_check: Callable[[str], bool] | None = format_check if config.format_retry else None
+        #: 判定を明示して渡したか(明示した判定は ``bind_run_vocab`` が結び直さない)。
+        self._format_check_given = format_check is not None
 
         n = config.n_replicas
         self._lock = threading.Lock()
@@ -791,6 +796,16 @@ class FleetClient:
             except Exception as exc:  # noqa: BLE001 - どのレプリカでも良い
                 last = exc
         raise RuntimeError(f"/v1/models からモデル名が取れない: {last}")
+
+    # ------------------------------------------------------------ 書式の判定にランの語彙を結ぶ(第348)
+    def bind_run_vocab(self, vocab_version: str) -> None:
+        """書式の判定を、ランの語彙 ``vocab_version`` の規則で読む判定にする(``FleetBridge`` が組み立てのときに呼ぶ)。
+
+        ``format_retry`` を切った口と、``format_check`` を明示して渡した口には何もしない。同じ口を別の語彙のランで
+        使い直したときは、後の橋の語彙で結び直す。
+        """
+        if self.config.format_retry and not self._format_check_given:
+            self._format_check = format_check_for(vocab_version)
 
     # ------------------------------------------------------------ 発射
     def submit(self, calls: Sequence[LLMCall]) -> list[LLMResult | Deferred]:
@@ -1273,8 +1288,11 @@ def _debug_reason(p: ParseResult) -> str:
     return "other"
 
 
-def _format_ok(text: str) -> bool:
+def _format_ok(text: str, vocab_version: str) -> bool:
     """再生成するかの判定(=**実効**基準・行動契約書 §1)。
+
+    〔第348〕``vocab_version`` はランの語彙(``format_check_for`` が結ぶ)。前は語彙を渡さずパーサの既定 v1 で読み、
+    語彙 v3 のランの「なし」「食事」と、語彙 v2 のランの「食事」を書式の誤り=温度 0 の再生成に回していた。
 
     **C6・09-09**: 次のどちらかで読めたら**温度 0 の再生成をしない**。
       ① ``format_ok``(C6 のラベル別名「目的地:」「目的:」や位置読みを許容した寛容判定)。
@@ -1283,8 +1301,16 @@ def _format_ok(text: str) -> bool:
     段0 で確実に救えるので、**辞書写像へ直行**させる(``fleet_dictionary_mapped`` に計上)。
     定義を動かさない受入指標のほうは ``strict_format_ok`` で別に数える。
     """
-    p = parse_two_line(text)
+    p = parse_two_line(text, vocab_version)
     return bool(p.format_ok or p.dictionary_candidate)
+
+
+def format_check_for(vocab_version: str) -> Callable[[str], bool]:
+    """ランの語彙 ``vocab_version`` を結んだ書式の判定(``FleetClient`` の ``format_check`` の口に渡す形・第348)。
+
+    不正な版は ``ValueError``(``check_vocab_version``)。
+    """
+    return functools.partial(_format_ok, vocab_version=check_vocab_version(vocab_version))
 
 
 def _raise_for_status(status: int, body: str) -> None:
@@ -1435,6 +1461,8 @@ class FleetBridge:
         self.tape_row_factory = tape_row_factory
         #: 行動語彙の版(D-71 §3 F)。既定 ``"v1"`` は現行と 1 バイトも変わらない。
         self.vocab_version = check_vocab_version(vocab_version)
+        # 〔第348〕口の書式の判定に、橋の語彙(=組み立てが渡すランの語彙)を結ぶ。
+        client.bind_run_vocab(self.vocab_version)
         #: 目印の「名 → POI 索引」表(C9b G6 a′)。``None`` なら現行どおり。
         self.landmarks = landmarks
         #: その版で**エンジンに適用分岐がある**語 → コード(``engine.llm_bridge`` と同規約)。

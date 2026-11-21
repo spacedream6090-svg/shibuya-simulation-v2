@@ -2,7 +2,7 @@
 
 自動生成(手で編集しない): `python tools/repo_guide/build.py`
 
-Python 10 本・その他 0 本(このディレクトリの直下)
+Python 12 本・その他 0 本(このディレクトリの直下)
 
 ## [__init__.py](../../../../../../tests/llm/__init__.py)
 
@@ -41,7 +41,7 @@ llm.contract の**転記テスト**(行動契約書 §2.1/§2.2 の表が1行も
   - `test_vocabulary_limit_of_the_contract_is_respected`(関数): §2「種別あたりの語彙上限24語」。
 - import している内部モジュール: `shibuya.foundation.vocab.actions`・`shibuya.foundation.vocab.agent_codes`
 - 読む試験(道筋で): `tests/tools/test_repo_guide.py`
-- 決定の ID: D-89・D-92・D-116・第 223・第 271・第 274・第 275・第 275 #6・第 275 #7
+- 決定の ID: D-89・D-92・D-116・第 223・第 271・第 274・第 275・第 275 #6・第 275 #7・第 348
 
 ## [test_fleet.py](../../../../../../tests/llm/test_fleet.py)
 
@@ -82,7 +82,8 @@ C6-a 艦隊接続の検収テスト(**プロセス内の偽 vLLM**・実サー�
   - `test_temperature_and_max_tokens_are_configurable_and_recorded`(関数): ``--temperature 0.7 --max-tokens 96`` 相当が payload と manifest 欄に載る。
   - `test_ttft_timeout_defers_not_discards`(関数): TTFT 超過 = 繰り延べ(破棄禁止・憲法1)。再試行はしない。
 - import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.tape`
-- 読む試験: `tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet_pool_orphans.py`・`tests/perception/facts/test_percept_is_scratch.py`
+- 読む試験: `tests/engine/test_10a_review_fixes.py`・`tests/engine/test_fleet_wiring.py`・`tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/test_state_ledger_10b.py`・`tests/engine/test_tape_deferred.py`・`tests/engine/test_version_bump_10e.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet_pool_orphans.py`・`tests/llm/test_fleet_run_vocab_348.py`・`tests/perception/facts/test_percept_is_scratch.py`
+- 決定の ID: 第 348
 
 ## [test_fleet_auth.py](../../../../../../tests/llm/test_fleet_auth.py)
 
@@ -92,6 +93,7 @@ C6-a 艦隊接続の検収テスト(**プロセス内の偽 vLLM**・実サー�
   - `test_bearer_header_when_env_set`(関数)
   - `test_no_header_without_env`(関数)
 - import している内部モジュール: `shibuya.foundation.ports.inference`・`shibuya.runtime.inference.fleet`
+- 決定の ID: 第 348
 
 ## [test_fleet_contract.py](../../../../../../tests/llm/test_fleet_contract.py)
 
@@ -116,7 +118,7 @@ C6-a 艦隊接続の契約テスト(層契約・純関数・性質)。HTTP サ�
   - `test_split_llm_parts_import_no_forbidden_layer`(関数): 〔割る段 5a の G3・検収の低 1〕古い決まり「``llm`` は engine/perception/world/agents を import しない」は、``llm/`` が
   - `test_split_system_user`(関数)
 - import している内部モジュール: `shibuya.act.intake.undefined`・`shibuya.act.intent`・`shibuya.build`・`shibuya.economy.ledger`・`shibuya.foundation.budget`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.foundation.text.templates`・`shibuya.runtime.inference.bridge`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.mock`・`shibuya.world.facts.population_reader`・`shibuya.world.model.state`・`tests/_places.py`
-- 決定の ID: D-58
+- 決定の ID: D-58・第 348
 
 ## [test_fleet_pool_orphans.py](../../../../../../tests/llm/test_fleet_pool_orphans.py)
 
@@ -129,6 +131,26 @@ C6-a 艦隊接続の契約テスト(層契約・純関数・性質)。HTTP サ�
   - `test_success_resets_the_streak_and_late_timeouts_on_the_old_client_do_not_chain`(関数): 続いた数は、今のクライアントでの成功で 0 に戻る。作り直した後、古いクライアントで切れた試行は数えない。
 - import している内部モジュール: `shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.runtime.inference.fleet`・`tests/llm/test_fleet.py`
 - 決定の ID: 第 348
+
+## [test_fleet_run_vocab_348.py](../../../../../../tests/llm/test_fleet_run_vocab_348.py)
+
+第 348(返事その 9 §1 の 19・§5-2 の 6): 艦隊の書式の判定にランの語彙を渡す(記録 library-defaults-q13-347 §4-8 の 1)。
+
+- 公開の関数とクラス
+  - `fleet2`(関数)
+  - `test_client_without_a_bridge_or_a_check_does_not_regenerate`(関数): 橋を通さず判定も渡さない口は、書式の判定を持たない(語彙の既定を持たない=再生成しない)。
+  - `test_explicit_format_check_is_kept_by_the_bridge`(関数): ``format_check`` を明示して渡した口は、橋が結び直さない(渡した判定が勝つ)。
+  - `test_format_check_for_binds_the_vocab`(関数): ``format_check_for(版)`` はその版の規則で読む判定(不正な版は止める)。
+  - `test_format_retry_off_stays_off`(関数): ``format_retry=False`` の口には、橋が判定を結ばない(再生成しない)。
+  - `test_v1_and_v2_bridges_judge_as_before`(関数): 語彙 v1・v2 の橋では、前と同じ判定(再生成するかと要求の数)。
+  - `test_v1_run_judges_v3_none_as_before`(関数): ``run_day(vocab_version="v1", fleet=…)`` では、v3 の形の「なし」は前と同じく書式の誤り(全呼を再生成)。
+  - `test_v2_bridge_no_longer_retries_eat`(関数): 〔第 348 で変わる判定〕語彙 v2 の橋の「食事」の応答。前は判定が v1 の規則で読み、書式の誤り=再生成していた
+  - `test_v3_bridge_does_not_count_none_and_eat_as_format_errors`(関数): 語彙 v3 の「なし」「食事」は書式どおり=再生成しない(1 呼 = 1 要求)。
+  - `test_v3_bridge_regenerates_format_errors`(関数): 〔検収 中-2〕語彙 v3 の橋は、書式の誤りを温度 0 で再生成する(橋が判定を結ばないと再生成が丸ごと切れる退行を捕まえる)。
+  - `test_v3_run_does_not_regenerate_none_and_eat`(関数): ``run_day(vocab_version="v3", fleet=…)``: 組み立てが作る橋がランの語彙を口に結ぶ=「なし」「食事」で再生成しない。
+  - `test_v3_run_regenerates_every_broken_answer`(関数): 〔検収 中-2〕``run_day(vocab_version="v3", fleet=…)`` で、書式の誤りの応答は全呼を温度 0 で再生成する。
+- import している内部モジュール: `shibuya.runtime.inference.fleet`・`tests/engine/test_fleet_wiring.py`・`tests/llm/test_fleet.py`
+- 決定の ID: 第 275・第 275 #4・第 348
 
 ## [test_mock_v3.py](../../../../../../tests/llm/test_mock_v3.py)
 
@@ -229,6 +251,22 @@ llm.parser のテスト(ラベル基準の寛容行指向・**例外を投げな
   - `test_well_formed_output_round_trips_through_format_two_line`(関数)
 - import している内部モジュール: `shibuya.act.intake.parser`・`shibuya.foundation.vocab.actions`
 - 決定の ID: D-89・D-113・D-116・第 223・第 266・第 274・第 275・第 275 #4
+
+## [test_parser_run_vocab_348.py](../../../../../../tests/llm/test_parser_run_vocab_348.py)
+
+第 348(返事その 9 §1 の 19・§5-2 の 6): 低い層の既定 v1 に頼って読んでいた 8 か所に、ランの語彙を渡す。
+
+- 公開の関数とクラス
+  - `test_empty_result_reads_with_the_given_vocab`(関数): ``_empty_result`` の 2 か所(本文が None・空)。v3 なら活動=なし・まで=既定の形。
+  - `test_fill_positional_first_token_reads_with_the_given_vocab`(関数): 2 回目の ``find_action_word``(先頭の語)。v3 では先頭の「なし」が行動語=位置で読む(対象=移動)。
+  - `test_fill_positional_whole_field_reads_with_the_given_vocab`(関数): 1 回目の ``find_action_word``(行動欄の全体)。v3 では「なし」が行動語=先頭の語に無いので位置で読まない。
+  - `test_is_role_action_reads_with_the_given_vocab`(関数): ``is_role_action`` の 1 か所。v3 では「並ぶ」は横断語(役割語でない)。
+  - `test_low_level_functions_need_the_vocab`(関数): 8 か所が頼っていた低い層の既定は無い=語彙を渡さないと呼べない(``TypeError``)。
+  - `test_parse_action_reads_with_the_given_vocab`(関数): ``parse_action`` は語彙を受け取り ``parse_two_line`` へ渡す。v3 では「待機」は欠番=未定義。
+  - `test_parse_target_reads_with_the_given_vocab`(関数): ``parse_target`` の 1 か所。v3 だけ「対象: あたり」が歩き回り(``wander``)。
+  - `test_v2_readings_that_change`(関数): 〔第 348 で変わる読み〕語彙 v2 のランで、行動欄に「食事」があり、ラベルを省いた応答。``_fill_positional`` が v2 の語を見る
+- import している内部モジュール: `shibuya.act.intake.from_words`・`shibuya.act.intake.parser`・`shibuya.foundation.vocab.act_codes`・`shibuya.foundation.vocab.actions`・`shibuya.runtime.inference.fleet`
+- 決定の ID: 第 348
 
 ## [test_undefined.py](../../../../../../tests/llm/test_undefined.py)
 

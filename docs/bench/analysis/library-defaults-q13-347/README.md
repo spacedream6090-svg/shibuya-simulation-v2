@@ -184,7 +184,7 @@ src の当て外しは作業木の差分の patch の `git apply` / `git apply -
   閉める・補充は energy でも本人。監査の違反は 0)。
 - CLI の既定(energy)で店の仕事の腕を確かめる試験は、今は無い。試験は空腹 v1(試験の中だけの口)のまま残した(親の裁定)。
 
-### 4-8 見つけた欠陥(直していない=ユーザーの判断待ち)
+### 4-8 見つけた欠陥(直していない=ユーザーの判断待ち)〔第 348 で直した=§5〕
 
 - `llm.fleet._format_ok` は語彙を渡さずに読む=艦隊の v3 のラン(CLI の既定)で「なし」「食事」の応答が書式の誤りになり、温度 0 の
   再生成が 1 呼増える。mock と byte-check には効かない。
@@ -307,3 +307,100 @@ src の当て外しは作業木の差分の patch の `git apply` / `git apply -
 - 所要は、群 1 のときの同じ形の回(37 分 41 秒)より約 1 分半長い。引数を渡さずに `run_day` を呼ぶ試験が、呼数の多い別のランに
   なったぶんと見ている(**推測**。機械の揺れと分けて測ってはいない)。
 - 再検収の中 M-1 の直し(§4-16)は、この回に入っている。`tests/c7` は手元では回していない(CI で回る)。
+
+## 5. 欠陥 2 つの直し(第 348)
+
+元の指示は返事その 9 §1 の 19・§5-2 の 6。§4-8 の 2 つ(艦隊の書式の判定・低い層の既定 v1 に頼って読む 8 か所)を直した。実 LLM の道だけが変わる。
+
+### 5-1 棚卸し(直す前)
+
+| 記録の名(§4-8) | 今の置き場 | 頼っていた低い層の既定 | 呼び手(既定に頼る数/全部)src・tests・tools・docs |
+|---|---|---|---|
+| `_parse` の 2(本文が None・空) | `act/intake/parser.py` の `_parse` | `_empty_result(errors, vocab_version="v1")` | src 2/5・ほか 0 |
+| `_parse` の 1(対象) | 同上 | `foundation/vocab/actions.py` の `parse_target(..., vocab_version="v1")` | src 1/2・tests 58/64 |
+| `_parse` の 1(役割語) | 同上 | `actions.is_role_action(word, vocab_version="v1")` | src 1/4・tests 1/4・tools 1/1 |
+| `_fill_positional` の 2 | `act/intake/parser.py` の `_fill_positional` | `parser.find_action_word(text, vocab_version="v1")` | src 2/10・tests 3/3 |
+| `commit.parse_action` | `act/intake/from_words.py` の `parse_action` | `parser.parse_two_line(text, vocab_version="v1")` | src 2/6・tests 65/104・tools 3/7・docs 2/15 |
+| `fleet._format_ok` | `runtime/inference/fleet.py` の `_format_ok`(`FleetClient` の既定の判定) | 同上 | 同上 |
+
+- `parse_action` は src に呼び手が無い(試験 9 か所だけ)。`_format_ok` は `FleetClient` の `format_check` の既定としてだけ使われる。
+- mock のランが通るか: 語彙 v1・v2 の構成(byte-check の 19 構成のうち 13)は `_parse` の 4 か所を通る。ただし `_empty_result`・`parse_target`・
+  `is_role_action` は v1 と v2 で同じ規則なので、ランの語彙を渡しても値は同じ。`_fill_positional` の 2 か所は、対象とひと言のラベルが両方
+  ある応答では手前で返る。mock の v1・v2 の応答は `format_two_line` の形でいつも両方あるので、2 か所には届かない。`parse_action` は src に
+  呼び手が無く、`_format_ok` は艦隊のランだけ。v3 の構成は `_parse_v3` を通るので 8 か所に届かない。よって mock の結果は動かない見立て
+  (byte-check は親が回す)。
+- src の中で語彙の既定を持つ関数は 34(`vocab_version` 33+`MockLLM` の語の並び `vocab`)。報告 347 §11 の 15 の「33 関数」と同じ数え方。
+
+### 5-2 したこと
+
+- 8 か所にランの語彙を渡した。`_parse` は受けた語彙を `_empty_result`・`parse_target`・`is_role_action`・`_fill_positional` へ渡す。
+  `_fill_positional` は語彙を受け、`find_action_word` の 2 回へ渡す。`parse_action(text, vocab_version)` は `parse_two_line` へ渡す。
+- 艦隊の書式の判定: `_format_ok(text, vocab_version)` と、版を結んだ判定を作る `format_check_for(版)` を足した。`FleetClient` は判定の
+  既定を持たない(`format_check=None` のとき口は判定を持たない)。`FleetBridge` が組み立てのときに `client.bind_run_vocab(橋の語彙)` を
+  呼び、ランの語彙の判定を結ぶ。組み立て(`runtime/systems/assemble.py`)は前から `FleetBridge` にランの語彙を渡しているので、配線は
+  変えていない。明示して渡した判定は結び直さない。`format_retry=False` の口には結ばない。
+- 低い層の既定を無くした 5 関数: `parse_two_line`・`find_action_word`・`_empty_result`・`is_role_action`・`parse_target`(`parse_target` は
+  `landmarks` の後ろなので、語彙はキーワードだけで渡す形にした)。`_fill_positional`・`parse_action`・`_format_ok` は語彙を必ず受ける。
+- 既定に頼っていた呼び手は、前と同じ値 `"v1"` を明示した(機械で当てた・台本は scratchpad): tests 136 か所(13 ファイル)・tools 4 か所(`c6/c6lib.py` 2・
+  `fig/fig_ab7_actions.py`・`vocab/registry_from_tape.py`)。橋を通さない `FleetClient` 17 か所(`tests/llm/test_fleet.py` 14・
+  `test_fleet_auth.py`・`test_fleet_contract.py`・`tools/vocab/adjudicate.py`)に `format_check=format_check_for("v1")` を明示した。
+  `FleetBridge` を通す口は、橋の語彙(試験は前と同じ v1)で結ばれる。
+- docs の古い台本で既定に頼る呼び出しは 2(`wallbounce-1003/r86/ab7_sample.py`・`ab7_surface_counts.py`)。どちらも今は無い
+  `shibuya.llm` を読むので import で止まる=誤った結果を黙って書く形ではない。直していない。
+
+### 5-3 前と変わる所(実 LLM の道だけ)
+
+- 語彙 v3 のランの再生成は、減る応答と増える応答の両方がある。
+  - 減る: 「なし」「食事」の応答を書式の誤りに数えない(直したい欠陥そのもの)。
+  - 増える〔検収 中-1〕: 活動かまでを欠く応答と、v1 の 4 ラベルの形(「…対象: C-0001 ひと言: なし」)。前は v1 の規則で読まれ、
+    ひと言の位置読みで書式どおりと判定されていた。今は v3 の規則で書式の誤り=温度 0 で再生成する。
+- 語彙 v2 のラン: 「食事」の応答も、前は v1 の規則で書式の誤り=再生成していた。今は再生成しない。ラベルを省いた応答のうち行動欄に
+  「食事」がある形で、位置で読むかが変わる(例 2 つを試験に固定)。発注文の「v2 は今までどおり」とは違う(同じ欠陥が v2 にもあった)。
+- 語彙 v2・v3 のラン〔検収 中-1〕: 語彙の外の語を辞書で救えるか(``dictionary_candidate``=救えれば再生成しない)も、ランの語彙の表で
+  引くようになった(前は v1 の表 `undefined-synonyms-v2`)。v2(表 v4)で新たに救える語は 6(見る・近づく・近寄る・食事する・食事を・
+  飲食)、v3(表 v5)では 11(ぶらつく・休憩・待機・散歩・見る・近づく・近寄る・降車・食事する・食事を・飲食)。これらの語の応答は
+  再生成しなくなる(休憩・待機・降車は v1 では行動語なので、判定は前と同じ)。救えなくなる語は無い(コードで 3 つの表を比べて確かめた)。
+- まとめ: 再生成の数は、v3 では増えも減りもする。5070 のランでは、再生成の数の前後を、増えた分と減った分に分けて見る。
+- 語彙 v3 のランに v1 の形の応答を返す偽の艦隊(`tests/c6/_fake_vllm.py` を使う `tests/c6/test_l4_l6_budget.py` の艦隊の 3 本)は、
+  上の「増える」の例。前は再生成しなかった応答を再生成するようになった(確かめる中身は呼の上限と受理待ちの枠で、変わらず通る)。
+
+### 5-4 試験
+
+- `tests/llm/test_parser_run_vocab_348.py`: 8 か所のうち 7 か所(パーサの 6・`parse_action`)が渡した語彙で読むこと、v1・v2 で前と同じ
+  こと、v2 で変わる読み 2 つ、既定を無くした 8 つの口が語彙なしで呼べないこと。
+- `tests/llm/test_fleet_run_vocab_348.py`: 橋の語彙 v3 で「なし」「食事」を再生成しない(1 呼 1 要求)・v1 と v2 の橋の前の判定・v2 の
+  「食事」の新しい判定・明示した判定と `format_retry=False` の扱い・橋を通さない口・`format_check_for`・`run_day` の形(v3 で再生成しない・
+  v1 は前と同じ)。
+- 直す前のコードで 25 本が赤、8 本(v1・v2 の固定と口の決まり)が緑。直した後は 33 本とも緑。
+- 〔検収 中-2〕v3 の「再生成する」向きの 3 本を足した(橋の v3 で書式の誤りと v1 の 4 ラベルの形を再生成する 2・`run_day` の v3 で書式の誤りを
+  全呼再生成する 1)。橋が語彙を結ぶ 1 行を外すと、この 3 本と v1・v2 の 4 本の計 7 本が赤になる(確かめて戻した)。今は 36 本とも緑。
+
+### 5-5 残した既定(28)
+
+語彙の既定を持つ関数は 34 → 28(27 が `vocab_version`・1 が `MockLLM.vocab`)。今回は 8 か所が頼っていた 5 関数と、使われていなかった
+`parser._parse` の既定〔検収 低-2・呼び手は `parse_two_line` の 1 か所で、いつも渡していた〕を無くした。残り:
+`act/apply.apply`・`from_words.undefined_fallback_code`・`from_words.intents_from_responses`・`ParseResult.with_dictionary_mapping`・
+`undefined` の 7(`synonym_table`・`synonym_table_version`・`target_hints`・
+`target_surface_hint`・`fallback_actions`・`map_synonym`・`UndefinedActionRegistry.__init__`)・`templates` の 3(`role_words_line`・
+`b0_system`・`b0_sha256`)・`actions` の 8(`action_words`・`cross_action_words`・`role_action_words`・`safe_action_word`・
+`engine_action_codes`・`compat_word`〔既定 v2〕・`action_code_of`・`spec_of`)・
+`Renderer.__init__`・`LLMBridge.__init__`・`FleetBridge.__init__`・`run_day`(ランの入口・v3)・`weekly_reader.activity_to_action`・
+`MockLLM.__init__`(`vocab`)。欄の既定は `RunResult.vocab_version`(v3)の 1 つ。
+
+- 〔検収 低-1〕`FleetBridge.__init__` の既定 v1 は残した。語彙を渡さずに橋を作ると、v1 の書式の判定が黙って口に結ばれる。src で橋を作るのは
+  組み立て(`runtime/systems/assemble.py`)の 1 か所だけで、そこはランの語彙を渡している。試験は既定の v1 で橋を作る所が約 10 か所ある。
+  前は口そのものが v1 の判定を持っていたので、危うさは前より増えていない。橋の語彙をキーワードの必須にするのは次の版上げの候補。
+
+### 5-6 まだ確かめていないこと
+
+- 実 LLM(5070 の艦隊)のランでの確かめ(再生成の数の前後)。偽の艦隊の試験だけで確かめた。
+- byte-check の 19 構成と範囲の全体の試験(親)。data の要る試験(作業木に data が無い)。
+
+### 5-7 見つけたが直していないこと
+
+- 〔検収 低-4〕`"v1"` を明示したことで見えるようになった、前からの食い違い(挙動を変えるので直していない。値の合否は変わらない):
+  `tools/c6/c6lib.py` の `score_texts` は引数の語彙をパースと辞書に渡すのに、役割語の判定だけ v1 で見る(v3 では「並ぶ」が違う)。
+  テープを読む 2 本(`tools/vocab/registry_from_tape.py`・`tests/engine/tape_analysis.py`)は、テープの語彙によらず v1 で読む。
+  `tests/engine/test_intent_hold.py` は v3 の apply とランの中で `parse_target(…, vocab_version="v1")` を使う(使う語は v1 と v3 で同じ値)。
+- `tools/vocab/adjudicate.py` は JSON の草案を艦隊で起草するのに、v1 の 2 行形の書式の判定を持つ=草案ごとに 1 呼の再生成が出る
+  (前から。前と同じに回すため v1 を明示した)。

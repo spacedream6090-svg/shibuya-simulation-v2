@@ -12,7 +12,9 @@ import json
 import httpx
 import pytest
 
-from shibuya.runtime.inference.fleet import FLEET_API_KEY_ENV, FleetClient, FleetConfig, fleet_auth_headers
+from shibuya.runtime.inference.fleet import (
+    FLEET_API_KEY_ENV, FleetClient, FleetConfig, fleet_auth_headers, format_check_for,
+)
 from shibuya.foundation.ports.inference import LLMCall, Outcome
 
 GOOD = "理由: 予定の時間になったから\n行動: 移動 対象: C-0001 ひと言: なし"
@@ -33,7 +35,8 @@ def _run_one(seen: list[str]) -> Outcome:
 
     cfg = FleetConfig(endpoints=("http://a", "http://b"), model="fake", per_replica_in_flight=2, queue_capacity=8,
                       stream=False, e2e_timeout_s=2.0, ttft_timeout_s=2.0)
-    client = FleetClient(cfg, transport_factory=factory)
+    # 〔第348〕橋を通さない口=前の口の既定(語彙 v1 の書式の判定)を明示する。
+    client = FleetClient(cfg, transport_factory=factory, format_check=format_check_for("v1"))
     try:
         client.submit([LLMCall(call_id=f"1:{a}:2", agent_id=a, tick=1, wake_class=2, prompt="p", user="p")
                        for a in range(4)])

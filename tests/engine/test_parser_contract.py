@@ -58,29 +58,29 @@ def test_resolve_has_one_branch_per_contract_word():
 @pytest.mark.parametrize("word", list(ACTION_VOCAB_12))
 def test_parse_action_round_trips_every_contract_word(word):
     text = format_two_line("理由の文", word, "なし", "なし")
-    assert CW.parse_action(text) == ACTION_CODES[word]
+    assert CW.parse_action(text, "v1") == ACTION_CODES[word]
 
 
 @pytest.mark.parametrize("word", list(ROLE_ACTION_WORDS))
 def test_role_words_are_parsed_but_are_not_engine_intents_yet(word):
     """役割語はパーサが読む(全員に見せる)が、``_APPLY`` に分岐が無いので未定義扱いに落とす。"""
     text = format_two_line("理由の文", word, "なし", "なし")
-    assert parse_two_line(text).action == word
-    assert CW.parse_action(text) == UNDEFINED_ACTION
+    assert parse_two_line(text, "v1").action == word
+    assert CW.parse_action(text, "v1") == UNDEFINED_ACTION
 
 
 def test_parse_action_delegates_to_the_canonical_parser():
     """C2 の最小写像では読めなかった形(行内分割・箇条書き)も読める=委譲の証拠。"""
     packed = "理由: 用事 行動: 移動 対象: C-1 ひと言: なし"
-    assert CW.parse_action(packed) == ACTION_CODES["移動"]
+    assert CW.parse_action(packed, "v1") == ACTION_CODES["移動"]
     bulleted = "- 理由: 眠い\n- 行動: 就寝 対象: C-2 ひと言: なし"
-    assert CW.parse_action(bulleted) == ACTION_CODES["就寝"]
+    assert CW.parse_action(bulleted, "v1") == ACTION_CODES["就寝"]
 
 
 def test_parse_action_returns_undefined_for_non_contract_output():
-    assert CW.parse_action("これは2行形ではない") == UNDEFINED_ACTION
-    assert CW.parse_action("") == UNDEFINED_ACTION
-    assert CW.parse_action("理由: あ\n行動: 買う 対象: パン ひと言: なし") == UNDEFINED_ACTION
+    assert CW.parse_action("これは2行形ではない", "v1") == UNDEFINED_ACTION
+    assert CW.parse_action("", "v1") == UNDEFINED_ACTION
+    assert CW.parse_action("理由: あ\n行動: 買う 対象: パン ひと言: なし", "v1") == UNDEFINED_ACTION
 
 
 def test_contract_tags_are_declared_for_every_row():

@@ -38,7 +38,7 @@ FOUR_LINE_PROBE = (
 
 
 def test_strict_two_line_form():
-    r = parse_two_line(TWO_LINE)
+    r = parse_two_line(TWO_LINE, "v1")
     assert r.action == "移動" and r.action_code == 0
     assert r.reason == "予定の時間になったから"
     assert r.comment == "少し急ごう"
@@ -47,14 +47,14 @@ def test_strict_two_line_form():
 
 
 def test_four_line_probe_form_is_accepted_and_行き先_maps_to_対象():
-    r = parse_two_line(FOUR_LINE_PROBE)
+    r = parse_two_line(FOUR_LINE_PROBE, "v1")
     assert r.action == "通報" and r.format_ok
     assert r.labels["対象"] == NO_TARGET and r.target.is_none
     assert not r.strict_two_line  # 4行なので「厳密2行」ではない(指標は別)
 
 
 def test_labels_packed_into_one_line_are_split():
-    r = parse_two_line("理由: 腹が減った 行動: 購入 対象: おにぎり ひと言: いただきます")
+    r = parse_two_line("理由: 腹が減った 行動: 購入 対象: おにぎり ひと言: いただきます", "v1")
     assert r.action == "購入" and r.format_ok
     assert r.reason == "腹が減った"
     assert r.target.kind is TargetKind.ITEM_CATEGORY and r.target.category == "おにぎり"
@@ -67,60 +67,60 @@ def test_fenced_and_bulleted_and_bold_output():
         "* 行動: 休憩 対象: なし ひと言: ひと休み\n"
         "```"
     )
-    r = parse_two_line(text)
+    r = parse_two_line(text, "v1")
     assert r.action == "休憩" and r.format_ok and r.reason == "疲れた"
 
 
 def test_full_width_colon_and_brackets():
-    r = parse_two_line("【理由】:眠い\n[行動]:就寝 [対象]:C-3 [ひと言]:おやすみ")
+    r = parse_two_line("【理由】:眠い\n[行動]:就寝 [対象]:C-3 [ひと言]:おやすみ", "v1")
     assert r.action == "就寝" and r.target.cell_index == 3 and r.format_ok
 
 
 def test_think_block_is_stripped():
-    r = parse_two_line("<think>まず移動を考える…</think>\n理由: 腹が減った\n行動: 購入 対象: パン ひと言: なし")
+    r = parse_two_line("<think>まず移動を考える…</think>\n理由: 腹が減った\n行動: 購入 対象: パン ひと言: なし", "v1")
     assert r.action == "購入" and r.format_ok
 
 
 def test_particles_after_the_action_word():
     for tail in ("する", "します", "した", "しよう", "。"):
-        r = parse_two_line(f"理由: 用事がある\n行動: 移動{tail} 対象: C-1 ひと言: なし")
+        r = parse_two_line(f"理由: 用事がある\n行動: 移動{tail} 対象: C-1 ひと言: なし", "v1")
         assert r.action == "移動", tail
 
 
 def test_first_vocabulary_word_in_the_action_field_wins():
-    r = parse_two_line("理由: 迷う\n行動: 会話してから移動 対象: P-2 ひと言: なし")
+    r = parse_two_line("理由: 迷う\n行動: 会話してから移動 対象: P-2 ひと言: なし", "v1")
     assert r.action == "会話"
 
 
 def test_role_word_is_recognised_and_flagged():
-    r = parse_two_line("理由: 行列ができた\n行動: 接客 対象: P-9 ひと言: いらっしゃいませ")
+    r = parse_two_line("理由: 行列ができた\n行動: 接客 対象: P-9 ひと言: いらっしゃいませ", "v1")
     assert r.action == "接客" and r.is_role_action and r.action_code == 12 and r.format_ok
 
 
 def test_unknown_action_word_is_not_guessed_when_the_label_exists():
     """行動ラベルがあるのに語彙外なら**拾わない**(=§7 段0 の辞書写像へ回す)。"""
-    r = parse_two_line("理由: 腹が減った\n行動: 買う 対象: おにぎり ひと言: なし")
+    r = parse_two_line("理由: 腹が減った\n行動: 買う 対象: おにぎり ひと言: なし", "v1")
     assert r.action is None and r.action_code == UNDEFINED_ACTION
     assert r.raw_action == "買う"
     assert "unknown_action_word" in r.errors and not r.format_ok
 
 
 def test_missing_action_label_falls_back_to_free_text():
-    r = parse_two_line("理由: 眠い\nとりあえず休憩することにする")
+    r = parse_two_line("理由: 眠い\nとりあえず休憩することにする", "v1")
     assert r.action == "休憩" and r.action_from_free_text
     assert not r.format_ok  # 書式順守ではない
 
 
 def test_free_text_fallback_does_not_read_the_reason_field():
     """理由欄の中の語は拾わない(ラベル済みの範囲は走査対象外)。"""
-    r = parse_two_line("理由: 移動したい気分だ\n対象: C-1\nひと言: なし")
+    r = parse_two_line("理由: 移動したい気分だ\n対象: C-1\nひと言: なし", "v1")
     assert r.action is None
 
 
 def test_truncation_is_a_flag_not_a_failure():
     long_reason = "あ" * 60
     long_comment = "い" * 30
-    r = parse_two_line(f"理由: {long_reason}\n行動: 待機 対象: なし ひと言: {long_comment}")
+    r = parse_two_line(f"理由: {long_reason}\n行動: 待機 対象: なし ひと言: {long_comment}", "v1")
     assert r.action == "待機" and r.format_ok
     assert len(r.reason) == 40 and len(r.comment) == 20
     assert r.reason_truncated and r.comment_truncated
@@ -128,7 +128,7 @@ def test_truncation_is_a_flag_not_a_failure():
 
 
 def test_duplicate_labels_keep_the_first_value():
-    r = parse_two_line("理由: 一つ目\n理由: 二つ目\n行動: 待機 対象: なし ひと言: なし")
+    r = parse_two_line("理由: 一つ目\n理由: 二つ目\n行動: 待機 対象: なし ひと言: なし", "v1")
     assert r.reason == "一つ目"
 
 
@@ -137,13 +137,13 @@ def test_duplicate_labels_keep_the_first_value():
     ["", "   ", "\n\n", None, "```\n```", "{\"action\": \"移動\"}", "🙂🙂🙂"],
 )
 def test_degenerate_inputs_never_raise(text):
-    r = parse_two_line(text)
+    r = parse_two_line(text, "v1")
     assert r is not None and isinstance(r.errors, tuple)
 
 
 def test_find_action_word_prefers_the_earliest_then_longest():
-    assert find_action_word("まず移動して会話する") == "移動"
-    assert find_action_word("なにもない") is None
+    assert find_action_word("まず移動して会話する", "v1") == "移動"
+    assert find_action_word("なにもない", "v1") is None
 
 
 # ---------------------------------------------------------------- C6 パーサ許容(2026-09-09)
@@ -155,7 +155,7 @@ SMOKE_観察 = "理由: 深夜営業時間外の飲食店を確認  \n行動: �
 
 
 def test_c6_smoke_目的地_is_read_as_対象():
-    r = parse_two_line(SMOKE_目的地)
+    r = parse_two_line(SMOKE_目的地, "v1")
     assert r.action == "乗車" and r.ok and r.format_ok
     assert r.target.kind is TargetKind.ITEM_CATEGORY and r.target.category == "飲食店"
     assert r.reason == "飲食店が近くにあるため"  # 行末の空白を吸収
@@ -166,7 +166,7 @@ def test_c6_smoke_目的地_is_read_as_対象():
 
 
 def test_c6_smoke_目的_is_read_as_対象():
-    r = parse_two_line(SMOKE_目的)
+    r = parse_two_line(SMOKE_目的, "v1")
     assert r.action == "移動" and r.format_ok and not r.strict_format_ok
     assert r.target.category == "飲食店" and r.alias_surfaces == ("目的",)
     assert r.reason == "飲食店を探すため"
@@ -174,7 +174,7 @@ def test_c6_smoke_目的_is_read_as_対象():
 
 def test_c6_smoke_観察_is_a_vocabulary_problem_not_a_label_problem():
     """3例目はラベルは正しく**行動語だけが語彙外**=書式は落ちたまま §7 段0 へ回る。"""
-    r = parse_two_line(SMOKE_観察)
+    r = parse_two_line(SMOKE_観察, "v1")
     assert r.action is None and r.action_code == UNDEFINED_ACTION
     assert r.raw_action == "観察" and "unknown_action_word" in r.errors
     assert not r.alias_used and not r.format_ok and not r.strict_format_ok
@@ -183,7 +183,7 @@ def test_c6_smoke_観察_is_a_vocabulary_problem_not_a_label_problem():
 
 def test_c6_dictionary_mapping_is_carried_on_the_parse_result():
     """段0 の写像は ``undefined`` の仕事。パーサは**結果を載せる口**だけ持つ。"""
-    r = parse_two_line(SMOKE_観察).with_dictionary_mapping("待機")
+    r = parse_two_line(SMOKE_観察, "v1").with_dictionary_mapping("待機")
     assert r.action == "待機" and r.action_code == 4 and r.dictionary_mapped
     assert r.raw_action == "観察"
     # 生の応答の記述(書式・errors)は書き換えない
@@ -192,7 +192,7 @@ def test_c6_dictionary_mapping_is_carried_on_the_parse_result():
 
 
 def test_c6_dictionary_mapping_keeps_role_word_flag():
-    r = parse_two_line(SMOKE_観察).with_dictionary_mapping("接客")
+    r = parse_two_line(SMOKE_観察, "v1").with_dictionary_mapping("接客")
     assert r.action == "接客" and r.is_role_action and r.action_code == 12
 
 
@@ -205,7 +205,7 @@ def test_c6_every_new_alias_is_accepted_and_flagged(surface, canonical):
     fields.pop(canonical)
     body = " ".join(f"{k}: {v}" for k, v in fields.items())
     text = f"{body} {surface}: {'待機' if canonical == '行動' else 'ううう'}"
-    r = parse_two_line(text)
+    r = parse_two_line(text, "v1")
     assert canonical in r.labels
     assert r.format_ok and not r.strict_format_ok
     assert r.alias_used and surface in r.alias_surfaces
@@ -213,26 +213,26 @@ def test_c6_every_new_alias_is_accepted_and_flagged(surface, canonical):
 
 def test_v0_aliases_stay_inside_the_old_acceptance_metric():
     """``行き先``/``一言`` は C6 以前からの別名=``strict_format_ok`` は**真のまま**。"""
-    r = parse_two_line("理由: 眠い\n行動: 就寝 行き先: C-3 一言: おやすみ")
+    r = parse_two_line("理由: 眠い\n行動: 就寝 行き先: C-3 一言: おやすみ", "v1")
     assert r.format_ok and r.strict_format_ok
     assert r.alias_used and r.alias_surfaces == ("行き先", "一言")
 
 
 def test_canonical_labels_are_not_counted_as_aliases():
-    r = parse_two_line(TWO_LINE)
+    r = parse_two_line(TWO_LINE, "v1")
     assert not r.alias_used and r.alias_surfaces == ()
     assert r.format_ok and r.strict_format_ok
 
 
 def test_c6_full_width_colon_and_full_width_space_with_aliases():
-    r = parse_two_line("理由：眠い\n行動：就寝　場所：C-3　コメント：おやすみ")
+    r = parse_two_line("理由：眠い\n行動：就寝　場所：C-3　コメント：おやすみ", "v1")
     assert r.action == "就寝" and r.target.cell_index == 3 and r.comment == "おやすみ"
     assert r.format_ok and not r.strict_format_ok
     assert r.alias_surfaces == ("場所", "コメント")
 
 
 def test_c6_spaces_around_the_label_are_absorbed():
-    r = parse_two_line("理由 :  眠い\n行動  :  就寝  目的地 : C-3   ひと言 :  おやすみ  ")
+    r = parse_two_line("理由 :  眠い\n行動  :  就寝  目的地 : C-3   ひと言 :  おやすみ  ", "v1")
     assert r.action == "就寝" and r.target.cell_index == 3
     assert r.reason == "眠い" and r.comment == "おやすみ" and r.format_ok
 
@@ -241,18 +241,18 @@ def test_c6_escaped_newline_is_read_as_a_line_break():
     """テープに ``ため  \\n行動:`` の形(literal backslash-n)で残った応答も読む。"""
     text = "理由: 飲食店が近くにあるため  \\n行動: 乗車 目的地: 飲食店 ひと言: なし"
     assert "\n" not in text  # 実改行は無い
-    r = parse_two_line(text)
+    r = parse_two_line(text, "v1")
     assert r.action == "乗車" and r.format_ok
     assert r.reason == "飲食店が近くにあるため"
 
 
 def test_c6_trailing_escaped_newline_inside_a_value_is_dropped():
-    r = parse_two_line("理由: あああ\\n\n行動: 待機 対象: なし ひと言: なし")
+    r = parse_two_line("理由: あああ\\n\n行動: 待機 対象: なし ひと言: なし", "v1")
     assert r.reason == "あああ" and r.action == "待機" and r.format_ok
 
 
 def test_c6_first_occurrence_wins_when_both_対象_and_目的地_appear():
-    r = parse_two_line("理由: あああ\n行動: 移動 対象: C-1 目的地: C-2 ひと言: なし")
+    r = parse_two_line("理由: あああ\n行動: 移動 対象: C-1 目的地: C-2 ひと言: なし", "v1")
     assert r.labels["対象"] == "C-1" and r.target.cell_index == 1
 
 
@@ -260,7 +260,7 @@ def test_c6_first_occurrence_wins_when_both_対象_and_目的地_appear():
 # `--fleet-debug-dir` 60tick/2,083呼の失敗 531 の内訳: missing_label:対象 226・対象+ひと言 78・
 # ひと言 6 = **ラベルを省いて値だけを契約の順序で並べた**形。欄順は §1 で固定なので位置で読む。
 def test_c6_positional_both_values_after_the_action_word():
-    r = parse_two_line("理由: 予定の時間\n行動: 移動 なし なし")
+    r = parse_two_line("理由: 予定の時間\n行動: 移動 なし なし", "v1")
     assert r.action == "移動" and r.ok and r.format_ok
     assert r.target.is_none and r.comment == NO_TARGET
     assert r.positional_used and not r.strict_format_ok
@@ -271,7 +271,7 @@ def test_c6_positional_both_values_after_the_action_word():
 
 
 def test_c6_positional_only_対象_is_missing():
-    r = parse_two_line("理由: 予定の時間\n行動: 待機 なし ひと言: なし")
+    r = parse_two_line("理由: 予定の時間\n行動: 待機 なし ひと言: なし", "v1")
     assert r.action == "待機" and r.format_ok and not r.strict_format_ok
     assert r.target.is_none and r.comment == NO_TARGET
     assert r.positional_used and r.errors.count("positional:対象") == 1
@@ -279,7 +279,7 @@ def test_c6_positional_only_対象_is_missing():
 
 
 def test_c6_positional_without_a_second_value_defaults_ひと言_to_なし():
-    r = parse_two_line("理由: 腹が減った\n行動: 購入 物のカテゴリ")
+    r = parse_two_line("理由: 腹が減った\n行動: 購入 物のカテゴリ", "v1")
     assert r.action == "購入" and r.format_ok and not r.strict_format_ok
     # 第223(D-89): 「物のカテゴリ」はテンプレートの欄説明語=対象なしとして読む(raw は残る)。
     assert r.target.kind is TargetKind.NONE and r.target.raw == "物のカテゴリ"
@@ -287,7 +287,7 @@ def test_c6_positional_without_a_second_value_defaults_ひと言_to_なし():
 
 
 def test_c6_positional_ひと言_pushed_into_the_対象_field():
-    r = parse_two_line("理由: 予定の時間\n行動: 待機 対象: なし なし")
+    r = parse_two_line("理由: 予定の時間\n行動: 待機 対象: なし なし", "v1")
     assert r.action == "待機" and r.format_ok and not r.strict_format_ok
     assert r.target.is_none and r.comment == NO_TARGET
     assert r.positional_used and "positional:ひと言" in r.errors
@@ -295,7 +295,7 @@ def test_c6_positional_ひと言_pushed_into_the_対象_field():
 
 def test_c6_positional_ひと言_keeps_its_spaces():
     """対象は1トークン・ひと言は**残り全部**(自由文なので落とさない)。"""
-    r = parse_two_line("理由: 話したい\n行動: 会話 P-204 こんにちは 元気ですか")
+    r = parse_two_line("理由: 話したい\n行動: 会話 P-204 こんにちは 元気ですか", "v1")
     assert r.action == "会話" and r.format_ok
     assert r.target.kind is TargetKind.PERSON and r.target.person_id == 204
     assert r.comment == "こんにちは 元気ですか"
@@ -303,13 +303,13 @@ def test_c6_positional_ひと言_keeps_its_spaces():
 
 def test_c6_positional_values_are_free_text_and_are_not_rejected():
     """対象/ひと言は自由文=意味不明でも落とさない(切り詰め規則は従来どおり)。"""
-    r = parse_two_line(f"理由: あああ\n行動: 待機 ???? {'い' * 30}")
+    r = parse_two_line(f"理由: あああ\n行動: 待機 ???? {'い' * 30}", "v1")
     assert r.action == "待機" and r.format_ok
     assert r.target.raw == "????" and len(r.comment) == 20 and r.comment_truncated
 
 
 def test_c6_positional_with_a_label_alias_in_the_same_line():
-    r = parse_two_line("理由: あああ\n行動: 移動 目的: C-1 なし")
+    r = parse_two_line("理由: あああ\n行動: 移動 目的: C-1 なし", "v1")
     assert r.action == "移動" and r.format_ok and not r.strict_format_ok
     assert r.target.cell_index == 1 and r.comment == NO_TARGET
     assert r.alias_used and r.positional_used
@@ -318,19 +318,19 @@ def test_c6_positional_with_a_label_alias_in_the_same_line():
 
 def test_c6_positional_does_not_fire_when_the_action_word_is_not_the_first_token():
     """「行動: すぐに 移動 なし」型は位置で読める形ではない=触らない(誤読の予防)。"""
-    r = parse_two_line("理由: 眠い\n行動: すぐに 移動 なし")
+    r = parse_two_line("理由: 眠い\n行動: すぐに 移動 なし", "v1")
     assert r.action == "移動" and not r.positional_used
     assert not r.format_ok and "missing_label:対象" in r.errors
     assert r.raw_action == "すぐに 移動 なし"
 
 
 def test_c6_positional_does_not_fire_without_a_spare_token():
-    r = parse_two_line("理由: 眠い\n行動: 就寝 ひと言: おやすみ")
+    r = parse_two_line("理由: 眠い\n行動: 就寝 ひと言: おやすみ", "v1")
     assert not r.positional_used and not r.format_ok
 
 
 def test_c6_positional_with_an_unknown_action_word_still_recovers_the_slots():
-    r = parse_two_line("理由: 気分\n行動: 探索 飲食店 みつけたい")
+    r = parse_two_line("理由: 気分\n行動: 探索 飲食店 みつけたい", "v1")
     assert r.action is None and r.raw_action == "探索"
     assert r.positional_used and r.target.category == "飲食店" and r.comment == "みつけたい"
     assert not r.format_ok, "語彙外は書式順守にしない(親決定 09-09)"
@@ -343,32 +343,32 @@ def test_c6_positional_with_an_unknown_action_word_still_recovers_the_slots():
     [("探索", "移動"), ("通勤", "移動"), ("観察", "待機"), ("調査", "待機"), ("ジャンプ", None)],
 )
 def test_c6_dictionary_candidate_is_reported_at_the_first_judgement(word, candidate):
-    r = parse_two_line(f"理由: あああ\n行動: {word} 対象: なし ひと言: なし")
+    r = parse_two_line(f"理由: あああ\n行動: {word} 対象: なし ひと言: なし", "v1")
     assert r.action is None and r.dictionary_candidate == candidate
     assert not r.format_ok and not r.dictionary_mapped
 
 
 def test_c6_dictionary_candidate_is_empty_when_the_word_is_in_the_vocabulary():
-    r = parse_two_line(TWO_LINE)
+    r = parse_two_line(TWO_LINE, "v1")
     assert r.action == "移動" and r.dictionary_candidate is None
 
 
 # ---- 陰性(別名の許容が「何でも通す」に変わっていないこと) ----
 def test_c6_a_missing_label_is_still_a_format_error():
-    r = parse_two_line("理由: 眠い\n行動: 就寝 ひと言: おやすみ")
+    r = parse_two_line("理由: 眠い\n行動: 就寝 ひと言: おやすみ", "v1")
     assert not r.format_ok and not r.strict_format_ok
     assert "missing_label:対象" in r.errors and not r.alias_used
 
 
 def test_c6_three_lines_with_free_prose_is_still_a_format_error():
-    r = parse_two_line("理由: 眠い\n行動: 就寝\nおやすみなさい")
+    r = parse_two_line("理由: 眠い\n行動: 就寝\nおやすみなさい", "v1")
     assert not r.format_ok and not r.strict_format_ok
     assert {"missing_label:対象", "missing_label:ひと言"} <= set(r.errors)
 
 
 def test_c6_out_of_vocabulary_and_out_of_dictionary_word_stays_undefined():
     """語彙外かつ辞書外は**拾わない**(=§7 段1 へ。段0 の表は undefined 側のテスト)。"""
-    r = parse_two_line("理由: 気分だ\n行動: ジャンプ 目的地: C-1 ひと言: なし")
+    r = parse_two_line("理由: 気分だ\n行動: ジャンプ 目的地: C-1 ひと言: なし", "v1")
     assert r.action is None and r.raw_action == "ジャンプ"
     assert not r.format_ok and "unknown_action_word" in r.errors
     assert r.alias_used  # ラベル別名は効いているが、それだけでは ok にならない
@@ -391,7 +391,7 @@ _TARGETS = st.sampled_from(["なし", "C-0117", "g12_34_GL", "P-204", "204", "�
 @settings(max_examples=300, suppress_health_check=[HealthCheck.too_slow])
 @given(st.text())
 def test_random_junk_never_raises(text):
-    r = parse_two_line(text)
+    r = parse_two_line(text, "v1")
     assert isinstance(r.errors, tuple)
     assert r.action is None or r.action in ALL_ACTION_WORDS
 
@@ -405,7 +405,7 @@ def test_random_junk_never_raises(text):
 )
 def test_well_formed_output_round_trips_through_format_two_line(reason, action, target, comment):
     text = format_two_line(reason, action, target, comment)
-    r = parse_two_line(text)
+    r = parse_two_line(text, "v1")
     assert r.format_ok and r.action == action
     assert r.reason == reason and r.comment == comment
     if target == NO_TARGET:
@@ -437,7 +437,7 @@ def test_label_order_and_alias_choice_do_not_change_the_reading(
     value = {"理由": "あああ", "行動": action, "対象": target, "ひと言": "いいい"}
     parts = [f"{surface[c]}: {value[c]}" for c in order]
     text = " ".join(parts) if packed else "\n".join(parts)
-    r = parse_two_line(text)
+    r = parse_two_line(text, "v1")
     assert r.action == action
     assert r.reason == "あああ" and r.comment == "いいい"
     assert r.format_ok and r.ok
@@ -452,7 +452,7 @@ def test_label_order_and_alias_choice_do_not_change_the_reading(
 # 顕著な出来事の台帳 §2 ⑥: 別名表に無いラベル(「目標:」32,736 呼・「カテゴリ:」1,984 …)を
 # `_fill_positional` が対象の値として読み、format_ok は True のままだった(親再現)。
 def test_d113_目標_is_read_as_対象_not_as_a_value():
-    r = parse_two_line("理由: 空腹で行動を決定する\n行動: 移動 目標: 飲食店 ひと言: 何か食べたいな")
+    r = parse_two_line("理由: 空腹で行動を決定する\n行動: 移動 目標: 飲食店 ひと言: 何か食べたいな", "v1")
     assert r.action == "移動" and r.format_ok and not r.strict_format_ok
     assert r.target.category == "飲食店" and r.target.raw == "飲食店"
     assert r.comment == "何か食べたいな"
@@ -461,7 +461,7 @@ def test_d113_目標_is_read_as_対象_not_as_a_value():
 
 @pytest.mark.parametrize("surface", sorted(LABEL_ALIASES_D113))
 def test_d113_every_tape_surface_maps_to_対象(surface):
-    r = parse_two_line(f"理由: あ\n行動: 購入 {surface}: 飲食店 ひと言: なし")
+    r = parse_two_line(f"理由: あ\n行動: 購入 {surface}: 飲食店 ひと言: なし", "v1")
     assert LABEL_ALIASES_D113[surface] == "対象"
     assert r.action == "購入" and r.target.raw == "飲食店" and r.format_ok
     assert not r.strict_format_ok, "受入指標(V0)の分母は動かさない"
@@ -469,27 +469,27 @@ def test_d113_every_tape_surface_maps_to_対象(surface):
 
 def test_d113_unknown_label_token_is_skipped_and_recorded():
     """別名表に無い「語+コロン」は値ではない: 読み飛ばして診断に残し、次のトークンを対象に。"""
-    r = parse_two_line("理由: あ\n行動: 移動 目安: C-1 ひと言: なし")
+    r = parse_two_line("理由: あ\n行動: 移動 目安: C-1 ひと言: なし", "v1")
     assert r.action == "移動" and r.target.cell_index == 1 and r.target.raw == "C-1"
     assert r.positional_used and "positional:対象" in r.errors
     assert "unknown_label:目安" in r.errors and r.format_ok and not r.strict_format_ok
 
 
 def test_d113_unknown_label_without_a_value_is_a_missing_field():
-    r = parse_two_line("理由: あ\n行動: 移動 目安: ひと言: なし")
+    r = parse_two_line("理由: あ\n行動: 移動 目安: ひと言: なし", "v1")
     assert r.action == "移動" and not r.format_ok
     assert not r.positional_used and "unknown_label:目安" in r.errors
     assert "missing_label:対象" in r.errors and r.target.raw != "目安:"
 
 
 def test_d113_unknown_label_before_both_positional_values():
-    r = parse_two_line("理由: あ\n行動: 会話 その他: P-204 こんにちは")
+    r = parse_two_line("理由: あ\n行動: 会話 その他: P-204 こんにちは", "v1")
     assert r.action == "会話" and r.target.person_id == 204 and r.comment == "こんにちは"
     assert {"positional:対象", "positional:ひと言", "unknown_label:その他"} <= set(r.errors)
 
 
 def test_d113_positional_behaviour_without_unknown_labels_is_unchanged():
-    r = parse_two_line("理由: 予定の時間\n行動: 移動 なし なし")
+    r = parse_two_line("理由: 予定の時間\n行動: 移動 なし なし", "v1")
     assert r.positional_used and r.target.is_none and r.comment == NO_TARGET
     assert not any(e.startswith("unknown_label:") for e in r.errors)
 
@@ -628,7 +628,7 @@ def test_v3_wander_target_and_base_word_hints():
     for word, hint in (("自宅", "home"), ("職場", "work"), ("学校", "school")):
         r = parse_two_line(f"理由: 帰る\n行動: 移動 対象: {word} 活動: なし まで: 到着", "v3")
         assert r.target_hint == hint and not r.target.wander
-    v1 = parse_two_line("理由: 帰る\n行動: 移動 対象: 自宅 ひと言: なし")
+    v1 = parse_two_line("理由: 帰る\n行動: 移動 対象: 自宅 ひと言: なし", "v1")
     assert v1.target_hint == "" and not v1.target.wander, "v1 は現行のまま"
 
 
@@ -637,7 +637,7 @@ def test_v3_removed_words_are_unknown_and_the_dictionary_offers_none(word):
     r = parse_two_line(f"理由: 休む\n行動: {word} 対象: なし 活動: 休む まで: 30分", "v3")
     assert r.action is None and r.action_code == UNDEFINED_ACTION and not r.format_ok
     assert "unknown_action_word" in r.errors and r.dictionary_candidate == "なし"
-    v1 = parse_two_line(f"理由: 休む\n行動: {word} 対象: なし ひと言: なし")
+    v1 = parse_two_line(f"理由: 休む\n行動: {word} 対象: なし ひと言: なし", "v1")
     assert v1.action == word, "v1 は現行のまま"
 
 
@@ -648,7 +648,7 @@ def test_v3_none_and_queue_are_vocabulary_words():
     assert r.action == "なし" and r.action_code == NONE_ACTION_CODE
     r = parse_two_line("理由: 仕事\n行動: 接客 対象: なし 活動: 仕事 まで: 次の予定", "v3")
     assert r.is_role_action
-    assert parse_two_line("理由: 並ぶ\n行動: 並ぶ 対象: なし ひと言: なし").is_role_action, "v1 は役割語"
+    assert parse_two_line("理由: 並ぶ\n行動: 並ぶ 対象: なし ひと言: なし", "v1").is_role_action, "v1 は役割語"
 
 
 def test_v3_activity_is_truncated_not_rejected():
@@ -673,7 +673,7 @@ def test_v3_dictionary_mapping_uses_the_v3_role_set():
 
 
 def test_v1_results_carry_empty_v3_fields():
-    r = parse_two_line(TWO_LINE)
+    r = parse_two_line(TWO_LINE, "v1")
     assert (r.activity, r.until, r.raw_activity, r.raw_until, r.target_hint) == ("", None, "", "", "")
     assert not r.activity_truncated and not r.target.wander
     assert parse_two_line(TWO_LINE, "v2").until is None

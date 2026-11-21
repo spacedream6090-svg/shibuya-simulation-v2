@@ -35,7 +35,7 @@ adjudicate — 未定義行動台帳 → 契約行の草案(段2)+静的検査(�
   - `--threshold-agents`: 被覆の下限 N(体数・既定 10)。未満は保持のみ
   - `--top-k`: 報告に載せる上位語数
   - `registry`: 未定義台帳 JSON(複数可・合算する)
-- 決定の ID: D-71
+- 決定の ID: D-71・第 348
 
 ## [registry_from_tape.py](../../../../../../tools/vocab/registry_from_tape.py)
 

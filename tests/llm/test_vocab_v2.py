@@ -67,7 +67,7 @@ def test_eat_is_unknown_in_v1():
     assert ACTION_WORD_EAT not in ALL_ACTION_WORDS
     assert action_code_of(ACTION_WORD_EAT) == -2
     assert spec_of(ACTION_WORD_EAT) is None
-    assert find_action_word("食事する") is None
+    assert find_action_word("食事する", "v1") is None
 
 
 # ------------------------------------------------------------------ (ii) v2 の語とコード
@@ -174,7 +174,7 @@ def test_compat_targets_are_words_of_the_old_vocabulary():
 # ------------------------------------------------------------------ パーサの版切替
 def test_parser_reads_the_new_word_only_in_v2():
     text = "理由: 腹が減った\n行動: 食事 対象: 定食屋0007 ひと言: なし"
-    v1 = parse_two_line(text)
+    v1 = parse_two_line(text, "v1")
     assert v1.action is None and not v1.format_ok
     v2 = parse_two_line(text, "v2")
     assert v2.action == ACTION_WORD_EAT and v2.action_code == 24 and v2.format_ok
@@ -184,6 +184,6 @@ def test_parser_reads_the_new_word_only_in_v2():
 def test_parser_v1_results_are_unchanged_for_every_v1_word():
     for word in ALL_ACTION_WORDS:
         text = f"理由: 理由の文\n行動: {word} 対象: なし ひと言: なし"
-        a = parse_two_line(text)
+        a = parse_two_line(text, "v1")
         b = parse_two_line(text, "v2")
         assert (a.action, a.action_code, a.format_ok) == (b.action, b.action_code, b.format_ok)

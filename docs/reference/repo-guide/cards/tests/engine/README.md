@@ -680,7 +680,7 @@ C6-a 結線の検収テスト(``run_day(fleet=…)``・**プロセス内の偽 v
   - `test_tape_analysis_reads_a_fleet_tape`(関数): (2) テープ解析スクリプトが艦隊テープを読めて、会話の切り分け欄を出す。
   - `test_timeout_defers_then_reinjects_and_is_finally_answered`(関数): タイムアウト注入 → 繰り延べ → 次 tick 再投入(不応期免除)→ 最終的に処理される。
 - import している内部モジュール: `shibuya.foundation.hashing`・`shibuya.foundation.manifest.schema`・`shibuya.foundation.ports.inference`・`shibuya.foundation.time_consts`・`shibuya.foundation.vocab.agent_codes`・`shibuya.interfaces.cli.run_args`・`shibuya.mind.ops`・`shibuya.runtime.inference.fleet`・`shibuya.runtime.inference.tape`・`shibuya.runtime.run`・`shibuya.runtime.systems.assemble`・`shibuya.world.model.agent_table`・`shibuya.world.model.state`・`tests/engine/tape_analysis.py`・`tests/engine/time/__init__.py`・`tests/llm/test_fleet.py`
-- 読む試験: `tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/time/test_v30a_key_sites.py`
+- 読む試験: `tests/engine/test_response_delay.py`・`tests/engine/test_resume_10d.py`・`tests/engine/time/test_v30a_key_sites.py`・`tests/llm/test_fleet_run_vocab_348.py`
 - CLI の引数
   - `--seed`
 - 決定の ID: 11-03・11-03/§3・D-56・D-58・第 214・第 347
